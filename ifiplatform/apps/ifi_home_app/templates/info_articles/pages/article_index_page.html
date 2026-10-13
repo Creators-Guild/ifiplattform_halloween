@@ -1,0 +1,109 @@
+{% extends "home_base.html" %}
+{% load i18n l10n static wagtailcore_tags wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block section_css %}
+    {% include "css_links/category.html" %}
+{% endblock section_css %}
+
+{% block page_css %}
+    {% if can_edit_style %}
+        {% include "css_links/article_editor.html" %}
+    {% endif %}
+{% endblock page_css %}
+
+{% block sidemenu %}
+    {% include "partials/sidemenu/sidemenu.html" %}
+{% endblock sidemenu %}
+
+{% block maincontent %}
+    <a class="back-to breadcrumbs" href="{% url 'ifi_home' %}"><span aria-hidden="true">←</span> {% trans "Back to Homepage" %}</a>
+    {% if can_edit_style %}
+        {% include "info_articles/partials/article_editor_mode_toggle.html" %}
+        {% include "info_articles/partials/banner_style_panel.html" %}
+        {% include "info_articles/partials/article_unsaved_changes_modal.html" %}
+        {% include "info_articles/partials/article_save_bar.html" %}
+    {% endif %}
+    {% include "info_articles/partials/translation_nudge.html" %}
+    <div class="article-index-page">
+    {% include "info_articles/partials/page_title_banner.html" %}
+
+    {% if needs_translation %}
+        <div class="article-meta">
+            {% include "info_articles/partials/translation_warning.html" %}
+        </div>
+    {% endif %}
+
+    <div class="intro">{{ page.intro|richtext }}</div>
+    {% if page.general_info %}<div class="general-info">{{ page.general_info|richtext }}</div>{% endif %}
+
+    <h2 class="section-heading">{% trans "Categories" %}</h2>
+    <div class="category-grid">
+        {% for category in main_categories %}
+            <a class="category-card" href="{% pageurl category %}" style="--accent-color: var(--color-{{ category.color }})">
+                <h2>{{ category.title }}</h2>
+            </a>
+        {% endfor %}
+        {% for union_category in union_categories %}
+            <a class="category-card" href="{% pageurl union_category %}" style="--accent-color: var(--color-purple)">
+                <h2>{{ union_category.title }}</h2>
+            </a>
+        {% endfor %}
+    </div>
+
+    {% if seasonal_categories %}
+        <h2 class="section-heading">{% trans "Happening now" %}</h2>
+        <div class="category-grid category-grid--seasonal">
+            {% for category in seasonal_categories %}
+                <a class="category-card category-card--seasonal" href="{% pageurl category %}" style="--accent-color: var(--color-{{ category.color }})">
+                    <span class="category-badge">{% trans "Limited time" %}</span>
+                    <h2>{{ category.title }}</h2>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <hr class="section-divider">
+
+    {% if suggested_articles %}
+        <h2 class="section-heading">{% trans "Suggested Articles" %}</h2>
+        <div class="newsbar-layout">
+            {% for article in suggested_articles %}
+                {% include "info_articles/partials/article_card.html" with article=article %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if tools %}
+        <h2 class="section-heading">{% trans "Tools" %}</h2>
+        <div class="tool-grid">
+            {% for tool in tools %}
+                <a class="tool-card" href="{% pageurl tool %}">
+                    {% if tool.image %}
+                        {% image tool.image fill-512x288 as tool_thumb %}
+                        <img class="tool-card-image" src="{{ tool_thumb.url }}" alt="{{ tool.title }}">
+                    {% endif %}
+                    <div class="tool-card-body">
+                        <h3>{{ tool.title }}</h3>
+                        {% if tool.made_by %}
+                            <span class="tool-card-maker">{% trans "By" %} {{ tool.made_by }}</span>
+                        {% endif %}
+                        {% if tool.link %}
+                            <span class="tool-card-link-hint">{% trans "Open tool" %} ↗</span>
+                        {% endif %}
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+    </div>
+    {% if page.banner_style.show_banner or can_edit_style %}
+        <script src="{% static 'js/title_banner.js' %}" defer></script>
+    {% endif %}
+    {% if can_edit_style %}
+        <script src="{% static 'js/article_unsaved_changes.js' %}" defer></script>
+        <script src="{% static 'js/article_editor_mode.js' %}" defer></script>
+        <script src="{% static 'js/banner_style.js' %}" defer></script>
+    {% endif %}
+{% endblock maincontent %}

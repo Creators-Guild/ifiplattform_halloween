@@ -1,0 +1,192 @@
+/* Design rationale: docs/claude_context/header.md */
+.header-bar {
+  background: var(--color-bg-dark);
+  padding: 2px 2rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ifiplatform-logo-box {
+  flex: 1 1 0;
+  margin-left: 20px;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ifiplatform-logo-box h1 {
+  margin: 0;
+  white-space: nowrap;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.ifiplatform-logo {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--color-accent);
+  transition: color 0.15s ease, transform 0.05s ease;
+}
+
+.ifiplatform-logo:hover {
+  color: var(--color-accent-hover);
+  transform: translateY(-1px);
+}
+
+.header-message {
+  contain: inline-size;
+  max-width: 35rem;
+  margin-left: 40px;
+  font-size: 16px;
+  color: var(--color-accent-hover);
+  animation: header-message-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes header-message-pulse {
+  0%,
+  100% {
+    filter: saturate(80%);
+  }
+  50% {
+    filter: saturate(200%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-message {
+    animation: none;
+  }
+}
+
+.header-message p {
+  margin: 0;
+}
+
+.header-message b,
+.header-message strong {
+  color: var(--color-accent);
+}
+
+.header-message a {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--color-accent);
+  transition: color 0.15s ease, transform 0.05s ease;
+}
+
+.header-message a:hover {
+  color: var(--color-accent-hover);
+  transform: translateY(-1px);
+}
+
+.nav_links {
+  flex: 1 1 auto;
+  max-width: 40rem;
+  margin-left: auto;
+  padding-block: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nav_link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-secondary);
+  text-decoration: none;
+  font-size: 18px;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    transform 0.05s ease;
+}
+
+.nav_link.active {
+  font-size: 25px;
+  font-weight: bold;
+  color: var(--color-cta);
+}
+
+.nav_link:hover {
+  font-weight: bold;
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
+.nav_link-icon {
+  display: none;
+}
+
+.nav_link-icon svg {
+  display: block;
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+.nav_link-icon--page svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+@media (max-width: 45rem) {
+  .header-bar {
+    flex-wrap: wrap;
+    padding: 12px 0.75rem 0.35rem;
+    gap: 2px 0.75rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .ifiplatform-logo-box {
+    margin: 0;
+    padding: 0.75rem 0;
+    align-items: center;
+  }
+
+  .ifiplatform-logo-box h1 {
+    font-size: 24px;
+  }
+
+  .header-message {
+    contain: none;
+    margin-left: 0;
+    font-size: 11px;
+  }
+
+  .header-message p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .nav_links {
+    flex-basis: 100%;
+    max-width: none;
+    margin: 0.15rem 0 0;
+    justify-content: center;
+    gap: 3.5rem;
+  }
+
+  .nav_link {
+    font-size: 17px;
+  }
+
+  .nav_link.active {
+    font-size: 16px;
+  }
+
+  .nav_link-icon {
+    display: inline-flex;
+  }
+
+  .nav_link-label {
+    display: none;
+  }
+}

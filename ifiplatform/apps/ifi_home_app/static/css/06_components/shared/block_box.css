@@ -1,0 +1,5 @@
+/* Design rationale: docs/claude_context/shared_components.md */
+.block-box {
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+}

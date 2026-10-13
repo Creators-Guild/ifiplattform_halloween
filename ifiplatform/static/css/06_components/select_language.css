@@ -1,0 +1,106 @@
+/* Design rationale: docs/claude_context/header.md */
+.select-language {
+  width: 100%;
+  text-align: right;
+  background-color: var(--color-bg-dark);
+}
+
+.select-language {
+  display: block;
+  width: 100%;
+  text-align: right;
+}
+
+.select-language form {
+  display: inline;
+  margin: 0;
+}
+
+.lang-btn {
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  padding: 3px 8px;
+  margin-left: 6px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.lang-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-bg-dark);
+}
+
+.lang-btn.active {
+  background: var(--color-accent);
+  color: var(--color-bg-dark);
+  font-weight: bold;
+}
+
+@media (max-width: 45rem) {
+  .lang-btn {
+    padding: 2px 6px;
+    font-size: 14px;
+  }
+}
+
+.select-language-dropdown {
+  display: none;
+}
+
+@media (max-width: 45rem) {
+  .select-language {
+    position: absolute;
+    top: 4px;
+    right: 0.6rem;
+    width: auto;
+    z-index: 1;
+  }
+
+  .select-language-buttons {
+    display: none;
+  }
+
+  .select-language-dropdown {
+    display: inline-block;
+    text-align: right;
+  }
+
+  .lang-dropdown-trigger {
+    display: inline-block;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .lang-dropdown-trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .lang-dropdown-trigger::after {
+    content: "";
+    display: inline-block;
+    margin-left: 0.35em;
+    border: 0.45em solid transparent;
+    border-top-color: currentColor;
+    vertical-align: middle;
+    transition: transform 0.15s ease;
+  }
+
+  .select-language-dropdown[open] .lang-dropdown-trigger::after {
+    transform: rotate(180deg);
+  }
+
+  .lang-dropdown-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .lang-btn {
+    padding: 1px 5px;
+    margin-left: 4px;
+    font-size: 11px;
+  }
+}

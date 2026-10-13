@@ -1,0 +1,43 @@
+{% load l10n %}{% comment %}
+Inline CSS declarations for one block/column's box styling -- included into
+the middle of that element's own style="..." attribute. `box` is a
+_effective_box_style() dict (see article_models.py); `side_padding` is that
+block's own side-padding value. None for the title/meta/intro group's own
+box (see ArticlePage.get_context()'s "article-header" row) -- that group's
+side padding lives entirely in its own --header-side-padding CSS custom
+property (article_page.html/article_layout.css) instead of this generic
+mechanism, so None here means "leave margin-left/right alone, some other
+CSS already governs it" rather than "0". `keep_display`, when truthy, skips the
+"display: flow-root" declaration below -- for multi_column's own grid
+wrapper specifically, which needs to stay "display: flex" (set in
+article_multicolumn.css) for its columns to lay out side by side at all;
+"flow-root" would silently replace that outright (same property, same
+element) and collapse the columns into a single stacked one. Every other
+box-capable element is a plain block box to begin with, where flow-root is
+purely additive (float containment for anything floated inside it), so
+they don't need this.
+
+When the box is off, this only sets padding-left/right from the block's own
+side_padding (top/bottom stay at 0) -- same as before box styling existed:
+there's no visible border to offset, so indenting the block just means
+indenting its content directly. When the box is on, side_padding switches
+to margin-left/right instead -- padding would only add empty space *inside*
+the now-visible border, whereas the point of side_padding is to indent the
+block itself from the page's edges, so it needs to move the border along
+with it. box.padding takes over as the space between that border and the
+content on all four sides instead, and box.margin becomes the vertical
+(top/bottom) space outside the box -- side_padding is the horizontal
+counterpart to box.margin, not to box.padding. Text color is a separate
+concern entirely (see style.text_color, applied directly alongside
+font-size wherever this is included from) -- not part of this partial,
+since it applies independent of whether the box is on.
+
+box.shadow_offset/box.shadow_blur are pre-multiplied by the editor's own
+shadow_strength in _effective_box_style() (offset 2px/blur 8px at
+strength=1 -- the box's original, pre-shadow-being-editable fixed shadow
+shape), not raw px literals here. shadow_color blank means "use the
+theme's own --color-shadow token" (same blank-is-real-state convention as
+box_bg_color/box_border_color's own custom-color fallbacks below, just
+falling back to a CSS variable instead of a named swatch since there's no
+fixed swatch equivalent for it).
+{% endcomment %}{% if box.enabled %}padding: {{ box.padding|unlocalize }}rem; margin-top: {{ box.margin|unlocalize }}rem; margin-bottom: {{ box.margin|unlocalize }}rem;{% if side_padding is not None %} margin-left: {{ side_padding|unlocalize }}rem; margin-right: {{ side_padding|unlocalize }}rem;{% endif %} background-color: {% if box.bg_color == "custom" %}{{ box.bg_custom_color|default:"var(--color-bg-light)" }}{% else %}var(--color-{{ box.bg_color }}){% endif %}; border-radius: {{ box.radius|unlocalize }}rem; box-shadow: {% if box.shadow_enabled %}0 {{ box.shadow_offset|unlocalize }}px {{ box.shadow_blur|unlocalize }}px {% if box.shadow_color == "custom" %}{{ box.shadow_custom_color|default:"var(--color-shadow)" }}{% elif box.shadow_color %}var(--color-{{ box.shadow_color }}){% else %}var(--color-shadow){% endif %}{% else %}none{% endif %};{% if not keep_display %} display: flow-root;{% endif %}{% if box.border_visible %} border: {{ box.border_width|unlocalize }}rem solid {% if box.border_color == "custom" %}{{ box.border_custom_color|default:"var(--color-black)" }}{% else %}var(--color-{{ box.border_color }}){% endif %};{% endif %}{% else %}padding-left: {{ side_padding|default_if_none:0|unlocalize }}rem; padding-right: {{ side_padding|default_if_none:0|unlocalize }}rem;{% endif %}

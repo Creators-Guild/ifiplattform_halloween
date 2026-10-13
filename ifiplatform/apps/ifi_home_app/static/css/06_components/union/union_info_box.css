@@ -1,0 +1,81 @@
+/* Design rationale: docs/claude_context/union_page.md */
+.union-info-box {
+  padding: 1.25rem;
+  background-color: var(--color-card-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--color-shadow);
+  font-size: 1rem;
+}
+
+.union-info-box h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+.union-info-box--links {
+  width: min(24rem, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.union-info-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 0.6rem;
+  margin: 0 -0.6rem;
+  border-radius: 8px;
+  word-break: break-word;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.union-info-link::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background-color: var(--accent-color, var(--color-border));
+}
+
+.union-info-link:hover,
+.union-info-link:focus-visible {
+  background-color: color-mix(in srgb, var(--accent-color, var(--color-border)) 15%, transparent);
+  color: var(--accent-color, var(--color-text));
+}
+
+.union-info-box--contact > .union-info-link:first-of-type {
+  margin-top: -0.5rem;
+}
+
+.union-info-link--signup {
+  display: block;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 700;
+  color: var(--color-bg);
+  background-color: var(--accent-color, var(--color-purple));
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  margin: 0;
+}
+
+.union-info-link--signup::before {
+  content: none;
+}
+
+.union-info-link--signup + .union-info-link--signup {
+  margin-top: 0.6rem;
+}
+
+.union-info-link--signup:hover,
+.union-info-link--signup:focus-visible {
+  background-color: var(--accent-color, var(--color-purple));
+  color: var(--color-bg);
+  opacity: 0.85;
+}

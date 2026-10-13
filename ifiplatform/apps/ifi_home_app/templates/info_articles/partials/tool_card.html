@@ -1,0 +1,24 @@
+{% load i18n wagtailcore_tags wagtailimages_tags %}
+{% comment %}
+A tool as the same image+maker card used on the article index/category
+listing pages (see tool_card.css) -- shared by those pages and the "Tool
+Card" body block (article_models.py's tool_card_block(), see
+article_body_blocks.html/article_column_content.html).
+
+Usage: {% include "info_articles/partials/tool_card.html" with tool=<a ToolPage> %}
+{% endcomment %}
+<a class="tool-card" href="{% pageurl tool %}">
+    {% if tool.image %}
+        {% image tool.image fill-512x288 as tool_thumb %}
+        <img class="tool-card-image" src="{{ tool_thumb.url }}" alt="{{ tool.title }}">
+    {% endif %}
+    <div class="tool-card-body">
+        <h3>{{ tool.title }}</h3>
+        {% if tool.made_by %}
+            <span class="tool-card-maker">{% trans "By" %} {{ tool.made_by }}</span>
+        {% endif %}
+        {% if tool.link %}
+            <span class="tool-card-link-hint">{% trans "Open tool" %} ↗</span>
+        {% endif %}
+    </div>
+</a>

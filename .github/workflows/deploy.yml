@@ -1,0 +1,70 @@
+name: Deploy
+
+# Deploys main to the server every night, or when started by hand from the
+# Actions tab ("Run workflow"). Nightly runs are skipped entirely when main
+# hasn't changed since the last successful deploy.
+on:
+  schedule:
+    - cron: "0 1 * * *"  # 01:00 UTC
+  workflow_dispatch:
+    inputs:
+      skip_ci:
+        description: "Emergency: deploy without running tests/lint first"
+        type: boolean
+        default: false
+      skip_countdown:
+        description: "Skip the 10-minute visitor warning before restarting"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: read  # lets the `changed` job look up earlier runs
+
+jobs:
+  changed:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          last=$(gh run list --workflow deploy.yml --status success --limit 1 --json headSha --jq '.[0].headSha')
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] || [ "$last" != "$GITHUB_SHA" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Main is unchanged since the last deploy -- nothing to do."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  ci:
+    needs: changed
+    if: needs.changed.outputs.changed == 'true' && !inputs.skip_ci
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: [changed, ci]
+    # always() so this still runs when `ci` was skipped via skip_ci.
+    if: always() && needs.changed.outputs.changed == 'true' && (inputs.skip_ci || needs.ci.result == 'success')
+    runs-on: ubuntu-latest
+    concurrency: deploy  # never two deploys at the same time
+    steps:
+      - uses: appleboy/ssh-action@v1.2.5
+        env:
+          SKIP_COUNTDOWN: ${{ inputs.skip_countdown }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: SKIP_COUNTDOWN
+          command_timeout: 20m  # the visitor countdown alone takes 10
+          # Grab the newest deploy.sh before running it; see that file for the steps.
+          script: |
+            set -e
+            cd /home/ubuntu/IfiPlatform
+            git fetch origin main
+            git checkout origin/main -- deploy/deploy.sh
+            bash deploy/deploy.sh

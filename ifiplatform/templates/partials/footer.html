@@ -1,0 +1,15 @@
+{% load i18n %}
+{% load static %}
+<div class="bot-bar">
+    <div id="left-info">
+        <p id="want-to-contribute">{% trans "Want to contribute?" %}</p>
+        <a href="">{% trans "Contribution Guide" %}</a>
+        <p>{% trans "GitHub" %} {% trans " opening soon..." %}</p>
+    </div>
+    <img id="made-by" src="{% static "images/studentunions/IfiCreatorsGuildLogo.png" %}" alt="{% trans "Ifi-Creators' Guild" %}">
+    <div id="right-info">
+        <a href="{% url 'privacy_policy' %}">{% trans "Privacy Policy" %}</a>
+        <a href="">{% trans "Report a bug" %}</a>
+        <a href="">{% trans "Request a feature" %}</a>
+    </div>
+</div>

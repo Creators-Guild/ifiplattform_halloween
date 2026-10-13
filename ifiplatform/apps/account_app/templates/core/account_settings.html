@@ -1,0 +1,173 @@
+{% extends "global_base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Account" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/account_base.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+
+    <div class="account_layout">
+        <div class="account-card">
+            <h2>{% trans "Account Settings" %}</h2>
+            <div class="account-info">
+                <p>{% trans "User" %}: <span>{{ user.username }}</span></p>
+            </div>
+
+            {% if show_editor_notice %}
+                {% url 'privacy_policy' as privacy_policy_url %}
+                <div class="profile-notice profile-notice--editor{% if editor_terms_shake %} shake{% endif %}">
+                    <p>
+                        {% blocktrans %}You've been given permission to write info articles and news. Please note: content you write becomes the property of IfiPlatform and the student union(s) it represents, and stays published even if you later delete your account -- see our <a href="{{ privacy_policy_url }}#editor-terms">Privacy Policy</a> for the full terms, including how you can choose to be credited.{% endblocktrans %}
+                    </p>
+                    <form action="{% url 'editor_terms_response' %}" method="post" class="editor-terms-actions">
+                        {% csrf_token %}
+                        <button type="submit" name="decision" value="agree" class="btn">{% trans "I agree" %}</button>
+                        <button type="submit" name="decision" value="disagree" class="btn btn-secondary">{% trans "I disagree" %}</button>
+                    </form>
+                </div>
+            {% endif %}
+
+            {% if editor_terms_just_disagreed %}
+                <p class="profile-notice">{% trans "Your permission to write pages has been removed." %}</p>
+            {% endif %}
+
+            {% if profile_incomplete %}
+                <p class="profile-notice">
+                    {% blocktrans %}Your profile is missing some details -- filling them in is <span class="notice-highlight">optional</span>, but helps us reach you if needed.{% endblocktrans %}
+                </p>
+            {% endif %}
+
+            {% if pending_email %}
+                <p class="profile-notice">
+                    {% trans "Waiting for you to confirm the new address" %} <strong>{{ pending_email }}</strong> --
+                    {% trans "check its inbox for a confirmation link. Your email stays" %} <strong>{{ user.email }}</strong>
+                    {% trans "until then." %}
+                </p>
+                <form action="{% url 'cancel_email_change' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary">{% trans "Cancel this change" %}</button>
+                </form>
+            {% endif %}
+
+            <form class="profile-form" action="{% url 'account_settings' %}" method="post">
+                {% csrf_token %}
+
+                {% for error in form.non_field_errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+
+                <div class="field-row">
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                    <div class="field-actions">
+                        <button type="submit" class="field-save-btn btn" hidden>{% trans "Save" %}</button>
+                        <button type="button" class="field-edit-toggle" data-target="{{ form.email.id_for_label }}" data-cancel-text="{% trans 'Cancel' %}">{% trans "Edit" %}</button>
+                    </div>
+                    {% for error in form.email.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="field-row">
+                    {{ form.first_name.label_tag }}
+                    {{ form.first_name }}
+                    <div class="field-actions">
+                        <button type="submit" class="field-save-btn btn" hidden>{% trans "Save" %}</button>
+                        <button type="button" class="field-edit-toggle" data-target="{{ form.first_name.id_for_label }}" data-cancel-text="{% trans 'Cancel' %}">{% trans "Edit" %}</button>
+                    </div>
+                    {% for error in form.first_name.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="field-row">
+                    {{ form.last_name.label_tag }}
+                    {{ form.last_name }}
+                    <div class="field-actions">
+                        <button type="submit" class="field-save-btn btn" hidden>{% trans "Save" %}</button>
+                        <button type="button" class="field-edit-toggle" data-target="{{ form.last_name.id_for_label }}" data-cancel-text="{% trans 'Cancel' %}">{% trans "Edit" %}</button>
+                    </div>
+                    {% for error in form.last_name.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </form>
+            <script src="{% static 'js/profile_edit_toggle.js' %}" defer></script>
+
+            <form class="profile-form" action="{% url 'update_nickname' %}" method="post">
+                {% csrf_token %}
+                <div class="field-row">
+                    {{ nickname_form.nickname.label_tag }}
+                    {{ nickname_form.nickname }}
+                    <div class="field-actions">
+                        <button type="submit" class="btn">{% trans "Save" %}</button>
+                    </div>
+                    {% for error in nickname_form.nickname.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                <p class="field-hint">{% trans "Optional -- lets you be credited on content without using your real name." %}</p>
+            </form>
+
+            <div class="account-actions">
+                <a class="btn" href="{% url 'export_data' %}">{% trans "Download my data" %}</a>
+                <a class="btn" href="{% url 'privacy_policy' %}">{% trans "Privacy Policy" %}</a>
+                <a class="btn" href="{% url 'logout' %}">{% trans "Log out" %}</a>
+            </div>
+
+            <details class="account-delete"{% if delete_form_open %} open{% endif %}>
+                <summary class="btn btn-danger">{% trans "Delete my account" %}</summary>
+                <form action="{% url 'delete_account' %}" method="post">
+                    {% csrf_token %}
+
+                    {% for error in delete_form.non_field_errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+
+                    <div class="field-row">
+                        {{ delete_form.password.label_tag }}
+                        {{ delete_form.password }}
+                        {% for error in delete_form.password.errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <fieldset>
+                        <legend>{% trans "Your study tools (decks and flashcards)" %}</legend>
+                        {{ delete_form.study_tools_action }}
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>{% trans "If you keep them, credit them as:" %}</legend>
+                        {{ delete_form.study_tools_attribution }}
+                        {% for error in delete_form.study_tools_attribution.errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>{% trans "Credit any articles/news you wrote as:" %}</legend>
+                        {{ delete_form.articles_attribution }}
+                        {% for error in delete_form.articles_attribution.errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                        {% if not user.profile.nickname %}
+                            <p class="field-hint">{% trans "You haven't set a nickname above -- set one first if you want to choose it here." %}</p>
+                        {% endif %}
+                    </fieldset>
+
+                    <p class="field-hint">{% blocktrans %}Info articles/news are never deleted -- they're the property of IfiPlatform/the student union. Everything else about your account is permanently deleted.{% endblocktrans %}</p>
+
+                    <button type="submit" class="btn btn-danger">{% trans "Permanently delete my account" %}</button>
+                </form>
+            </details>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block bottom_content %}
+{% endblock %}

@@ -1,0 +1,89 @@
+name: 🐛 Bug Report
+description: Report something that is broken or not working as expected
+title: "[Bug] "
+labels: ["bug"]
+type: Bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Take from this what is relevant to your specific issue and ignore the rest. Don't assume something is obvious — overexplain rather than underexplain.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - Blocker
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / What's wrong
+      description: Description of the bug
+      placeholder: Describe what's wrong...
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: (Optional) A short summary, if the problem description above is long
+      placeholder: In short, this...
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we see the bug ourselves? Do you best to describe, but we understand some bugs are hard to reproduce
+      placeholder: |
+        1. Go to...
+        2. Click on...
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What should happen instead?
+      placeholder: It should be like this...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour / observed error
+      description: What actually happens? Include error messages, screenshots, or logs if you have them.
+      placeholder: But it does this...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested_fix
+    attributes:
+      label: Suggested / requested fix
+      description: (Optional) Any idea what might fix this, and why?
+      placeholder: This will probably fix this because...
+    validations:
+      required: false
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related
+      description: (Optional) Link any related issues or PRs
+      placeholder: This is related to #..., probably the same root cause
+    validations:
+      required: false

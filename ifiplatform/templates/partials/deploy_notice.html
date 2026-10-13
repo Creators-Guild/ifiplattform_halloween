@@ -1,0 +1,16 @@
+{% load i18n static %}
+{% comment %}
+Always rendered (not just when an announcement is currently active) --
+deploy_notice.js polls api/deploy-notice-status/ from every page so an
+announcement can appear on an already-open tab without the visitor
+reloading or navigating; the strings/URL it needs have to be on the page
+from the start for that to work, not only once a notice exists.
+{% endcomment %}
+<div
+    id="deploy-notice-root"
+    data-target="{{ deploy_notice_target|default_if_none:'' }}"
+    data-status-url="{% url 'deploy_notice_status' %}"
+    data-message="{% blocktrans %}Ifi Platform will restart shortly for an update. You may notice a few brief interruptions during the update. Time remaining:{% endblocktrans %}"
+    data-restarting-text="{% trans 'Restarting now...' %}"
+></div>
+<script src="{% static 'js/deploy_notice.js' %}" defer></script>

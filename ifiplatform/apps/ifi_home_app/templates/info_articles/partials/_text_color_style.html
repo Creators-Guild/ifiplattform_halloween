@@ -1,0 +1,19 @@
+{% load l10n %}{% comment %}
+Inline "color: ...; text-shadow: ...;" declarations for one block's text
+color/shadow -- included into the middle of that element's own style="..."
+attribute, alongside font-size. `text_color`/`text_custom_color` and
+`text_shadow_*` are a _effective_heading_style() dict's own fields (see
+article_models.py) -- text_shadow_offset/text_shadow_blur are already
+strength-multiplied there, not raw px literals here (same reasoning as
+_block_box_style.html's own box.shadow_offset/box.shadow_blur). Both apply
+independent of whether that block's box is on -- unlike box's own
+background/border/etc, neither is part of _block_box_style.html at all.
+color is left out entirely when blank (the default) so the page's normal
+text color just applies; text-shadow is left out entirely when
+text_shadow_enabled is falsy (also the default -- unlike box's own shadow,
+there was never a prior fixed text-shadow to preserve, see
+ArticleBlockStyle.text_shadow_enabled's own docstring), rather than an
+explicit "text-shadow: none" the way _block_box_style.html does for box's
+own shadow -- there's no earlier declaration on this same property for a
+blank one here to actually override.
+{% endcomment %}{% if text_color %}color: {% if text_color == "custom" %}{{ text_custom_color|default:"inherit" }}{% else %}var(--color-{{ text_color }}){% endif %};{% endif %}{% if text_shadow_enabled %} text-shadow: 0 {{ text_shadow_offset|unlocalize }}px {{ text_shadow_blur|unlocalize }}px {% if text_shadow_color == "custom" %}{{ text_shadow_custom_color|default:"var(--color-shadow)" }}{% elif text_shadow_color %}var(--color-{{ text_shadow_color }}){% else %}var(--color-shadow){% endif %};{% endif %}

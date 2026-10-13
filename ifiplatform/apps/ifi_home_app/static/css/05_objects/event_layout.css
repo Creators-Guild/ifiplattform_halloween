@@ -1,0 +1,47 @@
+/* Design rationale: docs/claude_context/event_page.md */
+.event-page {
+  text-align: center;
+}
+
+.event-page-prose {
+  max-width: 50rem;
+  margin: 0 auto;
+}
+
+.event-page-intro {
+  max-width: 60rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.event-location-articles {
+  margin-top: 1.5rem;
+}
+
+.event-location-articles-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.event-location-articles-grid .articlecard {
+  flex: 0 1 18rem;
+  max-width: 18rem;
+}
+
+.event-union-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: 1rem 0 0;
+}
+
+.event-union-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}

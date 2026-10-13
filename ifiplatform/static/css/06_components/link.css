@@ -1,0 +1,27 @@
+.link {
+  padding: 2px;
+  background-color: transparent;
+  border: none;
+  font-size: 16px;
+  text-decoration: underline;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+}
+
+.link:hover {
+  transform: translateY(-1px);
+}
+
+.link a {
+  color: var(--color-text);
+}
+
+.link a:active {
+  color: inherit;
+}
+
+.link a:hover {
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,41 @@
+/* Design rationale: docs/claude_context/category_page.md */
+.union-group-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.union-group-row-item {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.union-group-row .section-heading {
+  margin-top: 0;
+}
+
+.category-page .category-grid,
+.article-index-page .category-grid,
+.category-page .newsbar-layout,
+.article-index-page .newsbar-layout,
+.category-page .tool-grid,
+.article-index-page .tool-grid,
+.category-page .union-grid,
+.article-index-page .union-grid {
+  justify-content: center;
+}
+
+.category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.category-page,
+.article-index-page {
+  text-align: center;
+}

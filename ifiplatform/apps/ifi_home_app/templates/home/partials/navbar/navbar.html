@@ -1,0 +1,34 @@
+{% load i18n static wagtailimages_tags article_tags %}
+{% get_menu "home_dropmenu" as menu %}
+<div class="home-navbar">
+    {% for group in menu %}
+        <div class="dropdown-menu{% if group.hide_on_mobile %} dropdown-menu--hide-mobile{% endif %}">
+            <button class="link">
+                {% if group.url %}
+                    <a class="drop-option" href="{{ group.url }}"{% if group.external %} target="_blank" rel="noopener"{% endif %}>
+                        {% include "home/partials/navbar/menu_group_title.html" %}
+                    </a>
+                {% else %}
+                    <span class="drop-option">{% include "home/partials/navbar/menu_group_title.html" %}</span>
+                {% endif %}
+            </button>
+            <div class="drop-content">
+                {% if group.show_all %}
+                    <a class="drop-option drop-option--all" href="{{ group.url }}"{% if group.external %} target="_blank" rel="noopener"{% endif %}>{% trans "All" %}</a>
+                {% endif %}
+                {% for link in group.links %}
+                    <a class="drop-option" href="{{ link.url }}"{% if link.external %} target="_blank" rel="noopener"{% endif %}>
+                        {% if link.image %}
+                            {% image link.image fill-60x60 as link_thumb %}
+                            <img class="union-link-img" src="{{ link_thumb.url }}" alt="{{ link.label }}">
+                        {% endif %}
+                        {{ link.label }}{% if link.external %}<span aria-hidden="true">↗</span>{% endif %}
+                    </a>
+                {% empty %}
+                    <a class="drop-option-empty" href="">{% trans "Nothing here yet" %}</a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<script src="{% static 'js/dropdown_menu.js' %}" defer></script>

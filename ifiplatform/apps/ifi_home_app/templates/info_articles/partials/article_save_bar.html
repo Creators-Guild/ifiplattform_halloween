@@ -1,0 +1,16 @@
+{% load i18n %}
+{% comment %}
+Persistent floating "unsaved changes" bar, bottom-center of the viewport,
+next to the quick-style panel (bottom-left) -- shown whenever
+article_unsaved_changes.js's dirty state is non-empty (any panel/block
+touched since the last save), hidden otherwise. Same underlying save/
+discard machinery as the unsaved-changes modal
+(article_unsaved_changes_modal.html) -- this is just an always-reachable
+way to trigger it without first having to try to navigate away.
+{% endcomment %}
+<div class="save-bar" id="save-bar" hidden>
+    <span class="save-bar-label">{% trans "Unsaved changes" %}</span>
+    <button type="button" id="save-bar-save" class="save-bar-save">{% trans "Save" %}</button>
+    <button type="button" id="save-bar-discard" class="save-bar-discard">{% trans "Discard" %}</button>
+    <span class="save-bar-status" id="save-bar-status" aria-live="polite"></span>
+</div>

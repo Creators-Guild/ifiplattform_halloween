@@ -1,0 +1,13 @@
+{% load wagtailcore_tags %}
+{% comment %}
+A category as the same small accent-colored tile used on the article
+index/category listing pages (see category_card.css) -- shared by those
+pages and the "Category Card" body block (article_models.py's
+category_card_block(), see article_body_blocks.html/article_column_
+content.html).
+
+Usage: {% include "info_articles/partials/category_card.html" with category=<a CategoryPage> %}
+{% endcomment %}
+<a class="category-card" href="{% pageurl category %}" style="--accent-color: var(--color-{{ category.color }})">
+    <h2>{{ category.title }}</h2>
+</a>

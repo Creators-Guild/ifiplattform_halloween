@@ -1,0 +1,12 @@
+{% load i18n %}
+{% comment %}
+Small always-visible switch (for anyone with can_edit_style permission --
+see article_models.py) that shows/hides every other bit of on-page editing
+UI (the quick-style panel, and per-block style controls). State lives in
+localStorage only (see article_editor_mode.js) -- purely a "do I want to see
+editing chrome right now" preference, not a security boundary, since every
+save endpoint independently re-checks edit permission regardless of this.
+{% endcomment %}
+<button type="button" id="editor-mode-toggle" class="editor-mode-toggle" aria-pressed="false">
+    {% trans "Editor mode" %}: <span id="editor-mode-toggle-state">{% trans "Off" %}</span>
+</button>

@@ -1,0 +1,37 @@
+{% extends 'global_base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Privacy Policy" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/account_base.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="account_layout">
+        <div class="account-card legal-page">
+            <h1>{% trans "Privacy Policy" %}</h1>
+
+            <h2>{% trans "What we collect" %}</h2>
+            <p>{% blocktrans %}To create and run your IfiPlatform account, we store your username, email address, and first and last name. You can optionally set a nickname to be credited under instead of your real name. We also use a session cookie to keep you logged in -- this is strictly necessary for the site to work and isn't a tracking cookie.{% endblocktrans %}</p>
+
+            <h2>{% trans "Why we collect it" %}</h2>
+            <p>{% blocktrans %}This data is used to create and secure your account, verify your email address, let you write and be credited for articles/news and own study decks, and reach you if we need to (e.g. a security notice). The legal basis is contract necessity: we need it to provide the account-based features you sign up for.{% endblocktrans %}</p>
+
+            <h2>{% trans "Cookies and third parties" %}</h2>
+            <p>{% blocktrans %}IfiPlatform does not use any analytics, advertising, or tracking scripts, and does not share your data with any third party. The only cookies in use are Django's own session and CSRF cookies, required for login and form security.{% endblocktrans %}</p>
+
+            <h2>{% trans "How long we keep it" %}</h2>
+            <p>{% blocktrans %}Your account data is kept until you delete your account (see "Your rights" below). If you sign up but never confirm your email address, that unverified account -- and the name/email on it -- is automatically deleted after {{ retention_days }} days.{% endblocktrans %}</p>
+
+            <h2 id="editor-terms">{% trans "Content ownership for articles and news" %}</h2>
+            <p>{% blocktrans %}Info articles and news you write on IfiPlatform become the property of IfiPlatform and the student union(s) it represents -- they aren't deleted if you later delete your account, since they're institutional content, not personal data about you. What does stay your choice is how they're credited: under your real name, your nickname, or anonymously as "Unknown". You'll be asked to explicitly agree to this the first time you're given permission to write pages; if you disagree, that permission is removed again.{% endblocktrans %}</p>
+
+            <h2>{% trans "Your rights" %}</h2>
+            <p>{% blocktrans %}You can view and correct your name/email/nickname at any time from Account Settings. You can download a copy of the personal data we hold on you ("Download my data"). You can delete your account entirely ("Delete my account") -- at that point you also choose whether to delete your study decks/flashcards outright or keep them, and how any articles you wrote should be credited going forward.{% endblocktrans %}</p>
+
+            <h2>{% trans "Contact" %}</h2>
+            <p>{% blocktrans %}To exercise any of these rights, or with questions about this policy, contact: {% endblocktrans %}[TODO: fill in contact email]</p>
+        </div>
+    </div>
+{% endblock %}

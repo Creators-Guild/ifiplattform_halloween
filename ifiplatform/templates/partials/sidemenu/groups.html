@@ -1,0 +1,19 @@
+{% load i18n article_tags %}
+{% get_menu "sidemenu" as menu %}
+{% for group in menu %}
+    <details class="sidemenu-item" name="sidemenu-item">
+        <summary class="sidemenu-option">{{ group.title }}</summary>
+        <div class="drop-content">
+            {% if group.show_all %}
+                <a class="drop-option drop-option--all" href="{{ group.url }}"{% if group.external %} target="_blank" rel="noopener"{% endif %}>{% trans "All" %}</a>
+            {% endif %}
+            {% for link in group.links %}
+                <a class="drop-option" href="{{ link.url }}"{% if link.external %} target="_blank" rel="noopener"{% endif %}>
+                    {{ link.label }}{% if link.external %}<span aria-hidden="true">↗</span>{% endif %}
+                </a>
+            {% empty %}
+                <a class="drop-option-empty" href="">{% trans "Nothing here yet" %}</a>
+            {% endfor %}
+        </div>
+    </details>
+{% endfor %}

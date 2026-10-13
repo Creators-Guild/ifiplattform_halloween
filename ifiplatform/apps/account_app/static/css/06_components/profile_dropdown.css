@@ -1,0 +1,129 @@
+/* Design rationale: docs/claude_context/header.md */
+button.profile-trigger {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  background: none;
+  border: 2px solid var(--color-secondary);
+  border-radius: 50%;
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+}
+
+.profile-dropdown.is-open .profile-trigger {
+  color: var(--color-cta);
+  border-color: var(--color-cta);
+  transform: translateY(-1px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .profile-trigger:hover {
+    color: var(--color-cta);
+    border-color: var(--color-cta);
+    transform: translateY(-1px);
+  }
+}
+
+.profile-dropdown .link::after {
+  display: none;
+}
+
+.profile-icon {
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+@media (max-width: 45rem) {
+  button.profile-trigger {
+    width: auto;
+    height: auto;
+    border: none;
+  }
+}
+
+.dropdown-menu.profile-dropdown .drop-content {
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  z-index: 200;
+  min-width: 18rem;
+  text-align: left;
+  padding: 0;
+  background-color: var(--color-bg);
+  border: 1px solid color-mix(in srgb, var(--color-border) 15%, transparent);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px var(--color-shadow);
+  overflow: hidden;
+}
+
+.profile-drop-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 15%, transparent);
+}
+
+.profile-avatar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.profile-drop-identity {
+  min-width: 0;
+}
+
+.profile-drop-name {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-drop-username {
+  margin: 0.15rem 0 0;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-drop-options {
+  padding: 0.4rem;
+}
+
+.dropdown-menu.profile-dropdown .drop-content a.drop-option {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border-bottom: none;
+  color: var(--color-text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.dropdown-menu.profile-dropdown .drop-content a.drop-option:hover {
+  background-color: color-mix(in srgb, var(--color-text) 8%, var(--color-bg));
+  color: var(--color-text);
+}

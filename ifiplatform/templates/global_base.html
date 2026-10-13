@@ -1,0 +1,45 @@
+{% load i18n static wagtailuserbar %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title %}{% trans "Ifi Platform" %}{% endblock %}
+    </title>
+    <link rel="icon" href="{% static 'images/favicon.svg' %}?v=6" type="image/svg+xml">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}?v=6" sizes="any">
+    <link rel="icon" href="{% static 'images/favicon-32.png' %}?v=6" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="{% static 'images/favicon-180.png' %}?v=6">
+    {% include "css_links/global.html" %}
+    {% if UMAMI_WEBSITE_ID %}
+    <script defer src="{{ UMAMI_SCRIPT_URL }}"
+            data-website-id="{{ UMAMI_WEBSITE_ID }}"
+            data-domains="ifiplattform.no, www.ifiplattform.no"></script>
+    {% endif %}
+    
+    {% block app_css %}{% endblock app_css %}
+    {% block section_css %}{% endblock section_css %}
+    {% block page_css %}{% endblock page_css %}
+    {% block extra_head %}{% endblock extra_head %}
+
+</head>
+<body>
+    {% include "partials/deploy_notice.html" %}
+    {% include "partials/beta_notice.html" %}
+    {% wagtailuserbar %}
+    <div class="page-layout">
+        <div class= "topheader-content">
+            {% include "partials/select_language.html" %}
+            {% include "partials/header.html" %}
+        </div>
+        <aside class="sidemenu_container">{% block sidemenu %}{% endblock sidemenu %}</aside>
+        <main class="page-content">
+            {% block content %}{% endblock %}
+        </main>
+        <div class="bottombar-content">
+            {% include "partials/footer.html" %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+.box {
+  margin: 1rem;
+  padding: 1rem;
+  border: 1px solid black;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px #938f8f;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+}
+
+.box:hover {
+  transform: translateY(-1px);
+}
+
+.box:active {
+  transform: translateY(0px);
+}

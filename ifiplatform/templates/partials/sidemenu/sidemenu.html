@@ -1,0 +1,11 @@
+{% load static i18n %}
+
+<details class="sidemenu">
+    <summary class="sidemenu-header">
+        <img class="icon" src="{% static 'images/icons/black_menu_icon.png' %}" alt="">
+        <span class="icon-text">{% trans "Menu" %}</span>
+    </summary>
+
+    {% include "partials/sidemenu/groups.html" %}
+</details>
+<script src="{% static 'js/sidemenu.js' %}" defer></script>

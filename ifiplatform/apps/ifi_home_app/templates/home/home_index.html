@@ -1,0 +1,31 @@
+{% extends "home_base.html" %}
+{% load i18n static %}
+
+{% block section_css %}
+    {% include "css_links/home_index.html" %}
+{% endblock section_css %}
+
+{% block title %}{% trans "Ifi Home" %}{% endblock %}
+
+{% block sidemenu %}
+    {% include "partials/sidemenu/sidemenu.html" %}
+{% endblock sidemenu %}
+{% block maincontent %}
+    <div class="nav-dropmenus">
+        {% include "home/partials/navbar/navbar.html" %}
+    </div>
+    {% include "home/partials/shortcuts/shortcuts.html" %}
+    <div id="home-subcontent">
+        <div id="msg-board">{% include "home/partials/messageboard/messageboard.html" %}</div>
+            <div class="suggestions-row">
+                <div class="newsbar_container">
+                    <h2 class="newsbar-heading newsbar-heading--news">{% trans "Latest News" %}</h2>
+                    {% include "home/partials/home_newsbar.html" %}
+                </div>
+            </div>
+        </div>
+    <div class="eventsbox_container">
+        <h2>{% blocktrans %}Happening at Ifi{% endblocktrans %}</h2>
+        {% include "home/partials/eventsbox/eventsbox.html" %}
+    </div>
+{% endblock maincontent %}

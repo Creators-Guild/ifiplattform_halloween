@@ -1,0 +1,64 @@
+/* Same backdrop+centered-panel pattern as .unsaved-changes-modal
+(article_unsaved_changes.css) -- shares its z-index tier since both are
+"block everything until acknowledged" dialogs, even though they're not
+expected to ever be open at the same time in practice. */
+.beta-notice-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.beta-notice-modal[hidden] {
+  display: none;
+}
+
+.beta-notice-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-text) 88%, transparent);
+}
+
+.beta-notice-panel {
+  position: relative;
+  z-index: 1;
+  width: min(90vw, 28rem);
+  box-sizing: border-box;
+  padding: 1.5rem;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px var(--color-shadow-strong);
+}
+
+.beta-notice-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: var(--color-secondary);
+}
+
+.beta-notice-message {
+  margin: 0 0 1rem;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.beta-notice-dismiss {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 2px solid var(--color-cta-border);
+  border-radius: 6px;
+  background: var(--color-cta);
+  color: var(--color-white);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.beta-notice-dismiss:hover {
+  background: var(--color-cta-hover);
+}

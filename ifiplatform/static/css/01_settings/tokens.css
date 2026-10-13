@@ -1,0 +1,84 @@
+:root {
+  /* ---- 1. Primitives: the raw palette. A new theme edits these. ---- */
+  --color-white: #ffffff;
+  --color-bright: #fffff9;
+  --color-charcoal: #1f1f1f;
+  --color-ink: #120e0e;
+  --color-slate: #707070;
+
+  --color-turq: #0ef7b9;
+  --color-turq-hover: #05b4b7;
+  --color-pink: #f11eb2;
+  --color-pink-hover: #f625b7;
+  --color-pink-dark: #b3007d;
+  --color-purple: #aa43ff;
+  --color-purple-hover: #7b0ed4;
+
+  --color-navy: #001f5e;
+  --color-azure: #197dc4;
+  --color-red: #ff0000;
+  --color-yellow: #ffe600;
+  --color-bright-yellow: #fff5bc;
+  --color-green: #1db954;
+
+  /* Pastel set */
+  --color-pastel-blue: #a3b0fa;
+  --color-pastel-yellow: #ffe27a;
+  --color-pastel-orange: #ffb15c;
+  --color-pastel-pink: #ff9fd0;
+  --color-pastel-green: #8de9a8;
+  --color-pastel-purple: #cbaaff;
+  --color-pastel-turq: #C8FEFF;
+  --color-pastel-turq-hover: #6cf9fb;
+
+  /* ---- 2. Wagtail compatibility aliases ----
+     ArticlePage box/image colors and CategoryPage.color store a plain
+     slug ("turq", "black", "bg-light", ...) that templates splice
+     straight into var(--color-{{ value }}) (see article_models.py's
+     COLOR_CHOICES/BOX_COLOR_CHOICES) -- these exact names are a contract
+     with that Python choices= list, not free to rename. Kept as a
+     pass-through so the real primitive above can still be renamed.
+     turq/pink/purple don't need an alias since those already keep their
+     Wagtail-facing names as primitives directly. */
+  --color-bg-light: var(--color-bright);
+  --color-black: var(--color-ink);
+
+  /* ---- 3. Semantic roles: what component CSS actually references ---- */
+  --color-bg: var(--color-bright);
+  --color-bg-dark: var(--color-charcoal);
+  --color-text: var(--color-ink);
+  --color-text-muted: var(--color-slate);
+  --color-on-accent: var(--color-bright);
+  --color-border: var(--color-ink);
+
+  --color-accent: var(--color-turq);
+  --color-accent-hover: var(--color-turq-hover);
+  --color-cta: var(--color-pink);
+  --color-cta-hover: var(--color-pink-hover);
+  --color-cta-border: var(--color-pink-dark);
+  --color-secondary: var(--color-purple);
+  --color-secondary-hover: var(--color-purple-hover);
+  --color-error: var(--color-red);
+  --color-danger: var(--color-red);
+  --color-warning: var(--color-bright-yellow);
+  --color-success: var(--color-green);
+  --color-link: var(--color-navy);
+  --color-link-hover: var(--color-azure);
+
+  --color-shadow: rgba(0, 0, 0, 0.2);
+  --color-shadow-strong: rgba(0, 0, 0, 0.5);
+
+  --color-card-bg: var(--color-white);
+
+  /* EventPage.calendar_color's fixed options -- name is a contract with
+     that Python choices= list (event_models.py), same "slug splices
+     straight into var(--color-event-{{ value }})" contract COLOR_CHOICES
+     already has (see this file's own comment on that, above). */
+  --color-event-blue: var(--color-pastel-blue);
+  --color-event-yellow: var(--color-pastel-yellow);
+  --color-event-orange: var(--color-pastel-orange);
+  --color-event-pink: var(--color-pastel-pink);
+  --color-event-green: var(--color-pastel-green);
+  --color-event-purple: var(--color-pastel-purple);
+  --color-event-text: var(--color-ink);
+}

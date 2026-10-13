@@ -1,0 +1,21 @@
+{% extends 'global_base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "User Registration" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/account_base.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="account_layout">
+        <div class="auth-card">
+            <h1>{% trans "User Registration" %}</h1>
+            <p>{% trans "Sign up complete!" %}</p>
+            <p>{% trans "Welcome" %} {{ user }}</p>
+            <p class="auth-links">
+                <a class="back-to" href="{% url 'account_settings' %}">{% trans "Go to your account" %}</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

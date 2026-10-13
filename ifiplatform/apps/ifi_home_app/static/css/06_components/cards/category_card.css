@@ -1,0 +1,76 @@
+/* Design rationale: docs/claude_context/cards.md */
+.category-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex: 0 1 14rem;
+  min-height: 8rem;
+  height: 100%;
+  padding: 1.5rem;
+  border: 2px solid var(--color-border);
+  border-top: 6px solid var(--accent-color, var(--color-border));
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--color-shadow);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  background-color: var(--color-card-bg);
+}
+
+.category-card:hover,
+.category-card:focus-visible {
+  box-shadow: 0 4px 14px var(--color-shadow);
+  transform: translateY(-2px);
+}
+
+.category-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  overflow-wrap: break-word;
+}
+
+.body-category-card {
+  width: var(--card-width);
+  max-width: 100%;
+}
+
+.body-category-card--fixed-height {
+  height: var(--card-height);
+  overflow: hidden;
+}
+
+@media (max-width: 45rem) {
+  .body-category-card,
+  .body-category-card--fixed-height {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .category-card {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    min-height: 0;
+    padding: 0.6rem 0.9rem;
+  }
+
+  .category-card h2 {
+    font-size: 1rem;
+  }
+}
+
+.category-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: var(--accent-color, var(--color-secondary));
+  color: var(--color-on-accent);
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+}

@@ -1,0 +1,17 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create New Deck" %}{% endblock %}
+
+{% block content %}
+    <a class="back-to" href="{% url 'flashcard_menu' %}">{% trans "<- Back to your decks" %}</a>
+    <h1>{% trans "Create a new deck" %}</h1>
+
+    <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn" type="submit">{% trans "Save deck" %}</button>
+    </form>
+
+
+{% endblock %}

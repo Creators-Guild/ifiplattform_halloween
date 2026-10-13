@@ -1,0 +1,22 @@
+{% load i18n %}
+{% comment %}
+Custom "you have unsaved changes" confirmation, shown instead of letting an
+in-site link navigate away while article_unsaved_changes.js's dirty flag is
+set. Only covers in-site link clicks -- a real page unload (reload, closing
+the tab, typing a new URL, back/forward) can't be intercepted with custom
+UI, so that case still falls back to the browser's own native prompt (see
+article_unsaved_changes.js).
+{% endcomment %}
+<div class="unsaved-changes-modal" id="unsaved-changes-modal" role="dialog" aria-modal="true" aria-labelledby="unsaved-changes-title" hidden>
+    <div class="unsaved-changes-backdrop" id="unsaved-changes-backdrop"></div>
+    <div class="unsaved-changes-panel">
+        <p class="unsaved-changes-title" id="unsaved-changes-title">{% trans "You have unsaved changes!" %}</p>
+        <p class="unsaved-changes-message">{% trans "Save your changes before leaving, or discard them and go anyway." %}</p>
+        <div class="unsaved-changes-actions">
+            <button type="button" id="unsaved-changes-save" class="unsaved-changes-save">{% trans "Save changes" %}</button>
+            <button type="button" id="unsaved-changes-discard" class="unsaved-changes-discard">{% trans "Discard & leave" %}</button>
+            <button type="button" id="unsaved-changes-cancel" class="unsaved-changes-cancel">{% trans "Cancel" %}</button>
+        </div>
+        <span class="unsaved-changes-status" id="unsaved-changes-status" aria-live="polite"></span>
+    </div>
+</div>

@@ -1,0 +1,7 @@
+Hi {{ user.first_name }},
+
+Thanks for signing up for Ifi Platform. Confirm your email address to activate your account:
+
+{{ verify_url }}
+
+If you didn't create this account, you can ignore this email.

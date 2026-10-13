@@ -1,0 +1,94 @@
+name: ✨ Feature Request
+description: Propose new functionality or an improvement
+title: "[Feature Request] "
+labels: ["feature"]
+type: Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Take from this what is relevant to your specific issue and ignore the rest. Don't assume something is obvious — overexplain rather than underexplain.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature?
+      options:
+        - Must-have
+        - Should-have
+        - Nice-to-have
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / What's missing
+      description: What gap or need does this feature address?
+      placeholder: Describe the gap or need...
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: (Optional) A short summary, if the problem description above is long
+      placeholder: In short, this...
+    validations:
+      required: false
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What do you want to build or add?
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_story
+    attributes:
+      label: User story
+      description: (Optional) As a [type of user], I want [goal] so that [reason]
+      placeholder: As a student, I want to... so that...
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      description: How do we know this feature is done?
+      placeholder: |
+        1. Given..., when..., then...
+        2. Given..., when..., then...
+    validations:
+      required: false
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      description: (Optional) What will this NOT include?
+    validations:
+      required: false
+
+  - type: textarea
+    id: suggested_implementation
+    attributes:
+      label: Suggested implementation
+      description: (Optional) Any idea how this could be done?
+      placeholder: This could probably be done by...
+    validations:
+      required: false
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related
+      description: (Optional) Link any related or blocking issues
+      placeholder: This is related to #..., probably depends on / blocks it
+    validations:
+      required: false

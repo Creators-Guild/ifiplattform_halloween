@@ -1,0 +1,37 @@
+name: Clean issue form body
+
+# Strips "### Heading" + "_No response_" blocks left by optional,
+# unanswered fields in GitHub issue forms.
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Strip empty optional fields
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+
+            // Matches "### Some Label" followed by "_No response_",
+            // with or without a blank line in between
+            const cleaned = body
+              .replace(/^###\s+.+\n+_No response_\n*/gm, '')
+              .trimEnd() + '\n';
+
+            if (cleaned !== body) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: cleaned,
+              });
+            }

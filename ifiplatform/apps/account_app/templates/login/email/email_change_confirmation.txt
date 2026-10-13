@@ -1,0 +1,7 @@
+Hi {{ user.first_name|default:user.username }},
+
+You (or someone using your account) asked to change the email on your Ifi Platform account to this address. Confirm it to apply the change:
+
+{{ confirm_url }}
+
+If you didn't request this, you can ignore this email -- your account's email won't change.

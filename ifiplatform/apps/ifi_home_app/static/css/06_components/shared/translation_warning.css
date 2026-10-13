@@ -1,0 +1,6 @@
+.translation-warning {
+  color: var(--color-bg-dark);
+  border: 1px solid var(--color-bg-dark);
+  border-radius: 4px;
+  padding: 1px 6px;
+}

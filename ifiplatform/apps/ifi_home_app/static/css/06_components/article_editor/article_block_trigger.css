@@ -1,0 +1,43 @@
+/* Design rationale: docs/claude_context/article_editor_css.md */
+.editable-block {
+  position: relative;
+}
+
+.hero-image-figure.editable-block,
+.body-image-figure.editable-block {
+  z-index: 5;
+}
+
+body.editor-mode-on .editable-block:hover,
+body.editor-mode-on .editable-block:focus-within,
+body.editor-mode-on .editable-block.is-editing {
+  outline: 2px dashed var(--color-secondary);
+  outline-offset: 3px;
+}
+
+.block-style-trigger {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  z-index: 10;
+  visibility: hidden;
+  opacity: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-secondary);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 0.1s ease;
+}
+
+body.editor-mode-on .editable-block:hover > .block-style-trigger,
+body.editor-mode-on .editable-block:focus-within > .block-style-trigger,
+body.editor-mode-on .block-style-trigger.is-open {
+  visibility: visible;
+  opacity: 1;
+}

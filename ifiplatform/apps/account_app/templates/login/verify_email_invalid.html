@@ -1,0 +1,23 @@
+{% extends 'global_base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Link invalid" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/account_base.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="account_layout">
+        <div class="auth-card">
+            <h1>{% trans "Link invalid or expired" %}</h1>
+            <p>{% trans "This verification link is no longer valid. It may have already been used, or your account may already be active." %}</p>
+            <p class="auth-links">
+                <a class="back-to" href="{% url 'resend_verification' %}">{% trans "Resend verification email" %}</a>
+            </p>
+            <p class="auth-links">
+                <a class="back-to" href="{% url 'login' %}">{% trans "Back to login" %}</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,203 @@
+name: Sync issues to Trello
+
+on:
+  issues:
+    types: [opened, closed, edited]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
+      TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+      TRELLO_LIST_NEW: ${{ vars.TRELLO_LIST_NEW }}   # list ID for new cards
+      TRELLO_LIST_DONE: ${{ vars.TRELLO_LIST_DONE }} # list ID to move closed cards to
+      TRELLO_LABEL_GITHUB: ${{ vars.TRELLO_LABEL_GITHUB }}   # label ID to apply to all cards
+      TRELLO_LABEL_BUG: ${{ vars.TRELLO_LABEL_BUG }}         # label ID for "Bug" type
+      TRELLO_LABEL_FEATURE: ${{ vars.TRELLO_LABEL_FEATURE }} # label ID for "Feature" type
+      TRELLO_LABEL_TASK: ${{ vars.TRELLO_LABEL_TASK }}       # label ID for "Task" type
+      ISSUE_TYPE: ${{ github.event.issue.type.name }}
+      ISSUE_PARENT_URL: ${{ github.event.issue.parent_issue_url }}
+      ISSUE_TITLE: ${{ github.event.issue.title }}
+      ISSUE_BODY: ${{ github.event.issue.body }}
+      ISSUE_URL: ${{ github.event.issue.html_url }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+    steps:
+      - name: Resolve type label
+        id: resolve_label
+        run: |
+          case "${ISSUE_TYPE}" in
+            "Bug") TYPE_LABEL="${TRELLO_LABEL_BUG}" ;;
+            "Feature") TYPE_LABEL="${TRELLO_LABEL_FEATURE}" ;;
+            "Task") TYPE_LABEL="${TRELLO_LABEL_TASK}" ;;
+            *) TYPE_LABEL="" ;;
+          esac
+          echo "type_label=${TYPE_LABEL}" >> "$GITHUB_OUTPUT"
+
+          if [ -n "${ISSUE_PARENT_URL}" ]; then
+            echo "This issue is a sub-issue (parent: ${ISSUE_PARENT_URL}). Skipping Trello sync."
+            echo "is_sub_issue=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_sub_issue=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Attach sub-issue to parent card (issue opened)
+        if: github.event.action == 'opened' && steps.resolve_label.outputs.is_sub_issue == 'true'
+        run: |
+          # Find the parent issue's card by searching for the parent issue's URL
+          SEARCH_RESULT=$(curl -s -G "https://api.trello.com/1/search" \
+            --data-urlencode "query=${ISSUE_PARENT_URL}" \
+            --data-urlencode "modelTypes=cards" \
+            --data-urlencode "card_fields=id,name" \
+            --data-urlencode "cards_limit=1" \
+            --data-urlencode "key=${TRELLO_KEY}" \
+            --data-urlencode "token=${TRELLO_TOKEN}")
+
+          CARD_ID=$(echo "$SEARCH_RESULT" | jq -r '.cards[0].id // empty')
+
+          if [ -z "$CARD_ID" ]; then
+            echo "No Trello card found for parent issue ${ISSUE_PARENT_URL}. Skipping attachment."
+            exit 0
+          fi
+
+          echo "Found parent card ${CARD_ID}, attaching sub-issue link."
+
+          curl -s -X POST "https://api.trello.com/1/cards/${CARD_ID}/attachments" \
+            --data-urlencode "url=${ISSUE_URL}" \
+            --data-urlencode "name=Sub-issue: ${ISSUE_TITLE}" \
+            --data-urlencode "key=${TRELLO_KEY}" \
+            --data-urlencode "token=${TRELLO_TOKEN}"
+
+      - name: Create Trello card (issue opened)
+        if: github.event.action == 'opened' && steps.resolve_label.outputs.is_sub_issue == 'false'
+        env:
+          TYPE_LABEL: ${{ steps.resolve_label.outputs.type_label }}
+        run: |
+          DESC="Issue: ${ISSUE_URL}
+
+          ${ISSUE_BODY}"
+
+          LABELS="${TRELLO_LABEL_GITHUB}"
+          [ -n "${TYPE_LABEL}" ] && LABELS="${LABELS},${TYPE_LABEL}"
+
+          curl -s -X POST "https://api.trello.com/1/cards" \
+            --data-urlencode "idList=${TRELLO_LIST_NEW}" \
+            --data-urlencode "name=#${ISSUE_NUMBER} ${ISSUE_TITLE}" \
+            --data-urlencode "desc=${DESC}" \
+            --data-urlencode "idLabels=${LABELS}" \
+            --data-urlencode "key=${TRELLO_KEY}" \
+            --data-urlencode "token=${TRELLO_TOKEN}"
+
+      - name: Update Trello card (issue edited)
+        if: github.event.action == 'edited' && steps.resolve_label.outputs.is_sub_issue == 'false'
+        env:
+          TYPE_LABEL: ${{ steps.resolve_label.outputs.type_label }}
+        run: |
+          DESC="Issue: ${ISSUE_URL}
+
+          ${ISSUE_BODY}"
+
+          LABELS="${TRELLO_LABEL_GITHUB}"
+          [ -n "${TYPE_LABEL}" ] && LABELS="${LABELS},${TYPE_LABEL}"
+
+          # Search Trello for a card whose description contains this issue's URL
+          SEARCH_RESULT=$(curl -s -G "https://api.trello.com/1/search" \
+            --data-urlencode "query=${ISSUE_URL}" \
+            --data-urlencode "modelTypes=cards" \
+            --data-urlencode "card_fields=id,name" \
+            --data-urlencode "cards_limit=1" \
+            --data-urlencode "key=${TRELLO_KEY}" \
+            --data-urlencode "token=${TRELLO_TOKEN}")
+
+          CARD_ID=$(echo "$SEARCH_RESULT" | jq -r '.cards[0].id // empty')
+
+          if [ -z "$CARD_ID" ]; then
+            echo "No matching Trello card found for ${ISSUE_URL}. Creating one instead."
+            curl -s -X POST "https://api.trello.com/1/cards" \
+              --data-urlencode "idList=${TRELLO_LIST_NEW}" \
+              --data-urlencode "name=#${ISSUE_NUMBER} ${ISSUE_TITLE}" \
+              --data-urlencode "desc=${DESC}" \
+              --data-urlencode "idLabels=${LABELS}" \
+              --data-urlencode "key=${TRELLO_KEY}" \
+              --data-urlencode "token=${TRELLO_TOKEN}"
+            exit 0
+          fi
+
+          echo "Found card ${CARD_ID}, updating its title and description."
+
+          curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}" \
+            --data-urlencode "name=#${ISSUE_NUMBER} ${ISSUE_TITLE}" \
+            --data-urlencode "desc=${DESC}" \
+            --data-urlencode "key=${TRELLO_KEY}" \
+            --data-urlencode "token=${TRELLO_TOKEN}"
+
+          # Make sure the type label reflects the current issue type
+          if [ -n "${TYPE_LABEL}" ]; then
+            curl -s -X POST "https://api.trello.com/1/cards/${CARD_ID}/idLabels" \
+              --data-urlencode "value=${TYPE_LABEL}" \
+              --data-urlencode "key=${TRELLO_KEY}" \
+              --data-urlencode "token=${TRELLO_TOKEN}"
+          fi
+
+      - name: Find and move Trello card (issue closed)
+        if: github.event.action == 'closed' && steps.resolve_label.outputs.is_sub_issue == 'false'
+        env:
+          TYPE_LABEL: ${{ steps.resolve_label.outputs.type_label }}
+        run: |
+          DESC="Issue: ${ISSUE_URL}
+
+          ${ISSUE_BODY}"
+
+          LABELS="${TRELLO_LABEL_GITHUB}"
+          [ -n "${TYPE_LABEL}" ] && LABELS="${LABELS},${TYPE_LABEL}"
+
+          # Search Trello for a card whose description contains this issue's URL
+          SEARCH_RESULT=$(curl -s -G "https://api.trello.com/1/search" \
+            --data-urlencode "query=${ISSUE_URL}" \
+            --data-urlencode "modelTypes=cards" \
+            --data-urlencode "card_fields=id,name" \
+            --data-urlencode "cards_limit=1" \
+            --data-urlencode "key=${TRELLO_KEY}" \
+            --data-urlencode "token=${TRELLO_TOKEN}")
+
+          CARD_ID=$(echo "$SEARCH_RESULT" | jq -r '.cards[0].id // empty')
+
+          if [ -z "$CARD_ID" ]; then
+            echo "No matching Trello card found for ${ISSUE_URL}. Creating one directly in the done list."
+            curl -s -X POST "https://api.trello.com/1/cards" \
+              --data-urlencode "idList=${TRELLO_LIST_DONE}" \
+              --data-urlencode "name=#${ISSUE_NUMBER} ${ISSUE_TITLE}" \
+              --data-urlencode "desc=${DESC}" \
+              --data-urlencode "idLabels=${LABELS}" \
+              --data-urlencode "key=${TRELLO_KEY}" \
+              --data-urlencode "token=${TRELLO_TOKEN}"
+            exit 0
+          fi
+
+          echo "Found card ${CARD_ID}, moving it to the done list."
+
+          curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}" \
+            --data-urlencode "idList=${TRELLO_LIST_DONE}" \
+            --data-urlencode "key=${TRELLO_KEY}" \
+            --data-urlencode "token=${TRELLO_TOKEN}"
+
+          # Add the fixed label to the existing card (no-op if it's already there)
+          curl -s -X POST "https://api.trello.com/1/cards/${CARD_ID}/idLabels" \
+            --data-urlencode "value=${TRELLO_LABEL_GITHUB}" \
+            --data-urlencode "key=${TRELLO_KEY}" \
+            --data-urlencode "token=${TRELLO_TOKEN}"
+
+          # Add the type label too, if one applies
+          if [ -n "${TYPE_LABEL}" ]; then
+            curl -s -X POST "https://api.trello.com/1/cards/${CARD_ID}/idLabels" \
+              --data-urlencode "value=${TYPE_LABEL}" \
+              --data-urlencode "key=${TRELLO_KEY}" \
+              --data-urlencode "token=${TRELLO_TOKEN}"
+          fi
+
+          # To archive the card instead of moving it, comment out the block above
+          # and use this instead:
+          # curl -s -X PUT "https://api.trello.com/1/cards/${CARD_ID}" \
+          #   --data-urlencode "closed=true" \
+          #   --data-urlencode "key=${TRELLO_KEY}" \
+          #   --data-urlencode "token=${TRELLO_TOKEN}"

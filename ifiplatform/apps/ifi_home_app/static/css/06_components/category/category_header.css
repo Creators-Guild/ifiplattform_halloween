@@ -1,0 +1,27 @@
+/* Design rationale: docs/claude_context/category_page.md */
+.category-page h1,
+.article-index-page h1 {
+  font-size: 2.75rem;
+}
+
+#page-title-plain[hidden] {
+  display: none;
+}
+
+.category-page .intro,
+.article-index-page .intro {
+  font-size: 1.15rem;
+}
+
+.category-page .general-info,
+.article-index-page .general-info {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+.category-page .intro p,
+.article-index-page .intro p,
+.category-page .general-info p,
+.article-index-page .general-info p {
+  font-size: inherit;
+}

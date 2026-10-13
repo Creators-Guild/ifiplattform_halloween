@@ -1,0 +1,12 @@
+/* News/Info Articles grids read as one card each; the article cards inside drop their own */
+.home-layout .maincontent .suggestions-row .newsbar-layout {
+  padding: 1rem;
+  background-color: var(--color-card-bg);
+  border-radius: 12px;
+  box-shadow: 0 3px 8px var(--color-shadow);
+}
+
+.home-layout .maincontent .suggestions-row .articlecard {
+  background-color: transparent;
+  box-shadow: none;
+}

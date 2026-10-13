@@ -1,0 +1,2160 @@
+# Ifi Platform English translations.
+# Copyright (C) 2026 YOUR NAME
+# This file is distributed under the same license as the Ifi Platform package.
+# YOUR NAME <you@example.com>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: IfiPlatform 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-31 11:59+0200\n"
+"PO-Revision-Date: 2026-02-26 13:30+0100\n"
+"Last-Translator: YOUR NAME <you@example.com>\n"
+"Language-Team: English <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\apps\account_app\templates\core\account_settings.html:4
+#: .\templates\partials\top_header.html:45
+#: .\templates\partials\top_header.html:62
+msgid "Account"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:14
+msgid "Account Settings"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:16
+msgid "User"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:23
+#, python-format
+msgid ""
+"You've been given permission to write info articles and news. Please note: "
+"content you write becomes the property of IfiPlatform and the student "
+"union(s) it represents, and stays published even if you later delete your "
+"account -- see our <a href=\"%(privacy_policy_url)s#editor-terms\">Privacy "
+"Policy</a> for the full terms, including how you can choose to be credited."
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:27
+msgid "I agree"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:28
+msgid "I disagree"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:34
+msgid "Your permission to write pages has been removed."
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:39
+msgid ""
+"Your profile is missing some details -- filling them in is <span "
+"class=\"notice-highlight\">optional</span>, but helps us reach you if needed."
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:45
+msgid "Waiting for you to confirm the new address"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:46
+msgid "check its inbox for a confirmation link. Your email stays"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:47
+msgid "until then."
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:51
+msgid "Cancel this change"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:66
+#: .\apps\account_app\templates\core\account_settings.html:78
+#: .\apps\account_app\templates\core\account_settings.html:90
+#: .\apps\account_app\templates\core\account_settings.html:106
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_save_bar.html:13
+#: .\apps\study_app\templates\flashcards\core\card_form.html:12
+msgid "Save"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:67
+#: .\apps\account_app\templates\core\account_settings.html:79
+#: .\apps\account_app\templates\core\account_settings.html:91
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_unsaved_changes_modal.html:18
+msgid "Cancel"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:67
+#: .\apps\account_app\templates\core\account_settings.html:79
+#: .\apps\account_app\templates\core\account_settings.html:91
+msgid "Edit"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:112
+msgid ""
+"Optional -- lets you be credited on content without using your real name."
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:116
+msgid "Download my data"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:117
+#: .\apps\account_app\templates\legal\privacy_policy.html:4
+#: .\apps\account_app\templates\legal\privacy_policy.html:13
+#: .\templates\partials\bottom_header.html:6
+msgid "Privacy Policy"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:118
+#: .\templates\partials\top_header.html:63
+msgid "Log out"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:122
+msgid "Delete my account"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:139
+msgid "Your study tools (decks and flashcards)"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:144
+msgid "If you keep them, credit them as:"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:152
+msgid "Credit any articles/news you wrote as:"
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:158
+msgid ""
+"You haven't set a nickname above -- set one first if you want to choose it "
+"here."
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:162
+msgid ""
+"Info articles/news are never deleted -- they're the property of IfiPlatform/"
+"the student union. Everything else about your account is permanently deleted."
+msgstr ""
+
+#: .\apps\account_app\templates\core\account_settings.html:164
+msgid "Permanently delete my account"
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:15
+msgid "What we collect"
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:16
+msgid ""
+"To create and run your IfiPlatform account, we store your username, email "
+"address, and first and last name. You can optionally set a nickname to be "
+"credited under instead of your real name. We also use a session cookie to "
+"keep you logged in -- this is strictly necessary for the site to work and "
+"isn't a tracking cookie."
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:18
+msgid "Why we collect it"
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:19
+msgid ""
+"This data is used to create and secure your account, verify your email "
+"address, let you write and be credited for articles/news and own study "
+"decks, and reach you if we need to (e.g. a security notice). The legal basis "
+"is contract necessity: we need it to provide the account-based features you "
+"sign up for."
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:21
+msgid "Cookies and third parties"
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:22
+msgid ""
+"IfiPlatform does not use any analytics, advertising, or tracking scripts, "
+"and does not share your data with any third party. The only cookies in use "
+"are Django's own session and CSRF cookies, required for login and form "
+"security."
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:24
+msgid "How long we keep it"
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:25
+#, python-format
+msgid ""
+"Your account data is kept until you delete your account (see \"Your rights\" "
+"below). If you sign up but never confirm your email address, that unverified "
+"account -- and the name/email on it -- is automatically deleted after "
+"%(retention_days)s days."
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:27
+msgid "Content ownership for articles and news"
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:28
+msgid ""
+"Info articles and news you write on IfiPlatform become the property of "
+"IfiPlatform and the student union(s) it represents -- they aren't deleted if "
+"you later delete your account, since they're institutional content, not "
+"personal data about you. What does stay your choice is how they're credited: "
+"under your real name, your nickname, or anonymously as \"Unknown\". You'll "
+"be asked to explicitly agree to this the first time you're given permission "
+"to write pages; if you disagree, that permission is removed again."
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:30
+#, fuzzy
+#| msgid "Your Page"
+msgid "Your rights"
+msgstr "Your Page"
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:31
+msgid ""
+"You can view and correct your name/email/nickname at any time from Account "
+"Settings. You can download a copy of the personal data we hold on you "
+"(\"Download my data\"). You can delete your account entirely (\"Delete my "
+"account\") -- at that point you also choose whether to delete your study "
+"decks/flashcards outright or keep them, and how any articles you wrote "
+"should be credited going forward."
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:33
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:65
+msgid "Contact"
+msgstr ""
+
+#: .\apps\account_app\templates\legal\privacy_policy.html:34
+msgid ""
+"To exercise any of these rights, or with questions about this policy, "
+"contact: "
+msgstr ""
+
+#: .\apps\account_app\templates\login\account_deleted.html:4
+#: .\apps\account_app\templates\login\account_deleted.html:13
+msgid "Account Deleted"
+msgstr ""
+
+#: .\apps\account_app\templates\login\account_deleted.html:14
+msgid "Your account has been deleted. We're sorry to see you go."
+msgstr ""
+
+#: .\apps\account_app\templates\login\account_deleted.html:16
+#: .\apps\account_app\templates\login\logout.html:22
+msgid "Return to main page"
+msgstr ""
+
+#: .\apps\account_app\templates\login\email_change_invalid.html:4
+#: .\apps\account_app\templates\login\verify_email_invalid.html:4
+msgid "Link invalid"
+msgstr ""
+
+#: .\apps\account_app\templates\login\email_change_invalid.html:13
+#: .\apps\account_app\templates\login\verify_email_invalid.html:13
+msgid "Link invalid or expired"
+msgstr ""
+
+#: .\apps\account_app\templates\login\email_change_invalid.html:14
+msgid ""
+"This email confirmation link is no longer valid. It may have expired, "
+"already been used, or that address may now belong to another account."
+msgstr ""
+
+#: .\apps\account_app\templates\login\email_change_invalid.html:16
+#: .\apps\account_app\templates\login\email_change_sent.html:16
+msgid "Back to account settings"
+msgstr ""
+
+#: .\apps\account_app\templates\login\email_change_sent.html:4
+#: .\apps\account_app\templates\login\email_change_sent.html:13
+msgid "Confirm your new email"
+msgstr ""
+
+#: .\apps\account_app\templates\login\email_change_sent.html:14
+msgid ""
+"We've sent a confirmation link to the new email address. Your account keeps "
+"using the old one until you click it."
+msgstr ""
+
+#: .\apps\account_app\templates\login\email_change_success.html:4
+#: .\apps\account_app\templates\login\email_change_success.html:13
+msgid "Email updated"
+msgstr ""
+
+#: .\apps\account_app\templates\login\email_change_success.html:14
+msgid "Your account's email is now"
+msgstr ""
+
+#: .\apps\account_app\templates\login\email_change_success.html:16
+#: .\apps\account_app\templates\login\signin_success.html:17
+#: .\apps\account_app\templates\login\verify_email_success.html:16
+msgid "Go to your account"
+msgstr ""
+
+#: .\apps\account_app\templates\login\login.html:4
+#: .\apps\account_app\templates\login\login.html:13
+msgid "User Login"
+msgstr ""
+
+#: .\apps\account_app\templates\login\login.html:36
+#: .\templates\partials\top_header.html:70
+msgid "Log in"
+msgstr ""
+
+#: .\apps\account_app\templates\login\login.html:39
+msgid "New user? Sign in here"
+msgstr ""
+
+#: .\apps\account_app\templates\login\login.html:42
+msgid "Didn't get a verification email?"
+msgstr ""
+
+#: .\apps\account_app\templates\login\logout.html:4
+#: .\apps\account_app\templates\login\logout.html:13
+msgid "User Logout"
+msgstr ""
+
+#: .\apps\account_app\templates\login\logout.html:14
+msgid "You are now logged out!"
+msgstr ""
+
+#: .\apps\account_app\templates\login\logout.html:16
+#, python-format
+msgid "Goodbye for now, %(display_name)s. Hope to see you soon!"
+msgstr ""
+
+#: .\apps\account_app\templates\login\logout.html:18
+msgid "Goodbye for now:) Hope to see you soon!"
+msgstr ""
+
+#: .\apps\account_app\templates\login\logout.html:21
+msgid "Log in again"
+msgstr ""
+
+#: .\apps\account_app\templates\login\resend_verification.html:4
+#: .\apps\account_app\templates\login\resend_verification.html:13
+#: .\apps\account_app\templates\login\verify_email_invalid.html:16
+msgid "Resend verification email"
+msgstr ""
+
+#: .\apps\account_app\templates\login\resend_verification.html:14
+msgid ""
+"Enter the email address you signed up with and we'll send a new confirmation "
+"link, if there's an unverified account for it."
+msgstr ""
+
+#: .\apps\account_app\templates\login\resend_verification.html:30
+msgid "Resend email"
+msgstr ""
+
+#: .\apps\account_app\templates\login\resend_verification.html:33
+#: .\apps\account_app\templates\login\verify_email_invalid.html:19
+#: .\apps\account_app\templates\login\verify_email_sent.html:16
+msgid "Back to login"
+msgstr ""
+
+#: .\apps\account_app\templates\login\signin.html:4
+#: .\apps\account_app\templates\login\signin.html:13
+#: .\apps\account_app\templates\login\signin_success.html:4
+#: .\apps\account_app\templates\login\signin_success.html:13
+msgid "User Registration"
+msgstr ""
+
+#: .\apps\account_app\templates\login\signin.html:71
+#, python-format
+msgid ""
+"By creating an account you agree to our <a "
+"href=\"%(privacy_policy_url)s\">Privacy Policy</a>."
+msgstr ""
+
+#: .\apps\account_app\templates\login\signin.html:73
+msgid "Sign In"
+msgstr ""
+
+#: .\apps\account_app\templates\login\signin.html:76
+msgid "Already an user? Log in here"
+msgstr ""
+
+#: .\apps\account_app\templates\login\signin_success.html:14
+msgid "Sign up complete!"
+msgstr ""
+
+#: .\apps\account_app\templates\login\signin_success.html:15
+msgid "Welcome"
+msgstr ""
+
+#: .\apps\account_app\templates\login\verify_email_invalid.html:14
+msgid ""
+"This verification link is no longer valid. It may have already been used, or "
+"your account may already be active."
+msgstr ""
+
+#: .\apps\account_app\templates\login\verify_email_sent.html:4
+#: .\apps\account_app\templates\login\verify_email_sent.html:13
+msgid "Check your email"
+msgstr ""
+
+#: .\apps\account_app\templates\login\verify_email_sent.html:14
+msgid ""
+"We've sent a confirmation link to your email address. Click it to activate "
+"your account."
+msgstr ""
+
+#: .\apps\account_app\templates\login\verify_email_success.html:4
+#: .\apps\account_app\templates\login\verify_email_success.html:13
+msgid "Email confirmed"
+msgstr ""
+
+#: .\apps\account_app\templates\login\verify_email_success.html:14
+msgid "Your account is now active. Welcome"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\article\pages.py:168
+msgid "Unknown"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:28
+msgid "Auto (by event type)"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:29
+msgid "Blue"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:30
+msgid "Yellow"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:31
+msgid "Orange"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:32
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:116
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:156
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:388
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:424
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:469
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:494
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:518
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:543
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:626
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:651
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:675
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:700
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:724
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:749
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:827
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:858
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:920
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:177
+msgid "Pink"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:33
+msgid "Green"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:34
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:117
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:157
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:389
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:425
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:470
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:495
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:519
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:544
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:627
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:652
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:676
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:701
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:725
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:750
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:828
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:859
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:921
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:178
+msgid "Purple"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:35
+msgid "Custom (hex code)"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:64
+#: .\apps\ifi_home_app\templates\events\event_page.html:196
+msgid "Host"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:65
+#: .\apps\ifi_home_app\templates\events\event_page.html:210
+msgid "Contributor"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:66
+#: .\apps\ifi_home_app\templates\events\event_page.html:211
+msgid "Collaborator"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:328
+msgid "Social"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:329
+msgid "Deadline"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:330
+msgid "Academic"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:331
+msgid "Company presentation"
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py:332
+msgid "Other"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\home_index.html:4
+#: .\apps\ifi_home_app\templates\home_base.html:4
+#: .\templates\partials\top_header.html:23
+msgid "Ifi Home"
+msgstr "Ifi Home"
+
+#: .\apps\ifi_home_app\templates\core\home_index.html:19
+msgid "Latest News"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\home_index.html:33
+msgid "Suggested Info Articles"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\home_index.html:34
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:34
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:34
+msgid "Info Articles"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\home_index.html:42
+#, python-format
+msgid "This month at Ifi &ndash; %(current_month)s"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_articlesbar.html:14
+msgid "No articles yet or something is broken ;_;"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:27
+msgid "Happening today"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:88
+msgid "Click to see calendar"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:95
+#: .\apps\ifi_home_app\templates\events\event_page.html:37
+msgid "at"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:165
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:254
+#: .\apps\ifi_home_app\templates\core\partials\home_messageboard.html:75
+#: .\apps\ifi_home_app\templates\events\event_page.html:134
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:192
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:248
+#: .\apps\ifi_home_app\templates\info_articles\pages\tool_page.html:80
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:29
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_position_card.html:19
+msgid "Close"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:203
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:226
+#, python-format
+msgid "%(counter)s sub-event"
+msgid_plural "%(counter)s sub-events"
+msgstr[0] ""
+msgstr[1] ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:204
+msgid "See today's events"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:234
+msgid "No upcoming events."
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:253
+msgid "See more events"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_eventsbox.html:266
+msgid "See all events"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_messageboard.html:31
+msgid "View full message"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_messageboard.html:42
+msgid "Previous message"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_messageboard.html:48
+#, python-format
+msgid "Go to message %(n)s"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_messageboard.html:51
+msgid "Next message"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_messageboard.html:61
+msgid "Message"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:18
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:47
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_sidemenu.html:35
+msgid "News"
+msgstr "News"
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:21
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:37
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:62
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:85
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:111
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:21
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:37
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:49
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:62
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:87
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_sidemenu.html:23
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_sidemenu.html:38
+#: .\apps\study_app\templates\core\partials\study_sidemenu.html:18
+msgid "All"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:27
+msgid "No news yet"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:43
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:93
+msgid "No categories yet"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:57
+#, fuzzy
+#| msgid "Student Organizations"
+msgid "Student Unions"
+msgstr "Student Organizations"
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:58
+#, fuzzy
+#| msgid "Student Organizations"
+msgid "Unions"
+msgstr "Student Organizations"
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:73
+msgid "No unions or articles yet"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:82
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_category_page.html:88
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_index_page.html:91
+msgid "Tools"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:99
+msgid "No tools or articles yet"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:108
+msgid "New Student?"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_navbar.html:121
+msgid "No articles yet"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_newsbar.html:13
+msgid "No news yet or something is broken ;_;"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:12
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_sidemenu.html:13
+#: .\apps\study_app\templates\core\partials\study_sidemenu.html:9
+msgid "Close menu"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:14
+#: .\apps\study_app\templates\core\partials\study_sidemenu.html:11
+msgid "menu"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:15
+#: .\apps\study_app\templates\core\partials\study_sidemenu.html:12
+msgid "Menu"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:19
+msgid "About"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:23
+#: .\templates\ifi_base.html:8
+msgid "Ifi Platform"
+msgstr "Ifi Platform"
+
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:26
+#: .\templates\partials\bottom_header.html:5
+msgid "Ifi-Creators' Guild"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:60
+#: .\apps\ifi_home_app\templates\events\event_index_page.html:4
+msgid "Events"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:72
+msgid "This Month"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:75
+msgid "Always at Ifi"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\core\partials\home_sidemenu.html:85
+msgid "hELP"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_index_page.html:24
+#, python-format
+msgid "Spring semester %(year)s"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_index_page.html:26
+#, python-format
+msgid "Fall semester %(year)s"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_index_page.html:42
+msgid "No upcoming events yet."
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_index_page.html:48
+msgid "Past events"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:42
+msgid "View on map"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:68
+msgid "Signup at Peoply"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html
+msgid "This event is no longer listed on Peoply."
+msgstr ""
+
+#: .\apps\ifi_home_app\models\event_models.py
+msgid "Synced from Peoply -- edit it on Peoply instead."
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:70
+msgid "Peoply"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:75
+msgid "Sign up"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:91
+msgid "About this location"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:101
+msgid "Sub-events"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:117
+msgid "View whole week"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:119
+#: .\apps\ifi_home_app\templates\events\event_page.html:127
+msgid "Previous day"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:120
+#: .\apps\ifi_home_app\templates\events\event_page.html:128
+msgid "Next day"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:132
+msgid "Whole week"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:164
+msgid "Involved Unions"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\event_page.html:225
+msgid "See every event this semester"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\partials\event_calendar_grid.html:30
+msgid "Tap again to open"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\partials\peoply_badge.html:4
+msgid "data from peoply"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\partials\peoply_badge.html:17
+#, python-format
+msgid "(last synced %(time)s)"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\partials\peoply_sync_button.html:6
+msgid "Sync Peoply now"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\events\partials\peoply_sync_button.html:7
+msgid "Don't spam!"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_category_page.html:4
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_index_page.html:4
+msgid "Information Articles"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_category_page.html:54
+msgid "Subcategories"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_category_page.html:70
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_index_page.html:68
+msgid "Happening now"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_category_page.html:74
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_index_page.html:72
+msgid "Limited time"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_category_page.html:109
+msgid "In"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_category_page.html:113
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_index_page.html:102
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:158
+#: .\apps\ifi_home_app\templates\info_articles\partials\tool_card.html:18
+msgid "By"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_category_page.html:116
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_index_page.html:105
+#: .\apps\ifi_home_app\templates\info_articles\pages\tool_page.html:59
+#: .\apps\ifi_home_app\templates\info_articles\partials\tool_card.html:21
+msgid "Open tool"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_index_page.html:34
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_breadcrumbs.html:30
+#, fuzzy
+#| msgid "Ifi Homepage"
+msgid "Back to Homepage"
+msgstr "Ifi Homepage"
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_index_page.html:53
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_sidemenu.html:20
+msgid "Categories"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_index_page.html:82
+msgid "Suggested Articles"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:63
+msgid "DRAFT"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:63
+msgid "not visible to the public"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:92
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:193
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:232
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:247
+msgid "Contents"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:138
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:146
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:156
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:181
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:214
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:32
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:42
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:52
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:62
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:76
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:89
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:112
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:149
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:162
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:175
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_body_blocks.html:188
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_column_content.html:20
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_column_content.html:33
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_column_content.html:45
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_column_content.html:57
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_column_content.html:69
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_image_block.html:8
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_image_block.html:21
+msgid "Edit block style"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:161
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:86
+msgid "Published"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:164
+msgid "Last edited"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\article_page.html:243
+msgid "Edit table of contents icon size"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\studentunion_category_page.html:89
+msgid "Programspesifikke foreninger"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\studentunion_category_page.html:112
+msgid "Andre foreninger"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\studentunion_category_page.html:120
+msgid "All active unions"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\studentunion_category_page.html:128
+msgid "Old, but not forgotten"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\studentunion_category_page.html:137
+msgid "Missing in action"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\studentunion_category_page.html:138
+msgid ""
+"We couldn't confirm whether these are still active -- no working website or "
+"contact found."
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\tool_page.html:32
+#: .\apps\ifi_home_app\templates\info_articles\pages\tool_page.html:43
+msgid "Made by"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\tool_page.html:71
+msgid "preview"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\tool_page.html:79
+msgid "Preview"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:37
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_card.html:20
+msgid "Retired"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:38
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_card.html:21
+msgid "Status unknown"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:41
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_card.html:24
+msgid "Closed"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:41
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_card.html:24
+msgid "Program-specific"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:41
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_card.html:24
+msgid "Open to everyone"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:67
+msgid "Email"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:70
+msgid "Website"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:75
+msgid "LinkedIn"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:75
+msgid "TikTok"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:75
+msgid "GitHub"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:84
+msgid "Members"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:89
+msgid "Sitting"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:95
+msgid "Interns"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:108
+msgid "Purpose"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:115
+msgid "Activities"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:122
+msgid "Bylaws"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:127
+msgid "Full bylaws"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:148
+msgid "Sitting Members"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:161
+msgid "Open Positions"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\pages\union_page.html:186
+msgid "Upcoming Events"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:28
+msgid "Block style"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:47
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:117
+msgid "Layout"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:48
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:118
+msgid "Expand or collapse layout options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:53
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:122
+msgid "Side padding"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:58
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:115
+msgid "Width"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:63
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:127
+msgid "Alignment"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:65
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:233
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:257
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:294
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:313
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:332
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:129
+msgid "Left"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:66
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:234
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:258
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:295
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:314
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:333
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:130
+msgid "Center"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:67
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:235
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:259
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:296
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:315
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:334
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:131
+msgid "Right"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:81
+msgid "Lock alignment (ignore Global editor overwrites)"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:94
+msgid "Font size"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:94
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:245
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:306
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:125
+msgid "Title font size"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:109
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:782
+msgid "Box"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:112
+msgid "Box color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:114
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:154
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:386
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:422
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:467
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:492
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:516
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:541
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:624
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:649
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:673
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:698
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:722
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:747
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:825
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:856
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:918
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:175
+msgid "Light"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:115
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:155
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:387
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:423
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:468
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:493
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:517
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:542
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:625
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:650
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:674
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:699
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:723
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:748
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:826
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:857
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:919
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:176
+msgid "Turquoise"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:118
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:158
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:390
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:426
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:471
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:496
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:520
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:545
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:628
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:653
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:677
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:702
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:726
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:751
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:829
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:860
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:922
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:179
+msgid "Black"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:120
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:160
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:392
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:428
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:473
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:498
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:522
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:547
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:630
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:655
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:679
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:704
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:728
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:753
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:831
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:862
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:924
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:181
+msgid "Custom hex color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:121
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:161
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:393
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:429
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:474
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:499
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:523
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:548
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:631
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:656
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:680
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:705
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:729
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:754
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:832
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:863
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:925
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:182
+msgid "Pick a custom color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:128
+msgid "Box corner rounding"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:145
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:909
+msgid "Show shadow"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:148
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:416
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:486
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:535
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:643
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:692
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:741
+msgid "Shadow strength"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:152
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:420
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:490
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:539
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:647
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:696
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:745
+msgid "Shadow color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:175
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:120
+msgid "Height"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:175
+msgid "rem, 0 = auto"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:187
+msgid "Show as list item"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:200
+msgid "Lock image ratio"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:204
+msgid "Gap between columns"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:216
+msgid "Icon size"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:231
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:292
+msgid "Title alignment"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:241
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:302
+msgid "Lock title alignment (ignore Global editor overwrites)"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:250
+msgid "Title side padding"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:255
+msgid "Caption alignment"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:265
+msgid "Lock caption alignment (ignore Global editor overwrites)"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:269
+msgid "Caption font size"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:274
+msgid "Caption side padding"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:311
+msgid "Meta alignment"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:321
+msgid "Lock meta alignment (ignore Global editor overwrites)"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:325
+msgid "Meta font size"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:330
+msgid "Intro alignment"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:340
+msgid "Lock intro alignment (ignore Global editor overwrites)"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:344
+msgid "Intro font size"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:361
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:616
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:665
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:714
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:153
+msgid "Style"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:361
+msgid "Column title"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:362
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:617
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:666
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:715
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:154
+msgid "Expand or collapse style options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:384
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:465
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:514
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:622
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:671
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:720
+msgid "Text color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:384
+msgid "Title color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:413
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:483
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:532
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:640
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:689
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:738
+msgid "Show text shadow"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:459
+msgid "Image title"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:460
+msgid "Expand or collapse image title options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:508
+msgid "Image caption"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:509
+msgid "Expand or collapse image caption options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:568
+msgid "Column weights"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:569
+msgid "Expand or collapse column weight options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:574
+msgid "Column 1 weight"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:579
+msgid "Column 2 weight"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:584
+msgid "Column 3 weight"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:589
+msgid "Column 4 weight"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:783
+msgid "Expand or collapse box options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:819
+msgid "Background"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:820
+msgid "Expand or collapse background options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:841
+msgid "Border"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:842
+msgid "Expand or collapse border options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:847
+msgid "Show border"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:850
+msgid "Thickness"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:854
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:916
+msgid "Color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:870
+msgid "Corner radius"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:876
+msgid "Spacing"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:877
+msgid "Expand or collapse spacing options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:881
+msgid "Padding inside box"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:885
+msgid "Margin outside box"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:903
+msgid "Shadow"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:904
+msgid "Expand or collapse shadow options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:912
+msgid "Strength"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_block_style_mini_panel.html:935
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:132
+msgid "Reset to default"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_breadcrumbs.html:4
+msgid "Breadcrumb"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_breadcrumbs.html:6
+msgid "Back"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_card.html:34
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:86
+msgid "Draft"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_card.html:39
+#: .\apps\study_app\templates\flashcards\partials\deck_list.html:10
+msgid "by"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_card.html:60
+msgid "Toggle card size"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_editor_mode_toggle.html:11
+msgid "Editor mode"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_editor_mode_toggle.html:11
+msgid "Off"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:39
+msgid "Global editor (editors only)"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:41
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:31
+msgid "Minimize"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:58
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:91
+msgid "Publish"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:59
+msgid "Expand or collapse publish options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:86
+msgid "Published (changes pending)"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:96
+msgid "Unpublish"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:101
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:49
+msgid "Sync mirrored page"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:143
+msgid "Only applies to blocks once you Save (see the floating save bar)."
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:147
+msgid "Font size multiplier"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:171
+msgid "Background color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_quick_style_panel.html:200
+msgid "Reset all to default"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_save_bar.html:12
+msgid "Unsaved changes"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_save_bar.html:14
+msgid "Discard"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_unsaved_changes_modal.html:13
+msgid "You have unsaved changes!"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_unsaved_changes_modal.html:14
+msgid "Save your changes before leaving, or discard them and go anyway."
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_unsaved_changes_modal.html:16
+msgid "Save changes"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\article_unsaved_changes_modal.html:17
+msgid "Discard & leave"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:29
+msgid "Banner style (editors only)"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:56
+msgid "Show banner"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:68
+msgid "Colors"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:69
+msgid "Expand or collapse color options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:73
+msgid "Banner color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:76
+msgid "Banner color hex"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:77
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:89
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:101
+msgid "Pick a color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:85
+msgid "Dot color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:88
+msgid "Dot color hex"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:97
+msgid "Title text color"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:100
+msgid "Title text color hex"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:110
+msgid "Size & Text"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\banner_style_panel.html:111
+msgid "Expand or collapse size options"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\translation_warning.html:3
+msgid "This page hasn't been translated yet"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_calendar_panel.html:13
+msgid "Events calendar"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_calendar_panel.html:15
+msgid "Previous week"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_calendar_panel.html:17
+msgid "Next week"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_position_card.html:9
+msgid "Position details"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_position_card.html:22
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_position_card.html:82
+msgid "Responsibilities"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_position_card.html:60
+msgid "Open now"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_position_card.html:60
+msgid "Opening soon"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_position_card.html:93
+msgid "Currently"
+msgstr ""
+
+#: .\apps\ifi_home_app\templates\info_articles\partials\union_position_card.html:95
+msgid "Vacant"
+msgstr ""
+
+#: .\apps\study_app\templates\core\partials\study_sidemenu.html:16
+#: .\apps\study_app\templates\core\study_main.html:21
+#, fuzzy
+#| msgid "Study"
+msgid "Studytools"
+msgstr "Study"
+
+#: .\apps\study_app\templates\core\partials\study_sidemenu.html:20
+#: .\apps\study_app\templates\core\study_main.html:23
+msgid "Flashcards"
+msgstr ""
+
+#: .\apps\study_app\templates\core\partials\study_sidemenu.html:23
+msgid "Multiplechoice"
+msgstr ""
+
+#: .\apps\study_app\templates\core\study_main.html:5
+#: .\apps\study_app\templates\core\study_main.html:17
+msgid "Study Home"
+msgstr ""
+
+#: .\apps\study_app\templates\core\study_main.html:18
+msgid ""
+"Here is content for the study section. This is currently in development..."
+msgstr ""
+
+#: .\apps\study_app\templates\core\study_main.html:27
+msgid "Multiple Choice"
+msgstr ""
+
+#: .\apps\study_app\templates\core\study_main.html:31
+#, fuzzy
+#| msgid "Ifi Study"
+msgid "Mix Studyset"
+msgstr "Ifi Study"
+
+#: .\apps\study_app\templates\core\study_main.html:35
+#, fuzzy
+#| msgid "Study"
+msgid "Study Games"
+msgstr "Study"
+
+#: .\apps\study_app\templates\core\study_main.html:39
+#, fuzzy
+#| msgid "Ifi Study"
+msgid "Ifi Studycompanion AI"
+msgstr "Ifi Study"
+
+#: .\apps\study_app\templates\flashcards\core\card_form.html:4
+msgid "Create Card"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\card_form.html:7
+msgid "New card in"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_detail.html:5
+msgid "Deck Details"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_detail.html:11
+msgid "<- Back to Flashcard Menu"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_detail.html:17
+msgid "Start reviewing"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_detail.html:18
+msgid "Add card"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_detail.html:25
+msgid "Are you sure you want to delete this card?"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_detail.html:27
+#: .\apps\study_app\templates\flashcards\partials\deck_list.html:19
+msgid "Delete"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_detail.html:31
+msgid "No cards in this deck."
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_form.html:4
+msgid "Create New Deck"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_form.html:7
+msgid "<- Back to your decks"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_form.html:8
+msgid "Create a new deck"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\deck_form.html:13
+msgid "Save deck"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\menu.html:5
+msgid "Flashcard Menu"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\menu.html:18
+#: .\apps\study_app\templates\mix_studyset\core\menu.html:11
+#: .\apps\study_app\templates\multiplechoice\core\menu.html:11
+#: .\apps\study_app\templates\studygames\core\menu.html:11
+#, fuzzy
+#| msgid "Ifi Study"
+msgid "<- Back to Ifi Study"
+msgstr "Ifi Study"
+
+#: .\apps\study_app\templates\flashcards\core\menu.html:21
+#, fuzzy
+#| msgid "Welcome to the Ifi Home Page"
+msgid "Welcome to the FlashCard Menu"
+msgstr "Welcome to the Ifi Home Page"
+
+#: .\apps\study_app\templates\flashcards\core\menu.html:22
+#, fuzzy
+#| msgid "This is the main content for the Ifi home page."
+msgid "This is the main menu for flashcards"
+msgstr "This is the main content for the Ifi home page."
+
+#: .\apps\study_app\templates\flashcards\core\review.html:5
+msgid "Flashcard Review"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:10
+msgid "<- Back to deck"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:12
+#, python-format
+msgid "Review: %(deck.name)s"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:15
+msgid "This deck has no cards."
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:18
+msgid "Question:"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:23
+msgid "Card"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:23
+msgid "of"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:27
+msgid "Show answer"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:31
+msgid "Answer:"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:35
+msgid "I knew it"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:36
+msgid "I didn’t know"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:47
+msgid "Previous"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\core\review.html:57
+msgid "Next"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\partials\deck_list.html:2
+#, fuzzy
+#| msgid "Your Page"
+msgid "Your Decks"
+msgstr "Your Page"
+
+#: .\apps\study_app\templates\flashcards\partials\deck_list.html:4
+msgid "Total:"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\partials\deck_list.html:17
+msgid "Are you sure you want to delete this deck?"
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\partials\deck_list.html:23
+msgid "No decks found."
+msgstr ""
+
+#: .\apps\study_app\templates\flashcards\partials\deck_list.html:27
+msgid "Create New Deck?"
+msgstr ""
+
+#: .\apps\study_app\templates\mix_studyset\core\menu.html:5
+#, fuzzy
+#| msgid "Ifi Study"
+msgid "Mix Study Menu"
+msgstr "Ifi Study"
+
+#: .\apps\study_app\templates\mix_studyset\core\menu.html:14
+#, fuzzy
+#| msgid "Welcome to the Ifi Home Page"
+msgid "Welcome to the Mix Studyset Menu"
+msgstr "Welcome to the Ifi Home Page"
+
+#: .\apps\study_app\templates\mix_studyset\core\menu.html:15
+#: .\apps\study_app\templates\multiplechoice\core\menu.html:15
+#, fuzzy
+#| msgid "This is the main content for the Ifi home page."
+msgid "This is the main menu for mutiple choice"
+msgstr "This is the main content for the Ifi home page."
+
+#: .\apps\study_app\templates\multiplechoice\core\menu.html:5
+msgid "Mutiple Choice Menu"
+msgstr ""
+
+#: .\apps\study_app\templates\multiplechoice\core\menu.html:14
+#, fuzzy
+#| msgid "Welcome to the Ifi Home Page"
+msgid "Welcome to the Mutiple Choice Menu"
+msgstr "Welcome to the Ifi Home Page"
+
+#: .\apps\study_app\templates\studygames\core\menu.html:5
+msgid "Study Games Launcher"
+msgstr ""
+
+#: .\apps\study_app\templates\studygames\core\menu.html:14
+#, fuzzy
+#| msgid "Welcome to the Ifi Home Page"
+msgid "Welcome to the Study Games Launcher"
+msgstr "Welcome to the Ifi Home Page"
+
+#: .\apps\study_app\templates\studygames\core\menu.html:15
+#, fuzzy
+#| msgid "This is the main content for the Ifi home page."
+msgid "This is the main menu for study games"
+msgstr "This is the main content for the Ifi home page."
+
+#: .\apps\study_app\urls.py:58 .\templates\partials\top_header.html:28
+#: .\templates\partials\top_header.html:33
+msgid "Study"
+msgstr "Study"
+
+#: .\apps\yourpage_app\templates\core\yourpage_main.html:5
+#: .\apps\yourpage_app\urls.py:10 .\templates\partials\top_header.html:37
+#: .\templates\partials\top_header.html:41
+msgid "Your Page"
+msgstr "Your Page"
+
+#: .\apps\yourpage_app\templates\core\yourpage_main.html:10
+#, fuzzy
+#| msgid "Welcome to the Ifi Home Page"
+msgid "Welcome to the Your Page"
+msgstr "Welcome to the Ifi Home Page"
+
+#: .\apps\yourpage_app\templates\core\yourpage_main.html:11
+#, fuzzy
+#| msgid "This is the main content for the Ifi home page."
+msgid "This is the placeholder for Your Page. This is an upcoming feature..."
+msgstr "This is the main content for the Ifi home page."
+
+#: .\apps\yourpage_app\templates\core\yourpage_main.html:12
+msgid "Current user: "
+msgstr ""
+
+#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:3
+msgid "Personlize Your Studywork"
+msgstr ""
+
+#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:4
+msgid ""
+"Ifi Study support mutiple study workflows consisting of multiple study "
+"models."
+msgstr ""
+
+#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:7
+msgid "Customize your active subjects and studytags?"
+msgstr ""
+
+#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:8
+msgid "ex. IN1000, python, classes"
+msgstr ""
+
+#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:11
+msgid "Customize your preferred study models?"
+msgstr ""
+
+#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:12
+msgid "ex. proritise videos over text, no flashcards etc."
+msgstr ""
+
+#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:15
+msgid "Customize your spaced repetitions?"
+msgstr ""
+
+#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:16
+msgid "ex. IN1000 every wednsday, more IN1000 in week: 22, 23, 24"
+msgstr ""
+
+#: .\apps\yourpage_app\templates\partials\your_subjects.html:3
+msgid "Your Active Subjects"
+msgstr ""
+
+#: .\templates\partials\beta_notice.html:14
+msgid "This site is still in beta"
+msgstr ""
+
+#: .\templates\partials\beta_notice.html:16
+msgid ""
+"Ifi Platform is actively being developed by Ifi-Creators' Guild's DevOps "
+"team! Right now that's just one active developer and two editors keeping "
+"things running. You're bound to run into bugs and rough edges here and "
+"there; we're working actively to fix them as we find them."
+msgstr ""
+
+#: .\templates\partials\beta_notice.html:19
+msgid "Please be patient and kind with us:) We're just students like you!"
+msgstr ""
+
+#: .\templates\partials\beta_notice.html:21
+msgid "Got it"
+msgstr ""
+
+#: .\templates\partials\bottom_header.html:4
+msgid "This webpage was made by Ifi-Creators' Guild"
+msgstr ""
+
+#: .\templates\partials\deploy_notice.html:13
+msgid ""
+"Ifi Platform will restart shortly for an update. You may notice a few brief "
+"interruptions during the update. Time remaining:"
+msgstr ""
+
+#: .\templates\partials\deploy_notice.html:14
+msgid "Restarting now..."
+msgstr ""
+
+#: .\templates\partials\select_language.html:17
+#: .\templates\partials\select_language.html:49
+msgid "English"
+msgstr ""
+
+#: .\templates\partials\select_language.html:26
+#: .\templates\partials\select_language.html:59
+msgid "Norsk"
+msgstr ""
+
+#: .\templates\partials\top_header.html:8
+msgid "Ifi Platform Beta"
+msgstr "Ifi Platform Beta"
+
+#: .\templates\partials\top_header.html:19
+#: .\templates\partials\top_header.html:24
+msgid "Home"
+msgstr "Home"
+
+#: .\templates\partials\top_header.html:32
+msgid "Ifi Study"
+msgstr "Ifi Study"
+
+#: .\templates\under_development.html:4 .\templates\under_development.html:13
+msgid "Under Development"
+msgstr ""
+
+#: .\templates\under_development.html:14
+msgid "This section of Ifi Platform is still being built. Check back soon!"
+msgstr ""
+
+#: .\templates\under_development.html:15
+msgid "Unless..."
+msgstr ""
+
+#: .\templates\under_development.html:16
+msgid ""
+"You think you could do it. After all, why not? It is an Open Source "
+"Software. Why shouldn't you? Now that it comes to it, you don't feel like "
+"waiting, it could be yours. You are here, it came to you!"
+msgstr ""
+
+#: .\templates\under_development.html:17
+msgid ""
+"Fewer and fewer students get a summer job. The theory you are taught is not "
+"enough to get hired. Start today. Build a portfolio. Build a long GitHub "
+"history that proves your interest in IT lies beyond school."
+msgstr ""
+
+#: .\templates\under_development.html:18
+msgid ""
+"Join today! We are looking for contributors. Difficulties starting, but want "
+"to help? Join Ifi-Creators' Guild and we'll help you out."
+msgstr ""
+
+#: .\templates\under_development.html:19
+msgid ""
+"Links coming soon. OSS is not open quite yet... (Why you hype me so much up "
+"then?)"
+msgstr ""
+
+#: .\templates\under_development.html:20
+msgid "IfiPlatform will become Open Source! Coming this autumn 2026!"
+msgstr ""
+
+#, fuzzy
+#~| msgid "Ifi Platform"
+#~ msgid "Ifi Platform Support"
+#~ msgstr "Ifi Platform"
+
+#, fuzzy
+#~| msgid "Starer Kit"
+#~ msgid "Starter Kit"
+#~ msgstr "Starer Kit"
+
+#~ msgid "Student Life"
+#~ msgstr "Student Life"
+
+#~ msgid "Tips n Tricks"
+#~ msgstr "Tips n Tricks"
+
+#~ msgid "Apps n Links"
+#~ msgstr "Apps n Links"
+
+#, fuzzy
+#~| msgid "Welcome to the Ifi Home Page"
+#~ msgid "Welcome to the Account Page"
+#~ msgstr "Welcome to the Ifi Home Page"
+
+#~ msgid "Newsletter"
+#~ msgstr "Newsletter"
+
+#~ msgid "Blog"
+#~ msgstr "Blog"
+
+#~ msgid "Guest Lectures"
+#~ msgstr "Guest Lectures"

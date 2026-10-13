@@ -1,0 +1,101 @@
+/* Design rationale/history: docs/claude_context/newsbar_layout.md */
+
+.newsbar-heading {
+  margin: 1rem 1em 0;
+}
+
+/* News heading only (not .newsbar-heading--events, the homepage events
+box's own heading in home_layout.css -- that one isn't centered) --
+matches the .newsbar-layout grid below centering its cards as a group. */
+.newsbar-heading--news {
+  text-align: center;
+  /* always exactly one line, truncated with an ellipsis rather than
+  wrapped -- see docs/claude_context/newsbar_layout.md */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 1fr, not a fixed max card width -- see
+docs/claude_context/newsbar_layout.md for why a fixed max always leaves
+dead space and this doesn't. */
+.newsbar-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  /* auto-fit's own default (justify-content:start) leaves leftover column
+  tracks flush-left instead of centered. */
+  justify-content: center;
+  /* start, not grid's default stretch -- see
+  docs/claude_context/newsbar_layout.md */
+  align-items: start;
+  gap: 1rem;
+  padding: 0.5em 0.1em;
+}
+
+/* height/aspect-ratio/width here are all load-bearing, not decorative --
+see docs/claude_context/newsbar_layout.md for what each one guards
+against. */
+.newsbar-layout .articlecard {
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 5 / 4;
+  width: 100%;
+  /* caps how large a single card can get when its own grid track is far
+  wider than a normal card (few cards in a wide container, worst case
+  just one) -- justify-self:center then re-centers the now-narrower card
+  within its still-wide track. */
+  max-width: 40rem;
+  justify-self: center;
+}
+
+/* Shorter than the card's own image aspect-ratio (8/5, article_card.css) --
+frees up the vertical room within the fixed 5/4 card box that the 2-line
+intro below needs, instead of clipping the intro down to 1 line the way
+the previous version of this rule did. */
+.newsbar-layout .articlecard img {
+  aspect-ratio: 2 / 1;
+}
+
+/* .articlecard--list (narrow-screen/editor "show as list" toggle) drops
+the image and meta down to one compact row -- forcing the same 5/4 shape
+on it here would leave a large blank gap below that short content instead
+of this variant's own intentionally compact height. */
+.newsbar-layout .articlecard--list {
+  aspect-ratio: unset;
+  /* meant to span the row edge-to-edge (grid-column: 1/-1 below), so the
+  lone-card max-width/centering above would otherwise shrink it to a
+  narrow centered strip. */
+  max-width: unset;
+  justify-self: stretch;
+}
+
+@media (max-width: 480px) {
+  .newsbar-heading {
+    margin: 0.75rem 0.5rem 0;
+    font-size: 1.25rem;
+  }
+
+  .newsbar-layout {
+    /* same 1fr reasoning as the base rule above -- a single mobile card
+    was capped at 20rem regardless of how much wider than that its
+    (already narrow) column actually was. */
+    grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+    gap: 0.5rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  /* drops the base rule's aspect-ratio lock entirely at this width -- see
+  docs/claude_context/newsbar_layout.md for why. */
+  .newsbar-layout .articlecard {
+    aspect-ratio: unset;
+    height: auto;
+  }
+}
+
+/* 45rem breakpoint and the list-toggle mechanism: see
+docs/claude_context/newsbar_layout.md */
+@media (max-width: 45rem) {
+  .newsbar-layout .articlecard--list {
+    grid-column: 1 / -1;
+  }
+}

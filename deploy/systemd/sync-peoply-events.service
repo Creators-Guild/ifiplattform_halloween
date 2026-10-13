@@ -1,0 +1,13 @@
+[Unit]
+Description=Sync EventPages from Peoply
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/IfiPlatform/ifiplatform
+# sync_peoply_events also runs sync_locale_trees (creates each new event's
+# English alias) and clears the site-root-paths cache itself now -- see its
+# own docstring. No second ExecStart= needed here anymore.
+ExecStart=/home/ubuntu/IfiPlatform/venv/bin/python manage.py sync_peoply_events

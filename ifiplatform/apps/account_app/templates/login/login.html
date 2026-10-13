@@ -1,0 +1,46 @@
+{% extends 'global_base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "User Login" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/account_base.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="account_layout">
+        <div class="auth-card">
+            <h1>{% trans "User Login" %}</h1>
+            <form class="form-with-validation" action="{% url 'login' %}" method="post">
+                {% csrf_token %}
+
+                {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% endif %}
+
+                {{ form.username.label_tag }}
+                {{ form.username }}
+
+                <div>
+                    {{ form.password.label_tag }}
+                    {{ form.password }}
+
+                    {% for error in form.non_field_errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+
+                    {% for error in form.password.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn">{% trans "Log in" %}</button>
+            </form>
+            <p class="auth-links">
+                <a class="back-to" href="{% url 'signin' %}">{% trans "New user? Sign in here" %}</a>
+            </p>
+            <p class="auth-links">
+                <a class="back-to" href="{% url 'resend_verification' %}">{% trans "Didn't get a verification email?" %}</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

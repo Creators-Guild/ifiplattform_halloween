@@ -1,0 +1,124 @@
+/* Design rationale: docs/claude_context/union_card.md */
+.union-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.union-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.6rem;
+  flex: 0 1 14rem;
+  max-width: 14rem;
+  height: 100%;
+  padding: 1.5rem;
+  border: 2px solid var(--color-border);
+  border-top: 6px solid var(--accent-color, var(--color-border));
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--color-shadow);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  background-color: var(--color-card-bg);
+}
+
+.union-card:hover,
+.union-card:focus-visible {
+  box-shadow: 0 4px 14px var(--color-shadow);
+  transform: translateY(-2px);
+}
+
+.union-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  overflow-wrap: break-word;
+}
+
+.union-card-logo,
+.union-card-logo--placeholder {
+  width: 5rem;
+  height: 5rem;
+  object-fit: cover;
+  border-radius: 999px;
+  border: 2px solid var(--color-border);
+}
+
+.union-card-logo--placeholder {
+  background-color: var(--color-bg-dark, var(--color-text-muted));
+  opacity: 0.15;
+}
+
+.union-card--retired {
+  border-top-color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.union-card--retired:hover,
+.union-card--retired:focus-visible {
+  opacity: 1;
+}
+
+.union-card--retired .union-card-logo {
+  filter: grayscale(1);
+}
+
+.union-card--unknown {
+  border-top-style: dashed;
+  border-top-color: var(--color-text-muted);
+  opacity: 0.85;
+}
+
+.union-card--unknown .union-card-logo {
+  filter: saturate(0.4);
+}
+
+.union-card--retired .union-type-badge {
+  background-color: var(--color-text-muted);
+}
+
+.body-union-card {
+  width: var(--card-width);
+  max-width: 100%;
+}
+
+.body-union-card--fixed-height {
+  height: var(--card-height);
+  overflow: hidden;
+}
+
+@media (max-width: 45rem) {
+  .body-union-card,
+  .body-union-card--fixed-height {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .union-card {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .union-card-logo,
+  .union-card-logo--placeholder {
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+  }
+
+  .union-card h3 {
+    font-size: 0.95rem;
+  }
+
+  .union-type-badge {
+    display: none;
+  }
+}

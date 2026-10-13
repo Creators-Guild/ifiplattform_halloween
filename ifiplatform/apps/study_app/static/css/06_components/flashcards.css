@@ -1,0 +1,164 @@
+.deck-grid {
+    width: 800px;
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
+.deck {
+    margin: 5px;
+    position: relative;
+    max-width: 15em;
+}
+
+.deck a {
+    display: inline-block;
+
+    padding: 20px 20px;
+    border-radius: 8px;
+
+    background-color: var(--color-purple);
+    color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.deck a:hover {
+    background-color: var(--color-purple-hover);
+    cursor: pointer;
+    transform: translateY(-1px);
+}
+
+.delete-btn {
+    margin: 5px;
+    position: absolute;
+    right: 0.5rem;
+}
+
+/* Page layout for the review view */
+.flashcard-review-page {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Optional: apply to the body area if you add the class to a wrapper */
+.flashcard-review-page h1 {
+    margin-bottom: 1rem;
+}
+
+.flashcard-review-page p {
+    margin-bottom: 0.75rem;
+}
+
+/* The main card container */
+.flashcard-card {
+    background-color: #cdfcff;
+    border: 2px solid #6fdce2;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 1.05rem;
+    line-height: 1.5;
+}
+
+/* Question label */
+.card-front {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+/* Answer area */
+#answer {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    background-color: #f9fafb;
+    border: 1px solid #e3e4e8;
+}
+
+.card-backt {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+
+/* The two self-rating buttons */
+.rate-yourself {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-knew{
+    background-color: #0ec493;
+    border-color: #0ec493;
+}
+
+.btn-knew[name="knew_it"][value="true"]:hover {
+    background-color: #158070;
+}
+
+.btn-knew[name="knew_it"][value="false"] {
+    background-color: #ef4444;
+    border-color: #dc2626;
+}
+
+.btn-knew[name="knew_it"][value="false"]:hover {
+    background-color: #dc2626;
+}
+
+/* Previous / Next links */
+.deck-nav {
+    display: inline-block;
+    margin-top: 1.2rem;
+    margin-right: 0.75rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    background-color: #eff6ff;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.deck-nav:hover {
+    background-color: #dbeafe;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+/* "Back to deck" link */
+a[href*="deck_detail"] {
+    display: inline-block;
+    margin-bottom: 0.8rem;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+a[href*="deck_detail"]:hover {
+    text-decoration: underline;
+}
+
+.create-deck {
+    background-color: #0b8db4;
+    border-color: #015d79;
+}
+
+.flashcard-menu {
+    max-width: 900px;
+}
+
+.card-display {
+    background-color: #d4fbff;
+}

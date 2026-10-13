@@ -1,0 +1,39 @@
+/* Design rationale: docs/claude_context/title_banner.md */
+.title-banner {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  padding: 3rem 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px var(--color-shadow-strong);
+}
+
+.title-banner[hidden] {
+  display: none;
+}
+
+.title-banner h1 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.title-banner-circle {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--dot-color, #ffffff);
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.title-banner h1 {
+  display: block;
+  border-bottom: none;
+  padding-bottom: 0;
+}

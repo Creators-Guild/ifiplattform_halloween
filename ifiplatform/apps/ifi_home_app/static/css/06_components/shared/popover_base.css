@@ -1,0 +1,34 @@
+/* Design rationale: docs/claude_context/shared_components.md */
+.toc-overlay-panel,
+.block-style-mini-panel,
+.quick-style-panel,
+.position-info-panel {
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+}
+
+.toc-overlay-header,
+.block-style-mini-panel-header,
+.quick-style-panel-header,
+.position-info-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.toc-overlay-title,
+.block-style-mini-panel-title,
+.quick-style-panel-title,
+.position-info-title {
+  margin: 0;
+  font-weight: bold;
+}
+
+.toc-overlay-close,
+.block-style-close,
+.quick-style-minimize,
+.position-info-close {
+  flex: 0 0 auto;
+  cursor: pointer;
+}

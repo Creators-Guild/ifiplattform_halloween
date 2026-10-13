@@ -1,0 +1,43 @@
+/* Design rationale: docs/claude_context/union_page.md */
+.union-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: 60rem;
+    margin: 1rem auto 1.5rem;
+}
+
+.union-logo {
+    width: 12rem;
+    height: 12rem;
+    object-fit: cover;
+    border-radius: 999px;
+    border: 2px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.union-header-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.union-header-text h1 {
+    display: inline-block;
+    margin: 0;
+    font-size: 2.4rem;
+    border-bottom: 4px solid var(--accent-color, var(--color-border));
+    padding-bottom: 0.3rem;
+}
+
+.union-type-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background-color: var(--accent-color, var(--color-secondary));
+    color: var(--color-on-accent);
+}

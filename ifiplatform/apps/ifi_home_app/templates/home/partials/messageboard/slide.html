@@ -1,0 +1,23 @@
+{% load i18n wagtailcore_tags %}
+
+<div class="messageboard-slide{% if is_first %} active{% endif %}"
+     data-index="{{ index }}"
+     data-duration="{{ msg.display_seconds }}">
+    <h2>{{ msg.title }}</h2>
+    <p class="messageboard-date">{{ msg.date|date:"d/m/Y" }}</p>
+
+    <div class="messageboard-body-wrap">
+        <div class="messageboard-body">{{ msg.body|richtext }}</div>
+        <div class="messageboard-scrollbar" aria-hidden="true">
+            <div class="messageboard-scrollbar-thumb"></div>
+        </div>
+    </div>
+
+    <button type="button" class="messageboard-expand">{% trans "View full message" %}</button>
+
+    {% if msg.sender_name %}
+        <p class="messageboard-signature">
+            -{{ msg.sender_name }}{% if msg.sender_role %},<br>{{ msg.sender_role }}{% endif %}
+        </p>
+    {% endif %}
+</div>

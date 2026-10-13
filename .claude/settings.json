@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py test *)",
+      "Bash(python manage.py check *)",
+      "Bash(python manage.py showmigrations *)",
+      "Bash(python manage.py makemigrations --check *)",
+      "Bash(black --check *)",
+      "Bash(pylint *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)"
+    ]
+  }
+}

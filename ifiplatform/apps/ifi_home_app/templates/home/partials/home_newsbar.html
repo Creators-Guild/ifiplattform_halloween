@@ -1,0 +1,10 @@
+{% load i18n static %}
+
+<div class="newsbar-layout bottom-content">
+    {% for article in news_articles %}
+        {% include "info_articles/partials/article_card.html" with article=article %}
+    {% empty %}
+        <p>{% trans "No news yet or something is broken ;_;" %}</p>
+    {% endfor %}
+</div>
+<script src="{% static 'js/article_list_toggle.js' %}" defer></script>  

@@ -1,0 +1,24 @@
+{% load i18n static %}
+{% comment %}
+One-time "we're in beta" welcome modal -- shown to a visitor once, then
+never again on that browser (beta_notice.js sets a localStorage flag on
+dismiss, checked before this is ever unhidden; no cookie/tracking involved,
+consistent with the site's own privacy policy). Always rendered (hidden by
+default) rather than conditionally included, same reasoning as
+deploy_notice.html's own always-present root div just above it in
+global_base.html.
+{% endcomment %}
+<div class="beta-notice-modal" id="beta-notice-modal" role="dialog" aria-modal="true" aria-labelledby="beta-notice-title" hidden>
+    <div class="beta-notice-backdrop" id="beta-notice-backdrop"></div>
+    <div class="beta-notice-panel">
+        <p class="beta-notice-title" id="beta-notice-title">{% trans "This site is still in beta" %}</p>
+        <p class="beta-notice-message">
+            {% blocktrans %}Ifi Platform is actively being developed by Ifi-Creators' Guild's DevOps team! Right now that's just one active developer and two editors keeping things running. You're bound to run into bugs and rough edges here and there; we're working actively to fix them as we find them.{% endblocktrans %}
+        </p>
+        <p class="beta-notice-message">
+            {% trans "Please be patient and kind with us:) We're just students like you!" %}
+        </p>
+        <button type="button" id="beta-notice-dismiss" class="beta-notice-dismiss">{% trans "Got it" %}</button>
+    </div>
+</div>
+<script src="{% static 'js/beta_notice.js' %}" defer></script>

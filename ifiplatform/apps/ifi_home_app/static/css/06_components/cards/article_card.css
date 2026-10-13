@@ -1,0 +1,184 @@
+/* Design rationale: docs/claude_context/article_card.md */
+
+.articlecard {
+	position: relative;
+	display: block;
+	height: 100%;
+	padding: 0.5rem;
+	color: inherit;
+	text-decoration: none;
+	box-shadow: 0 3px 8px var(--color-shadow);
+	border-radius: 12px;
+	transition: transform 0.15s ease, box-shadow 0.15s ease, padding 0.2s ease;
+	text-align: left;
+}
+
+.articlecard:hover,
+.articlecard:focus-visible {
+	box-shadow: 0 4px 14px var(--color-shadow);
+	transform: translateY(-2px);
+	background-color: var(--color-card-bg);
+}
+
+.articlecard img {
+	aspect-ratio: 8 / 5;
+	width: 100%;
+	display: block;
+	object-fit: cover;
+	max-height: 30rem;
+	opacity: 1;
+	overflow: hidden;
+	transition: max-height 0.25s ease, opacity 0.2s ease, margin 0.25s ease;
+}
+
+.articlecard h3 {
+	margin: 0.5rem 0 0.2rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	transition: margin 0.2s ease;
+}
+
+.articlecard-draft-badge {
+	display: inline-block;
+	margin-top: 0.4rem;
+	padding: 0.1rem 0.5rem;
+	border-radius: 999px;
+	font-size: 0.7rem;
+	font-weight: bold;
+	color: var(--color-on-accent);
+	background: var(--color-error);
+	transition: margin 0.2s ease;
+}
+
+.articlecard-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.75rem;
+	margin: 0.15rem 0 0.5rem;
+	font-size: 0.8rem;
+	color: var(--color-text-muted);
+	transition: margin 0.2s ease, gap 0.2s ease, font-size 0.2s ease, color 0.2s ease;
+	text-align: left;
+}
+
+.articlecard-meta > span + span::before {
+	content: "|";
+	margin-right: 0.75rem;
+}
+
+.articlecard-intro {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	overflow: hidden;
+	margin: 0;
+	max-height: 3rem;
+	opacity: 1;
+	transition: max-height 0.25s ease, opacity 0.2s ease, margin 0.25s ease;
+}
+
+.body-article-card {
+	width: var(--card-width);
+	max-width: 100%;
+}
+
+.body-article-card--fixed-height {
+	height: var(--card-height);
+	overflow: hidden;
+}
+
+@media (max-width: 480px) {
+	.body-article-card,
+	.body-article-card--fixed-height {
+		width: 100%;
+		height: auto;
+		overflow: visible;
+	}
+	.articlecard {
+		box-shadow: 0 4px 5px var(--color-shadow);
+	}
+	.articlecard:hover,
+	.articlecard:focus-visible {
+		box-shadow: 0 4px 14px var(--color-shadow);
+		transform: translateY(-2px);
+		background-color: var(--color-bg);
+	}
+}
+
+.articlecard--list {
+	padding: 0.6rem 0.75rem;
+}
+
+.articlecard--list img {
+	max-height: 0;
+	opacity: 0;
+	margin: 0;
+}
+
+.articlecard--list h3 {
+	margin: 0;
+}
+
+.articlecard--list .articlecard-meta {
+	gap: 0.5rem;
+	margin: 0;
+	font-size: 0.75rem;
+	color: var(--color-text-muted);
+}
+
+.articlecard--list .articlecard-intro {
+	max-height: 0;
+	opacity: 0;
+	margin: 0;
+}
+
+.articlecard--list .articlecard-draft-badge {
+	margin: 0;
+}
+
+.articlecard--unlocked-ratio img {
+	aspect-ratio: unset;
+	height: 10rem;
+}
+
+.articlecard-toggle {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	z-index: 1;
+	width: 1.8rem;
+	height: 1.8rem;
+	border: none;
+	border-radius: 999px;
+	background-color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+	color: var(--color-bright);
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+
+.articlecard-toggle:hover,
+.articlecard-toggle:focus-visible {
+	background-color: color-mix(in srgb, var(--color-ink) 75%, transparent);
+}
+
+.articlecard-toggle svg {
+	width: 1.3rem;
+	height: 0.73rem;
+	transform: rotate(180deg);
+	transition: transform 0.15s ease;
+}
+
+.articlecard-toggle[aria-expanded="true"] svg {
+	transform: rotate(0deg);
+}
+
+@media (max-width: 45rem) {
+	.newsbar-layout .articlecard-toggle {
+		display: flex;
+	}
+}

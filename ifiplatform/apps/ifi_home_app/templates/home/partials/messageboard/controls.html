@@ -1,0 +1,16 @@
+{% load i18n %}
+
+<div class="messageboard-controls">
+    <button type="button" class="messageboard-prev" aria-label="{% trans 'Previous message' %}">&larr;</button>
+
+    <div class="messageboard-dots">
+        {% for msg in board_messages %}
+            <button type="button"
+                    class="messageboard-dot{% if forloop.first %} active{% endif %}"
+                    data-index="{{ forloop.counter0 }}"
+                    aria-label="{% blocktrans with n=forloop.counter %}Go to message {{ n }}{% endblocktrans %}"></button>
+        {% endfor %}
+    </div>
+
+    <button type="button" class="messageboard-next" aria-label="{% trans 'Next message' %}">&rarr;</button>
+</div>

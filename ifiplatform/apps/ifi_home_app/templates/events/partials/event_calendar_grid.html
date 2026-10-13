@@ -1,0 +1,39 @@
+{% load i18n wagtailcore_tags %}
+<div class="event-calendar" style="--ec-hours: {{ calendar.hour_count }};">
+    <div class="event-calendar-header">
+        <div class="event-calendar-header-spacer"></div>
+        {% for day in calendar.days %}
+            <div class="event-calendar-header-day" data-day-date="{{ day.date|date:'Y-m-d' }}">{{ day.date|date:"D d.m" }}</div>
+        {% endfor %}
+    </div>
+    <div class="event-calendar-body">
+        <div class="event-calendar-hours">
+            {% for mark in calendar.hour_marks %}
+                <div class="event-calendar-hour-label" style="top: {{ mark.top_pct }}%;">
+                    {{ mark.hour }}:00
+                </div>
+            {% endfor %}
+        </div>
+        <div class="event-calendar-days">
+            {% for day in calendar.days %}
+                <div class="event-calendar-day" data-day-date="{{ day.date|date:'Y-m-d' }}">
+                    {% for block in day.events %}
+                        <a class="event-calendar-block"
+                           href="{% pageurl block.event %}"
+                           style="top: {{ block.top_pct }}%; height: {{ block.height_pct }}%; left: {{ block.left_pct }}%; width: {{ block.width_pct }}%;">
+                            <span class="event-calendar-block-inner event-calendar-block--{{ block.color_key }}"
+                                  style="{% if block.color_hex %}background-color: {{ block.color_hex }};{% endif %}">
+                                <span class="event-calendar-block-title">{{ block.event.title }}</span>
+                                <span class="event-calendar-block-time">
+                                    {{ block.event.event_time|time:"H:i" }}{% if block.event.event_end_time %}&ndash;{{ block.event.event_end_time|time:"H:i" }}{% endif %}
+                                </span>
+                                <span class="event-calendar-block-hint">{% trans "Tap again to open" %}</span>
+                                {% include "events/partials/peoply_badge.html" with event=block.event compact=True %}
+                            </span>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

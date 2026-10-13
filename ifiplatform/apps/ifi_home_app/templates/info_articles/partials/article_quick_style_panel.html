@@ -1,0 +1,198 @@
+{% load i18n l10n %}
+{% comment %}
+On-page "global editor" panel (still id/class "quick-style-panel" and
+"quick-style-*" throughout -- renamed on-screen only, a rename of every
+id here would be a much bigger diff for no real benefit): lets someone
+with edit rights on this exact ArticlePage (see can_edit_style in
+article_models.py's get_context()) publish/unpublish it (see the Publish
+section below) and tweak content_side_padding/content_alignment/
+content_font_size_multiplier (Layout section below) and content_bg_enabled/
+content_bg_color/content_bg_custom_color (Style section below) directly on
+the live page, with an instant preview for most of these
+(article_quick_style.js writes the CSS custom properties/background on
+.article-page, plus rescales every font-size-bearing block live, as you
+interact). Neither section has a Save button of its own -- saving happens
+via the global floating save
+bar (article_save_bar.html), which this panel's save() registers itself
+with (registerSaveHandler), publishing for real via
+article_views.save_quick_style -- Publish/Unpublish act immediately
+instead, see their own comment below. Alignment is the one field here
+that's destructive to save: it overwrites every alignment-capable
+block's own alignment throughout the article (see save_quick_style's
+apply_alignment_to_blocks), gated by a confirm dialog in
+article_quick_style.js's save(). Anyone without edit rights on this page
+never gets this block rendered at all -- the save/publish/unpublish
+endpoints each enforce the same permission checks independently, so this
+is UX, not the security boundary.
+{% endcomment %}
+<form class="quick-style-panel" id="quick-style-panel"
+      data-quick-style-url="{% url 'article_quick_style' page.id %}"
+      data-publish-url="{% url 'article_publish' page.id %}"
+      data-unpublish-url="{% url 'article_unpublish' page.id %}"
+      data-sync-mirrored-url="{% url 'page_sync_mirrored' page.id %}"
+      data-default-padding="{{ quick_style_defaults.padding|unlocalize }}" data-default-alignment="{{ quick_style_defaults.alignment }}" data-default-font-size="{{ quick_style_defaults.font_size|unlocalize }}"
+      data-default-bg-color="{{ quick_style_defaults.bg_color }}"
+      data-default-header-padding="{{ quick_style_defaults.header_padding|unlocalize }}" data-default-title-font-size="{{ quick_style_defaults.title_font_size|unlocalize }}"
+      data-default-meta-font-size="{{ quick_style_defaults.meta_font_size|unlocalize }}" data-default-intro-font-size="{{ quick_style_defaults.intro_font_size|unlocalize }}">
+    {% csrf_token %}
+    <div class="quick-style-panel-header">
+        <p class="quick-style-panel-title">{% trans "Global editor (editors only)" %}</p>
+        <button type="button" id="quick-style-minimize" class="quick-style-minimize"
+                aria-label="{% trans 'Minimize' %}" aria-expanded="true">&#8722;</button>
+    </div>
+
+    <div class="quick-style-panel-body" id="quick-style-panel-body">
+        {% comment %}
+        Three collapsible sections, same markup/mechanism as the block-style
+        mini panel's own (block-style-box-collapse-toggle/block-style-box-
+        fields, generic [data-controls] wiring reused as-is in
+        article_quick_style.js -- see that file's own comment) rather than
+        duplicating that CSS/JS here. Publish starts expanded (the more
+        likely reason you opened this panel at all); Layout/Style start
+        collapsed, matching the block-style panel's own default-closed
+        convention.
+        {% endcomment %}
+
+        <div class="block-style-field block-style-caption-header">
+            <p class="block-style-box-subsection-title">{% trans "Publish" %}</p>
+            <button type="button" class="block-style-box-collapse-toggle" data-controls="quick-style-publish-fields" aria-expanded="true" aria-label="{% trans 'Expand or collapse publish options' %}">&#9662;</button>
+        </div>
+        <div class="block-style-box-fields" id="quick-style-publish-fields">
+            {% comment %}
+            This page's own published state -- not a style field, so it's
+            not part of the dirty-tracking/save-bar flow the fields below
+            use. Publish/Unpublish always act on the nb ("OG") copy
+            regardless of which locale you're looking at, then sync the en
+            translation to match (see ArticlePage.publish_target/
+            article_views.publish_page/unpublish_page) --
+            can_publish_page/can_unpublish_page already check permission
+            against that nb copy, not this one, so they're the only gate
+            these two buttons need (see ArticlePage.get_context()).
+            Publish only shows up when there's actually something to
+            publish; Unpublish only when the nb copy is actually live
+            (can_unpublish_page is False otherwise -- Wagtail's own
+            can_unpublish() requires it). Sync mirrored page is the odd one
+            out here -- it's not about *this* page's publish state at all,
+            just whether we're standing on the nb ("OG") copy with an
+            existing translation to push synchronized fields
+            (status, etc.) to (see EditorModeMixin.can_sync_mirrored_page) --
+            grouped with Publish/Unpublish anyway since it's the same kind
+            of immediate, no-preview action.
+            {% endcomment %}
+            <div class="quick-style-field quick-style-status-row">
+                <span class="quick-style-status-badge{% if not page_is_live %} quick-style-status-badge--draft{% elif page_has_unpublished_changes %} quick-style-status-badge--pending{% else %} quick-style-status-badge--live{% endif %}">
+                    {% if not page_is_live %}{% trans "Draft" %}{% elif page_has_unpublished_changes %}{% trans "Published (changes pending)" %}{% else %}{% trans "Published" %}{% endif %}
+                </span>
+                <span class="quick-style-status-actions">
+                    {% if can_publish_page and page_has_pending_publish %}
+                        <button type="button" id="quick-style-publish-button" class="quick-style-publish-button">
+                            {% trans "Publish" %}
+                        </button>
+                    {% endif %}
+                    {% if can_unpublish_page %}
+                        <button type="button" id="quick-style-unpublish-button" class="quick-style-unpublish-button">
+                            {% trans "Unpublish" %}
+                        </button>
+                    {% endif %}
+                    {% if can_sync_mirrored_page %}
+                        <button type="button" id="quick-style-sync-mirrored-button" class="quick-style-publish-button">
+                            {% trans "Sync mirrored page" %}
+                        </button>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        {% comment %}
+        Side padding/alignment/font-size multiplier -- positioning/sizing
+        concerns, same "Layout" naming as the per-block mini panel's own
+        Layout section (article_block_style_mini_panel.html), grouped
+        separately from Style's own background color below. Starts
+        collapsed, matching Style's existing default-closed convention.
+        {% endcomment %}
+        <div class="block-style-field block-style-caption-header">
+            <p class="block-style-box-subsection-title">{% trans "Layout" %}</p>
+            <button type="button" class="block-style-box-collapse-toggle" data-controls="quick-style-layout-fields" aria-expanded="false" aria-label="{% trans 'Expand or collapse layout options' %}">&#9662;</button>
+        </div>
+        <div class="block-style-box-fields" id="quick-style-layout-fields" hidden>
+            <label class="quick-style-field">
+                <span>{% trans "Side padding" %} (<span id="quick-style-padding-value">{{ page.style.content_side_padding|unlocalize }}</span>rem)</span>
+                <input type="range" id="quick-style-padding" min="0" max="20" step="0.25" value="{{ page.style.content_side_padding|unlocalize }}">
+            </label>
+
+            <div class="quick-style-field">
+                <span>{% trans "Alignment" %}</span>
+                <div class="quick-style-align-buttons" id="quick-style-alignment" data-value="{{ page.style.content_alignment }}">
+                    <button type="button" data-align="left" class="{% if page.style.content_alignment == 'left' %}active{% endif %}">{% trans "Left" %}</button>
+                    <button type="button" data-align="center" class="{% if page.style.content_alignment == 'center' %}active{% endif %}">{% trans "Center" %}</button>
+                    <button type="button" data-align="right" class="{% if page.style.content_alignment == 'right' %}active{% endif %}">{% trans "Right" %}</button>
+                </div>
+                {% comment %}
+                Alignment is the one field here that doesn't just live-
+                preview -- it only overwrites every block's own alignment
+                once actually saved (see save_quick_style's apply_
+                alignment_to_blocks, and this panel's own save() in
+                article_quick_style.js, which warns right before that
+                POST goes out). This is a reminder that clicking a button
+                above alone changes nothing lasting yet -- Save is required.
+                {% endcomment %}
+                <p class="quick-style-field-hint">{% trans "Only applies to blocks once you Save (see the floating save bar)." %}</p>
+            </div>
+
+            <label class="quick-style-field">
+                <span>{% trans "Font size multiplier" %} (&times;<span id="quick-style-font-size-value">{{ page.style.content_font_size_multiplier|unlocalize }}</span>)</span>
+                <input type="range" id="quick-style-font-size" min="0.5" max="2" step="0.05" value="{{ page.style.content_font_size_multiplier|unlocalize }}">
+            </label>
+        </div>
+
+        <div class="block-style-field block-style-caption-header">
+            <p class="block-style-box-subsection-title">{% trans "Style" %}</p>
+            <button type="button" class="block-style-box-collapse-toggle" data-controls="quick-style-style-fields" aria-expanded="false" aria-label="{% trans 'Expand or collapse style options' %}">&#9662;</button>
+        </div>
+        <div class="block-style-box-fields" id="quick-style-style-fields" hidden>
+            {% comment %}
+            Reuses the .color-swatch/.color-swatch-custom-group/.color-swatch-
+            picker classes from article_block_style.css (already loaded
+            whenever this panel is, both gated on the same can_edit_style) --
+            same swatch-row + hex-chip-with-picker-button control as the
+            per-block box styling panel, just for the whole article body's own
+            background instead of one block's box. Values render server-side
+            here (page.style.content_bg_*) rather than via data-* attributes,
+            since this panel edits one fixed article's shared ArticleStyle
+            row, not whichever block was last clicked.
+            {% endcomment %}
+            <label class="quick-style-field block-style-toggle">
+                <input type="checkbox" id="quick-style-bg-enabled" {% if page.style.content_bg_enabled %}checked{% endif %}>
+                <span>{% trans "Background color" %}</span>
+            </label>
+            <div class="quick-style-field" id="quick-style-bg-color-field" {% if not page.style.content_bg_enabled %}hidden{% endif %}>
+                <div class="block-style-color-buttons" id="quick-style-bg-color" data-value="{{ page.style.content_bg_color }}">
+                    <button type="button" class="color-swatch color-swatch--bg-light{% if page.style.content_bg_color == 'bg-light' %} active{% endif %}" data-color="bg-light">{% trans "Light" %}</button>
+                    <button type="button" class="color-swatch color-swatch--turq{% if page.style.content_bg_color == 'turq' %} active{% endif %}" data-color="turq">{% trans "Turquoise" %}</button>
+                    <button type="button" class="color-swatch color-swatch--pink{% if page.style.content_bg_color == 'pink' %} active{% endif %}" data-color="pink">{% trans "Pink" %}</button>
+                    <button type="button" class="color-swatch color-swatch--purple{% if page.style.content_bg_color == 'purple' %} active{% endif %}" data-color="purple">{% trans "Purple" %}</button>
+                    <button type="button" class="color-swatch color-swatch--black{% if page.style.content_bg_color == 'black' %} active{% endif %}" data-color="black">{% trans "Black" %}</button>
+                    <div class="color-swatch-custom-group">
+                        <input type="text" class="color-swatch color-swatch--custom{% if page.style.content_bg_color == 'custom' %} active{% endif %}" id="quick-style-bg-custom-color" data-color="custom" placeholder="#hex" maxlength="7" value="{{ page.style.content_bg_custom_color }}" aria-label="{% trans 'Custom hex color' %}">
+                        <label class="color-swatch-picker" aria-label="{% trans 'Pick a custom color' %}" title="{% trans 'Pick a custom color' %}">
+                            <input type="color" id="quick-style-bg-picker" class="color-swatch-picker-input" tabindex="-1" value="{{ page.style.content_bg_custom_color|default:'#ffffff' }}">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% comment %}
+        Outside all three collapsible sections above (Publish/Layout/Style)
+        rather than tucked inside one of them -- resets Publish-adjacent
+        nothing, sure, but it resets every Layout/Style field regardless of
+        whether either section happens to be expanded right now, so it
+        needs to stay visible either way rather than requiring one to be
+        open first just to find it.
+        {% endcomment %}
+        <div class="quick-style-actions">
+            <button type="button" id="quick-style-reset" class="quick-style-reset">{% trans "Reset all to default" %}</button>
+            <span class="quick-style-status" id="quick-style-status" aria-live="polite"></span>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,36 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Deck Details" %}{% endblock %}
+{% block extra_head %} 
+<link rel="stylesheet" href="{% static "styles/neon_style/ifi_study/flashcards.css" %}"> 
+{% endblock %}
+
+{% block content %}
+    <a class="back-to" href="{% url 'flashcard_menu' %}">{% trans "<- Back to Flashcard Menu" %}</a>
+    <div class = "menu">
+        <h1>{{ deck.name }}</h1>
+        <p>{{ deck.description }}</p>
+
+        <p>
+            <a class = "btn" href="{% url 'review' deck.pk 0 %}">{% trans "Start reviewing" %}</a> |
+            <a class = "btn" href="{% url 'card_create' deck.pk %}">{% trans "Add card" %}</a>
+        </p>
+
+        <div class = "grid-wrapper">
+        {% for card in cards %}
+            <div = class="box card-display" >{{ card.front }} → {{ card.back }}
+                <form method="post" action="{% url 'card_delete' card.pk %}" style="display:inline;"
+                    onsubmit="return confirm('{% trans "Are you sure you want to delete this card?" %}');">
+                    {% csrf_token %}
+                    <button class= "btn btn-delete" type="submit">{% trans "Delete" %}</button>
+                </form>
+            </div>
+        {% empty %}
+            <li>{% trans "No cards in this deck." %}</li>
+        {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}

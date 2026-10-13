@@ -1,0 +1,33 @@
+/* Design rationale: docs/claude_context/newsbar_layout.md */
+.newsbar-heading {
+  margin: 1rem 1em 0;
+}
+
+.newsbar-heading--news,
+.newsbar-heading--articles {
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.newsbar-heading-short {
+  display: none;
+}
+
+@container (max-width: 26rem) {
+  .newsbar-heading-full {
+    display: none;
+  }
+
+  .newsbar-heading-short {
+    display: inline;
+  }
+}
+
+@media (max-width: 45rem) {
+  .newsbar-heading {
+    margin: 0.75rem 0.5rem 0;
+    font-size: 1.25rem;
+  }
+}

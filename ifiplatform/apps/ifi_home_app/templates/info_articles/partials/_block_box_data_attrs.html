@@ -1,0 +1,7 @@
+{% load l10n %}{% comment %}
+data-box-* attributes for one block/column's box styling, read by
+article_block_style.js when the "..." trigger opens the style panel for it
+-- included into the middle of that element's own opening tag, only inside
+an {% if can_edit_style %} block (same as the block's other data-* attrs).
+`box` is a _effective_box_style() dict (see article_models.py).
+{% endcomment %}data-box-enabled="{{ box.enabled|yesno:"true,false" }}" data-box-border-visible="{{ box.border_visible|yesno:"true,false" }}" data-box-border-width="{{ box.border_width|unlocalize }}" data-box-border-color="{{ box.border_color }}" data-box-border-custom-color="{{ box.border_custom_color }}" data-box-radius="{{ box.radius|unlocalize }}" data-box-bg-color="{{ box.bg_color }}" data-box-bg-custom-color="{{ box.bg_custom_color }}" data-box-padding="{{ box.padding|unlocalize }}" data-box-margin="{{ box.margin|unlocalize }}" data-box-shadow-enabled="{{ box.shadow_enabled|yesno:"true,false" }}" data-box-shadow-strength="{{ box.shadow_strength|unlocalize }}" data-box-shadow-color="{{ box.shadow_color }}" data-box-shadow-custom-color="{{ box.shadow_custom_color }}"

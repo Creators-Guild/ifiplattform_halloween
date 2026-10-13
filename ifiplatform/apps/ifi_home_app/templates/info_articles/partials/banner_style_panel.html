@@ -1,0 +1,134 @@
+{% load i18n l10n %}
+{% comment %}
+On-page "banner style" panel for CategoryPage/ArticleIndexPage's own title
+banner (see BannerStyleMixin/PageBannerStyle in article_models.py, .title-
+banner in category_card.css) -- editors only (can_edit_style, same
+permission check save_banner_style itself enforces). Deliberately reuses
+article_quick_style.css's ".quick-style-panel"/".quick-style-field"/etc
+classes verbatim (this panel has a different id, so no collision -- those
+classes are just positioning/layout, not ArticlePage-specific), and
+article_block_style.css's ".color-swatch-custom-group"/".color-swatch-
+picker"/".block-style-box-collapse-toggle"/".block-style-box-fields" (no
+fixed preset swatches for the three colors here -- these are always
+freeform custom colors, unlike the box-color fields elsewhere).
+Colors/Size & Text are collapsible sections, same generic [data-controls]
+wiring as article_quick_style.js's own Publish/Style sections -- see that
+file's comment for why this is one generic loop rather than per-section
+JS, reused as-is in banner_style.js.
+No Save button of its own -- saving happens via the global floating save
+bar (article_save_bar.html), which this panel's save() registers itself
+with (registerSaveHandler), same pattern as quick-style-panel.html.
+{% endcomment %}
+<form class="quick-style-panel" id="banner-style-panel"
+      data-banner-style-url="{% url 'page_banner_style' page.id %}"
+      data-sync-mirrored-url="{% url 'page_sync_mirrored' page.id %}"
+      data-default-banner-color="#197dc4" data-default-dot-color="#ffffff" data-default-text-color="#fffff9"
+      data-default-width="60" data-default-height="14" data-default-font-size="2.75">
+    {% csrf_token %}
+    <div class="quick-style-panel-header">
+        <p class="quick-style-panel-title">{% trans "Banner style (editors only)" %}</p>
+        <button type="button" id="banner-style-minimize" class="quick-style-minimize"
+                aria-label="{% trans 'Minimize' %}" aria-expanded="true">&#8722;</button>
+    </div>
+
+    <div class="quick-style-panel-body" id="banner-style-panel-body">
+        {% comment %}
+        Not a style field (nothing here is part of this panel's own
+        dirty-tracking/save-bar flow) -- only shows up when we're standing
+        on the nb ("OG") copy of this page with an existing translation to
+        push synchronized fields (status, etc.) to, see
+        EditorModeMixin.can_sync_mirrored_page. CategoryPage/ArticleIndexPage/
+        StudentUnionCategoryPage have no Publish/Unpublish concept in editor
+        mode at all (unlike ArticlePage's quick-style panel), so this is its
+        own small row rather than living inside a "Publish" section.
+        {% endcomment %}
+        {% if can_sync_mirrored_page %}
+            <div class="quick-style-field quick-style-status-row">
+                <button type="button" id="banner-style-sync-mirrored-button" class="quick-style-publish-button">
+                    {% trans "Sync mirrored page" %}
+                </button>
+            </div>
+        {% endif %}
+
+        <label class="quick-style-field block-style-toggle">
+            <input type="checkbox" id="banner-style-show-banner" {% if page.banner_style.show_banner %}checked{% endif %}>
+            <span>{% trans "Show banner" %}</span>
+        </label>
+
+        {% comment %}
+        Everything below the Show-banner checkbox is pointless while it's
+        off -- one wrapper (banner-style-sections) toggled by that
+        checkbox in banner_style.js, rather than hiding each section
+        individually.
+        {% endcomment %}
+        <div id="banner-style-sections" {% if not page.banner_style.show_banner %}hidden{% endif %}>
+            <div class="block-style-field block-style-caption-header">
+                <p class="block-style-box-subsection-title">{% trans "Colors" %}</p>
+                <button type="button" class="block-style-box-collapse-toggle" data-controls="banner-style-color-fields" aria-expanded="false" aria-label="{% trans 'Expand or collapse color options' %}">&#9662;</button>
+            </div>
+            <div class="block-style-box-fields" id="banner-style-color-fields" hidden>
+                <div class="quick-style-field">
+                    <span>{% trans "Banner color" %}</span>
+                    <div class="block-style-color-buttons">
+                        <div class="color-swatch-custom-group">
+                            <input type="text" class="color-swatch color-swatch--custom" id="banner-style-color" placeholder="#hex" maxlength="7" value="{{ page.banner_style.banner_color }}" aria-label="{% trans 'Banner color hex' %}">
+                            <label class="color-swatch-picker" aria-label="{% trans 'Pick a color' %}" title="{% trans 'Pick a color' %}">
+                                <input type="color" id="banner-style-color-picker" class="color-swatch-picker-input" tabindex="-1" value="{{ page.banner_style.banner_color|default:'#197dc4' }}">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-style-field">
+                    <span>{% trans "Dot color" %}</span>
+                    <div class="block-style-color-buttons">
+                        <div class="color-swatch-custom-group">
+                            <input type="text" class="color-swatch color-swatch--custom" id="banner-style-dot-color" placeholder="#hex" maxlength="7" value="{{ page.banner_style.banner_dot_color }}" aria-label="{% trans 'Dot color hex' %}">
+                            <label class="color-swatch-picker" aria-label="{% trans 'Pick a color' %}" title="{% trans 'Pick a color' %}">
+                                <input type="color" id="banner-style-dot-color-picker" class="color-swatch-picker-input" tabindex="-1" value="{{ page.banner_style.banner_dot_color|default:'#ffffff' }}">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-style-field">
+                    <span>{% trans "Title text color" %}</span>
+                    <div class="block-style-color-buttons">
+                        <div class="color-swatch-custom-group">
+                            <input type="text" class="color-swatch color-swatch--custom" id="banner-style-text-color" placeholder="#hex" maxlength="7" value="{{ page.banner_style.banner_text_color }}" aria-label="{% trans 'Title text color hex' %}">
+                            <label class="color-swatch-picker" aria-label="{% trans 'Pick a color' %}" title="{% trans 'Pick a color' %}">
+                                <input type="color" id="banner-style-text-color-picker" class="color-swatch-picker-input" tabindex="-1" value="{{ page.banner_style.banner_text_color|default:'#fffff9' }}">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block-style-field block-style-caption-header">
+                <p class="block-style-box-subsection-title">{% trans "Size & Text" %}</p>
+                <button type="button" class="block-style-box-collapse-toggle" data-controls="banner-style-size-fields" aria-expanded="false" aria-label="{% trans 'Expand or collapse size options' %}">&#9662;</button>
+            </div>
+            <div class="block-style-box-fields" id="banner-style-size-fields" hidden>
+                <label class="quick-style-field">
+                    <span>{% trans "Width" %} (<span id="banner-style-width-value">{{ page.banner_style.banner_width_rem|default:60|unlocalize }}</span>rem)</span>
+                    <input type="range" id="banner-style-width" min="10" max="100" step="1" value="{{ page.banner_style.banner_width_rem|default:60|unlocalize }}">
+                </label>
+
+                <label class="quick-style-field">
+                    <span>{% trans "Height" %} (<span id="banner-style-height-value">{{ page.banner_style.banner_height_rem|default:14|unlocalize }}</span>rem)</span>
+                    <input type="range" id="banner-style-height" min="4" max="40" step="0.5" value="{{ page.banner_style.banner_height_rem|default:14|unlocalize }}">
+                </label>
+
+                <label class="quick-style-field">
+                    <span>{% trans "Title font size" %} (<span id="banner-style-font-size-value">{{ page.banner_style.banner_font_size|default:2.75|unlocalize }}</span>rem)</span>
+                    <input type="range" id="banner-style-font-size" min="0.5" max="6" step="0.05" value="{{ page.banner_style.banner_font_size|default:2.75|unlocalize }}">
+                </label>
+            </div>
+        </div>
+
+        <div class="quick-style-actions">
+            <button type="button" id="banner-style-reset" class="quick-style-reset">{% trans "Reset to default" %}</button>
+            <span class="quick-style-status" id="banner-style-status" aria-live="polite"></span>
+        </div>
+    </div>
+</form>

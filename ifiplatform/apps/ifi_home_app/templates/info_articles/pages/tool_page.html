@@ -1,0 +1,80 @@
+{% extends "home_base.html" %}
+{% load i18n static wagtailcore_tags wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block section_css %}
+    {% include "css_links/tool.html" %}
+{% endblock section_css %}
+
+{% block extra_head %}
+    <script src="{% static 'js/tool_preview_lightbox.js' %}" defer></script>
+{% endblock extra_head %}
+
+{% block sidemenu %}
+    {% include "partials/sidemenu/sidemenu.html" %}
+{% endblock sidemenu %}
+
+{% block maincontent %}
+    {% include "info_articles/partials/article_breadcrumbs.html" %}
+    <div class="tool-page">
+        {% if page.image %}
+            {% image page.image fill-1200x400 as tool_hero %}
+            <div class="tool-hero">
+                <img class="tool-hero-image" src="{{ tool_hero.url }}" alt="{{ page.title }}">
+                {% if page.image_overlay %}
+                    <div class="tool-hero-overlay">
+                        <h1>{{ page.title }}</h1>
+                        {% if page.made_by %}
+                            <span class="tool-made-by">{% trans "Made by" %} {{ page.made_by }}</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if not page.image or not page.image_overlay %}
+            <div class="tool-header">
+                <h1>{{ page.title }}</h1>
+                {% if page.made_by %}
+                    <span class="tool-made-by tool-made-by--standalone">{% trans "Made by" %} {{ page.made_by }}</span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if needs_translation %}
+            <div class="article-meta">
+                {% include "info_articles/partials/translation_warning.html" %}
+            </div>
+        {% endif %}
+
+        <div class="tool-body">
+            <div class="prose">{{ page.description|richtext }}</div>
+
+            {% if page.link %}
+                <a class="btn tool-cta" href="{{ page.link }}" target="_blank" rel="noopener noreferrer">
+                    {% trans "Open tool" %} <span aria-hidden="true">↗</span>
+                </a>
+            {% endif %}
+        </div>
+
+        {% if page.preview_images %}
+            <div class="tool-preview-grid">
+                {% for block in page.preview_images %}
+                    {% image block.value width-900 as preview_img %}
+                    {% image block.value width-1600 as preview_full %}
+                    <figure class="tool-preview">
+                        <button type="button" class="tool-preview-trigger" data-full="{{ preview_full.url }}">
+                            <img class="tool-preview-image" src="{{ preview_img.url }}" alt="{{ page.title }} {% trans "preview" %}">
+                        </button>
+                    </figure>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="tool-lightbox" role="dialog" aria-modal="true" aria-label="{% trans "Preview" %}" hidden>
+        <button type="button" class="tool-lightbox-close" aria-label="{% trans "Close" %}">&times;</button>
+        <img class="tool-lightbox-image" src="" alt="">
+    </div>
+{% endblock maincontent %}

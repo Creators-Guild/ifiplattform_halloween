@@ -1,0 +1,244 @@
+{% extends "home_base.html" %}
+{% load i18n l10n static wagtailcore_tags wagtailimages_tags article_extras %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block section_css %}
+    {% include "css_links/article.html" %}
+{% endblock section_css %}
+
+{% block page_css %}
+    {% if can_edit_style %}
+        {% include "css_links/article_editor.html" %}
+    {% endif %}
+{% endblock page_css %}
+
+{% block sidemenu %}
+    {% include "partials/sidemenu/sidemenu.html" %}
+{% endblock sidemenu %}
+
+{% comment %}
+content_bg_enabled/content_bg_color/content_bg_custom_color paint the
+shared .maincontent wrapper itself (home_base.html), not just .article-page
+-- .maincontent also covers the site's own left/right padding around the
+content column, which .article-page's own background wouldn't reach,
+leaving a visible strip of the site's default background there instead.
+{% endcomment %}
+{% block maincontent_style %}{% if page.style.content_bg_enabled %}--content-bg: {% if page.style.content_bg_color == "custom" %}{{ page.style.content_bg_custom_color|default:"var(--color-bg-light)" }}{% else %}var(--color-{{ page.style.content_bg_color }}){% endif %};{% endif %}{% endblock %}
+
+{% block maincontent %}
+    {% include "info_articles/partials/article_breadcrumbs.html" %}
+    {% comment %}
+    Big and impossible to miss, unlike the small badge in the global style
+    panel (article_quick_style_panel.html) -- that one's easy to overlook
+    if the panel is minimized/scrolled past. Only page_is_live gates this
+    (not can_edit_style too) since the two are already equivalent here: a
+    draft is only ever reachable at all by someone who can edit it (see
+    ArticlePage.route()) -- anyone else gets a 404 long before this
+    template renders.
+    {% endcomment %}
+    {% if not page_is_live %}
+        <div class="article-draft-banner">{% trans "DRAFT" %} &mdash; {% trans "not visible to the public" %}</div>
+    {% endif %}
+    {% include "info_articles/partials/translation_nudge.html" %}
+    {% if can_edit_style %}
+        {% include "info_articles/partials/article_quick_style_panel.html" %}
+        {% include "info_articles/partials/article_block_style_mini_panel.html" %}
+        {% include "info_articles/partials/article_unsaved_changes_modal.html" %}
+        {% include "info_articles/partials/article_save_bar.html" %}
+    {% endif %}
+    {% comment %}
+    page.category is None for an article created directly under an
+    ArticleIndexPage rather than a CategoryPage (see ArticlePage.category)
+    -- omit --accent-color entirely rather than emit a broken
+    var(--color-) when there's no category to source it from; every
+    var(--accent-color, ...) consumer already has its own fallback.
+    {% endcomment %}
+    <div class="article-page{% if page.has_headings %} article-page--has-toc{% endif %}" data-font-size-multiplier="{{ page.style.content_font_size_multiplier|unlocalize }}" style="{% if page.category %}--accent-color: var(--color-{{ page.category.color }}); {% endif %}--content-side-padding: {{ page.style.content_side_padding|unlocalize }}rem; --content-alignment: {{ page.style.content_alignment }}; --content-font-size-multiplier: {{ page.style.content_font_size_multiplier|unlocalize }}; --toc-icon-size: {{ page.style.toc_icon_size|unlocalize }}rem;">
+        {% if can_edit_style %}
+            {% include "info_articles/partials/article_editor_mode_toggle.html" %}
+        {% endif %}
+        {% if page.has_headings %}
+            {% comment %}
+            mobile only (see article_toc.css) -- wider viewports keep the separate floating "contents" icon next to the article body instead.
+            Sticky + a zero-height wrapper (rather than sticky directly on a flex item next to h1) so its containing block spans the whole
+            tall .article-page instead of just the short title row -- otherwise it stops sticking the moment that short row scrolls out of view.
+            {% endcomment %}
+            <div class="toc-title-sticky">
+                <button type="button" class="toc-title-button" id="toc-modal-open"
+                        aria-haspopup="dialog" aria-controls="toc-modal" aria-label="{% trans 'Contents' %}">
+                    <svg class="toc-open-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <circle cx="4" cy="6" r="1.3" fill="currentColor"/>
+                        <path d="M9 6h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="4" cy="12" r="1.3" fill="currentColor"/>
+                        <path d="M9 12h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="4" cy="18" r="1.3" fill="currentColor"/>
+                        <path d="M9 18h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+        {% endif %}
+
+        {% comment %}
+        title_style/meta_style/intro_style/header_style are looked up once
+        here, together, rather than each inside its own element below, so
+        header_style is available for the wrapping .article-header div's own
+        box (its only remaining field -- see FIELDS_BY_TYPE.article_header in
+        article_block_style.js) without a second, separate with block just
+        for it. title_alignment/meta_alignment/intro_alignment/header_side_
+        padding/title_font_size/meta_font_size/intro_font_size below are
+        plain ArticlePage fields (page.style), read directly rather than
+        through *_style, and rendered onto this shared wrapper -- title/
+        meta/intro's own triggers read them back off this same wrapper via
+        .closest(".article-header") in article_block_style.js (openPanelFor/
+        recordPendingEdit) rather than needing their own copies, since
+        there's only one save_header_style row for the whole group
+        regardless of which of the three triggered the save.
+        {% endcomment %}
+        {% with title_style=block_styles|lookup:"article-title" meta_style=block_styles|lookup:"article-meta" intro_style=block_styles|lookup:"article-intro" header_style=block_styles|lookup:"article-header" %}
+        <div class="article-header{% if header_style.box.enabled %} block-box{% endif %}{% if can_edit_style %} editable-block{% endif %}"
+             {% if can_edit_style %}data-block-id="article-header" data-block-type="article_header"
+             data-title-alignment="{{ page.style.title_alignment }}" data-intro-alignment="{{ page.style.intro_alignment }}" data-meta-alignment="{{ page.style.meta_alignment }}"
+             data-side-padding="{{ page.style.header_side_padding|unlocalize }}"
+             data-title-font-size="{{ page.style.title_font_size|unlocalize }}" data-intro-font-size="{{ page.style.intro_font_size|unlocalize }}" data-meta-font-size="{{ page.style.meta_font_size|unlocalize }}"
+             data-title-text-color="{{ title_style.text_color }}" data-title-text-custom-color="{{ title_style.text_custom_color }}"
+             data-meta-text-color="{{ meta_style.text_color }}" data-meta-text-custom-color="{{ meta_style.text_custom_color }}"
+             data-intro-text-color="{{ intro_style.text_color }}" data-intro-text-custom-color="{{ intro_style.text_custom_color }}"
+             data-title-text-shadow-enabled="{{ title_style.text_shadow_enabled|yesno:"true,false" }}" data-title-text-shadow-strength="{{ title_style.text_shadow_strength|unlocalize }}" data-title-text-shadow-color="{{ title_style.text_shadow_color }}" data-title-text-shadow-custom-color="{{ title_style.text_shadow_custom_color }}"
+             data-meta-text-shadow-enabled="{{ meta_style.text_shadow_enabled|yesno:"true,false" }}" data-meta-text-shadow-strength="{{ meta_style.text_shadow_strength|unlocalize }}" data-meta-text-shadow-color="{{ meta_style.text_shadow_color }}" data-meta-text-shadow-custom-color="{{ meta_style.text_shadow_custom_color }}"
+             data-intro-text-shadow-enabled="{{ intro_style.text_shadow_enabled|yesno:"true,false" }}" data-intro-text-shadow-strength="{{ intro_style.text_shadow_strength|unlocalize }}" data-intro-text-shadow-color="{{ intro_style.text_shadow_color }}" data-intro-text-shadow-custom-color="{{ intro_style.text_shadow_custom_color }}"
+             {% include "info_articles/partials/_block_box_data_attrs.html" with box=header_style.box %}{% endif %}
+             style="--title-alignment: {{ page.style.title_alignment }}; --intro-alignment: {{ page.style.intro_alignment }}; --meta-alignment: {{ page.style.meta_alignment }}; --header-side-padding: {{ page.style.header_side_padding|unlocalize }}rem;
+                    --title-font-size: {{ page.style.title_font_size|unlocalize }}rem; --intro-font-size: {{ page.style.intro_font_size|unlocalize }}rem; --meta-font-size: {{ page.style.meta_font_size|unlocalize }}rem;
+                    {% include "info_articles/partials/_block_box_style.html" with box=header_style.box side_padding=None %}">
+            {% if can_edit_style %}<button type="button" class="block-style-trigger" aria-label="{% trans 'Edit block style' %}">&#8942;</button>{% endif %}
+
+            <h1 class="{% if title_style.box.enabled %}block-box{% endif %}{% if can_edit_style %} editable-block{% endif %}"
+                {% if can_edit_style %}data-block-id="article-title" data-block-type="title"
+                data-side-padding="{{ title_style.side_padding|unlocalize }}"
+                data-exclude-from-global-alignment="{{ title_style.exclude_from_global_alignment|yesno:"true,false" }}"
+                {% include "info_articles/partials/_block_box_data_attrs.html" with box=title_style.box %}{% endif %}
+                style="{% include "info_articles/partials/_text_color_style.html" with text_color=title_style.text_color text_custom_color=title_style.text_custom_color text_shadow_enabled=title_style.text_shadow_enabled text_shadow_offset=title_style.text_shadow_offset text_shadow_blur=title_style.text_shadow_blur text_shadow_color=title_style.text_shadow_color text_shadow_custom_color=title_style.text_shadow_custom_color %} {% include "info_articles/partials/_block_box_style.html" with box=title_style.box side_padding=title_style.side_padding %}">{{ page.title }}
+                {% if can_edit_style %}<button type="button" class="block-style-trigger" aria-label="{% trans 'Edit block style' %}">&#8942;</button>{% endif %}
+            </h1>
+
+            {% if page.display_author_name or page.published_date or page.last_published_at %}
+                <div class="article-meta{% if meta_style.box.enabled %} block-box{% endif %}{% if can_edit_style %} editable-block{% endif %}"
+                     {% if can_edit_style %}data-block-id="article-meta" data-block-type="meta"
+                     data-side-padding="{{ meta_style.side_padding|unlocalize }}"
+                     data-exclude-from-global-alignment="{{ meta_style.exclude_from_global_alignment|yesno:"true,false" }}"
+                     {% include "info_articles/partials/_block_box_data_attrs.html" with box=meta_style.box %}{% endif %}
+                     style="{% include "info_articles/partials/_text_color_style.html" with text_color=meta_style.text_color text_custom_color=meta_style.text_custom_color text_shadow_enabled=meta_style.text_shadow_enabled text_shadow_offset=meta_style.text_shadow_offset text_shadow_blur=meta_style.text_shadow_blur text_shadow_color=meta_style.text_shadow_color text_shadow_custom_color=meta_style.text_shadow_custom_color %} {% include "info_articles/partials/_block_box_style.html" with box=meta_style.box side_padding=meta_style.side_padding %}">
+                    {% if can_edit_style %}<button type="button" class="block-style-trigger" aria-label="{% trans 'Edit block style' %}">&#8942;</button>{% endif %}
+                    {% if page.display_author_name %}
+                        <span class="article-meta-item">{% trans "By" %} {{ page.display_author_name }}</span>
+                    {% endif %}
+                    {% if page.published_date %}
+                        <span class="article-meta-item">{% trans "Published" %} {{ page.published_date }}</span>
+                    {% endif %}
+                    {% if page.last_published_at %}
+                        <span class="article-meta-item">{% trans "Last edited" %} {{ page.last_published_at|date }}</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% if needs_translation %}
+                <div class="translation-warning-row">
+                    {% include "info_articles/partials/translation_warning.html" %}
+                </div>
+            {% endif %}
+
+            {% if page.intro %}
+                <div class="intro{% if intro_style.box.enabled %} block-box{% endif %}{% if can_edit_style %} editable-block{% endif %}"
+                     {% if can_edit_style %}data-block-id="article-intro" data-block-type="intro"
+                     data-side-padding="{{ intro_style.side_padding|unlocalize }}"
+                     data-exclude-from-global-alignment="{{ intro_style.exclude_from_global_alignment|yesno:"true,false" }}"
+                     {% include "info_articles/partials/_block_box_data_attrs.html" with box=intro_style.box %}{% endif %}
+                     style="{% include "info_articles/partials/_text_color_style.html" with text_color=intro_style.text_color text_custom_color=intro_style.text_custom_color text_shadow_enabled=intro_style.text_shadow_enabled text_shadow_offset=intro_style.text_shadow_offset text_shadow_blur=intro_style.text_shadow_blur text_shadow_color=intro_style.text_shadow_color text_shadow_custom_color=intro_style.text_shadow_custom_color %} {% include "info_articles/partials/_block_box_style.html" with box=intro_style.box side_padding=intro_style.side_padding %}">
+                    {% if can_edit_style %}<button type="button" class="block-style-trigger" aria-label="{% trans 'Edit block style' %}">&#8942;</button>{% endif %}
+                    {{ page.intro|richtext }}
+                </div>
+            {% endif %}
+        </div>
+        {% endwith %}
+
+        {% if page.has_headings %}
+            <div class="toc-modal" id="toc-modal" role="dialog" aria-modal="true" aria-labelledby="toc-modal-title" hidden>
+                <div class="toc-modal-backdrop" id="toc-modal-backdrop"></div>
+                <div class="toc-modal-panel">
+                    <button type="button" class="toc-modal-close" id="toc-modal-close" aria-label="{% trans 'Close' %}">&times;</button>
+                    <p class="toc-modal-title" id="toc-modal-title">{% trans "Contents" %}</p>
+                    <ul class="toc-modal-list">
+                        {% for level, text in page.toc_entries %}
+                            <li class="toc-{{ level }}"><a href="#{{ text|slugify }}">{{ text }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if page.hero_image %}
+            {% image page.hero_image width-1200 as hero %}
+            <figure class="hero-image-figure hero-image--{{ page.style.hero_image_position }}{% if page.style.hero_image_boxed %} image-figure--boxed box-color--{{ page.style.hero_image_box_color }}{% endif %}{% if can_edit_style %} editable-block{% endif %}"
+                {% if can_edit_style %}data-block-id="hero-image" data-block-type="hero_image"
+                data-alignment="{{ page.style.hero_image_position }}" data-width-rem="{{ page.style.hero_image_width_rem|unlocalize }}"
+                data-side-padding="{{ page.style.hero_image_side_padding|unlocalize }}"
+                data-boxed="{{ page.style.hero_image_boxed|yesno:"true,false" }}" data-box-color="{{ page.style.hero_image_box_color }}"
+                data-box-custom-color="{{ page.style.hero_image_box_custom_color }}" data-box-border-radius="{{ page.style.hero_image_box_border_radius|unlocalize }}"
+                data-shadow-enabled="{{ page.style.hero_image_box_shadow_enabled|yesno:"true,false" }}" data-shadow-strength="{{ page.style.hero_image_box_shadow_strength|unlocalize }}"
+                data-shadow-color="{{ page.style.hero_image_box_shadow_color }}" data-shadow-custom-color="{{ page.style.hero_image_box_shadow_custom_color }}"{% endif %}
+                style="width: {{ page.style.hero_image_width_rem|unlocalize }}rem; max-width: 100%; padding-left: {{ page.style.hero_image_side_padding|unlocalize }}rem; padding-right: {{ page.style.hero_image_side_padding|unlocalize }}rem;{% if page.style.hero_image_boxed %} --box-bg: {% if page.style.hero_image_box_color == 'custom' %}{{ page.style.hero_image_box_custom_color|default:'var(--color-bg-light)' }}{% else %}var(--color-{{ page.style.hero_image_box_color }}){% endif %}; border-radius: {{ page.style.hero_image_box_border_radius|unlocalize }}rem; box-shadow: {% if page.style.hero_image_box_shadow_enabled %}0 {{ page.style.hero_image_box_shadow_offset|unlocalize }}px {{ page.style.hero_image_box_shadow_blur|unlocalize }}px {% if page.style.hero_image_box_shadow_color == 'custom' %}{{ page.style.hero_image_box_shadow_custom_color|default:'var(--color-shadow)' }}{% elif page.style.hero_image_box_shadow_color %}var(--color-{{ page.style.hero_image_box_shadow_color }}){% else %}var(--color-shadow){% endif %}{% else %}none{% endif %};{% endif %}">
+                {% if can_edit_style %}<button type="button" class="block-style-trigger" aria-label="{% trans 'Edit block style' %}">&#8942;</button>{% endif %}
+                <img class="hero-image" src="{{ hero.url }}" alt="{{ page.hero_image_alt|default:page.hero_image.title }}">
+                {% if page.hero_image_title or page.hero_image_caption %}
+                    <figcaption>
+                        {% if page.hero_image_title %}<span class="image-title">{{ page.hero_image_title }}</span>{% endif %}
+                        {% if page.hero_image_caption %}<span class="image-caption">{{ page.hero_image_caption }}</span>{% endif %}
+                    </figcaption>
+                {% endif %}
+            </figure>
+        {% endif %}
+
+        <article>
+            {% if page.has_headings %}
+                {# desktop/tablet only (see article_toc.css) -- mobile gets a "contents" icon next to the title and a full-screen modal instead #}
+                <div class="toc-open-sticky toc-widget">
+                    <div class="toc-icon-editable{% if can_edit_style %} editable-block{% endif %}"
+                         {% if can_edit_style %}data-block-id="toc-icon" data-block-type="toc_icon" data-toc-icon-size="{{ page.style.toc_icon_size|unlocalize }}"{% endif %}>
+                        <button type="button" class="toc-open-button" id="toc-open-button-desktop"
+                                aria-haspopup="dialog" aria-controls="toc-overlay-desktop" aria-label="{% trans 'Contents' %}"
+                                aria-expanded="false">
+                            <svg class="toc-open-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <circle cx="4" cy="6" r="1.3" fill="currentColor"/>
+                                <path d="M9 6h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="4" cy="12" r="1.3" fill="currentColor"/>
+                                <path d="M9 12h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="4" cy="18" r="1.3" fill="currentColor"/>
+                                <path d="M9 18h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                        {% if can_edit_style %}<button type="button" class="block-style-trigger" aria-label="{% trans 'Edit table of contents icon size' %}">&#8942;</button>{% endif %}
+                    </div>
+                    <div class="toc-overlay-panel" id="toc-overlay-desktop" role="dialog" aria-labelledby="toc-overlay-title-desktop" hidden>
+                        <div class="toc-overlay-header">
+                            <p class="toc-overlay-title" id="toc-overlay-title-desktop">{% trans "Contents" %}</p>
+                            <button type="button" class="toc-overlay-close" aria-label="{% trans 'Close' %}">&times;</button>
+                        </div>
+                        <ul class="toc-overlay-list">
+                            {% for level, text in page.toc_entries %}
+                                <li class="toc-{{ level }}"><a href="#{{ text|slugify }}">{{ text }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+            {% include "info_articles/partials/article_body_blocks.html" with blocks=page.body %}
+        </article>
+    </div>
+    <script src="{% static 'js/table_of_content.js' %}" defer></script>
+    {% if can_edit_style %}
+        <script src="{% static 'js/article_unsaved_changes.js' %}" defer></script>
+        <script src="{% static 'js/article_editor_mode.js' %}" defer></script>
+        <script src="{% static 'js/article_quick_style.js' %}" defer></script>
+        <script src="{% static 'js/article_block_style.js' %}" defer></script>
+    {% endif %}
+{% endblock maincontent %}

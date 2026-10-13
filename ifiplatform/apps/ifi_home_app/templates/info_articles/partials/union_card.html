@@ -1,0 +1,26 @@
+{% load i18n wagtailcore_tags wagtailimages_tags %}
+{% comment %}
+A student union as the same round-logo card used on a student union
+category's own listing page (see union_card.css) -- shared by that page
+and the "Student Union Card" body block (article_models.py's
+union_card_block(), see article_body_blocks.html/article_column_
+content.html).
+
+Usage: {% include "info_articles/partials/union_card.html" with union=<a UnionPage> %}
+{% endcomment %}
+<a class="union-card{% if union.status == "retired" %} union-card--retired{% elif union.status == "unknown" %} union-card--unknown{% endif %}" href="{% pageurl union %}">
+    {% if union.logo %}
+        {% image union.logo fill-256x256 as union_logo %}
+        <img class="union-card-logo" src="{{ union_logo.url }}" alt="{{ union.title }}">
+    {% else %}
+        <div class="union-card-logo union-card-logo--placeholder" aria-hidden="true"></div>
+    {% endif %}
+    <h3>
+        {{ union.title }}
+        {% if union.status == "retired" %}<span aria-hidden="true" title="{% trans 'Retired' %}">&#129702;</span>
+        {% elif union.status == "unknown" %}<span aria-hidden="true" title="{% trans 'Status unknown' %}">&#10067;</span>{% endif %}
+    </h3>
+    <span class="union-type-badge union-type-badge--{{ union.union_type }}">
+        {% if union.status == "retired" %}{% trans "Closed" %}{% elif union.union_type == "program" %}{% trans "Program-specific" %}{% else %}{% trans "Open to everyone" %}{% endif %}
+    </span>
+</a>

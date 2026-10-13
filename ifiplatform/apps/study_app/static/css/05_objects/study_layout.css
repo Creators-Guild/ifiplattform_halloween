@@ -1,0 +1,27 @@
+.study_layout {
+    display: flex;
+    height: 100%;
+}
+
+/* dont grow, shrink, 
+but width is the actual width of object.
+Sidemenu hover mdoifer will still enlarge menu */
+.study_layout .sidemenu_container {
+    flex: 0 0 auto;
+}
+
+.study_layout .maincontent {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 2rem;
+}
+
+.study_layout .maincontent .top{
+    flex: 1;
+}
+
+.study_layout .maincontent .bot{
+    flex: 1;
+}

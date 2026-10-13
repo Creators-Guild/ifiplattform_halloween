@@ -1,0 +1,21 @@
+{% load i18n tz article_tags %}
+{% if event.external_source == "peoply" %}
+    <span class="event-peoply-note{% if compact %} event-peoply-note--compact{% endif %}">
+        {% trans "data from peoply" %}
+        {% if show_sync_time %}
+            {% get_peoply_last_synced as last_synced %}
+            {% if last_synced %}
+                {% comment %}
+                get_peoply_last_synced already converts to SITE_TIMEZONE
+                (Oslo) -- {% localtime off %} stops the |date filter from
+                silently re-converting it back to this project's actual
+                settings.TIME_ZONE (UTC) before formatting, which is what
+                it does to any aware datetime by default.
+                {% endcomment %}
+                {% localtime off %}
+                    {% blocktrans with time=last_synced|date:"j. F Y, H:i" %}(last synced {{ time }}){% endblocktrans %}
+                {% endlocaltime %}
+            {% endif %}
+        {% endif %}
+    </span>
+{% endif %}

@@ -1,0 +1,15 @@
+{% comment %}
+One titled group of union cards (see StudentUnionCategoryPage.union_groups/
+union_group_block() in article_models.py) -- used both for a standalone
+group and for each group nested inside a "row" of several groups shown
+side by side (studentunion_category_page.html).
+
+Usage: {% include "info_articles/partials/union_group.html" with group=<a union_group_block() StructValue> %}
+{% endcomment %}
+<h2 class="section-heading">{{ group.title }}</h2>
+{% if group.general_info %}<div class="general-info">{{ group.general_info }}</div>{% endif %}
+<div class="union-grid">
+    {% for item in group.unions %}
+        {% include "info_articles/partials/union_card.html" with union=item.union %}
+    {% endfor %}
+</div>

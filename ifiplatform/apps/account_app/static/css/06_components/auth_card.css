@@ -1,0 +1,101 @@
+.auth-card {
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-top: 6px solid var(--color-cta);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--color-shadow);
+  padding: 2rem 2.25rem;
+  width: 100%;
+  max-width: 28rem;
+  margin-top: 1rem;
+  line-height: 1.5;
+}
+
+.auth-card h1 {
+  color: var(--color-text);
+  margin: 0 0 1rem;
+  font-size: 1.6rem;
+}
+
+.auth-card > p:not(.auth-links) {
+  font-size: 1rem;
+  color: var(--color-text);
+  margin: 0 0 1rem;
+}
+
+.auth-card > p.goodbye-message {
+  font-size: 1.4rem;
+  font-weight: bold;
+  font-style: italic;
+  color: var(--color-secondary);
+  line-height: 1.3;
+  margin-top: 0.5rem;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.auth-card label {
+  display: block;
+  font-weight: bold;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.auth-card input[type="text"],
+.auth-card input[type="password"],
+.auth-card input[type="email"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1.05rem;
+}
+
+.auth-card input:focus {
+  outline: 2px solid var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.auth-card .error {
+  color: var(--color-error);
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin: 0.4rem 0 0;
+}
+
+.auth-card button[type="submit"] {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.auth-card .auth-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 12%, transparent);
+  text-align: center;
+}
+
+.auth-card .auth-links .back-to {
+  font-size: 0.95rem;
+}
+
+/* logout specifically -- there's no form/labels here that need left
+   alignment for readability, unlike the login/signup cards this component
+   is otherwise shared with, so centering the whole card reads better. */
+.auth-card--centered {
+  text-align: center;
+}

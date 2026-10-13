@@ -1,0 +1,20 @@
+{% extends 'global_base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Account Deleted" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/account_base.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="account_layout">
+        <div class="auth-card auth-card--centered">
+            <h1>{% trans "Account Deleted" %}</h1>
+            <p class="goodbye-message">{% trans "Your account has been deleted. We're sorry to see you go." %}</p>
+            <p class="auth-links">
+                <a class="back-to" href="{% url 'ifi_home' %}">{% trans "Return to main page" %}</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

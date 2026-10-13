@@ -1,0 +1,3 @@
+# Commits that only reformat code. git blame skips them (GitHub reads this file automatically).
+# Format codebase with Black
+ccaf42100340b320d4104656d198ce80e5409b00

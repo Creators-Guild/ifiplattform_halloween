@@ -1,0 +1,72 @@
+{% load i18n static wagtailcore_tags site_tags %}
+
+<div class="header-bar">
+    <div class="ifiplatform-logo-box">
+        <h1>
+            <a class="ifiplatform-logo" href="{% url 'ifi_home' %}">
+                {% trans "Ifi Platform Beta" %}
+            </a>
+        </h1>
+        {% get_header_message as header_message %}
+        {% if header_message %}
+            <div class="header-message" title="{{ header_message.text|striptags }}">{{ header_message.text|richtext }}</div>
+        {% endif %}
+    </div>
+    <div class="nav_links">
+        <a href="{% url 'ifi_home' %}"
+            class="nav_link {% if request.resolver_match.url_name == 'ifi_home' or '/articles/' in request.path %}active{% endif %}"
+            aria-label="{% trans "Home" %}">
+            <span class="nav_link-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.2 3 11h2.5v9h5v-6h3v6h5v-9H21L12 3.2z" fill="currentColor"/></svg>
+            </span>
+            <span class="nav_link-label">{% trans "Home" %}</span>
+        </a>
+        <a href="{% url 'study_home' %}"
+            class="nav_link {% if '/study/' in request.path %}active{% endif %}"
+            aria-label="{% trans "Study" %}">
+            <span class="nav_link-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M4 5c3 0 5.5.6 7 1.8v12.7C9.5 18.4 7 17.8 4 17.8V5zm16 0v12.8c-3 0-5.5.6-7 1.7V6.8C14.5 5.6 17 5 20 5z" fill="currentColor"/></svg>
+            </span>
+            <span class="nav_link-label">{% trans "Study" %}</span>
+        </a>
+        <a href="{% url 'yourpage_main' %}"
+            class="nav_link {% if request.resolver_match.url_name == 'yourpage_main' %}active{% endif %}"
+            aria-label="{% trans "Your Page" %}">
+            <span class="nav_link-icon nav_link-icon--page" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M6 2h8l5 5v15H6V2zm7 1.5V8h4.5L13 3.5zM8 12.5h8v1.5H8v-1.5zm0 4h8V18H8v-1.5z" fill="currentColor"/></svg>
+            </span>
+            <span class="nav_link-label">{% trans "Your Page" %}</span>
+        </a>
+        {% if request.user.is_authenticated %}
+            <div class="dropdown-menu profile-dropdown">
+                <button type="button" class="link profile-trigger" aria-label="{% trans 'Account' %}">
+                    <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="8" r="4" fill="currentColor"/>
+                        <path d="M4 20c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="drop-content profile-drop-content">
+                    <div class="profile-drop-header">
+                        <div class="profile-avatar" aria-hidden="true">{{ request.user.username|slice:":1"|upper }}</div>
+                        <div class="profile-drop-identity">
+                            {% if request.user.get_full_name %}
+                                <p class="profile-drop-name">{{ request.user.get_full_name }}</p>
+                            {% endif %}
+                            <p class="profile-drop-username">{{ request.user.username }}</p>
+                        </div>
+                    </div>
+                    <div class="profile-drop-options">
+                        <a class="drop-option" href="{% url 'account_settings' %}">{% trans "Account" %}</a>
+                        <a class="drop-option" href="{% url 'logout' %}">{% trans "Log out" %}</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <a href="{% url 'login' %}"
+                class="nav_link {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+                {% trans "Log in" %}
+            </a>
+        {% endif %}
+    </div>
+</div>
+<script src="{% static 'js/dropdown_menu.js' %}" defer></script>

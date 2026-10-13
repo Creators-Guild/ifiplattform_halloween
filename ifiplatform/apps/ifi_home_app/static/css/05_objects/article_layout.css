@@ -1,0 +1,32 @@
+/* Design rationale: docs/claude_context/article_layout.md */
+.article-page {
+  display: flow-root;
+  text-align: var(--content-alignment, left);
+  line-height: 1.5;
+}
+
+.article-page > .article-header {
+  margin-left: calc(var(--header-side-padding, 0rem) + var(--content-side-padding, 0rem));
+  margin-right: calc(var(--header-side-padding, 0rem) + var(--content-side-padding, 0rem));
+}
+
+.article-page > article {
+  margin-left: var(--content-side-padding, 0);
+  margin-right: var(--content-side-padding, 0);
+}
+
+@media (max-width: 45rem) {
+  .article-page {
+    text-align: center;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 45rem) {
+
+  .article-page > .article-header,
+  .article-page > article {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

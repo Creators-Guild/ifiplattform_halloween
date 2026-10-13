@@ -1,0 +1,52 @@
+{% extends "home_base.html" %}
+{% load i18n static wagtailcore_tags %}
+
+{% block title %}{% trans "Events" %}{% endblock %}
+
+{% block section_css %}
+    {% include "css_links/event_index.html" %}
+{% endblock section_css %}
+
+{% block sidemenu %}
+    {% include "partials/sidemenu/sidemenu.html" %}
+{% endblock sidemenu %}
+
+{% block maincontent %}
+    {% include "info_articles/partials/article_breadcrumbs.html" %}
+    <div class="event-index-page">
+        <h1>{{ page.title }}</h1>
+        <p class="event-index-semester">
+            {% if is_spring_semester %}
+                {% blocktrans with year=current_semester_year %}Spring semester {{ year }}{% endblocktrans %}
+            {% else %}
+                {% blocktrans with year=current_semester_year %}Fall semester {{ year }}{% endblocktrans %}
+            {% endif %}
+        </p>
+        {% include "events/partials/peoply_sync_button.html" %}
+        {% if page.intro %}<div class="event-page-intro">{{ page.intro|richtext }}</div>{% endif %}
+
+        {% if needs_translation %}
+            <div class="article-meta">
+                {% include "info_articles/partials/translation_warning.html" %}
+            </div>
+        {% endif %}
+
+        {% if month_groups %}
+            {% include "events/partials/event_month_groups.html" with groups=month_groups %}
+        {% else %}
+            <ul class="event-list">
+                <li class="event-list-empty">{% trans "No upcoming events yet." %}</li>
+            </ul>
+        {% endif %}
+
+        {% if past_month_groups %}
+            <details class="event-index-past">
+                <summary class="event-index-past-toggle">{% trans "Past events" %}</summary>
+                {% include "events/partials/event_month_groups.html" with groups=past_month_groups %}
+            </details>
+        {% endif %}
+    </div>
+    {% if request.user.is_staff %}
+        <script src="{% static 'js/peoply_sync_button.js' %}" defer></script>
+    {% endif %}
+{% endblock maincontent %}

@@ -1,0 +1,61 @@
+/* Design rationale: docs/claude_context/union_page.md */
+.union-layout {
+    position: relative;
+    margin-top: 1.5rem;
+}
+
+.union-main {
+    max-width: 60rem;
+    margin: 0 auto;
+}
+
+.union-main + .union-main {
+    margin-top: 2rem;
+}
+
+.union-main--wide {
+    max-width: 68rem;
+}
+
+.union-calendar-section {
+    padding-top: 1.5rem;
+}
+
+.union-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 60rem;
+    margin: 0 auto 1.5rem;
+}
+
+.union-sidebar-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.union-sidebar-row > .union-info-box {
+    flex: 1 1 12rem;
+    min-width: 0;
+}
+
+@media (min-width: 80rem) {
+    .union-sidebar {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 16rem;
+        margin: 0;
+    }
+}
+
+@media (min-width: 80rem) and (max-width: 104rem) {
+    .union-page {
+        padding-right: 18rem;
+    }
+
+    .union-sidebar {
+        right: -18rem;
+    }
+}

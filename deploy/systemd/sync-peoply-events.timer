@@ -1,0 +1,10 @@
+[Unit]
+Description=Run sync_peoply_events every 6h, plus 14:00 on weekdays
+
+[Timer]
+OnCalendar=*-*-* 00,06,12,18:00:00
+OnCalendar=Mon..Fri *-*-* 14,16:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

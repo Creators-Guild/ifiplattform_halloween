@@ -1,0 +1,62 @@
+/* Design rationale: docs/claude_context/article_header.md */
+.article-header {
+  text-align: var(--title-alignment, left);
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--accent-color, var(--color-border));
+}
+
+.article-header.block-box {
+  border-bottom: none;
+}
+
+.article-header > .intro {
+  text-align: var(--intro-alignment, left);
+  font-size: calc(var(--intro-font-size, 1rem) * var(--content-font-size-multiplier, 1));
+}
+
+.article-header > .intro p {
+  font-size: inherit;
+}
+
+.article-header > .article-meta {
+  justify-content: var(--meta-alignment, left);
+  font-size: calc(var(--meta-font-size, 0.9rem) * var(--content-font-size-multiplier, 1));
+}
+
+.article-header > .translation-warning-row {
+  text-align: var(--meta-alignment, left);
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 45rem) {
+
+  .article-header,
+  .article-header > .intro {
+    text-align: center;
+  }
+
+  .article-header > .article-meta {
+    justify-content: center;
+  }
+
+  .article-header > .translation-warning-row {
+    text-align: center;
+  }
+}
+
+@media (max-width: 45rem) {
+
+  .article-header {
+    --title-font-size: 2rem !important;
+    --intro-font-size: 1rem !important;
+    --meta-font-size: 0.9rem !important;
+    --content-font-size-multiplier: 1 !important;
+  }
+
+  .article-page h1,
+  .article-header > .intro,
+  .article-header > .article-meta {
+    padding: 0 !important;
+  }
+}

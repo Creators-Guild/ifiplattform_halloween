@@ -1,0 +1,74 @@
+name: 📚 Documentation
+description: Report missing, outdated, or unclear documentation
+title: "[Docs] "
+labels: ["docs", "task"]
+type: Task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our docs! Note: documentation issues are tracked under the **Task** issue type, with the `docs` label added for filtering. Take from this what is relevant to your specific issue and ignore the rest.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: What's wrong with the documentation?
+      options:
+        - Missing
+        - Outdated
+        - Unclear
+        - Typo
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's wrong
+      description: Description of the documentation problem
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: (Optional) A short summary, if the problem description above is long
+      placeholder: In short, this...
+    validations:
+      required: false
+
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: File/page/section affected
+      placeholder: e.g. README.md, CONTRIBUTING.md, TUTORIALS.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested_content
+    attributes:
+      label: Suggested content
+      description: (Optional) What should be added or changed? A rough draft or bullet points are fine.
+    validations:
+      required: false
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why this matters
+      description: (Optional) Who's affected — new contributors, end users, etc.?
+    validations:
+      required: false
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related
+      description: (Optional) Link any related issues or PRs, e.g. a feature that shipped without docs
+      placeholder: This is related to #...
+    validations:
+      required: false

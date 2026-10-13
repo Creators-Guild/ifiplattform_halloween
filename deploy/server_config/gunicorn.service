@@ -1,0 +1,13 @@
+[Unit]
+Description=gunicorn daemon for ifiplatform
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/IfiPlatform/ifiplatform
+EnvironmentFile=/home/ubuntu/IfiPlatform/ifiplatform/.env
+ExecStart=/home/ubuntu/IfiPlatform/venv/bin/gunicorn --timeout 1800  --workers 3 --bind unix:/home/ubuntu/IfiPlatform/ifiplatform/ifiplatform.sock ifiplatform_project.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

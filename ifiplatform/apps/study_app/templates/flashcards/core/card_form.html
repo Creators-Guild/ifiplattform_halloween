@@ -1,0 +1,15 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create Card" %}{% endblock %}
+
+{% block content %}
+  <h1>{% trans "New card in" %} "{{ deck.name }}"</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{% trans "Save" %}</button>
+  </form>
+
+{% endblock %}

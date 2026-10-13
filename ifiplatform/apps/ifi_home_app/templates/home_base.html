@@ -1,0 +1,22 @@
+{% extends "global_base.html" %}
+{% load i18n static%}
+
+{% block title %}{% trans "Ifi Home" %}{% endblock %}
+
+{% block app_css %}
+    {% include "css_links/home_base.html" %}
+{% endblock app_css %}
+
+{% block content %}
+    <div class = "home-layout">
+        {% comment %}
+        maincontent_style is empty by default -- pages that want to style
+        this shared wrapper itself (e.g. article_page.html's own-page
+        background color) override just this block, without needing their
+        own copy of the surrounding maincontent/home-layout structure.
+        {% endcomment %}
+        <div class="maincontent" style="{% block maincontent_style %}{% endblock maincontent_style %}">
+            {% block maincontent %}{% endblock maincontent %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% load i18n %}
+{% comment %}
+Standalone partial -- also served directly (no page chrome around it) when
+UnionPage.get_template sees ?calendar_partial=1, so union_calendar.js can
+fetch just this and swap it in place on Previous/Next instead of reloading
+the whole page (a full reload lost scroll position -- this site's html/body
+is its own scroll box per elements.css, decoupled from window.scrollY, so a
+sessionStorage-based scroll restore across a real reload couldn't reliably
+compensate). Keep the outer id="union-calendar" stable -- it's what
+outerHTML gets replaced onto.
+{% endcomment %}
+<div class="union-calendar-section" id="union-calendar">
+    <h2>{% trans "Events calendar" %}</h2>
+    <div class="union-calendar-nav">
+        <a href="{{ union_calendar.prev_url }}" aria-label="{% trans 'Previous week' %}">&lsaquo;</a>
+        <span>{{ union_calendar.week_start|date:"j. F" }} &ndash; {{ union_calendar.week_end|date:"j. F Y" }}</span>
+        <a href="{{ union_calendar.next_url }}" aria-label="{% trans 'Next week' %}">&rsaquo;</a>
+    </div>
+    {% include "events/partials/event_calendar_grid.html" with calendar=union_calendar.grid %}
+</div>

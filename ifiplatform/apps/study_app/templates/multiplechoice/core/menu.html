@@ -1,0 +1,18 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Mutiple Choice Menu" %}{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'styles/neon_style/ifi_study/multiplechoice.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <a class="back-to" href="{% url 'study_home' %}">{% trans "<- Back to Ifi Study" %}</a>
+
+    <div class="menu mutiplechoice-menu">
+        <h2>{% trans "Welcome to the Mutiple Choice Menu" %}</h2>
+        <p>{% trans "This is the main menu for mutiple choice" %}</p>
+    </div>
+
+{% endblock %}

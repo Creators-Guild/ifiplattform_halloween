@@ -1,0 +1,24 @@
+/* Design rationale: docs/claude_context/shared_components.md */
+.unsaved-changes-modal,
+.toc-modal,
+.tool-lightbox,
+.messageboard-modal,
+.event-calendar-modal {
+  position: fixed;
+  inset: 0;
+}
+
+.unsaved-changes-backdrop,
+.toc-modal-backdrop,
+.tool-lightbox,
+.messageboard-modal,
+.event-calendar-modal {
+  background: color-mix(in srgb, var(--color-text) 88%, transparent);
+}
+
+body.toc-modal-open,
+body.tool-lightbox-open,
+body.messageboard-modal-open,
+body.event-calendar-modal-open {
+  overflow: hidden;
+}

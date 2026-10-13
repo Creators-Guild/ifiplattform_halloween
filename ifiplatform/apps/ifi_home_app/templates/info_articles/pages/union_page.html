@@ -1,0 +1,182 @@
+{% extends "home_base.html" %}
+{% load i18n static wagtailcore_tags wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block section_css %}
+    {% include "css_links/union.html" %}
+{% endblock section_css %}
+
+{% block sidemenu %}
+    {% include "partials/sidemenu/sidemenu.html" %}
+{% endblock sidemenu %}
+
+{% block maincontent %}
+    {% include "info_articles/partials/article_breadcrumbs.html" %}
+    <div class="union-page" style="--accent-color: var(--color-purple)">
+        <div class="union-header">
+            {% if page.logo %}
+                {% image page.logo fill-240x240 as logo_img %}
+                <img class="union-logo" src="{{ logo_img.url }}" alt="{{ page.title }}">
+            {% endif %}
+            <div class="union-header-text">
+                <h1>
+                    {{ page.title }}
+                    {% if page.status == "retired" %}<span aria-hidden="true" title="{% trans 'Retired' %}">&#129702;</span>
+                    {% elif page.status == "unknown" %}<span aria-hidden="true" title="{% trans 'Status unknown' %}">&#10067;</span>{% endif %}
+                </h1>
+                <span class="union-type-badge union-type-badge--{{ page.union_type }}">
+                    {% if page.status == "retired" %}{% trans "Closed" %}{% elif page.union_type == "program" %}{% trans "Program-specific" %}{% else %}{% trans "Open to everyone" %}{% endif %}
+                </span>
+            </div>
+        </div>
+
+        {% if needs_translation %}
+            <div class="article-meta">
+                {% include "info_articles/partials/translation_warning.html" %}
+            </div>
+        {% endif %}
+
+        <div class="union-layout">
+            <aside class="union-sidebar">
+                {% if page.union_links %}
+                    <div class="union-info-box union-info-box--links">
+                        {% for block in page.union_links %}
+                            <a class="union-info-link union-info-link--signup" href="{{ block.value.url }}" target="_blank" rel="noopener noreferrer">{{ block.value.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="union-sidebar-row">
+                    {% if page.email or page.website_url or page.social_links %}
+                        <div class="union-info-box union-info-box--contact">
+                            <h2>{% trans "Contact" %}</h2>
+                            {% if page.email %}
+                                <a class="union-info-link" href="mailto:{{ page.email }}">{% trans "Email" %}</a>
+                            {% endif %}
+                            {% if page.website_url %}
+                                <a class="union-info-link" href="{{ page.website_url }}" target="_blank" rel="noopener noreferrer">{% trans "Website" %}</a>
+                            {% endif %}
+                            {% for block in page.social_links %}
+                                {% with platform=block.value.platform %}
+                                    <a class="union-info-link" href="{{ block.value.url }}" target="_blank" rel="noopener noreferrer">
+                                        {% if platform == "linkedin" %}{% trans "LinkedIn" %}{% elif platform == "tiktok" %}{% trans "TikTok" %}{% elif platform == "github" %}{% trans "GitHub" %}{% else %}{{ platform|title }}{% endif %}
+                                    </a>
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if page.member_count_sitting or page.member_count_intern %}
+                        <div class="union-info-box">
+                            <h2>{% trans "Members" %}</h2>
+                            <div class="union-stats">
+                                {% if page.member_count_sitting %}
+                                    <div class="union-stat">
+                                        <span class="union-stat-number">{{ page.member_count_sitting }}</span>
+                                        <span class="union-stat-label">{% trans "Sitting" %}</span>
+                                    </div>
+                                {% endif %}
+                                {% if page.member_count_intern %}
+                                    <div class="union-stat">
+                                        <span class="union-stat-number">{{ page.member_count_intern }}</span>
+                                        <span class="union-stat-label">{% trans "Interns" %}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </aside>
+
+            <article class="union-main">
+                <div class="union-core">
+                    {% if page.purpose %}
+                    <details class="union-section" open>
+                        <summary class="union-section-summary"><h2>{% trans "Purpose" %}</h2></summary>
+                        <div class="prose">{{ page.purpose|richtext }}</div>
+                    </details>
+                    {% endif %}
+
+                    {% if page.activities %}
+                        <details class="union-section" open>
+                            <summary class="union-section-summary"><h2>{% trans "Activities" %}</h2></summary>
+                            <div class="prose">{{ page.activities|richtext }}</div>
+                        </details>
+                    {% endif %}
+
+                    {% if page.vedtekter or page.vedtekter_url %}
+                        <details class="union-section" open>
+                            <summary class="union-section-summary"><h2>{% trans "Bylaws" %}</h2></summary>
+                            {% if page.vedtekter %}
+                                <div class="prose">{{ page.vedtekter|richtext }}</div>
+                            {% endif %}
+                            {% if page.vedtekter_url %}
+                                <a class="union-bylaws-link" href="{{ page.vedtekter_url }}" target="_blank" rel="noopener noreferrer">{% trans "Full bylaws" %} <span aria-hidden="true">&rarr;</span></a>
+                            {% endif %}
+                        </details>
+                    {% endif %}
+                </div>
+            </article>
+
+            {% comment %}
+            Own section (not nested inside .union-main above) so it can use
+            .union-main--wide's own, slightly wider max-width -- a child
+            can't render wider than its own parent's box, so widening these
+            grids beyond union-core's 60rem needs them out of that box
+            entirely, not just a wider class on the grid itself. Same
+            "own section, own width, centered independently against
+            .union-layout" pattern .union-header already uses. See
+            docs/claude_context/union_page.md for why .union-main--wide is 68rem.
+            {% endcomment %}
+            {% if page.filled_positions %}
+                <section class="union-main union-main--wide">
+                    <details class="union-section" open>
+                        <summary class="union-section-summary"><h2>{% trans "Sitting Members" %}</h2></summary>
+                        <div class="union-member-grid">
+                            {% for block in page.filled_positions %}
+                                {% include "info_articles/partials/union_position_card.html" with block=block show_description_inline=False %}
+                            {% endfor %}
+                        </div>
+                    </details>
+                </section>
+            {% endif %}
+
+            {% if page.open_positions %}
+                <section class="union-main union-main--wide">
+                    <details class="union-section" open>
+                        <summary class="union-section-summary"><h2>{% trans "Open Positions" %}</h2></summary>
+                        <div class="union-member-grid">
+                            {% for block in page.open_positions %}
+                                {% include "info_articles/partials/union_position_card.html" with block=block show_description_inline=True %}
+                            {% endfor %}
+                        </div>
+                    </details>
+                </section>
+            {% endif %}
+
+            {% if union_calendar or upcoming_event_month_groups %}
+                {% comment %}
+                Guarded on the whole section, not just left empty when
+                neither renders -- .union-main + .union-main's margin-top
+                (union_layout.css) would otherwise still apply to an empty,
+                zero-content article, leaving stray blank space at the
+                bottom of the page.
+                {% endcomment %}
+                <article class="union-main">
+                    {% if union_calendar %}
+                        {% include "info_articles/partials/union_calendar_panel.html" %}
+                    {% endif %}
+
+                    {% if upcoming_event_month_groups %}
+                        <h2>{% trans "Upcoming Events" %}</h2>
+                        {% include "events/partials/event_month_groups.html" with groups=upcoming_event_month_groups %}
+                    {% endif %}
+                </article>
+            {% endif %}
+        </div>
+    </div>
+    <script src="{% static 'js/union_calendar.js' %}" defer></script>
+    <script src="{% static 'js/union_position_info.js' %}" defer></script>
+    <script src="{% static 'js/union_core_sections.js' %}" defer></script>
+{% endblock maincontent %}

@@ -1,0 +1,28 @@
+html, body {
+  background: var(--color-bg);
+  margin: 0;
+  padding: 0;
+  font-family: 'Inconsolata', monospace;
+  height: 100%;
+  /* safety net against layout mistakes causing horizontal overflow (a
+     stray wide element, a miscalculated width, etc.) -- clips it instead
+     of showing an ugly horizontal scrollbar/spillover. Deliberately on
+     html/body specifically, not some inner wrapper: overflow on an
+     intermediate ancestor breaks position:sticky (like .sidemenu) for
+     everything inside it, but html/body is already the page's own scroll
+     boundary, so it doesn't introduce a new one. */
+  overflow-x: hidden;
+}
+
+/* inside, not the default outside -- an outside marker sits in its own box
+to the left of the list, ignoring any text-align on the list/li (centered
+text still gets a left-hanging bullet/number). inside makes the marker
+part of the li's own inline content, so it follows text-align like the
+text itself does. */
+ul, ol {
+  list-style-position: inside;
+}
+
+p {
+  font-size: 1.05rem;
+}

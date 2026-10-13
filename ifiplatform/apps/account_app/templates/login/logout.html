@@ -1,0 +1,26 @@
+{% extends 'global_base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "User Logout" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/account_base.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="account_layout">
+        <div class="auth-card auth-card--centered">
+            <h1>{% trans "User Logout" %}</h1>
+            <p>{% trans "You are now logged out!" %}</p>
+            {% if display_name %}
+                <p class="goodbye-message">{% blocktrans %}Goodbye for now, {{ display_name }}. Hope to see you soon!{% endblocktrans %}</p>
+            {% else %}
+                <p class="goodbye-message">{% trans "Goodbye for now:) Hope to see you soon!" %}</p>
+            {% endif %}
+            <p class="auth-links">
+                <a class="btn" href="{% url 'login' %}">{% trans "Log in again" %}</a>
+                <a class="back-to" href="{% url 'ifi_home' %}">{% trans "Return to main page" %}</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,11 @@
+/* Design rationale: docs/claude_context/shared_components.md */
+.category-page h1,
+.article-page h1 {
+  display: inline-block;
+  border-bottom: 4px solid var(--accent-color, var(--color-border));
+  padding-bottom: 0.4rem;
+}
+
+.article-page h1 {
+  font-size: calc(var(--title-font-size, 2rem) * var(--content-font-size-multiplier, 1));
+}

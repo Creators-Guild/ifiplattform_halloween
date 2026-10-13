@@ -1,0 +1,18 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Study Games Launcher" %}{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'styles/neon_style/ifi_study/studygames.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <a class="back-to" href="{% url 'study_home' %}">{% trans "<- Back to Ifi Study" %}</a>
+
+    <div class="menu mstudy-games-menu">
+        <h2>{% trans "Welcome to the Study Games Launcher" %}</h2>
+        <p>{% trans "This is the main menu for study games" %}</p>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'global_base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Resend verification email" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/account_base.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="account_layout">
+        <div class="auth-card">
+            <h1>{% trans "Resend verification email" %}</h1>
+            <p>{% trans "Enter the email address you signed up with and we'll send a new confirmation link, if there's an unverified account for it." %}</p>
+            <form class="form-with-validation" action="{% url 'resend_verification' %}" method="post">
+                {% csrf_token %}
+
+                {% for error in form.non_field_errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+
+                <div>
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                    {% for error in form.email.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn">{% trans "Resend email" %}</button>
+            </form>
+            <p class="auth-links">
+                <a class="back-to" href="{% url 'login' %}">{% trans "Back to login" %}</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

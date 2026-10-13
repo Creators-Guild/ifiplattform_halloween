@@ -1,0 +1,141 @@
+{% extends "home_base.html" %}
+{% load i18n l10n static wagtailcore_tags wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block section_css %}
+    {% include "css_links/studentunion_category.html" %}
+{% endblock section_css %}
+
+{% block page_css %}
+    {% if can_edit_style %}
+        {% include "css_links/article_editor.html" %}
+    {% endif %}
+{% endblock page_css %}
+
+{% block sidemenu %}
+    {% include "partials/sidemenu/sidemenu.html" %}
+{% endblock sidemenu %}
+
+{% block maincontent %}
+    {% include "info_articles/partials/article_breadcrumbs.html" %}
+    {% if can_edit_style %}
+        {% include "info_articles/partials/article_editor_mode_toggle.html" %}
+        {% include "info_articles/partials/banner_style_panel.html" %}
+        {% include "info_articles/partials/article_unsaved_changes_modal.html" %}
+        {% include "info_articles/partials/article_save_bar.html" %}
+    {% endif %}
+    {% include "info_articles/partials/translation_nudge.html" %}
+    <div class="category-page" style="--accent-color: var(--color-purple)">
+        {% include "info_articles/partials/page_title_banner.html" %}
+
+        {% if needs_translation %}
+            <div class="article-meta">
+                {% include "info_articles/partials/translation_warning.html" %}
+            </div>
+        {% endif %}
+
+        {% if page.intro %}<div class="intro">{{ page.intro|richtext }}</div>{% endif %}
+        {% if page.general_info %}<div class="general-info">{{ page.general_info|richtext }}</div>{% endif %}
+
+        {% comment %}
+        Editor-curated groups (StudentUnionCategoryPage.union_groups) --
+        each a titled section of hand-picked unions, reusing union_group.html
+        (itself reusing union_card.html, same partial the "All active
+        unions"/"Old, but not forgotten" listings below use, and the same
+        markup a "Student Union Card" body block renders elsewhere). Purely
+        additive to the full listings below, not a partition -- a union
+        placed here still appears in one of those too (see get_context()'s
+        own comment). "row" places several groups side by side
+        (.union-group-row in category_card.css) instead of each stacking
+        full-width on its own. Rendered in two passes ("row" blocks first,
+        "group" blocks after the auto-computed Programspesifikke section
+        below) so that section keeps its usual spot between the two,
+        without needing to interleave it into a single StreamField loop.
+        {% endcomment %}
+        {% for block in page.union_groups %}
+            {% if block.block_type == "row" %}
+                {% if block.value.title %}<h2 class="section-heading">{{ block.value.title }}</h2>{% endif %}
+                <div class="union-group-row">
+                    {% for group in block.value.groups %}
+                        <div class="union-group-row-item">
+                            {% include "info_articles/partials/union_group.html" with group=group %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% if program_unions %}
+            {% comment %}
+            Automatic, not editor-curated -- every active union with
+            union_type="program" lands here by field value alone (see
+            get_context()'s program_unions), so a newly-added
+            program-specific union never has to be manually added to a
+            group to show up in its own section.
+            {% endcomment %}
+            <h2 class="section-heading">{% trans "Programspesifikke foreninger" %}</h2>
+            <div class="union-grid">
+                {% for union in program_unions %}
+                    {% include "info_articles/partials/union_card.html" with union=union %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% for block in page.union_groups %}
+            {% if block.block_type == "group" %}
+                {% include "info_articles/partials/union_group.html" with group=block.value %}
+            {% endif %}
+        {% endfor %}
+
+        {% if other_unions %}
+            {% comment %}
+            Automatic, not editor-curated -- the true leftover bucket:
+            every active union that isn't program-specific and isn't
+            already in one of union_groups' own curated groups/rows above
+            (see get_context()'s other_unions), so nothing ever ends up
+            listed here *and* in a more specific section at the same time.
+            {% endcomment %}
+            <h2 class="section-heading">{% trans "Andre foreninger" %}</h2>
+            <div class="union-grid">
+                {% for union in other_unions %}
+                    {% include "info_articles/partials/union_card.html" with union=union %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <h2 class="section-heading">{% trans "All active unions" %}</h2>
+        <div class="union-grid">
+            {% for union in active_unions %}
+                {% include "info_articles/partials/union_card.html" with union=union %}
+            {% endfor %}
+        </div>
+
+        {% if retired_unions %}
+            <h2 class="section-heading"><span aria-hidden="true">&#129702;</span> {% trans "Old, but not forgotten" %}</h2>
+            <div class="union-grid">
+                {% for union in retired_unions %}
+                    {% include "info_articles/partials/union_card.html" with union=union %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if unknown_unions %}
+            <h2 class="section-heading"><span aria-hidden="true">&#10067;</span> {% trans "Missing in action" %}</h2>
+            <p class="section-subheading">{% trans "We couldn't confirm whether these are still active -- no working website or contact found." %}</p>
+            <div class="union-grid">
+                {% for union in unknown_unions %}
+                    {% include "info_articles/partials/union_card.html" with union=union %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    {% if page.banner_style.show_banner or can_edit_style %}
+        <script src="{% static 'js/title_banner.js' %}" defer></script>
+    {% endif %}
+    {% if can_edit_style %}
+        <script src="{% static 'js/article_unsaved_changes.js' %}" defer></script>
+        <script src="{% static 'js/article_editor_mode.js' %}" defer></script>
+        <script src="{% static 'js/banner_style.js' %}" defer></script>
+    {% endif %}
+{% endblock maincontent %}

@@ -1,0 +1,53 @@
+/* Design rationale: docs/claude_context/union_page.md */
+.union-main h2 {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.union-main h2:first-child {
+    margin-top: 0;
+}
+
+.union-section-summary {
+    display: block;
+    list-style: none;
+    cursor: default;
+    pointer-events: none;
+}
+
+.union-section-summary::-webkit-details-marker {
+    display: none;
+}
+
+.union-main .union-section-summary h2 {
+    margin-top: 0;
+}
+
+.union-section + .union-section {
+    margin-top: 2rem;
+}
+
+@media (max-width: 45rem) {
+    .union-section-summary {
+        cursor: pointer;
+        pointer-events: auto;
+    }
+
+    .union-section-summary h2 {
+        text-align: left;
+    }
+
+    .union-section-summary h2::before {
+        content: "";
+        display: inline-block;
+        margin-right: 0.35em;
+        border: 0.35em solid transparent;
+        border-top-color: currentColor;
+        vertical-align: middle;
+        transition: transform 0.15s ease;
+    }
+
+    .union-section[open] .union-section-summary h2::before {
+        transform: rotate(180deg);
+    }
+}

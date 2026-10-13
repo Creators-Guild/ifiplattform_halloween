@@ -1,0 +1,122 @@
+/* Design rationale: docs/claude_context/home_eventsbox.md */
+.home-eventsbox-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.home-eventsbox-time {
+  margin: 0;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+}
+
+.home-eventsbox-body {
+  display: grid;
+  justify-items: start;
+  gap: 0.3rem;
+}
+
+.home-eventsbox-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.home-eventsbox-title {
+  font-weight: bold;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.home-eventsbox-title:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+.home-eventsbox-calendar-link,
+.home-eventsbox-subcount,
+.home-eventsbox-subevents summary {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.home-eventsbox-calendar-link {
+  text-decoration: underline;
+}
+
+.home-eventsbox-calendar-link:hover,
+.home-eventsbox-subevents summary:hover {
+  color: var(--color-text);
+}
+
+.home-eventsbox-unions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.home-eventsbox-union-tag {
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.home-eventsbox-union-tag:hover {
+  color: var(--color-text);
+  border-color: var(--color-accent-hover);
+}
+
+.home-eventsbox-more-unions {
+  display: contents;
+}
+
+.home-eventsbox-more-unions summary {
+  border-style: dashed;
+  cursor: pointer;
+  list-style: none;
+}
+
+.home-eventsbox-more-unions summary::-webkit-details-marker {
+  display: none;
+}
+
+.home-eventsbox-subevents summary {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.home-eventsbox-subevents-list {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 0.4rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--color-border);
+}
+
+.home-eventsbox-subevents-list a {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.home-eventsbox-subevents-list a:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+.home-eventsbox-subevent-time {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  margin-right: 0.3em;
+}

@@ -1,0 +1,16 @@
+.studytools-btn {
+    display: inline-block;
+    padding: 15px 25px;
+    margin: 1rem;
+    background-color: var(--color-purple);
+    border: 0px;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    width: 150px;
+}
+
+.studytools-btn:hover {
+    background-color: var(--color-purple-hover);
+    cursor: pointer;
+}

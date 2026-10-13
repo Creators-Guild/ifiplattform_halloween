@@ -1,0 +1,40 @@
+.tool-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 60rem;
+  margin: 2rem auto 0;
+}
+
+.tool-preview {
+  flex: 1 1 16rem;
+  max-width: 26rem;
+  margin: 0;
+}
+
+.tool-preview-trigger {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+}
+
+.tool-preview-image {
+  display: block;
+  width: 100%;
+  height: 14rem;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid var(--color-border);
+  box-shadow: 0 4px 14px var(--color-shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tool-preview-trigger:hover .tool-preview-image,
+.tool-preview-trigger:focus-visible .tool-preview-image {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px var(--color-shadow);
+}

@@ -1,0 +1,18 @@
+{% load i18n %}
+{% if translation_nudge %}
+    <div class="translation-nudge" role="status">
+        <p class="translation-nudge-text">
+            {% if translation_nudge.reason == "missing" %}
+                {% trans "The English version of this page is missing." %}
+            {% else %}
+                {% trans "The English version of this page is out of date." %}
+            {% endif %}
+        </p>
+        <div class="translation-nudge-actions">
+            {% if translation_nudge.machine_url %}
+                <a class="translation-nudge-button" href="{{ translation_nudge.machine_url }}">{% trans "Machine-translate now" %}</a>
+            {% endif %}
+            <a class="translation-nudge-button translation-nudge-button--secondary" href="{{ translation_nudge.editor_url }}">{% trans "Open translation editor" %}</a>
+        </div>
+    </div>
+{% endif %}

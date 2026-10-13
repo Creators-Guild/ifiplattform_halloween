@@ -1,0 +1,104 @@
+/* Design rationale: docs/claude_context/article_editor_css.md */
+.block-style-color-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.color-swatch {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0;
+  color: transparent;
+}
+
+.color-swatch--bg-light {
+  background: var(--color-bg-light);
+}
+
+.color-swatch--turq {
+  background: var(--color-turq);
+}
+
+.color-swatch--pink {
+  background: var(--color-pink);
+}
+
+.color-swatch--purple {
+  background: var(--color-purple);
+}
+
+.color-swatch--black {
+  background: var(--color-black);
+}
+
+.color-swatch--custom {
+  width: 7rem;
+  height: 2rem;
+  padding: 0 0.35rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-family: monospace;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.color-swatch--custom::placeholder {
+  color: var(--color-text-muted);
+  font-weight: normal;
+}
+
+.color-swatch-custom-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  margin: 0 auto;
+}
+
+.color-swatch-picker {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  cursor: pointer;
+  background: conic-gradient(from 0deg, #ff3b30, #ffcc00, #34c759, #30d5c8, #007aff, #af52de, #ff3b30);
+}
+
+.color-swatch-picker-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.color-swatch.active {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+.color-swatch--custom.active {
+  border-color: var(--color-border);
+  box-shadow: none;
+}
+
+.color-swatch-custom-group:has(.color-swatch--custom.active) {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent);
+}

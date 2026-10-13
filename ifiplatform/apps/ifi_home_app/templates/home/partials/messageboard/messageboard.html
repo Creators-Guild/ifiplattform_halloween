@@ -1,0 +1,19 @@
+{% load static %}
+
+{% if board_messages %}
+    <div class="messageboard"{% if show_board_controls %} data-autorotate="true"{% endif %}>
+        {% for msg in board_messages %}
+            {% include "home/partials/messageboard/slide.html" with msg=msg is_first=forloop.first index=forloop.counter0 %}
+        {% endfor %}
+
+        {% if show_board_controls %}
+            {% include "home/partials/messageboard/controls.html" %}
+        {% endif %}
+    </div>
+
+    {% include "home/partials/messageboard/modal.html" %}
+{% endif %}
+
+{% block extra_js %}
+  <script src="{% static 'js/messageboard.js' %}" defer></script>
+{% endblock %}

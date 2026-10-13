@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!--
+  scale(1, 1.35) stretches the glyphs taller without widening them, matching
+  the PNG favicons (generated via a separate PIL script). Since the
+  transform scales the whole local coordinate system, x/y have to be
+  specified in pre-transform space to land the text back at the true
+  canvas center afterward: x stays 256 (sx=1, so unaffected), but y is
+  256/1.35, since dominant-baseline="central" centers the glyphs' own
+  vertical midpoint on that point.
+  -->
+  <text x="256" y="189.63" font-family="Consolas, 'Courier New', monospace" font-weight="bold"
+        font-size="284" fill="#0ef7b9" text-anchor="middle" dominant-baseline="central"
+        transform="scale(1, 1.35)">Ifi</text>
+</svg>

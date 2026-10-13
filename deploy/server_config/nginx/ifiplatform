@@ -1,0 +1,64 @@
+server {
+    server_name www.ifiplattform.no;
+
+    location /static/ {
+        alias /home/ubuntu/IfiPlatform/ifiplatform/staticfiles/;
+    }
+
+    location /media/ {
+        alias /home/ubuntu/IfiPlatform/ifiplatform/media/;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/ubuntu/IfiPlatform/ifiplatform/ifiplatform.sock;
+    }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/ifiplattform.no/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/ifiplattform.no/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+
+}
+
+server {
+    server_name ifiplattform.no <server-ip>;
+    return 301 https://www.ifiplattform.no$request_uri;
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/ifiplattform.no/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/ifiplattform.no/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+
+}
+server {
+    if ($host = ifiplattform.no) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name ifiplattform.no <server-ip>;
+    return 404; # managed by Certbot
+
+
+}
+
+server {
+    if ($host = www.ifiplattform.no) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name www.ifiplattform.no;
+    return 404; # managed by Certbot
+
+
+}

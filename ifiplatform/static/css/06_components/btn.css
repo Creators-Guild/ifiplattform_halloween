@@ -1,0 +1,31 @@
+.btn {
+    cursor: pointer;
+    border-radius: 6px;
+    border: 2px solid var(--color-cta-border);
+    background-color: var(--color-cta);
+    color: var(--color-white);
+    padding: 0.4rem 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.05s ease;
+    margin: 2px;
+    text-decoration: none;
+}
+
+.btn:hover {
+  background-color: var(--color-cta-hover);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-delete {
+  background-color: var(--color-danger);
+  border: 2px solid var(--color-border);
+  padding: 0.2rem 0.5rem;
+}

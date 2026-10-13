@@ -1,0 +1,28 @@
+.back-to {
+  display: inline-block;
+  font-weight: bold;
+  padding: 3px;
+
+  color: var(--color-link);
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+
+}
+
+.back-to:hover {
+  transform: translateY(-1px);
+  color: var(--color-link-hover);
+}
+
+.back-to:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 45rem) {
+  .breadcrumbs {
+    padding-left: 3rem;
+  }
+}

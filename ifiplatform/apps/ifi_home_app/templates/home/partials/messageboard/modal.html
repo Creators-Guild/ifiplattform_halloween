@@ -1,0 +1,16 @@
+{% load i18n %}
+
+<div class="messageboard-modal" role="dialog" aria-modal="true" aria-label="{% trans "Message" %}" hidden>
+    <div class="messageboard-modal-panel">
+        <button type="button" class="messageboard-modal-close" aria-label="{% trans "Close" %}">&times;</button>
+
+        <div class="messageboard-modal-scroll">
+            <h2 class="messageboard-modal-title"></h2>
+            <p class="messageboard-modal-date"></p>
+            <div class="messageboard-modal-body"></div>
+            <p class="messageboard-modal-signature"></p>
+        </div>
+
+        <div class="messageboard-modal-fade" aria-hidden="true">&hellip;</div>
+    </div>
+</div>

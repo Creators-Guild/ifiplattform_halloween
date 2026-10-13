@@ -1,0 +1,29 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Flashcard Menu" %}{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static "css/study_base.css" %}">
+  <link rel="stylesheet" href="{% static 'styles/neon_style/ifi_study/flashcards.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="study_layout">
+        <div class="sidemenu_container">
+            {% include "core/partials/study_sidemenu.html" %}
+        </div>
+        <div class="maincontent">
+            <div class="top">
+                <a class="back-to" href="{% url 'study_home' %}">{% trans "<- Back to Ifi Study" %}</a>
+            
+                <div class="menu flashcard-menu">
+                    <h2>{% trans "Welcome to the FlashCard Menu" %}</h2>
+                    <p>{% trans "This is the main menu for flashcards" %}</p>
+                    {% include "flashcards/partials/deck_list.html" %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

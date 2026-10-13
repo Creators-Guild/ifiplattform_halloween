@@ -1,0 +1,106 @@
+{% load i18n wagtailcore_tags wagtailimages_tags %}
+{% with member=block.value %}
+    <!-- adaptive classname based on position availability -->
+    <div class="union-member-card{% if show_description_inline %} union-member-card--open{% endif %}">
+        {% if not show_description_inline and member.responsibilities %}
+            <div class="position-info-widget">
+                <button type="button" class="position-info-button" id="position-info-button-{{ block.id }}"
+                        aria-haspopup="dialog" aria-controls="position-info-panel-{{ block.id }}"
+                        aria-label="{% trans 'Position details' %}" aria-expanded="false">
+                    <svg class="position-info-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <line x1="12" y1="11" x2="12" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="12" cy="7.5" r="1.1" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="position-info-panel" id="position-info-panel-{{ block.id }}" role="dialog" aria-labelledby="position-info-title-{{ block.id }}" hidden>
+                    <div class="position-info-header">
+                        <p class="position-info-title" id="position-info-title-{{ block.id }}">{{ member.role }}</p>
+                        <button type="button" class="position-info-close" aria-label="{% trans 'Close' %}">&times;</button>
+                    </div>
+                    <div class="union-position-responsibilities">
+                        <h4>{% trans "Responsibilities" %}</h4>
+                        <ul>
+                            {% for item in member.responsibilities %}
+                                <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if not show_description_inline %}
+            {% if member.picture %}
+                {% image member.picture fill-160x160 as member_img %}
+                <img class="union-member-picture" src="{{ member_img.url }}" alt="{{ member.name|default:member.role }}">
+            {% else %}
+                <div class="union-member-picture union-member-picture--placeholder" aria-hidden="true"></div>
+            {% endif %}
+        {% endif %}
+        
+        <!-- name -->
+        {% if not show_description_inline %}
+            <h3>{{ member.name }}</h3>
+        {% endif %}
+
+        <!-- role -->
+        <div class="union-member-role">
+            {% if member.role_nickname %}
+            <div class="role">{{ member.role }}</div>
+            <div class="role-main">{{ member.role_nickname }}</div>
+            {% else %}
+            <div class="role-main">{{ member.role }}</div>
+            {% endif %}
+        </div>
+
+        <!-- availability tag and note -->
+        {% if member.availability != "filled" %}
+            <span class="union-position-badge union-position-badge--{{ member.availability }}">
+                {% if member.availability == "open" %}{% trans "Open now" %}{% else %}{% trans "Opening soon" %}{% endif %}
+            </span>
+            {% if member.availability_note %}
+                <span class="union-position-note">{{ member.availability_note }}</span>
+            {% endif %}
+        {% endif %}
+        
+        <!-- position responsibilities -->
+        {% if show_description_inline and member.responsibilities %}
+            <div class="union-position-responsibilities">
+                {% comment %}
+                h3, not h4 -- unlike the info-popup panel above (where
+                <h3>{{ member.name }}</h3> renders right before it, since
+                that's the not-show_description_inline path), the Open
+                Positions card never renders member.name as a heading at
+                all (line ~44's <h3> is gated on `not
+                show_description_inline`) and role/role-main are plain
+                divs, not headings -- so this is the *first* heading-level
+                element after the page's own <h2>Open Positions</h2>, and
+                h4 here would skip a level.
+                {% endcomment %}
+                <h3>{% trans "Responsibilities" %}</h3>
+                <ul>
+                    {% for item in member.responsibilities %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if show_description_inline %}
+            {% if member.name %}
+                <span class="union-position-held-by">{% trans "Currently" %}: {{ member.name }}</span>
+            {% else %}
+                <span class="union-position-held-by union-position-held-by--vacant">{% trans "Vacant" %}</span>
+            {% endif %}
+        {% endif %}
+        
+        <!-- mail -->
+        {% if not show_description_inline and member.school_email %}
+            <a class="union-member-email" href="mailto:{{ member.school_email }}">{{ member.school_email }}</a>
+        {% endif %}
+
+
+    </div>
+            
+{% endwith %}

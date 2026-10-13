@@ -1,0 +1,36 @@
+{% load i18n static article_tags %}
+{% get_shortcut_columns as columns %}
+<nav id="home-shortcuts">
+  {% for column in columns %}
+    <div class="shortcut-column">
+      {% for group in column %}
+        <div class="shortcut-card">
+          <button type="button" class="shortcut-toggle" popovertarget="shortcut-options-{{ forloop.parentloop.counter0 }}-{{ forloop.counter0 }}" aria-label="{{ group.title }}"></button>
+          <div class="shortcut-main">
+            {% if group.url %}
+              <a href="{{ group.url }}"{% if group.external %} target="_blank" rel="noopener"{% endif %}>
+                <span class="shortcut-title" data-full="{{ group.title }}" data-short="{{ group.short_title }}">{{ group.title }}</span>{% if group.external %}<span aria-hidden="true">↗</span>{% endif %}
+              </a>
+            {% else %}
+              <p><span class="shortcut-title" data-full="{{ group.title }}" data-short="{{ group.short_title }}">{{ group.title }}</span></p>
+            {% endif %}
+            <span>{% include "home/partials/shortcuts/shortcut_icon.html" with icon=group.icon %}</span>
+          </div>
+          <div class="shortcut-options" id="shortcut-options-{{ forloop.parentloop.counter0 }}-{{ forloop.counter0 }}" popover>
+            <p class="shortcut-options-title">{{ group.title }}</p>
+            {% if group.show_all %}
+              <a class="shortcut-secondary shortcut-secondary--all" href="{{ group.url }}"{% if group.external %} target="_blank" rel="noopener"{% endif %}>{% trans "All" %}{% if group.external %}<span aria-hidden="true">↗</span>{% endif %}</a>
+            {% endif %}
+            {% for link in group.links %}
+              <a class="shortcut-secondary" href="{{ link.url }}"{% if link.external %} target="_blank" rel="noopener"{% endif %}>
+                {% if link.prefix %}<span class="shortcut-prefix">{{ link.prefix }} </span>{% endif %}{{ link.label }}{% if link.external %}<span aria-hidden="true">↗</span>{% endif %}
+                {% if link.description %}<span class="shortcut-description">{{ link.description }}</span>{% endif %}
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</nav>
+<script src="{% static 'js/shortcut_fit.js' %}" defer></script>

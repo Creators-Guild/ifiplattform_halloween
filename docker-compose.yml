@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16
+    container_name: ifiplatform-db
+    environment:
+      POSTGRES_DB: ifiplatform
+      POSTGRES_USER: ifiplatform_user
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - ifiplatform-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ifiplatform_user -d ifiplatform"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ifiplatform-web
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DEBUG: "True"
+      DJANGO_SECRET_KEY: "dev-only-insecure-key-do-not-use-in-production"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1"
+      USE_POSTGRES: "True"
+      DB_NAME: ifiplatform
+      DB_USER: ifiplatform_user
+      DB_PASSWORD: devpassword
+      DB_HOST: db
+      DB_PORT: "5432"
+      # Keeps the Claude Code login in the claude-config volume, so it survives rebuilds.
+      CLAUDE_CONFIG_DIR: /home/dev/.claude
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - .:/workspace
+      - claude-config:/home/dev/.claude
+    init: true
+    # sleep infinity keeps the container running if a start step fails, so
+    # the VS Code terminal still works for fixing the error.
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_dev_data &&
+             python manage.py runserver 0.0.0.0:8000;
+             echo 'The server stopped. Fix the error above, then run: python manage.py runserver 0.0.0.0:8000';
+             sleep infinity"
+
+volumes:
+  ifiplatform-db-data:
+  claude-config:

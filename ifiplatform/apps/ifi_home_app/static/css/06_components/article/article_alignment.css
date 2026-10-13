@@ -1,0 +1,44 @@
+/* Design rationale: docs/claude_context/article_body_css.md */
+.prose--align-left {
+  text-align: left;
+}
+
+.prose--align-center {
+  text-align: center;
+}
+
+.prose--align-right {
+  text-align: right;
+}
+
+.prose p {
+  font-size: inherit;
+}
+
+.heading--align-left {
+  text-align: left;
+}
+
+.heading--align-center {
+  text-align: center;
+}
+
+.heading--align-right {
+  text-align: right;
+}
+
+@media (max-width: 45rem) {
+  .heading--align-left,
+  .heading--align-center,
+  .heading--align-right {
+    font-size: 1.5rem !important;
+    padding: 0 !important;
+  }
+
+  .prose--align-left,
+  .prose--align-center,
+  .prose--align-right {
+    font-size: 1rem !important;
+    padding: 0 !important;
+  }
+}

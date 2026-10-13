@@ -1,0 +1,9 @@
+/* Design rationale: docs/claude_context/shared_components.md */
+.articlecard,
+.category-card,
+.tool-card,
+.union-card {
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: var(--color-bg);
+}

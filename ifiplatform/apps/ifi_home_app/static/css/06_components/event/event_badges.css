@@ -1,0 +1,56 @@
+/* Design rationale: docs/claude_context/event_list.md */
+.event-type-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  color: var(--color-on-accent);
+  background-color: var(--color-text-muted);
+}
+
+.event-type-badge--social {
+  background-color: var(--color-accent);
+}
+
+.event-type-badge--deadline {
+  background-color: var(--color-error);
+}
+
+.event-type-badge--academic {
+  background-color: var(--color-secondary);
+}
+
+.event-type-badge--company {
+  background-color: var(--color-cta);
+}
+
+.event-peoply-note {
+  display: block;
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.event-peoply-note--compact {
+  font-size: 0.6rem;
+}
+
+.event-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.event-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-muted);
+}

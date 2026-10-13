@@ -1,0 +1,48 @@
+/* Design rationale: docs/claude_context/union_page.md */
+.union-core {
+    background-color: var(--color-card-bg);
+    border: 2px solid var(--color-border);
+    border-radius: 1rem;
+    box-shadow: 0 4px 14px var(--color-shadow);
+    padding: 2rem 8rem;
+    font-size: 1.3rem;
+    text-align: left;
+}
+
+@media (max-width: 45rem) {
+    .union-core {
+        padding: 2rem 1rem;
+        font-size: 1rem;
+    }
+}
+
+.union-core p {
+    font-size: inherit;
+}
+
+.union-core ul, .union-core ol {
+    padding-left: 0;
+    margin-left: 0;
+    list-style-position: inside;
+}
+
+.union-bylaws-link {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.75rem auto 0;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--accent-color, var(--color-border));
+    border-radius: 999px;
+    color: var(--accent-color, var(--color-text));
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.union-bylaws-link:hover,
+.union-bylaws-link:focus-visible {
+    background-color: var(--accent-color, var(--color-border));
+    color: var(--color-on-accent, var(--color-bg));
+}

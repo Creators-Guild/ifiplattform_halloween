@@ -1,0 +1,21 @@
+{% load l10n %}
+{% comment %}
+The page's own <h1>, plus an optional decorative banner behind it (see
+BannerStyleMixin/PageBannerStyle in article_models.py) -- shared by
+CategoryPage/ArticleIndexPage/StudentUnionCategoryPage's own templates,
+all three use this identically. Both the plain title and the banner are
+ALWAYS rendered -- whichever one show_banner doesn't currently pick is
+just [hidden], not an if/else -- so banner_style.js's Show-banner checkbox
+can flip between them live (toggling a hidden element's visibility)
+instead of needing a save+reload to see anything. Width/height/font-size
+all fall back to fixed platform defaults when unset (60/14/2.75rem) --
+see PageBannerStyle's own comment, there's no "auto" concept here unlike
+some other rem fields in this codebase.
+
+Usage: {% include "info_articles/partials/page_title_banner.html" %}
+(reads `page` from the including template's own context, nothing to pass in)
+{% endcomment %}
+<h1 id="page-title-plain" {% if page.banner_style.show_banner %}hidden{% endif %}>{{ page.title }}</h1>
+<div class="title-banner" {% if not page.banner_style.show_banner %}hidden{% endif %} style="background: {{ page.banner_style.banner_color|default:"#197dc4" }}; --dot-color: {{ page.banner_style.banner_dot_color|default:"#ffffff" }}; width: {{ page.banner_style.banner_width_rem|default:60|unlocalize }}rem; max-width: 100%; height: {{ page.banner_style.banner_height_rem|default:14|unlocalize }}rem;">
+    <h1 style="color: {{ page.banner_style.banner_text_color|default:"#fffff9" }}; font-size: {{ page.banner_style.banner_font_size|default:2.75|unlocalize }}rem;">{{ page.title }}</h1>
+</div>

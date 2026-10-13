@@ -1,0 +1,67 @@
+/* Design rationale: docs/claude_context/event_list.md */
+.event-index-semester {
+  color: var(--color-text-muted);
+  font-weight: bold;
+  margin: 0.25rem 0 0;
+}
+
+.event-index-month-heading {
+  margin: 1.5rem 0 0;
+}
+
+.event-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.event-list-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--color-text);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.event-list-item:hover,
+.event-list-item:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+.event-list-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: bold;
+}
+
+.event-list-date {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.event-list-empty {
+  color: var(--color-text-muted);
+}
+
+.event-index-past {
+  margin-top: 2rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+}
+
+.event-index-past-toggle {
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--color-text-muted);
+}

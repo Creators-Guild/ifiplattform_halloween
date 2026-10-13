@@ -1,0 +1,112 @@
+.bot-bar {
+  background: var(--color-bg-dark);
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#left-info {
+  grid-column: 1;
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.8rem;
+  padding: 1rem;
+  text-align: start;
+}
+
+#left-info a {
+  text-align: start;
+}
+
+#left-info #want-to-contribute {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+#made-by {
+  grid-column: 2;
+  max-width: 120px;
+  max-height: 120px;
+}
+
+#right-info {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.8rem;
+  padding: 1rem;
+}
+
+#right-info a {
+  text-align: end;
+}
+
+.bot-bar p {
+  margin: 0;
+  color: var(--color-on-accent);
+}
+
+.bot-bar a {
+  text-decoration: none;
+  color: var(--color-on-accent);
+}
+
+.bot-bar a:hover {
+  color: var(--color-pink-dark);
+}
+
+/* keeps the footer clear of the Wagtail userbar, which only staff get */
+body:has(wagtail-userbar) .bot-bar {
+  padding-right: 6rem;
+}
+
+@media (max-width: 45rem) {
+  .bot-bar {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 2rem;
+  }
+
+  #left-info,
+  #made-by,
+  #right-info {
+    grid-column: 1;
+    justify-self: center;
+    align-items: center;
+    padding: 0;
+    text-align: center;
+  }
+
+  #made-by {
+    grid-row: 1;
+  }
+
+  #left-info {
+    grid-row: 2;
+  }
+
+  #right-info {
+    border-top: 1px solid var(--color-on-accent);
+    padding: 2rem 0 0 0;
+    grid-row: 3;
+  }
+
+  #left-info a,
+  #right-info a {
+    text-align: center;
+  }
+
+  body:has(wagtail-userbar) .bot-bar {
+    padding-right: 1rem;
+    padding-bottom: 4.5rem;
+  }
+}

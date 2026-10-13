@@ -1,0 +1,63 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Flashcard Review" %}{% endblock %}
+
+{% block extra_head %} <link rel="stylesheet" href="{% static "styles/neon_style/ifi_study/flashcards.css" %}"> {% endblock extra_head %}
+
+{% block content %}
+    <a class="back-to" href="{% url 'deck_detail' deck.pk %}">{% trans '<- Back to deck' %}</a>
+    <div class="flashcard-review-page">
+        <h1>{% blocktrans %}Review: {{ deck.name }}{% endblocktrans %}</h1>
+
+        {% if total_cards == 0 %}
+            <p>{% trans "This deck has no cards." %}</p>
+        {% else %}
+
+            <strong >{% trans 'Question:' %}</strong>
+            <div class="flashcard-card"> 
+                {{ card.front }}
+            </div>
+            <p>
+                {% trans "Card" %} {{current_index}} {% trans "of" %} {{total_cards}}
+            </p>
+
+            <button class= "btn" onclick="document.getElementById('answer').style.display='block'">
+                {% trans 'Show answer' %}
+            </button>
+
+            <div id="answer" style="display:none; margin-top:10px;">
+                <strong class="card-backt">{% trans 'Answer:' %}</strong> {{ card.back }}
+
+                <form class="rate-yourself" method="post" style="margin-top:10px;">
+                    {% csrf_token %}
+                    <button class = "btn btn-knew" name="knew_it" value="true">{% trans 'I knew it' %}</button>
+                    <button class = "btn btn-knew" name="knew_it" value="false">{% trans 'I didn’t know' %}</button>
+                </form>
+            </div>
+
+            <div>
+                <a class="deck-nav" href="
+                    {% if current_index == 1 %}
+                        {% url 'review' deck.pk total_cards %}
+                    {% else %}
+                        {% url 'review' deck.pk current_index|add:'-1' %}
+                    {% endif %}">
+                    {% trans "Previous" %}
+                </a>
+
+                {# Next link #}
+                <a class="deck-nav" href="
+                    {% if current_index == total_cards %}
+                        {% url 'review' deck.pk 1 %}
+                    {% else %}
+                        {% url 'review' deck.pk current_index|add:'1' %}
+                    {% endif %}">
+                    {% trans "Next" %}
+                </a>
+            </div>
+    </div>
+        
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+.tool-page {
+  display: flow-root;
+}
+
+.tool-page .article-meta {
+  display: flex;
+  justify-content: center;
+}
+
+.tool-body {
+  max-width: 42rem;
+  margin: 0 auto;
+  text-align: center;
+}

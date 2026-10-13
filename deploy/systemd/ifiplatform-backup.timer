@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the database and media backup daily at 05:00
+
+[Timer]
+# 05:00 keeps clear of the unattended-upgrades window around 04:00, which
+# can briefly restart PostgreSQL.
+OnCalendar=*-*-* 05:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

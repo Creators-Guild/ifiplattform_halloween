@@ -1,0 +1,9 @@
+{% load i18n %}
+{% if request.user.is_staff %}
+    <form method="post" action="{% url 'force_sync_peoply_events' %}" class="peoply-sync-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <button type="submit" class="peoply-sync-button">{% trans "Sync Peoply now" %}</button>
+        <span class="peoply-sync-warning">{% trans "Don't spam!" %}</span>
+    </form>
+{% endif %}

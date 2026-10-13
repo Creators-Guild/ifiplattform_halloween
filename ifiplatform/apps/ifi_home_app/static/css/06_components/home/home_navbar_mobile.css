@@ -1,0 +1,36 @@
+/* Design rationale: docs/claude_context/home_layout.md */
+.drop-option-short {
+  display: none;
+}
+
+@media (max-width: 45rem) {
+  .home-navbar .dropdown-menu--hide-mobile {
+    display: none;
+  }
+
+  .home-navbar .drop-option-full {
+    display: none;
+  }
+
+  .home-navbar .drop-option-short {
+    display: inline;
+  }
+
+  .home-navbar {
+    position: relative;
+  }
+
+  .home-navbar .dropdown-menu {
+    position: static;
+  }
+
+  .home-navbar .dropdown-menu .drop-content {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 0;
+    right: 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+}

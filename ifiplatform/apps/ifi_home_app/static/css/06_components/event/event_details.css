@@ -1,0 +1,61 @@
+.event-page h1 {
+  margin-top: 0.5rem;
+}
+
+.event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+}
+
+.event-location-map-link {
+  margin-left: 0.4rem;
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+.event-location-map-link:hover,
+.event-location-map-link:focus-visible {
+  color: var(--color-link-hover);
+}
+
+.event-overview-link {
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.event-overview-link a {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+.event-overview-link a:hover,
+.event-overview-link a:focus-visible {
+  color: var(--color-link-hover);
+}
+
+.event-signup-link {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--color-bg);
+  background-color: var(--color-secondary);
+}
+
+.event-signup-link:hover,
+.event-signup-link:focus-visible {
+  background-color: var(--color-secondary-hover);
+}
+
+.event-union-role {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}

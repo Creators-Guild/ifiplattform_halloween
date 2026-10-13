@@ -1,0 +1,30 @@
+{% load i18n wagtailcore_tags %}
+
+{% if page %}
+    <nav class="breadcrumbs" aria-label="{% trans 'Breadcrumb' %}">
+        {% with parent=page.get_parent %}
+            <a href="{% pageurl parent %}" class="back-to" aria-label="{% trans 'Back' %}">
+                <span aria-hidden="true">←</span>
+            </a>
+            <span aria-hidden="true">  </span>
+        {% endwith %}
+
+        {% comment %}
+        .specific so ancestor.section actually resolves for ArticleIndexPage
+        ancestors (the base Page from .live() alone doesn't have it) --
+        "hub" index pages (e.g. the top-level page holding both the
+        info-articles and news indexes) are structural only, not a real
+        destination, so they're left out of the trail entirely.
+        {% endcomment %}
+        {% for ancestor in page.get_ancestors.live.specific %}
+            {% if not ancestor.is_root and ancestor.section != "hub" %}
+                <a class="back-to" href="{% pageurl ancestor %}">{{ ancestor.title }}</a>
+                <span aria-hidden="true">/</span>
+            {% endif %}
+        {% endfor %}
+
+        <span class="current" aria-current="page">{{ page.title }}</span>
+    </nav>
+{% else %}
+    <a class="back-to breadcrumbs" href="{% url 'ifi_home' %}">{% trans "Back to Homepage" %}</a>
+{% endif %}

@@ -1,0 +1,67 @@
+name: 🔧 Task
+description: Maintenance, cleanup, tooling or tests (and documentation work, but has its own template)
+title: "[Task] "
+labels: ["task"]
+type: Task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A Task covers maintenance/chore work, tests, and documentation — anything that isn't a bug fix or a user-facing feature but keeps the project healthy. Take from this what is relevant to your specific issue and ignore the rest.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: What kind of task is this? (Select all that apply by choosing the closest fit)
+      options:
+        - Dependencies
+        - Cleanup
+        - Config / Tooling
+        - Test
+        - Documentation
+        - Sub-task
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What needs doing
+      description: Description of the task
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: What's outdated, messy, untested, or inefficient about the current state — or which larger issue this is a part of
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested_approach
+    attributes:
+      label: Suggested approach
+      description: (Optional) How could this be done?
+      placeholder: This could probably be done by...
+    validations:
+      required: false
+
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk / impact
+      description: (Optional) Could this break anything? Any areas to test after this change?
+    validations:
+      required: false
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related
+      description: (Optional) Link any related issues or PRs
+      placeholder: This is related to #...
+    validations:
+      required: false

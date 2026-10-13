@@ -1,0 +1,23 @@
+.tool-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.5rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1.05rem;
+  font-weight: bold;
+  background: linear-gradient(90deg, var(--color-cta), var(--color-secondary));
+  border: 2px solid var(--color-border);
+  box-shadow: 0 3px 0 var(--color-border);
+}
+
+.tool-cta:hover {
+  background: linear-gradient(90deg, var(--color-cta), var(--color-secondary));
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.tool-cta:active {
+  box-shadow: 0 1px 0 var(--color-border);
+  transform: translateY(2px);
+}

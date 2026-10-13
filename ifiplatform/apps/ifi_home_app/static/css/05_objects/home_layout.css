@@ -1,0 +1,4 @@
+/* Design rationale: docs/claude_context/home_layout.md */
+.home-layout .maincontent {
+    padding: 1rem 2rem;
+}

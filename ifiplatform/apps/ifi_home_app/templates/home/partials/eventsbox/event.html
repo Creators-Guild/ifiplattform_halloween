@@ -1,0 +1,61 @@
+{% load i18n wagtailcore_tags %}
+<div class="home-eventsbox-item">
+    <p class="home-eventsbox-time">
+        {% if event.event_time %}
+            {{ event.event_time|time:"H:i" }}
+        {% elif event.end_date %}
+            &ndash;{{ event.end_date|date:"j. M" }}
+        {% else %}
+            {% trans "All day" %}
+        {% endif %}
+    </p>
+
+    <div class="home-eventsbox-body">
+        <p class="home-eventsbox-badges">
+            <span class="event-type-badge event-type-badge--{{ event.event_type }}">{{ event.get_event_type_display }}</span>
+        </p>
+
+        <a class="home-eventsbox-title" href="{% pageurl event %}">{{ event.title }}</a>
+
+        {% if event.calendar_days.days %}
+            <a class="home-eventsbox-calendar-link" href="{% pageurl event %}#event-calendar">{% trans "Click to see calendar" %}</a>
+        {% endif %}
+
+        {% if event.visible_union_tags %}
+            <div class="home-eventsbox-unions">
+                {% for entry in event.visible_union_tags %}
+                    <a class="home-eventsbox-union-tag" href="{% pageurl entry.union %}">{{ entry.union.title }}</a>
+                {% endfor %}
+
+                {% if event.extra_union_tags %}
+                    <details class="home-eventsbox-more-unions">
+                        <summary class="home-eventsbox-union-tag">+{{ event.extra_union_tags|length }}</summary>
+                        {% for entry in event.extra_union_tags %}
+                            <a class="home-eventsbox-union-tag" href="{% pageurl entry.union %}">{{ entry.union.title }}</a>
+                        {% endfor %}
+                    </details>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% with sub_count=event.sub_event_count highlighted=event.highlighted_sub_events %}
+            {% if highlighted %}
+                <details class="home-eventsbox-subevents">
+                    <summary>{% blocktrans count counter=sub_count %}{{ counter }} sub-event{% plural %}{{ counter }} sub-events{% endblocktrans %}</summary>
+                    <div class="home-eventsbox-subevents-list">
+                        {% for sub_event in highlighted %}
+                            <a href="{% pageurl sub_event %}">
+                                {% if sub_event.event_time %}<span class="home-eventsbox-subevent-time">{{ sub_event.event_time|time:"H:i" }}</span>{% endif %}
+                                {{ sub_event.title }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </details>
+            {% elif sub_count %}
+                <span class="home-eventsbox-subcount">{% blocktrans count counter=sub_count %}{{ counter }} sub-event{% plural %}{{ counter }} sub-events{% endblocktrans %}</span>
+            {% endif %}
+        {% endwith %}
+
+        {% include "events/partials/peoply_badge.html" with compact=True %}
+    </div>
+</div>

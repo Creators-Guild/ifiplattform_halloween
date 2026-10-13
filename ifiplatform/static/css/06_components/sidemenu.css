@@ -1,0 +1,203 @@
+.sidemenu_container {
+    --rail: 56px;
+    --panel: 250px;
+    --icon: 24px;
+    width: var(--rail);
+    background-color: var(--color-accent-hover);
+    transition: width 0.2s ease;
+}
+
+.sidemenu {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: var(--rail);
+    max-height: 100dvh;
+    padding-block: 1rem;
+    overflow: hidden auto;
+    box-sizing: border-box;
+    background-color: var(--color-accent-hover);
+    interpolate-size: allow-keywords;
+    transition: width 0.2s ease;
+}
+
+.sidemenu summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.sidemenu summary::-webkit-details-marker {
+    display: none;
+}
+
+.sidemenu-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-inline: calc((var(--rail) - var(--icon)) / 2);
+    white-space: nowrap;
+}
+
+.sidemenu .icon {
+    flex: none;
+    width: var(--icon);
+    height: var(--icon);
+    object-fit: contain;
+}
+
+.icon-text {
+    display: none;
+    font-size: larger;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+/* desktop: hover or keyboard focus only, so a leftover [open] from mobile is ignored */
+@media (hover: hover) and (pointer: fine) and (width > 45rem) {
+    .sidemenu-header {
+        pointer-events: none;
+    }
+
+    .sidemenu_container:is(:hover, :has(:focus-visible)),
+    .sidemenu_container:is(:hover, :has(:focus-visible)) .sidemenu {
+        width: var(--panel);
+    }
+
+    .sidemenu_container:is(:hover, :has(:focus-visible)) .sidemenu {
+        border-right: 1px solid color-mix(in srgb, var(--color-border) 15%, transparent);
+    }
+
+    .sidemenu_container:is(:hover, :has(:focus-visible)) .icon {
+        display: none;
+    }
+
+    .sidemenu_container:is(:hover, :has(:focus-visible)) .icon-text {
+        display: inline;
+    }
+
+    .sidemenu_container .sidemenu::details-content {
+        content-visibility: hidden;
+    }
+
+    .sidemenu_container:is(:hover, :has(:focus-visible)) .sidemenu::details-content {
+        content-visibility: visible;
+    }
+}
+
+/* touch and narrow screens: open by tapping the icon */
+@media not all and (hover: hover) and (pointer: fine) and (width > 45rem) {
+    .sidemenu_container:has(.sidemenu[open]),
+    .sidemenu[open] {
+        width: var(--panel);
+    }
+
+    .sidemenu[open] {
+        border-right: 1px solid color-mix(in srgb, var(--color-border) 15%, transparent);
+    }
+
+    .sidemenu[open] .icon {
+        display: none;
+    }
+
+    .sidemenu[open] .icon-text {
+        display: inline;
+    }
+}
+
+.sidemenu-item {
+    margin: 1.5rem 1rem;
+}
+
+.sidemenu-option,
+.sidemenu-item a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: large;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.sidemenu-option:hover,
+.sidemenu-item a:hover {
+    opacity: 0.7;
+    transform: translateY(-1px);
+}
+
+.sidemenu-option {
+    display: block;
+    width: fit-content;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.sidemenu-option::after {
+    content: "";
+    display: inline-block;
+    margin-left: 0.35em;
+    border: 0.35em solid transparent;
+    border-top-color: currentColor;
+    vertical-align: middle;
+    transition: transform 0.15s ease;
+}
+
+.sidemenu-item[open] .sidemenu-option::after {
+    transform: rotate(180deg);
+}
+
+.sidemenu-item::details-content {
+    height: 0;
+    overflow: clip;
+    transition: height 0.25s ease, content-visibility 0.25s allow-discrete;
+}
+
+.sidemenu-item[open]::details-content {
+    height: auto;
+}
+
+.sidemenu-item .drop-content {
+    display: grid;
+    gap: 0.5em;
+    padding: 0.5em 0 0 1rem;
+}
+
+.sidemenu-item .drop-content .drop-option {
+    padding: 0.25rem 0.75rem;
+}
+
+@media (max-width: 45rem) {
+    .sidemenu_container,
+    .sidemenu_container:has(.sidemenu[open]) {
+        --panel: min(80vw, 250px);
+        position: relative;
+        width: 0;
+        background: none;
+    }
+
+    .sidemenu_container:has(.sidemenu[open])::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        z-index: 10;
+        width: var(--panel);
+        background-color: var(--color-accent-hover);
+        box-shadow: 4px 0 16px rgb(0 0 0 / 0.2);
+    }
+
+    .sidemenu {
+        padding-block: 0.75rem;
+        border-radius: 0 0 8px 0;
+    }
+
+    .sidemenu[open] {
+        border-radius: 0;
+    }
+
+    .sidemenu-item {
+        margin: 1rem 0.75rem;
+    }
+
+    .sidemenu-option,
+    .sidemenu-item a,
+    .icon-text {
+        font-size: 15px;
+    }
+}

@@ -1,0 +1,40 @@
+/* Design rationale: docs/claude_context/shared_components.md */
+.tool-lightbox {
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.tool-lightbox[hidden] {
+  display: none;
+}
+
+.tool-lightbox-image {
+  display: block;
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 12px;
+  border: 2px solid var(--color-on-accent);
+  box-shadow: 0 8px 32px var(--color-shadow-strong);
+}
+
+.tool-lightbox-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-on-accent);
+  background: var(--color-text);
+  color: var(--color-on-accent);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tool-lightbox-close:hover {
+  background: var(--color-cta);
+}

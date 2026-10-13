@@ -1,0 +1,26 @@
+{% load static %}
+{% load i18n %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/06_components/sidemenu.css' %}">
+{% endblock %}
+
+<details class="sidemenu">
+    <summary class="sidemenu-header">
+        <img class="icon" src="{% static 'images/icons/black_menu_icon.png' %}" alt="">
+        <span class="icon-text">{% trans "Menu" %}</span>
+    </summary>
+
+    <details class="sidemenu-item" name="sidemenu-item">
+        <summary class="sidemenu-option">{% trans "Studytools" %}</summary>
+        <div class="drop-content">
+            <a class="drop-option drop-option--all" href="">{% trans "All" %}</a>
+            <a href="">
+                {% trans "Flashcards" %}
+            </a>
+            <a href="">
+                {% trans "Multiplechoice" %}
+            </a>
+        </div>
+    </details>
+</details>

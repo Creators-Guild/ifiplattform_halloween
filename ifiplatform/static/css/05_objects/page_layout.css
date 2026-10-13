@@ -1,0 +1,34 @@
+.page-layout {
+    display: grid;
+    min-height: 100vh;
+    grid-template:
+        "top top" auto
+        "side main" 1fr
+        "side bot" auto
+        / auto minmax(0, 1fr);
+}
+
+.topheader-content {
+    grid-area: top;
+    position: relative;
+}
+
+/* runs down behind the footer so the sticky menu inside is never pushed off screen */
+.page-layout > .sidemenu_container {
+    grid-area: side;
+}
+
+.page-layout > .sidemenu_container:not(:has(.sidemenu)) {
+    display: none;
+}
+
+.page-content {
+    grid-area: main;
+}
+
+.bottombar-content {
+    grid-row: bot;
+    grid-column: 1 / -1;
+    position: relative;
+    z-index: 20;
+}

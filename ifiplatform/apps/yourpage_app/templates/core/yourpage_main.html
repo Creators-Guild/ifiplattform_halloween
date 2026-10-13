@@ -1,0 +1,23 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Your Page" %}{% endblock %}
+
+{% block content %}
+
+    <div class="main-content">
+            <h2>{% trans "Welcome to the Your Page" %}</h2>
+        <p>{% trans "This is the placeholder for Your Page. This is an upcoming feature..." %}</p>
+        <p>{% trans "Current user: " %} {{user.username}}</p>
+    </div>
+
+    <div class="flex-wrapper">
+        {% include "partials/personal_workflow_settings.html" %}
+        {% include "partials/your_subjects.html" %}
+    </div>
+
+{% endblock %}
+
+{% block bottom_content %}
+{% endblock %}

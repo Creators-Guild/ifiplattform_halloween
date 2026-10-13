@@ -1,0 +1,29 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gettext git \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+
+# Lets the docs' Windows-style `py manage.py ...` work inside the container too.
+RUN ln -s /usr/local/bin/python /usr/local/bin/py
+
+# A normal user instead of root, so files made in the container (like new
+# migrations) aren't owned by root on Linux computers. VS Code changes its
+# UID to match yours. The .claude folder is created here so its Docker
+# volume belongs to this user. safe.directory stops Git refusing the repo
+# when the shared folder shows up as owned by someone else (Windows).
+RUN useradd --create-home --uid 1000 dev \
+    && mkdir /home/dev/.claude \
+    && chown dev:dev /home/dev/.claude \
+    && git config --system --add safe.directory /workspace
+USER dev
+
+WORKDIR /workspace/ifiplatform

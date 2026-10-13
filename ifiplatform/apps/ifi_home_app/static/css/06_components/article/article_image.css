@@ -1,0 +1,109 @@
+/* Design rationale: docs/claude_context/article_body_css.md */
+.hero-image-figure,
+.body-image-figure {
+  margin: 0;
+}
+
+.hero-image-figure figcaption,
+.body-image-figure figcaption {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 0.35rem;
+  text-align: center;
+  width: 0;
+  min-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+
+.image-title {
+  display: block;
+  font-weight: bold;
+  color: var(--color-text);
+}
+
+.image-caption {
+  display: block;
+  color: var(--color-text);
+}
+
+.hero-image,
+.body-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.hero-image--right {
+  float: right;
+  margin: 0 0 1rem 1.5rem;
+}
+
+.hero-image--left {
+  float: left;
+  margin: 0 1.5rem 1rem 0;
+}
+
+.hero-image--center {
+  margin: 0 auto 1.5rem;
+}
+
+@media (max-width: 45rem) {
+  .hero-image--left,
+  .hero-image--right {
+    float: none;
+    max-width: 100%;
+    margin: 0 0 1.5rem;
+  }
+}
+
+.body-image-figure {
+  margin: 1rem 0;
+}
+
+.body-image--left {
+  float: left;
+  margin: 0 1.5rem 1rem 0;
+}
+
+.body-image--right {
+  float: right;
+  margin: 0 0 1rem 1.5rem;
+}
+
+.body-image--center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 45rem) {
+  .body-image--left,
+  .body-image--right {
+    float: none;
+    max-width: 100%;
+    margin: 0 0 1.5rem;
+  }
+}
+
+@media (max-width: 45rem) {
+  .hero-image-figure {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .body-image-figure {
+    padding: 0 !important;
+  }
+}
+
+.image-figure--boxed {
+  padding: 1rem;
+  background-color: var(--box-bg, var(--color-bg));
+  border: 2px solid var(--color-border);
+}
+
+.box-color--black .image-title,
+.box-color--black .image-caption {
+  color: var(--color-on-accent);
+}

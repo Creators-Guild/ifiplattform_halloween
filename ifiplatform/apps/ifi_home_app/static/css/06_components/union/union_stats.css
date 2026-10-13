@@ -1,0 +1,20 @@
+.union-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.union-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.union-stat-number {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: var(--accent-color, var(--color-border));
+}
+
+.union-stat-label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}

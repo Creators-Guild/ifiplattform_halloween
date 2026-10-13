@@ -1,0 +1,241 @@
+/* Design rationale: docs/claude_context/article_editor_css.md */
+.editor-mode-toggle {
+  position: sticky;
+  top: 1rem;
+  z-index: 40;
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-bottom: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  border: 2px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+.editor-mode-toggle.is-on {
+  border-color: var(--color-border);
+  color: var(--color-secondary);
+}
+
+.quick-style-panel {
+  display: none;
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 2000;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 16rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px var(--color-shadow-strong);
+  font-size: 0.85rem;
+}
+
+body.editor-mode-on .quick-style-panel {
+  display: flex;
+}
+
+.quick-style-panel.is-minimized {
+  gap: 0;
+}
+
+.quick-style-panel.is-minimized .quick-style-panel-body {
+  display: none;
+}
+
+.quick-style-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quick-style-panel-title {
+  color: var(--color-secondary);
+}
+
+.quick-style-minimize {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.quick-style-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.quick-style-field[hidden] {
+  display: none;
+}
+
+.quick-style-field input[type="range"] {
+  width: 100%;
+}
+
+.quick-style-align-buttons {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.quick-style-align-buttons button {
+  flex: 1;
+  padding: 0.3rem 0;
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.quick-style-align-buttons button.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.quick-style-field-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.quick-style-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.quick-style-reset {
+  padding: 0.4rem 0.9rem;
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.quick-style-reset:hover {
+  background: var(--color-accent);
+}
+
+.quick-style-status {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.quick-style-status.is-error {
+  color: var(--color-error);
+}
+
+.quick-style-status-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.quick-style-status-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.quick-style-status-badge {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--color-on-accent);
+  background: var(--color-text-muted);
+}
+
+.quick-style-status-badge--draft {
+  background: var(--color-error);
+}
+
+.quick-style-status-badge--pending {
+  background: var(--color-cta);
+}
+
+.quick-style-status-badge--live {
+  background: var(--color-accent);
+}
+
+.quick-style-publish-button {
+  padding: 0.3rem 0.8rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 6px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.quick-style-publish-button:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+.quick-style-publish-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.quick-style-unpublish-button {
+  padding: 0.3rem 0.8rem;
+  border: 2px solid var(--color-error);
+  border-radius: 6px;
+  background: var(--color-bg);
+  color: var(--color-error);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.quick-style-unpublish-button:hover {
+  background: var(--color-error);
+  color: var(--color-on-accent);
+}
+
+.quick-style-unpublish-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.article-draft-banner {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--color-error);
+  color: var(--color-on-accent);
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 45rem) {
+  .article-draft-banner {
+    font-size: 1rem;
+  }
+
+  .quick-style-panel {
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    width: auto;
+  }
+}

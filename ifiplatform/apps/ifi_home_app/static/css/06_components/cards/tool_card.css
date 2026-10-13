@@ -1,0 +1,119 @@
+/* Design rationale: docs/claude_context/cards.md */
+.tool-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.tool-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 18rem;
+  height: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: 14px;
+  box-shadow:
+    0 2px 8px var(--color-shadow),
+    0 0 0 0 transparent;
+  text-decoration: none;
+  color: var(--color-text);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  background-color: var(--color-card-bg);
+}
+
+.tool-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--color-cta), var(--color-secondary), var(--color-accent));
+}
+
+.tool-card:hover,
+.tool-card:focus-visible {
+  transform: translateY(-3px);
+  box-shadow:
+    0 6px 18px var(--color-shadow),
+    0 0 22px color-mix(in srgb, var(--color-cta) 30%, transparent);
+}
+
+.tool-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.tool-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.tool-card-body h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: bold;
+  overflow-wrap: break-word;
+}
+
+.tool-card-category {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
+.tool-card-maker {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.tool-card-link-hint {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--color-secondary);
+}
+
+.body-tool-card {
+  width: var(--card-width);
+  max-width: 100%;
+}
+
+.body-tool-card--fixed-height {
+  height: var(--card-height);
+  overflow: hidden;
+}
+
+@media (max-width: 45rem) {
+  .body-tool-card,
+  .body-tool-card--fixed-height {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .tool-card {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .tool-card-image {
+    width: 4rem;
+    height: 4rem;
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
+  }
+
+  .tool-card-body {
+    padding: 0.5rem 0.75rem;
+    gap: 0.15rem;
+  }
+
+  .tool-card-link-hint {
+    display: none;
+  }
+}

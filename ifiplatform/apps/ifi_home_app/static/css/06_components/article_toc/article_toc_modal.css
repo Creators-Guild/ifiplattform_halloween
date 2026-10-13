@@ -1,0 +1,100 @@
+/* Design rationale: docs/claude_context/article_toc.md */
+.toc-modal {
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.toc-modal[hidden] {
+  display: none;
+}
+
+.toc-modal-backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.toc-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(90vw, 22rem);
+  max-height: 80vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 1.5rem;
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-bg);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px var(--color-shadow-strong);
+}
+
+.toc-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-on-accent);
+  background: var(--color-text);
+  color: var(--color-on-accent);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.toc-modal-close:hover {
+  background: var(--color-cta);
+}
+
+.toc-modal-title {
+  margin: 0 2.5rem 0.75rem 0;
+  font-size: 0.9rem;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.toc-modal-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toc-modal-list li {
+  margin: 0.3rem 0;
+}
+
+.toc-modal-list li.toc-h3 {
+  margin-left: 1.25rem;
+}
+
+.toc-modal-list li.toc-h4 {
+  margin-left: 2.5rem;
+}
+
+.toc-modal-list li.toc-h5 {
+  margin-left: 3.75rem;
+}
+
+.toc-modal-list a {
+  color: var(--color-text);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.toc-modal-list a::before {
+  content: "→";
+  display: inline-block;
+  margin-right: 0.4rem;
+  color: var(--accent-color, var(--color-accent));
+}
+
+.toc-modal-list a:hover {
+  color: var(--color-text-muted);
+  border-bottom-color: var(--accent-color, var(--color-text-muted));
+}

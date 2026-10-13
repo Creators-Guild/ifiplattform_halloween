@@ -1,0 +1,115 @@
+/* Simple Dropdown Menu */
+.dropdown-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu .drop-content {
+  display: none;          /* hidden by default */
+  position: absolute;
+  z-index: 20;
+
+  box-shadow: 0px 8px 16px var(--color-shadow);
+  background-color: var(--color-bg);
+  
+  text-align: right;
+  border: 1px solid;
+  padding: 5px;
+
+  min-width: 98%;
+  width: max-content;      /* or just let auto work; see note below */
+  /* caps a long union/category name to a sane width; each .drop-content a's
+     own text-overflow below then ellipsizes it instead of overflowing */
+  max-width: min(22rem, 80vw);
+  white-space: nowrap; /* optional: prevent items from wrapping */
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+}
+
+.dropdown-menu .drop-content a {
+  display: block;
+  padding: 5px;
+  text-decoration: none;
+  color: var(--color-text);
+  border-bottom: 1px solid;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.dropdown-menu .drop-content a:last-child {
+  border-bottom: none;
+}
+
+/* opacity, not a color swap -- lets whatever's behind (the panel's own
+background-color) show through slightly instead of picking one fixed
+muted color. */
+.dropdown-menu .drop-content a:hover {
+  opacity: 0.7;
+  transform: translateY(-1px);
+}
+
+.dropdown-menu.is-open .drop-content {
+  display: block;
+}
+
+/* :hover only, not touch -- scoped so a tap's simulated/sticky :hover state
+(a well-known mobile quirk, since hover has no real meaning on touch) can't
+keep the submenu visible after dropdown_menu.js has already toggled
+.is-open off. Touch devices rely purely on the JS-driven class above.
+.profile-dropdown opts out entirely -- click-only on every device, see
+dropdown_menu.js, so hovering it should never reveal the menu. */
+@media (hover: hover) and (pointer: fine) {
+  .dropdown-menu:not(.profile-dropdown):hover .drop-content {
+    display: block;
+  }
+}
+
+/* on touch devices dropdown_menu.js makes the top-level link only ever
+open/close the submenu (there's no hover to reveal it, and a tap can't
+mean both "open" and "go there") -- the .drop-option--all link below is
+how a touch user actually reaches that page. This caret is the visual cue
+that the tap opens a submenu rather than silently doing nothing. Real
+hover devices get the same caret, flipped on :hover, for free. */
+.dropdown-menu .link::after {
+  content: "";
+  display: inline-block;
+  margin-left: 0.35em;
+  border: 0.35em solid transparent;
+  border-top-color: currentColor;
+  vertical-align: middle;
+  transition: transform 0.15s ease;
+}
+
+.dropdown-menu.is-open .link::after {
+  transform: rotate(180deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dropdown-menu:hover .link::after {
+    transform: rotate(180deg);
+  }
+}
+
+.dropdown-menu .drop-content a img.union-link-img  {
+  max-width: 30px;
+  max-height: 30px;
+}
+
+/* the top-level link still doubles as a direct navigation link for mouse
+users (hover reveals the submenu underneath it), so "All" would be
+redundant there. On touch it's the only way in, since the top-level tap is
+now toggle-only -- see dropdown_menu.js. Keep this condition the mirror of
+the JS's hover-capability check. */
+.dropdown-menu .drop-option--all {
+  display: none;
+}
+
+@media not all and (hover: hover) and (pointer: fine) {
+  .dropdown-menu .drop-option--all {
+    display: block;
+  }
+}

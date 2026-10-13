@@ -1,0 +1,20 @@
+{% extends 'global_base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Check your email" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/account_base.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="account_layout">
+        <div class="auth-card">
+            <h1>{% trans "Check your email" %}</h1>
+            <p>{% trans "We've sent a confirmation link to your email address. Click it to activate your account." %}</p>
+            <p class="auth-links">
+                <a class="back-to" href="{% url 'login' %}">{% trans "Back to login" %}</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

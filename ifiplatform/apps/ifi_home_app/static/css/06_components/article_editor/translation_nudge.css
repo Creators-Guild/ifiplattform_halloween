@@ -1,0 +1,44 @@
+.translation-nudge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-black);
+  border-radius: 8px;
+  background: var(--color-warning);
+  color: var(--color-black);
+}
+
+.translation-nudge-text {
+  margin: 0;
+  font-size: inherit;
+  font-weight: bold;
+}
+
+.translation-nudge-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.translation-nudge-button {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--color-black);
+  border-radius: 6px;
+  background: var(--color-black);
+  color: var(--color-warning);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.translation-nudge-button--secondary {
+  background: transparent;
+  color: var(--color-black);
+}
+
+.translation-nudge-button:is(:hover, :focus-visible) {
+  text-decoration: underline;
+}
