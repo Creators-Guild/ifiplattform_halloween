@@ -26,9 +26,9 @@ Start Docker Desktop and leave it running.
 ### 2. Open the project in the container
 1. **Fork** the repo on GitHub (the "Fork" button at the top right), then clone your fork and connect it to the main repo:
    ```bash
-   git clone https://github.com/<your-username>/IfiPlatform.git
-   cd IfiPlatform
-   git remote add upstream https://github.com/Creators-Guild/IfiPlatform.git
+   git clone https://github.com/<your-username>/ifiplattform_halloween.git
+   cd ifiplattform_halloween
+   git remote add upstream https://github.com/Creators-Guild/ifiplattform_halloween.git
    ```
    `origin` is now your own fork, which is where you push. `upstream` is the main repo, where you get everyone else's changes. Collaborators with write access clone this repo directly instead, skip the last line, and use `origin` wherever the docs say `upstream`.
 

@@ -1,6 +1,6 @@
 # Access and handover
 
-Last updated: 2026-09-29
+Last updated: 2026-10-13
 
 Every account and key the project depends on, who controls it, and what
 to do when someone joins or leaves. If the only person with access to one
@@ -25,7 +25,6 @@ list of names here would go out of date.
 | Email (SMTP) | Account verification emails | _(fill in: provider)_ | _(fill in)_ |
 | DeepL | Machine translation | _(fill in)_ | DeepL account → team members |
 | Umami | Traffic statistics | _(fill in)_ | Umami → Settings → Users |
-| Trello | Board that mirrors GitHub issues | _(fill in)_ | Trello board → members |
 | Wagtail admin | Editing the site | Site superusers | Wagtail admin → Settings → Users |
 | Let's Encrypt | HTTPS certificates, expiry warnings | _(fill in: email Certbot registered)_ | `sudo certbot show_account` on the server |
 | Figma | Design files | _(fill in)_ | Figma → file/team sharing |
@@ -42,10 +41,13 @@ Set in the repo under Settings → Secrets and variables → Actions.
 
 | Secret | Used by | Comes from |
 | ------ | ------- | ---------- |
-| `SERVER_IP` | `deploy.yml` | The platform VM's IP in NREC |
+| `SERVER_IP` | `deploy.yml` | The mock server's IP |
 | `SERVER_USER` | `deploy.yml` | `ubuntu` |
 | `SSH_PRIVATE_KEY` | `deploy.yml` | The deploy key; its public half is in `authorized_keys` on the server |
-| `TRELLO_KEY`, `TRELLO_TOKEN` | `trello_sync.yml` | The Trello account above |
+
+Optional repo *variable* (same page, Variables tab): `DEPLOY_PATH`, the
+checkout directory on the server. Unset means
+`/home/ubuntu/ifiplattform_halloween`.
 
 The deploy key logs in as `ubuntu`, which has full sudo, so **this secret
 gives root access to the server**. Keep the list of repo admins short.
@@ -84,7 +86,7 @@ Do this the same week someone leaves, even on good terms.
 - [ ] **NREC:** remove them from the project.
 - [ ] **Wagtail admin and Umami:** deactivate their accounts.
 - [ ] **Other accounts** from the table: remove them.
-- [ ] **If they owned an account** (domain, DeepL, email, Trello): transfer
+- [ ] **If they owned an account** (domain, DeepL, email): transfer
       ownership *before* they leave (see [Handover](#handover)).
 - [ ] **Replace shared secrets they knew.** They may have copies. At least:
   - [ ] the **deploy key** (see below), if they were a repo admin or had
@@ -94,7 +96,6 @@ Do this the same week someone leaves, even on good terms.
         After changing `.env`, run `sudo systemctl restart gunicorn`.
         A new `DB_PASSWORD` also has to be set in PostgreSQL:
         `sudo -u postgres psql -c "ALTER USER ifiplatform_user PASSWORD '<new>';"`
-  - [ ] the Trello token, if it was theirs
 
 Changing `DJANGO_SECRET_KEY` logs everyone out and invalidates any
 password reset links that are still open, which is harmless.

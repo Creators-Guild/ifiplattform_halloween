@@ -1,6 +1,6 @@
 # Tech stack
 
-Last updated: 2026-10-11
+Last updated: 2026-10-13
 
 What IfiPlatform is built with, and why each piece is there. For how the
 production server runs all of this, see
@@ -116,8 +116,7 @@ production are listed in
 | ------------------------ | ------------------------------------------- | ---------------------------------------------------------------- |
 | `ci.yml`                 | Every PR to `main`, by hand, before deploys | Runs the test suite on Python 3.12–3.14 against PostgreSQL 16, checks Black formatting, and runs pylint (fails below 7/10) |
 | `automerge.yml`          | After CI passes on a PR                     | Merges the PR automatically if it has the `automerge` label      |
-| `deploy.yml`             | Nightly at 01:00 UTC, or by hand            | Deploys `main` to production (see [prod_server.md](../operations/prod_server.md#deploy-flow)) |
-| `trello_sync.yml`        | Issue opened, edited or closed              | Mirrors GitHub issues as Trello cards                            |
+| `deploy.yml`             | By hand from the Actions tab                | Deploys `main` to the mock server (see [prod_server.md](../operations/prod_server.md#deploy-flow)) |
 | `clean-issue-body.yml`   | Issue opened                                | Removes empty optional fields left by issue forms                |
 
 ## Hosting

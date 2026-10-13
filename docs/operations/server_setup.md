@@ -1,6 +1,6 @@
 # Server setup
 
-Last updated: 2026-09-29
+Last updated: 2026-10-13
 
 How to build the production server from zero, for example if the VM is
 lost or has to be replaced. Follow the steps in order. For how the
@@ -129,8 +129,8 @@ sudo -u postgres createdb -O ifiplatform_user ifiplatform
 
 ```bash
 cd /home/ubuntu
-git clone https://github.com/Creators-Guild/IfiPlatform.git
-cd IfiPlatform
+git clone https://github.com/Creators-Guild/ifiplattform_halloween.git
+cd ifiplattform_halloween
 python3 -m venv venv
 venv/bin/pip install -r requirements.txt
 venv/bin/pip install gunicorn                # not in requirements.txt, see below
@@ -177,7 +177,7 @@ with the same timestamp (see
 backup volume is gone, use the newest copy stored outside NREC.
 
 ```bash
-cd /home/ubuntu/IfiPlatform
+cd /home/ubuntu/ifiplattform_halloween
 ls -lt /mnt/backups/postgres/ /mnt/backups/media/      # pick a matching pair
 sudo -u postgres pg_restore --no-owner --role=ifiplatform_user -d ifiplatform < /mnt/backups/postgres/ifiplatform_<timestamp>.dump
 tar -xzf /mnt/backups/media/media_<timestamp>.tar.gz -C ifiplatform/
@@ -191,7 +191,7 @@ the way first.
 **Starting empty (a brand-new site only):**
 
 ```bash
-cd /home/ubuntu/IfiPlatform/ifiplatform
+cd /home/ubuntu/ifiplattform_halloween/ifiplatform
 ../venv/bin/python manage.py migrate
 ../venv/bin/python manage.py createsuperuser
 ```
@@ -199,7 +199,7 @@ cd /home/ubuntu/IfiPlatform/ifiplatform
 Either way, then collect the static files:
 
 ```bash
-cd /home/ubuntu/IfiPlatform/ifiplatform
+cd /home/ubuntu/ifiplattform_halloween/ifiplatform
 ../venv/bin/python manage.py migrate         # no-op if the backup is up to date
 ../venv/bin/python manage.py collectstatic --noinput
 ```
@@ -207,7 +207,7 @@ cd /home/ubuntu/IfiPlatform/ifiplatform
 ## 8. Start Gunicorn
 
 ```bash
-cd /home/ubuntu/IfiPlatform
+cd /home/ubuntu/ifiplattform_halloween
 sudo cp deploy/server_config/gunicorn.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now gunicorn
@@ -245,16 +245,16 @@ server {
     server_name www.ifiplattform.no;
 
     location /static/ {
-        alias /home/ubuntu/IfiPlatform/ifiplatform/staticfiles/;
+        alias /home/ubuntu/ifiplattform_halloween/ifiplatform/staticfiles/;
     }
 
     location /media/ {
-        alias /home/ubuntu/IfiPlatform/ifiplatform/media/;
+        alias /home/ubuntu/ifiplattform_halloween/ifiplatform/media/;
     }
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:/home/ubuntu/IfiPlatform/ifiplatform/ifiplatform.sock;
+        proxy_pass http://unix:/home/ubuntu/ifiplattform_halloween/ifiplatform/ifiplatform.sock;
     }
 }
 
@@ -314,7 +314,7 @@ the server. `SERVER_USER` stays `ubuntu`.
 and also takes the first backup:
 
 ```bash
-cd /home/ubuntu/IfiPlatform
+cd /home/ubuntu/ifiplattform_halloween
 SKIP_COUNTDOWN=true bash deploy/deploy.sh
 cd ifiplatform && ../venv/bin/python manage.py sync_deepl_glossary --write-env
 sudo systemctl restart gunicorn              # load the new DEEPL_GLOSSARY_ID
