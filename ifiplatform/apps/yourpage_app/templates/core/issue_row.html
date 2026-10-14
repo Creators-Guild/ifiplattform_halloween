@@ -1,0 +1,16 @@
+{% load i18n %}
+<a href="{% url 'yourpage_issue_detail' issue.number %}">#{{ issue.number }} {{ issue.title }}</a>
+<span class="issue-list__meta">
+    {% if issue.category %}{{ issue.category }} · {% endif %}
+    {% if issue.points %}{{ issue.size_label }} · {{ issue.points }} p · {% endif %}
+    {% if issue.done_by is not None %}
+        {% if issue.done_by %}{% blocktrans with name=issue.done_by %}done by {{ name }}{% endblocktrans %}{% else %}{% trans "done" %}{% endif %}
+    {% elif issue.state == "CLOSED" %}
+        {% trans "closed" %}
+    {% elif issue.is_assigned %}
+        {% if issue.assigned_to %}{% blocktrans with name=issue.assigned_to %}assigned to {{ name }}{% endblocktrans %}{% else %}{% trans "assigned" %}{% endif %}
+    {% elif issue.points %}
+        <strong class="issue-list__free">{% trans "free" %}</strong>
+    {% endif %}
+    {% if issue.has_solution %}· <a href="{% url 'yourpage_issue_detail' issue.number %}#solution">🔑 {% trans "Solution" %}</a>{% endif %}
+</span>

@@ -1,0 +1,6 @@
+<div class="issue-filters__row" role="group" aria-label="{{ label }}">
+    <span class="issue-filters__label">{{ label }}:</span>
+    {% for text, url, active, colour in pills %}
+        <a class="issue-filters__pill{% if colour %} issue-filters__pill--{{ colour }}{% endif %}{% if active %} issue-filters__pill--active{% endif %}" href="{{ url }}"{% if active %} aria-current="true"{% endif %}>{{ text }}</a>
+    {% endfor %}
+</div>

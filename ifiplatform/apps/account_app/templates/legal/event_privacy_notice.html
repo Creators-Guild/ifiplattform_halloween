@@ -1,0 +1,36 @@
+{% extends 'global_base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Privacy notice" %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/account_base.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="account_layout">
+        <div class="account-card legal-page">
+            <h1>{% trans "Privacy notice" %}</h1>
+            <p>{% trans "This is a mock site for the IfiPlattform Halloween event. It keeps as little about you as it can." %}</p>
+
+            <h2>{% trans "What we store" %}</h2>
+            <p>{% blocktrans %}Your username and password (stored hashed, so nobody can read it), the GitHub username you link on the Commits page, which event issues you solved and your points. The server also keeps short logs with IP addresses, which are rotated automatically. We don't ask for your email or name.{% endblocktrans %}</p>
+
+            <h2>{% trans "What is public" %}</h2>
+            <p>{% trans "The leaderboard shows your username, your points and how many issues you solved." %}</p>
+
+            <h2>{% trans "Why" %}</h2>
+            <p>{% trans "To count your points, show the leaderboard, and hand out candy and drink tickets at the event." %}</p>
+
+            <h2>{% trans "How long" %}</h2>
+            <p>{% blocktrans %}The whole mock site, including every account, is deleted no later than 2 November 2026. You can delete your account earlier yourself with "Delete my account" on your account page.{% endblocktrans %}</p>
+
+            <h2>{% trans "What we don't control" %}</h2>
+            <p>{% trans "Your pull requests and comments on GitHub stay public on GitHub, under the repository's MIT license. Deleting your account here doesn't remove them." %}</p>
+
+            <h2>{% trans "Contact" %}</h2>
+            {# TODO before the event: add a contact address. #}
+            <p>{% trans "Ifi-Creators' Guild, the organisers. Contact address: (coming soon)." %}</p>
+        </div>
+    </div>
+{% endblock %}

@@ -116,9 +116,7 @@
 
             <div class="account-actions">
                 <a class="btn" href="{% url 'export_data' %}">{% trans "Download my data" %}</a>
-                {% if not OPEN_SIGNUP %}
-                    <a class="btn" href="{% url 'privacy_policy' %}">{% trans "Privacy Policy" %}</a>
-                {% endif %}
+                <a class="btn" href="{% url 'privacy_policy' %}">{% if OPEN_SIGNUP %}{% trans "Privacy notice" %}{% else %}{% trans "Privacy Policy" %}{% endif %}</a>
                 <a class="btn" href="{% url 'logout' %}">{% trans "Log out" %}</a>
             </div>
 

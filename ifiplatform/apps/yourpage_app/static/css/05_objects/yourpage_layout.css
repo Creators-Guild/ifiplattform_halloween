@@ -1,0 +1,91 @@
+.yourpage {
+  max-width: 90rem;
+  margin: 0 auto;
+  padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 3rem;
+  line-height: 1.5;
+}
+
+.yourpage > h1 {
+  text-align: center;
+}
+
+.yourpage-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.yourpage-nav__link {
+  color: var(--color-link);
+}
+
+.yourpage-nav__link--active {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.yourpage__section {
+  margin-top: 2rem;
+}
+
+.yourpage__form,
+.yourpage__filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.yourpage__hint {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.yourpage__points {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.yourpage__drink-ready {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--color-cta);
+}
+
+.yourpage__progress {
+  width: 100%;
+  max-width: 20rem;
+}
+
+.yourpage__organiser {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 2px dashed var(--color-secondary);
+  border-radius: 8px;
+}
+
+.yourpage__solution {
+  padding: 1rem;
+  border: 2px solid var(--color-secondary);
+  border-radius: 8px;
+}
+
+.yourpage__diff {
+  overflow-x: auto;
+  padding: 0.75rem;
+  background-color: var(--color-bg-dark);
+  color: var(--color-on-accent);
+  font-size: 0.85rem;
+}
+
+.yourpage__closed {
+  margin-top: 2.5rem;
+  padding: 1.25rem;
+  border-radius: 12px;
+  background-color: color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+
+.yourpage__closed h2 {
+  margin-top: 0;
+}

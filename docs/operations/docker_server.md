@@ -144,8 +144,11 @@ in, and keeps personal data off a server we can't promise to keep safe:
   upload images. It can't manage users or site settings.
 - There are no content-ownership terms to accept before using the
   Wagtail admin or the editor mode on pages.
-- There is no privacy policy: the page returns "404 Not found" and the
-  links to it (sign-up page, account page, footer) are hidden.
+- Instead of the real privacy policy there is a short **event privacy
+  notice** (same address and links). It says what is stored and public,
+  and that the site is deleted no later than 2 November 2026. Fill in the
+  contact address in `account_app/templates/legal/event_privacy_notice.html`
+  before the event.
 - The account page hides the email and name fields.
 
 Leave `OPEN_SIGNUP` out of `.env`, or set it to `False`, on the real site.
@@ -156,6 +159,102 @@ If you created `.env` before this setting existed, add the line
 `OPEN_SIGNUP=True` by hand and run `docker compose up -d` to restart
 with it. Don't copy `.env.example` over `.env` again: that deletes your
 secrets.
+
+## Points, leaderboard and helper solutions
+
+The mock site counts points for the event. Three public pages, all under
+`/commits/`:
+
+- **Commits** (`/commits/`, needs a login): a participant enters their
+  GitHub username once and sees their points and drink-ticket progress.
+- **Leaderboard** (`/commits/leaderboard/`): reloads itself every 30
+  seconds, so it can stay on the projector.
+- **Issues** (`/commits/issues/`): every event issue, free or done.
+
+### Where the points come from
+
+The site reads the event repo on GitHub. Nobody reports anything by hand.
+
+- An issue counts if it has a size label: `🍬 candy` (1 point),
+  `🍫 chocolate` (2) or `🎃 pumpkin` (3). The names are in `SIZE_LABELS`
+  in `ifiplatform/apps/yourpage_app/labels.py`.
+- When a merged PR closes the issue ("Closes #12" in the PR), its author
+  gets the points. An issue closed without a PR, such as a content issue,
+  gives the points to the first person **assigned** to it, so assign
+  them before you close it.
+- A PR that closes more than one event issue earns none of them. The
+  leaderboard shows those issues to organisers under "Needs a look".
+- To fix credit by hand (someone forgot "Closes #12", or the wrong person
+  got it), add a **credit override** in `/admin/` → Yourpage_App →
+  Credit overrides: the issue number and the right GitHub username. It
+  wins over everything else and survives later syncs.
+
+The site stores only public GitHub data: usernames, issue and PR numbers,
+titles and labels. Never names, emails or profile pictures.
+
+### The GitHub token
+
+The sync needs a read-only token in `.env`:
+
+1. On GitHub: Settings → Developer settings → Personal access tokens →
+   Fine-grained tokens → Generate new token. Under "Repository access"
+   choose **Public repositories (read-only)**. Give it no other
+   permissions, and an expiry date after the event.
+2. Put it in `.env` as `GITHUB_READ_TOKEN=...` and run
+   `docker compose up -d` to restart with it.
+
+Without a token the points never update, and the leaderboard warns
+organisers. Revoke the token after the event.
+
+### When it syncs
+
+- After every deploy (the last step of `deploy.sh`).
+- When someone opens the leaderboard or the issue list, at most once a
+  minute.
+- When an organiser presses **Sync now** on the leaderboard.
+
+By hand: `docker compose exec web python manage.py sync_github_points`.
+If GitHub is down, the site keeps the points it already has.
+
+### Organisers and helpers
+
+- **Organisers** are site users with "staff status" or superusers. On the
+  leaderboard they see warnings, **Sync now**, and a **Handed out**
+  button for everyone who has earned a drink ticket
+  (`DRINK_TICKET_POINTS` in `settings.py`, 5 points).
+- **Helpers** see the solution for each issue on the issue pages, and the
+  GitHub usernames of contributors who haven't linked an account yet. To
+  make someone a helper: they sign up on the site, then in `/admin/` →
+  Users → their user → Groups, add **Helpers** and save.
+
+### Loading the solutions
+
+The solutions file is private: never commit it. It is a JSON list:
+
+```json
+[{"issue": 12, "note": "Change the colour in footer.css...", "diff": "- old\n+ new"}]
+```
+
+Load it from your own computer:
+
+```bash
+ssh ubuntu@<server-ip> "cd ifiplattform_halloween && docker compose exec -T web python manage.py load_event_solutions" < solutions.json
+```
+
+Running it again updates the solutions instead of adding copies.
+
+## After the event
+
+The privacy notice promises that the mock site is deleted no later than
+**2 November 2026**. Before that date:
+
+1. Take a screenshot of the final leaderboard, if you want one.
+2. On the server: `docker compose down -v`. This deletes the database,
+   the uploaded files and every account.
+3. Delete the VM in NREC.
+4. Remove the `halloween` DNS record at Gigahost.
+5. Revoke the GitHub token (GitHub → Settings → Developer settings →
+   Personal access tokens).
 
 ## Everyday commands
 

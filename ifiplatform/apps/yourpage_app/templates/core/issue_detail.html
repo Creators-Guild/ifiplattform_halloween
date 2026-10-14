@@ -1,0 +1,35 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+
+{% block title %}#{{ issue.number }} {{ issue.title }}{% endblock %}
+
+{% block app_css %}
+    {% include "css_links/yourpage.html" %}
+{% endblock app_css %}
+
+{% block content %}
+<div class="yourpage">
+    {% include "core/yourpage_nav.html" %}
+    <h1>#{{ issue.number }} {{ issue.title }}</h1>
+
+    <p class="issue-list__meta">{% include "core/issue_row.html" with issue=issue %}</p>
+    <p><a href="{{ issue.url }}" target="_blank" rel="noopener">{% trans "Open the issue on GitHub" %}</a></p>
+
+    {% if sub_issues %}
+        <h2>{% trans "Sub-issues" %}</h2>
+        <ul class="issue-list issue-list--sub">
+            {% for sub in sub_issues %}
+                <li class="issue-list__item{% if sub.category_slug %} issue-list__item--{{ sub.category_slug }}{% endif %}"><a href="{% url 'yourpage_issue_detail' sub.number %}">#{{ sub.number }} {{ sub.title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if solution %}
+        <section id="solution" class="yourpage__section yourpage__solution">
+            <h2>🔑 {% trans "Solution (helpers only)" %}</h2>
+            {% if solution.note %}{{ solution.note|linebreaks }}{% endif %}
+            {% if solution.diff %}<pre class="yourpage__diff"><code>{{ solution.diff }}</code></pre>{% endif %}
+        </section>
+    {% endif %}
+</div>
+{% endblock %}

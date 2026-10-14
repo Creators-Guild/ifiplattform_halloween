@@ -8,9 +8,7 @@
     </div>
     <img id="made-by" src="{% static "images/studentunions/IfiCreatorsGuildLogo.png" %}" alt="{% trans "Ifi-Creators' Guild" %}">
     <div id="right-info">
-        {% if not OPEN_SIGNUP %}
-            <a href="{% url 'privacy_policy' %}">{% trans "Privacy Policy" %}</a>
-        {% endif %}
+        <a href="{% url 'privacy_policy' %}">{% if OPEN_SIGNUP %}{% trans "Privacy notice" %}{% else %}{% trans "Privacy Policy" %}{% endif %}</a>
         <a href="">{% trans "Report a bug" %}</a>
         <a href="">{% trans "Request a feature" %}</a>
     </div>

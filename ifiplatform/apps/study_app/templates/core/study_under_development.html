@@ -1,0 +1,18 @@
+{% extends "global_base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ app_name }}? {% trans "Ahaha, no." %}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/06_components/under_development.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="under-development">
+        <h1>{{ app_name }}? {% trans "Ahaha, no." %}</h1>
+        <p class="under-development-status">{% trans "Under development, just like your study habits" %}</p>
+        <blockquote class="under-development-joke">{{ jokes|random }}</blockquote>
+        <a href="{{ request.path }}">{% trans "Give me another excuse" %}</a>
+        <p>{% trans "The study section isn't built yet. Want to build it instead of studying? IfiPlattform is open source now." %}</p>
+    </div>
+{% endblock content %}

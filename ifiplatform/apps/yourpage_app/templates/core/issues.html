@@ -1,0 +1,50 @@
+{% extends "global_base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Issues" %}{% endblock %}
+
+{% block app_css %}
+    {% include "css_links/yourpage.html" %}
+{% endblock app_css %}
+
+{% block extra_head %}
+    <script src="{% static 'js/issue_carousel.js' %}" defer></script>
+{% endblock extra_head %}
+
+{% block content %}
+<div class="yourpage">
+    {% include "core/yourpage_nav.html" %}
+    <h1>{% trans "Issues" %}</h1>
+
+    <div class="issue-filters">
+        {% trans "Category" as row_label %}
+        {% include "core/filter_pills.html" with label=row_label pills=category_pills %}
+        {% trans "Difficulty" as row_label %}
+        {% include "core/filter_pills.html" with label=row_label pills=difficulty_pills %}
+        {% if group_pills %}
+            {% trans "Group by" as row_label %}
+            {% include "core/filter_pills.html" with label=row_label pills=group_pills %}
+        {% endif %}
+    </div>
+
+    <section class="yourpage__open">
+        <h2>{% trans "Open issues" %}</h2>
+        {% if open_sections %}
+            {% include "core/issue_sections.html" with sections=open_sections %}
+        {% else %}
+            <p>{% trans "No open issues here right now." %}</p>
+        {% endif %}
+    </section>
+
+    {% if closed_sections %}
+        <section class="yourpage__closed">
+            <h2>{% trans "Done and closed" %}</h2>
+            {% include "core/issue_sections.html" with sections=closed_sections %}
+        </section>
+    {% endif %}
+
+    {% if status.last_success_at %}
+        <p class="yourpage__hint">{% trans "Last synced from GitHub:" %} {{ status.last_success_at|time:"H:i" }}</p>
+    {% endif %}
+</div>
+{% endblock %}

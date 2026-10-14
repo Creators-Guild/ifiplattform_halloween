@@ -1,0 +1,20 @@
+.points-table__scroll {
+  overflow-x: auto;
+}
+
+.points-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.1rem;
+}
+
+.points-table th,
+.points-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 15%, transparent);
+}
+
+.points-table tbody tr:first-child {
+  font-weight: bold;
+}

@@ -381,6 +381,48 @@ cron, or your platform's own scheduled-job feature). Nothing runs it for
 you automatically. Safe to re-run. `--dry-run` lists matching accounts
 without deleting them.
 
+## yourpage_app
+
+### sync_github_points
+
+```bash
+py manage.py sync_github_points
+```
+
+Copies the event issues and who solved them from GitHub into the site, for
+the leaderboard. Needs `GITHUB_READ_TOKEN`; without it, it fails with a
+message and changes nothing. If GitHub can't be reached, the old points
+stay. `deploy/docker/deploy.sh` runs it after every deploy, and the
+leaderboard runs it by itself at most once a minute. The rules are in
+[docker_server.md](docker_server.md#points-leaderboard-and-helper-solutions).
+
+### seed_fake_points
+
+```bash
+py manage.py seed_fake_points [--clear]
+```
+
+Local only (refuses unless `DEBUG=True`). Fills the points system with 25
+fake issues (numbered from 900, with sub-issues), six fake people
+(`fake_...`, who can't log in), points, a handed-out drink ticket and two
+solutions, so the Commits page, leaderboard and issue list can be styled
+without a GitHub token. `--me <your GitHub username>` assigns two open
+issues to you and credits two to you, to fill your own Commits page. `--extra 60`
+adds 60 more open issues (numbered from 1000), to see the issue list's
+pages fill up. `--clear` removes it again. A real
+`sync_github_points` replaces the fake issues and credits.
+
+### load_event_solutions
+
+```bash
+py manage.py load_event_solutions < solutions.json
+```
+
+Loads the helpers' solutions from a JSON list on stdin
+(`[{"issue": 12, "note": "...", "diff": "..."}]`), so the private file
+never has to be in the repo. Running it again updates by issue number. If
+one entry is broken, nothing is loaded.
+
 ## core_app
 
 ### compile_translations

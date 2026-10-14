@@ -16,6 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: .\apps\account_app\templates\core\account_settings.html:4
 #: .\templates\partials\top_header.html:45
@@ -2079,8 +2080,8 @@ msgstr "Studie"
 #: .\apps\yourpage_app\templates\core\yourpage_main.html:5
 #: .\apps\yourpage_app\urls.py:10 .\templates\partials\top_header.html:37
 #: .\templates\partials\top_header.html:41
-msgid "Your Page"
-msgstr "Din Side"
+msgid "Commits"
+msgstr "Commits"
 
 #: .\apps\yourpage_app\templates\core\yourpage_main.html:10
 msgid "Welcome to the Your Page"
@@ -2321,3 +2322,270 @@ msgstr "Maskinoversett nå"
 #: .\apps\ifi_home_app\templates\info_articles\partials\translation_nudge.html
 msgid "Open translation editor"
 msgstr "Åpne oversettelsesredigering"
+
+#: Halloween event (yourpage_app, event privacy notice)
+msgid "Privacy notice"
+msgstr "Personvernerklæring"
+
+msgid "This is a mock site for the IfiPlattform Halloween event. It keeps as little about you as it can."
+msgstr "Dette er en testside for IfiPlattforms halloween-arrangement. Den lagrer så lite om deg som mulig."
+
+msgid "What we store"
+msgstr "Hva vi lagrer"
+
+msgid "Your username and password (stored hashed, so nobody can read it), the GitHub username you link on the Commits page, which event issues you solved and your points. The server also keeps short logs with IP addresses, which are rotated automatically. We don't ask for your email or name."
+msgstr "Brukernavnet og passordet ditt (lagret som hash, så ingen kan lese det), GitHub-brukernavnet du kobler til på Commits-siden, hvilke oppgaver du har løst og poengene dine. Serveren har også korte logger med IP-adresser, som slettes automatisk etter hvert. Vi spør ikke etter e-post eller navn."
+
+msgid "What is public"
+msgstr "Hva som er offentlig"
+
+msgid "The leaderboard shows your username, your points and how many issues you solved."
+msgstr "Poengtavlen viser brukernavnet ditt, poengene dine og hvor mange oppgaver du har løst."
+
+msgid "Why"
+msgstr "Hvorfor"
+
+msgid "To count your points, show the leaderboard, and hand out candy and drink tickets at the event."
+msgstr "For å telle poengene dine, vise poengtavlen og dele ut godteri og drikkebonger på arrangementet."
+
+msgid "How long"
+msgstr "Hvor lenge"
+
+msgid "The whole mock site, including every account, is deleted no later than 2 November 2026. You can delete your account earlier yourself with \"Delete my account\" on your account page."
+msgstr "Hele testsiden, med alle kontoer, slettes senest 2. november 2026. Du kan slette kontoen din tidligere selv med \"Slett kontoen min\" på kontosiden."
+
+msgid "What we don't control"
+msgstr "Det vi ikke styrer"
+
+msgid "Your pull requests and comments on GitHub stay public on GitHub, under the repository's MIT license. Deleting your account here doesn't remove them."
+msgstr "Pull requestene og kommentarene dine på GitHub forblir offentlige der, under repoets MIT-lisens. Å slette kontoen her fjerner dem ikke."
+
+msgid "Ifi-Creators' Guild, the organisers. Contact address: (coming soon)."
+msgstr "Ifi-Creators' Guild, arrangørene. Kontaktadresse: (kommer snart)."
+
+msgid "By creating an account you agree to the event <a href=\"%(privacy_policy_url)s\">privacy notice</a>."
+msgstr "Ved å opprette en konto godtar du arrangementets <a href=\"%(privacy_policy_url)s\">personvernerklæring</a>."
+
+msgid "That isn't a valid GitHub username."
+msgstr "Det er ikke et gyldig GitHub-brukernavn."
+
+msgid "Your GitHub username"
+msgstr "GitHub-brukernavnet ditt"
+
+msgid "Leave empty and save to unlink."
+msgstr "La feltet stå tomt og lagre for å fjerne koblingen."
+
+msgid "That GitHub username is already linked to another account."
+msgstr "Det GitHub-brukernavnet er allerede koblet til en annen konto."
+
+msgid "Open the issue on GitHub"
+msgstr "Åpne oppgaven på GitHub"
+
+msgid "Sub-issues"
+msgstr "Deloppgaver"
+
+msgid "Solution (helpers only)"
+msgstr "Løsning (bare for hjelpere)"
+
+msgid "done by %(name)s"
+msgstr "løst av %(name)s"
+
+msgid "done"
+msgstr "løst"
+
+msgid "closed"
+msgstr "lukket"
+
+msgid "free"
+msgstr "ledig"
+
+msgid "Solution"
+msgstr "Løsning"
+
+msgid "Issues"
+msgstr "Oppgaver"
+
+msgid "Category"
+msgstr "Kategori"
+
+msgid "Size"
+msgstr "Størrelse"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "No issues here yet."
+msgstr "Ingen oppgaver her ennå."
+
+msgid "Last synced from GitHub:"
+msgstr "Sist hentet fra GitHub:"
+
+msgid "Leaderboard"
+msgstr "Poengtavle"
+
+msgid "No GitHub token is set, so the points won't update. See docs/operations/docker_server.md."
+msgstr "Ingen GitHub-token er satt, så poengene oppdateres ikke. Se docs/operations/docker_server.md."
+
+msgid "Last sync failed:"
+msgstr "Siste henting feilet:"
+
+msgid "Needs a look (a PR closed more than one issue; settle with a credit override in /admin/):"
+msgstr "Må sjekkes (en PR lukket mer enn én oppgave; avgjør med en credit override i /admin/):"
+
+msgid "Sync now"
+msgstr "Hent nå"
+
+msgid "Name"
+msgstr "Navn"
+
+msgid "Points"
+msgstr "Poeng"
+
+msgid "Handed out"
+msgstr "Delt ut"
+
+msgid "No points yet. Solve an issue and be the first!"
+msgstr "Ingen poeng ennå. Løs en oppgave og bli den første!"
+
+msgid "Link yours on the Commits page."
+msgstr "Koble til din på Commits-siden."
+
+msgid "Not linked yet (only helpers see this):"
+msgstr "Ikke koblet til ennå (bare hjelpere ser dette):"
+
+msgid "Link it once: every issue you solve on GitHub then counts as points here."
+msgstr "Koble det til én gang, så teller hver oppgave du løser på GitHub som poeng her."
+
+msgid "Used only for points on this site, and deleted with the site by 2 November 2026. See the <a href=\"%(privacy_url)s\">privacy notice</a>."
+msgstr "Brukes bare til poeng på denne siden, og slettes med siden senest 2. november 2026. Se <a href=\"%(privacy_url)s\">personvernerklæringen</a>."
+
+msgid "Your points"
+msgstr "Poengene dine"
+
+msgid "Nothing credited to %(login)s yet. Check that it matches your GitHub username exactly. Points appear about a minute after your PR is merged."
+msgstr "Ingenting er registrert på %(login)s ennå. Sjekk at det er nøyaktig likt GitHub-brukernavnet ditt. Poengene dukker opp omtrent ett minutt etter at PR-en din er merget."
+
+msgid "Drink ticket"
+msgstr "Drikkebong"
+
+msgid "Drink collected. Cheers!"
+msgstr "Drikke hentet. Skål!"
+
+msgid "Show this to get your drink!"
+msgstr "Vis dette for å få drikken din!"
+
+msgid "Event points"
+msgstr "Arrangementspoeng"
+
+msgid "%(counter)s contributor hasn't linked their account yet."
+msgid_plural "%(counter)s contributors haven't linked their account yet."
+msgstr[0] "%(counter)s deltaker har ikke koblet til kontoen sin ennå."
+msgstr[1] "%(counter)s deltakere har ikke koblet til kontoen sin ennå."
+
+msgid "%(points)s point"
+msgid_plural "%(points)s points"
+msgstr[0] "%(points)s poeng"
+msgstr[1] "%(points)s poeng"
+
+#: study_app under-development jokes
+msgid "Step 1: open the textbook. Step 2: check your phone. Step 3: it's 3 a.m. and the exam is tomorrow."
+msgstr "Steg 1: åpne pensumboka. Steg 2: sjekk mobilen. Steg 3: klokka er 3 om natta og eksamen er i morgen."
+
+msgid "I'll start studying right after this one episode. (Every student, six episodes ago.)"
+msgstr "Jeg begynner å lese rett etter denne ene episoden. (Alle studenter, for seks episoder siden.)"
+
+msgid "My study plan: panic. My backup plan: also panic."
+msgstr "Leseplanen min: panikk. Plan B: også panikk."
+
+msgid "Ctrl+C and Ctrl+V got me through IN1000. Ctrl+Z is getting me through life."
+msgstr "Ctrl+C og Ctrl+V fikk meg gjennom IN1000. Ctrl+Z får meg gjennom livet."
+
+msgid "The course page says \"about 10 hours a week\". The course page has never met me."
+msgstr "Emnesiden sier \"omtrent 10 timer i uka\". Emnesiden har aldri møtt meg."
+
+msgid "Group study: one person studies, three people discuss where to get lunch."
+msgstr "Kollokvie: én person leser, tre diskuterer hvor de skal spise lunsj."
+
+msgid "I don't procrastinate. I wait for the deadline to motivate me."
+msgstr "Jeg utsetter ikke ting. Jeg venter bare på at fristen skal motivere meg."
+
+msgid "Exam tomorrow? Perfect time to reorganise my entire desk."
+msgstr "Eksamen i morgen? Perfekt tidspunkt å rydde hele pulten."
+
+msgid "I understood the lecture. Then the lecturer moved on to the second slide."
+msgstr "Jeg forsto forelesningen. Så gikk foreleseren videre til lysbilde nummer to."
+
+msgid "Real programmers learn from the docs. I learn from the error messages."
+msgstr "Ekte programmerere lærer fra dokumentasjonen. Jeg lærer fra feilmeldingene."
+
+msgid "It worked on my machine. My machine isn't taking the exam."
+msgstr "Det funket på min maskin. Maskinen min tar ikke eksamen."
+
+msgid "Coffee isn't a drink, it's a study method."
+msgstr "Kaffe er ikke en drikk, det er en lesemetode."
+
+msgid "Ahaha, no."
+msgstr "Ahaha, nei."
+
+msgid "Under development, just like your study habits"
+msgstr "Under utvikling, akkurat som lesevanene dine"
+
+msgid "Give me another excuse"
+msgstr "Gi meg en ny unnskyldning"
+
+msgid "The study section isn't built yet. Want to build it instead of studying? IfiPlattform is open source now."
+msgstr "Studiedelen er ikke bygget ennå. Vil du bygge den i stedet for å lese? IfiPlattform er åpen kildekode nå."
+
+msgid "Difficulty"
+msgstr "Vanskelighetsgrad"
+
+msgid "easy"
+msgstr "lett"
+
+msgid "medium"
+msgstr "middels"
+
+msgid "hard"
+msgstr "vanskelig"
+
+msgid "Sort by"
+msgstr "Sorter etter"
+
+msgid "Done and closed"
+msgstr "Løst og lukket"
+
+msgid "No open issues here right now."
+msgstr "Ingen åpne oppgaver her akkurat nå."
+
+msgid "Your assigned issues"
+msgstr "Dine tildelte oppgaver"
+
+msgid "Your closed issues"
+msgstr "Dine lukkede oppgaver"
+
+msgid "Nothing assigned to you right now. Pick a free issue and comment on it on GitHub to get it assigned."
+msgstr "Ingenting er tildelt deg akkurat nå. Velg en ledig oppgave og kommenter på den på GitHub for å få den tildelt."
+
+msgid "assigned to %(name)s"
+msgstr "tildelt %(name)s"
+
+msgid "assigned"
+msgstr "tildelt"
+
+msgid "No category"
+msgstr "Uten kategori"
+
+msgid "No size"
+msgstr "Uten størrelse"
+
+msgid "Open issues"
+msgstr "Åpne oppgaver"
+
+msgid "Group by"
+msgstr "Grupper etter"
+
+msgid "Previous page"
+msgstr "Forrige side"
+
+msgid "Next page"
+msgstr "Neste side"

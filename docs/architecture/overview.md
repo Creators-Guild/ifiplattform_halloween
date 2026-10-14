@@ -43,7 +43,7 @@ in `ifiplatform/ifiplatform_project/`. `core_app` sits directly in
 | `ifi_home_app` | Wagtail + Django | `/` (everything not claimed below) | the page types below, `MenuGroup`, `Menu`, `HeaderMessage`, `HomeBoardMessage`, `ArticleStyle`, `ArticleBlockStyle`, `PeoplySyncLog` | in use |
 | `account_app` | plain Django | `/account/` | `Profile` | in use |
 | `study_app` | plain Django | `/study/` | `Deck`, `Card` | under development |
-| `yourpage_app` | plain Django | `/yourpage/` | none yet | under development |
+| `yourpage_app` | plain Django | `/commits/` | `EventIssue`, `Credit`, `GitHubLink`, `DrinkTicket`, `EventSolution` | in use (Halloween event) |
 
 - **`core_app`** holds things every app needs: the "deploy coming" banner,
   the sitemap, static file storage, the "under development" placeholder
@@ -56,10 +56,15 @@ in `ifiplatform/ifiplatform_project/`. `core_app` sits directly in
   accept before using the Wagtail admin. With `OPEN_SIGNUP=True` (the
   Halloween mock site and its local Docker setup), sign-up asks only for
   a username and password and makes the account a Wagtail moderator at
-  once, and the privacy policy and terms are switched off. See
+  once, the terms are switched off, and a short event privacy notice
+  replaces the privacy policy. See
   [docker_server.md](../operations/docker_server.md#open-sign-up-mock-site-only).
-- **`study_app`** and **`yourpage_app`** show a placeholder page for now.
-  This is switched by `APPS_UNDER_DEVELOPMENT` in `settings.py`.
+- **`yourpage_app`** is the event points system on the Halloween mock
+  site: the Commits page, the leaderboard and the issue list. It reads issues and
+  merged PRs from GitHub. See
+  [docker_server.md](../operations/docker_server.md#points-leaderboard-and-helper-solutions).
+- **`study_app`** shows a placeholder page for now. This is switched by
+  `APPS_UNDER_DEVELOPMENT` in `settings.py`.
 
 ## Two kinds of pages
 

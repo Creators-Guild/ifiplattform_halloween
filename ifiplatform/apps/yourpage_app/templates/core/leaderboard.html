@@ -1,0 +1,98 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Leaderboard" %}{% endblock %}
+
+{% block app_css %}
+    {% include "css_links/yourpage.html" %}
+{% endblock app_css %}
+
+{% block extra_head %}
+    <meta http-equiv="refresh" content="30">
+{% endblock extra_head %}
+
+{% block content %}
+<div class="yourpage">
+    {% include "core/yourpage_nav.html" %}
+    <h1>{% trans "Leaderboard" %}</h1>
+
+    {% if is_organiser %}
+        <div class="yourpage__organiser">
+            {% if token_missing %}
+                <p class="error">{% trans "No GitHub token is set, so the points won't update. See docs/operations/docker_server.md." %}</p>
+            {% endif %}
+            {% if status.last_error %}
+                <p class="error">{% trans "Last sync failed:" %} {{ status.last_error }}</p>
+            {% endif %}
+            {% if needs_look %}
+                <p>{% trans "Needs a look (a PR closed more than one issue; settle with a credit override in /admin/):" %}
+                    {% for issue in needs_look %}<a href="{{ issue.url }}" target="_blank" rel="noopener">#{{ issue.number }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+                </p>
+            {% endif %}
+            <form method="post" action="{% url 'yourpage_sync_now' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn">{% trans "Sync now" %}</button>
+            </form>
+        </div>
+    {% endif %}
+
+    {% if rows %}
+        <div class="points-table__scroll">
+            <table class="points-table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">{% trans "Name" %}</th>
+                        <th scope="col">{% trans "Points" %}</th>
+                        <th scope="col">{% trans "Issues" %}</th>
+                        <th scope="col">🍹</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ row.user.get_username }}</td>
+                            <td>{{ row.points }}</td>
+                            <td>{{ row.issues|length }}</td>
+                            <td>
+                                {% if row.drink_given %}
+                                    ✓
+                                {% elif row.drink_earned %}
+                                    {% if is_organiser %}
+                                        <form method="post" action="{% url 'yourpage_hand_out_drink' row.user.pk %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn">{% trans "Handed out" %}</button>
+                                        </form>
+                                    {% else %}
+                                        🍹
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>{% trans "No points yet. Solve an issue and be the first!" %}</p>
+    {% endif %}
+
+    {% if unlinked %}
+        <p class="yourpage__hint">
+            {% blocktrans count counter=unlinked|length %}{{ counter }} contributor hasn't linked their account yet.{% plural %}{{ counter }} contributors haven't linked their account yet.{% endblocktrans %}
+            <a href="{% url 'yourpage_main' %}">{% trans "Link yours on the Commits page." %}</a>
+        </p>
+        {% if show_unlinked_names %}
+            <p class="yourpage__hint">
+                {% trans "Not linked yet (only helpers see this):" %}
+                {% for score in unlinked %}{{ score.github_login }} ({{ score.points }}){% if not forloop.last %}, {% endif %}{% endfor %}
+            </p>
+        {% endif %}
+    {% endif %}
+
+    {% if status.last_success_at %}
+        <p class="yourpage__hint">{% trans "Last synced from GitHub:" %} {{ status.last_success_at|time:"H:i" }}</p>
+    {% endif %}
+</div>
+{% endblock %}

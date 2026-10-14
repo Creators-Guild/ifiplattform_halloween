@@ -271,8 +271,18 @@ LOCALE_PATHS = [
 # views/urls -- see core_app.under_development.
 APPS_UNDER_DEVELOPMENT = {
     "study_app": True,
-    "yourpage_app": True,
+    "yourpage_app": False,
 }
+
+# The event points system in yourpage_app (Halloween mock site). The sync
+# reads issues and merged PRs from GITHUB_EVENT_REPO with a read-only token;
+# without one it does nothing -- see yourpage_app/github_sync.py.
+GITHUB_READ_TOKEN = os.environ.get("GITHUB_READ_TOKEN", "")  # check .env
+GITHUB_EVENT_REPO = os.environ.get(
+    "GITHUB_EVENT_REPO", "Creators-Guild/ifiplattform_halloween"
+)
+# Points needed for the one drink ticket per participant.
+DRINK_TICKET_POINTS = 5
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/

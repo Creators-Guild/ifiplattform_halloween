@@ -1,6 +1,6 @@
 # Menus
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
 
 How the site's menus are stored, edited and turned into HTML. Menus are
 Wagtail snippets. Read the [architecture overview](../overview.md) first if
@@ -28,7 +28,7 @@ menus. A step-by-step guide for editors is planned as
 `contributing/content_guide.md`.
 
 The top header (`templates/partials/header.html`) is **not** a menu in
-this sense. Its links (Home, Study, Your Page, Log in and the profile
+this sense. Its links (Home, Study, Commits, Log in and the profile
 dropdown) are written straight into the template.
 
 ## The models

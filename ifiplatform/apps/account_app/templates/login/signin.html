@@ -68,12 +68,14 @@
                     {% endfor %}
                 </div>
 
-                {% if not OPEN_SIGNUP %}
-                    {% url 'privacy_policy' as privacy_policy_url %}
-                    <p class="form-notice">
+                {% url 'privacy_policy' as privacy_policy_url %}
+                <p class="form-notice">
+                    {% if OPEN_SIGNUP %}
+                        {% blocktrans %}By creating an account you agree to the event <a href="{{ privacy_policy_url }}">privacy notice</a>.{% endblocktrans %}
+                    {% else %}
                         {% blocktrans %}By creating an account you agree to our <a href="{{ privacy_policy_url }}">Privacy Policy</a>.{% endblocktrans %}
-                    </p>
-                {% endif %}
+                    {% endif %}
+                </p>
                 <button type="submit" class="btn">{% trans "Sign In" %}</button>
             </form>
             <p class="auth-links">

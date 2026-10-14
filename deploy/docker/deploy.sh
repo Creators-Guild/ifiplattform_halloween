@@ -46,6 +46,9 @@ fi
 
 docker compose up -d
 docker compose exec -T web python manage.py clear_cache   # after the restart, see clear_cache's docstring
+# Event points from GitHub. Never fails the deploy: without a token, or if
+# GitHub is down, the site keeps the points it already has.
+docker compose exec -T web python manage.py sync_github_points || true
 
 # Old images and week-old build cache, so the disk doesn't fill up.
 docker image prune -f

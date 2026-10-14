@@ -500,10 +500,19 @@ class SignupTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     @override_settings(OPEN_SIGNUP=True)
-    def test_open_signup_has_no_privacy_policy(self):
-        self.assertEqual(self.client.get(reverse("privacy_policy")).status_code, 404)
+    def test_open_signup_shows_the_event_privacy_notice(self):
+        self.enterContext(translation.override("en"))
+        response = self.client.get(reverse("privacy_policy"))
+        self.assertTemplateUsed(response, "legal/event_privacy_notice.html")
+        self.assertContains(response, "2 November 2026")
         response = self.client.get(reverse("signin"))
-        self.assertNotContains(response, reverse("privacy_policy"))
+        self.assertContains(response, reverse("privacy_policy"))
+        self.assertContains(response, "privacy notice")
+
+    @override_settings(OPEN_SIGNUP=False)
+    def test_real_site_keeps_the_privacy_policy(self):
+        response = self.client.get(reverse("privacy_policy"))
+        self.assertTemplateUsed(response, "legal/privacy_policy.html")
 
     @override_settings(OPEN_SIGNUP=True)
     def test_open_signup_asks_for_no_personal_data(self):

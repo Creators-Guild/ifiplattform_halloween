@@ -32,3 +32,9 @@
   font-weight: bolder;
   color: var(--color-bg-dark);
 }
+.under-development-joke {
+  max-width: 32rem;
+  margin: 0;
+  font-size: 1.25rem;
+  font-style: italic;
+}

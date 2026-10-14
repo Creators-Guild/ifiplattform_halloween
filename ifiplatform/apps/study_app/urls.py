@@ -4,6 +4,7 @@ from django.conf import settings
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from core_app.under_development import under_development_urlpatterns
+from .jokes import STUDY_JOKES
 from .views import flashcard_views
 from .views import multiplechoice_views
 from .views import mix_studyset_views
@@ -55,7 +56,12 @@ studygames_urlpatterns = [
 ]
 
 if settings.APPS_UNDER_DEVELOPMENT.get("study_app"):
-    urlpatterns = under_development_urlpatterns("study_home", _("Study"))
+    urlpatterns = under_development_urlpatterns(
+        "study_home",
+        _("Study"),
+        template_name="core/study_under_development.html",
+        extra_context={"jokes": STUDY_JOKES},
+    )
 else:
     urlpatterns = (
         study_urlpatterns
