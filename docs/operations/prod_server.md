@@ -37,7 +37,7 @@ Browser ──HTTPS──▶ Nginx ──▶ Gunicorn ──▶ Django / Wagtail
 ## Layout on disk
 
 ```
-/home/ubuntu/ifiplattform_halloween/  the git checkout (always equal to origin/main)
+/home/ubuntu/IfiPlatform/            the git checkout (always equal to origin/main)
 ├── venv/                            Python virtualenv
 ├── deploy/                          deploy.sh, backup script, systemd units, config copies
 └── ifiplatform/                     Django project (manage.py lives here)
@@ -57,7 +57,8 @@ whole server: [server_setup.md](server_setup.md).
 
 The checkout is reset to `origin/main` on every deploy, and any change that
 isn't on `origin/main` by then is lost. Editing code directly on the server
-is fine, but **commit and push it to `main` before the next deploy**. `.env`, `media/` and the database are not tracked
+is fine, but **commit and push it to `main` before the next deploy**
+(nightly at 01:00 UTC). `.env`, `media/` and the database are not tracked
 by git, so deploys leave them alone.
 
 ## systemd services and timers
@@ -70,10 +71,12 @@ by git, so deploys leave them alone.
 | `fail2ban.service`          | Bans IPs after repeated failed logins or scans                       | Ubuntu package              |
 | `sync-peoply-events.timer`  | Runs `sync_peoply_events` at 00/06/12/18:00 daily, plus 14:00 and 16:00 on weekdays | [deploy/systemd/](../../deploy/systemd/) |
 | `ifiplatform-backup.timer`  | Backs up the database and `media/` daily at 05:00                    | [deploy/systemd/](../../deploy/systemd/) |
+| `ifiplatform-translate.timer` | Runs `translate_english` every minute: DeepL English for newly published pages and saved menus/messages | [deploy/systemd/](../../deploy/systemd/) |
+| `ifiplatform-translate-nightly.timer` | Runs `translate_english --nightly` at 03:30: catches up on missing English, cleans up old translation rows | [deploy/systemd/](../../deploy/systemd/) |
 
-Unit files in `deploy/systemd/` describe the production server. This
-server's deploy does **not** install them, so the two timers above only
-run here if someone copied them to `/etc/systemd/system/` by hand.
+Unit files in `deploy/systemd/` are copied to `/etc/systemd/system/` and
+enabled on every deploy, so you change them by editing the repo, not the
+server.
 
 ## Environment variables
 
@@ -97,13 +100,15 @@ After changing `.env` by hand, restart the app with
 
 ## Deploy flow
 
-Deploys are **not** triggered by pushing to `main`, and there is no
-nightly schedule. They run from
-[.github/workflows/deploy.yml](../../.github/workflows/deploy.yml), started
-**by hand** from the Actions tab ("Run workflow"), with one optional
-switch:
+Deploys are **not** triggered by pushing to `main`. They run from
+[.github/workflows/deploy.yml](../../.github/workflows/deploy.yml):
 
-- `skip_ci`: deploy without running tests and lint first.
+- **Nightly at 01:00 UTC.** Skipped if `main` hasn't changed since the last
+  successful deploy.
+- **By hand** from the Actions tab ("Run workflow"), with two optional
+  switches:
+  - `skip_ci`: deploy without running tests and lint first (emergencies only).
+  - `skip_countdown`: skip the 10-minute visitor warning.
 
 What happens:
 
@@ -111,37 +116,39 @@ What happens:
    The deploy stops if it fails.
 2. GitHub Actions connects over SSH (`appleboy/ssh-action`), fetches
    `main`, and runs the newest [deploy/deploy.sh](../../deploy/deploy.sh).
-   It looks for the checkout at `/home/ubuntu/ifiplattform_halloween`, or
-   at the repo variable `DEPLOY_PATH` if that is set.
 3. `deploy.sh` then:
-   1. `git reset --hard origin/main`. A reset, never a merge, so the server
+   1. Shows a "site is updating" banner to visitors (`announce_deploy`) and
+      waits 10 minutes while the old code keeps serving.
+   2. `git reset --hard origin/main`. A reset, never a merge, so the server
       can't end up with merge conflicts.
-   2. Re-runs itself from the new code, so changes to `deploy.sh` take
+   3. Re-runs itself from the new code, so changes to `deploy.sh` take
       effect in the same deploy.
-   3. `pip install -r requirements.txt`
-   4. `manage.py migrate`
-   5. `manage.py collectstatic --noinput --clear`
-   6. `sudo systemctl restart gunicorn`
-   7. `manage.py clear_cache`
+   4. Copies and enables the systemd units from `deploy/systemd/`.
+   5. `pip install -r requirements.txt`
+   6. Backs up the database and `media/` to `/mnt/backups` with
+      [deploy/backup/backup_db.sh](../../deploy/backup/backup_db.sh). If
+      the backup fails, the deploy stops here and nothing is migrated.
+   7. `manage.py migrate`
+   8. `manage.py collectstatic --noinput --clear`
+   9. `manage.py sync_deepl_glossary --write-env`, but only if the glossary
+      terms changed. A failure here only prints a warning.
+   10. `sudo systemctl restart gunicorn`
+   11. `manage.py clear_cache` and `announce_deploy --clear` to remove the
+       banner.
+   12. Compares the config copies in
+       [deploy/server_config/](../../deploy/server_config/) with the live
+       files on the server. Any difference shows up as a yellow warning on
+       the run's page in GitHub Actions. It never fails the deploy.
 
 Only one deploy can run at a time.
-
-**This server's deploy is stripped down** compared to the production one.
-It does *not* warn visitors before restarting, does *not* back up the
-database before migrating, does *not* install the systemd timers in
-[deploy/systemd/](../../deploy/systemd/), does *not* re-sync the DeepL
-glossary, and does *not* check the config copies in
-[deploy/server_config/](../../deploy/server_config/) against the live
-files. The scripts for all of those are still in the repo, and the
-comment at the top of `deploy.sh` lists every step it leaves out, so any
-of them can be added back.
 
 **If GitHub Actions is down,** SSH into the server and run the same script
 by hand:
 
 ```bash
-cd /home/ubuntu/ifiplattform_halloween
+cd /home/ubuntu/IfiPlatform
 bash deploy/deploy.sh
+SKIP_COUNTDOWN=true bash deploy/deploy.sh   # without the 10-minute warning
 ```
 
 ## Security
@@ -174,10 +181,11 @@ problems, is explained in [server_toolbox.md](server_toolbox.md).
 ```bash
 sudo certbot renew --dry-run        # certificate auto-renewal still works
 systemctl status gunicorn nginx postgresql fail2ban
-systemctl list-timers               # sync-peoply-events and ifiplatform-backup are scheduled
+systemctl list-timers               # sync-peoply-events, ifiplatform-backup and both ifiplatform-translate timers are scheduled
 journalctl -u ifiplatform-backup -n 5   # last backups say "Backup completed"
 journalctl -u gunicorn -n 100       # recent app errors (Django logs errors here)
 journalctl -u sync-peoply-events    # last Peoply sync runs
+journalctl -u ifiplatform-translate -n 20   # DeepL errors (quota, glossary ID) show up here
 sudo fail2ban-client status         # active jails and ban counts
 df -h                               # disk space (the VM only has 20 GB)
 ```

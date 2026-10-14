@@ -45,6 +45,8 @@ class NewsItem(models.Model):
 class HomeBoardMessage(TranslatableMixin, models.Model):
     """A rotating message shown in the homepage message board (greetings, promotions, etc.)."""
 
+    translated_fields = ["title", "body", "sender_role"]
+
     title = models.CharField(max_length=200)
     date = models.DateField(
         help_text="Date shown on the message, e.g. when it was posted or the event date."

@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const minimizeButton = document.getElementById("quick-style-minimize");
   const publishButton = document.getElementById("quick-style-publish-button");
   const unpublishButton = document.getElementById("quick-style-unpublish-button");
-  const syncMirroredButton = document.getElementById("quick-style-sync-mirrored-button");
   const MINIMIZED_KEY = "ifiQuickStyleMinimized";
 
   // Alignment is destructive to save (see save() below) -- tracked
@@ -87,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
     runPublishAction(
       publishButton,
       panel.dataset.publishUrl,
-      "Publish the latest changes to this page? This also publishes the Norwegian version if you're editing the English translation.",
+      "Publish the latest changes to this page? English follows within about a minute.",
       "Publishing...",
       "Publish"
     );
@@ -97,19 +96,9 @@ document.addEventListener("DOMContentLoaded", () => {
     runPublishAction(
       unpublishButton,
       panel.dataset.unpublishUrl,
-      "Unpublish this page? This takes the Norwegian version off the live site (and the English translation along with it), regardless of which one you're editing.",
+      "Unpublish this page? This takes it off the live site in both Norwegian and English.",
       "Unpublishing...",
       "Unpublish"
-    );
-  }
-
-  if (syncMirroredButton) {
-    runPublishAction(
-      syncMirroredButton,
-      panel.dataset.syncMirroredUrl,
-      "Push this page's synchronized fields (menu visibility, status, etc.) to its English translation now?",
-      "Syncing...",
-      "Sync mirrored page"
     );
   }
 

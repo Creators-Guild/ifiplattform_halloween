@@ -1,0 +1,10 @@
+[Unit]
+Description=Translate waiting pages/snippets into English every minute
+
+[Timer]
+# A run still busy when the next minute comes is not started twice.
+OnCalendar=*-*-* *:*:00
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

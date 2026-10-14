@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
-from ifiplatform.apps.ifi_home_app.models.event.peoply import PeoplySyncLog
+from ifi_home_app.models.event.peoply import PeoplySyncLog
 
 
 @require_POST

@@ -3,10 +3,9 @@
 from django.db.models import Q
 from django.shortcuts import render
 from django.utils import timezone
-from wagtail.models import Locale
-from ifiplatform.apps.ifi_home_app.models.article_models import ArticlePage, get_section_index
-from ifiplatform.apps.ifi_home_app.models.event.dates import group_events_by_day
-from ifiplatform.apps.ifi_home_app.models.event.pages import EventIndexPage, EventPage
+from ifi_home_app.models.article_models import ArticlePage, get_section_index
+from ifi_home_app.models.event.dates import group_events_by_day
+from ifi_home_app.models.event.pages import EventIndexPage, EventPage
 
 from ..dummydata import (
     dummy_news_objects,
@@ -32,7 +31,7 @@ def main_view(request):
     news_articles = (
         ArticlePage.objects.descendant_of(news_index_page)
         .live()
-        .filter(locale=Locale.get_active(), show_on_homepage=True)
+        .filter(show_on_homepage=True)
         .order_by("-published_date")[:12]
         if news_index_page
         else ArticlePage.objects.none()
@@ -40,18 +39,14 @@ def main_view(request):
 
     unions = StudentUnion.objects.all()
     tools = IfiTool.objects.all()
-    board_messages = HomeBoardMessage.objects.filter(
-        is_active=True, locale=Locale.get_active()
-    )
+    board_messages = HomeBoardMessage.objects.filter(is_active=True)
 
     today = timezone.localdate()
-    event_index = (
-        EventIndexPage.objects.live().filter(locale=Locale.get_active()).first()
-    )
+    event_index = EventIndexPage.objects.live().first()
     upcoming_events = (
         EventPage.objects.child_of(event_index)
         .live()
-        .filter(locale=Locale.get_active(), show_on_homepage=True, is_archived=False)
+        .filter(show_on_homepage=True, is_archived=False)
         .filter(
             Q(end_date__gte=today) | Q(end_date__isnull=True, event_date__gte=today)
         )

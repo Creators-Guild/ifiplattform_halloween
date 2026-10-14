@@ -1,6 +1,6 @@
 """Generic, content-agnostic helpers shared by every seeding mixin: page
-get-or-create, the wagtail_localize PO-pipeline translation helper, the
-seed placeholder image, default site root, and English locale sync."""
+get-or-create, storing English (translation/stored_translations.py), the
+seed placeholder image and the default site root."""
 
 from django.core.files.images import ImageFile
 from django.core.management import call_command
@@ -9,15 +9,37 @@ from django.utils.text import slugify
 
 from wagtail.coreutils import find_available_slug
 from wagtail.images.models import Image
-from wagtail.models import Site
+from wagtail.models import Page, Site
 from wagtail.rich_text import RichText
-from wagtail_localize.models import (
-    LocaleSynchronization,
-    Translation,
-    TranslationSource,
+
+from ifi_home_app.translation import english_urls, page_segments, stored_translations
+
+from .constants import (
+    ARTICLE_BODY,
+    SAME_IN_ENGLISH,
+    SEED_IMAGE_PATH,
+    SEED_IMAGE_TITLE,
+    TRANSLATIONS,
 )
 
-from .constants import ARTICLE_BODY, SEED_IMAGE_PATH, SEED_IMAGE_TITLE, TRANSLATIONS
+# The tables above are written as plain text, but pieces are stored escaped
+# ("Paint &amp; Sip"), so look them up in that form too.
+_STORED_TRANSLATIONS = {
+    page_segments.stored_form(norwegian): page_segments.stored_form(english)
+    for norwegian, english in TRANSLATIONS.items()
+}
+_STORED_SAME = {page_segments.stored_form(text) for text in SAME_IN_ENGLISH}
+
+
+def _seed_english(stored_text):
+    """English for one stored Norwegian piece, or None if the seed has none."""
+    if stored_text in TRANSLATIONS:
+        return TRANSLATIONS[stored_text]
+    if stored_text in _STORED_TRANSLATIONS:
+        return _STORED_TRANSLATIONS[stored_text]
+    if stored_text in SAME_IN_ENGLISH or stored_text in _STORED_SAME:
+        return stored_text
+    return None
 
 
 class SeedHelpersMixin:
@@ -29,42 +51,36 @@ class SeedHelpersMixin:
             ("paragraph", {"text": RichText(f"<p>{text}</p>")}),
         ]
 
-    def _translate_page(self, nb_page, en_locale):
-        """Produce a real English translation of `nb_page` via wagtail_localize's
-        actual PO import/export pipeline (submit for translation -> export PO ->
-        fill in msgstr from TRANSLATIONS -> import PO -> publish), rather than
-        hand-writing a second copy of every field. Strings with no entry in
-        TRANSLATIONS are left untranslated and fall back to the nb text."""
-        if nb_page.has_translation(en_locale):
-            self.skipped_count += 1
-            return nb_page.get_translation(en_locale)
-
-        source, _ = TranslationSource.get_or_create_from_instance(nb_page)
-        translation, _ = Translation.objects.get_or_create(
-            source=source, target_locale=en_locale
+    def _translate_page(self, obj):
+        """Stores English for `obj` (a page or snippet) from TRANSLATIONS
+        and SAME_IN_ENGLISH, as DeepL would; a page also gets its English
+        slug from its English title. Text with no entry stays Norwegian.
+        Re-runnable: English that's already stored is kept."""
+        english = {}
+        for segment in page_segments.extract_segments(obj):
+            text = _seed_english(segment.norwegian_text)
+            if text is not None:
+                english[segment] = text
+        if english:
+            stored_translations.save_machine(obj, english)
+        title = next(
+            (text for segment, text in english.items() if segment.path == "title"),
+            None,
         )
+        if isinstance(obj, Page) and title and english_urls.english_slug(obj) is None:
+            english_urls.set_english_slug(
+                obj, page_segments.plain_text(title), "deepl", redirect=False
+            )
 
-        po = translation.export_po()
-        for entry in po:
-            text = TRANSLATIONS.get(entry.msgid)
+    def _store_english(self, obj, english_by_field):
+        """Stores English for plain text fields of `obj`, {field: English}."""
+        english = {}
+        for name, text in english_by_field.items():
             if text:
-                entry.msgstr = text
-        translation.import_po(po, translation_type="machine", tool_name="Seed script")
-        translation.save_target(publish=True)
-
-        # Re-slugify from the translated title -- must be a plain .save(),
-        # see docs/claude_context/seed_dev_data.md before changing this.
-        en_page = translation.get_target_instance()
-        new_slug = slugify(en_page.title)
-        if new_slug and new_slug != en_page.slug:
-            en_page.slug = find_available_slug(en_page.get_parent(), new_slug)
-            en_page.save()
-
-        self.created_count += 1
-        self.stdout.write(
-            f"  translated {type(nb_page).__name__} (en): {nb_page.title}"
-        )
-        return en_page
+                for segment in page_segments.extract_segments(obj, name):
+                    english[segment] = page_segments.stored_form(text)
+        if english:
+            stored_translations.save_machine(obj, english)
 
     # -- generic helpers ---------------------------------------------------
 
@@ -118,9 +134,3 @@ class SeedHelpersMixin:
         elif site.root_page_id != root_page.id:
             site.root_page = root_page
             site.save()
-
-    def _sync_english_locale(self, nb_locale, en_locale):
-        LocaleSynchronization.objects.get_or_create(
-            locale=en_locale, defaults={"sync_from": nb_locale}
-        )
-        call_command("sync_locale_trees")

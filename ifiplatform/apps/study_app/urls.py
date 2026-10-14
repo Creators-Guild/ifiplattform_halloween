@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
-from ifiplatform.core_app.under_development import under_development_urlpatterns
+from core_app.under_development import under_development_urlpatterns
 from .views import flashcard_views
 from .views import multiplechoice_views
 from .views import mix_studyset_views

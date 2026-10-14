@@ -2,12 +2,11 @@
 
 from django import template
 from django.utils import timezone
-from wagtail.models import Locale
 
-from ifiplatform.apps.ifi_home_app.models import menus
-from ifiplatform.apps.ifi_home_app.models.event.constants import SITE_TIMEZONE
-from ifiplatform.apps.ifi_home_app.models.event.pages import EventIndexPage
-from ifiplatform.apps.ifi_home_app.models.event.peoply import PeoplySyncState
+from ifi_home_app.models import menus
+from ifi_home_app.models.event.constants import SITE_TIMEZONE
+from ifi_home_app.models.event.pages import EventIndexPage
+from ifi_home_app.models.event.peoply import PeoplySyncState
 
 register = template.Library()
 
@@ -32,7 +31,7 @@ def get_shortcut_columns():
 def get_event_index():
     """Return the site's EventIndexPage, used to build links to it (e.g. the
     home events box's "See all events" link, and the event page)."""
-    return EventIndexPage.objects.live().filter(locale=Locale.get_active()).first()
+    return EventIndexPage.objects.live().first()
 
 
 @register.simple_tag

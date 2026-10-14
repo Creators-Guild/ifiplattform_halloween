@@ -3,7 +3,7 @@
 from django.urls import path, include
 from wagtail import urls as wagtail_urls
 
-from ifiplatform.core_app.deploy_notice import deploy_notice_status_view
+from core_app.deploy_notice import deploy_notice_status_view
 from .views import home_views
 from .views import article_views
 from .views import event_views
@@ -57,12 +57,6 @@ ifi_api_urlpatterns = [
         "api/pages/<int:page_id>/banner-style/",
         article_views.save_banner_style,
         name="page_banner_style",
-    ),
-    # not article-specific either -- see EditorModeMixin.can_sync_mirrored_page.
-    path(
-        "api/pages/<int:page_id>/sync-mirrored/",
-        article_views.sync_mirrored_page,
-        name="page_sync_mirrored",
     ),
     # Not page-scoped -- triggers the site-wide sync_peoply_events command,
     # see event_views.force_sync_peoply_events.

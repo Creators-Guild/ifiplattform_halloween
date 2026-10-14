@@ -9,9 +9,9 @@ from django.utils import timezone
 
 from wagtail.models import GroupPagePermission, Page
 
-from ifiplatform.apps.account_app.models import Profile
-from ifiplatform.apps.ifi_home_app.models import ArticlePage
-from ifiplatform.apps.ifi_home_app.models.article_models import CategoryPage
+from account_app.models import Profile
+from ifi_home_app.models import ArticlePage
+from ifi_home_app.models.article_models import CategoryPage
 
 User = get_user_model()
 

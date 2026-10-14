@@ -9,10 +9,7 @@
             {% endif %}
         </p>
         <div class="translation-nudge-actions">
-            {% if translation_nudge.machine_url %}
-                <a class="translation-nudge-button" href="{{ translation_nudge.machine_url }}">{% trans "Machine-translate now" %}</a>
-            {% endif %}
-            <a class="translation-nudge-button translation-nudge-button--secondary" href="{{ translation_nudge.editor_url }}">{% trans "Open translation editor" %}</a>
+            <a class="translation-nudge-button translation-nudge-button--secondary" href="{{ translation_nudge.editor_url }}">{% trans "Open English editor" %}</a>
         </div>
     </div>
 {% endif %}

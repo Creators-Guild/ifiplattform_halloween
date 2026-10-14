@@ -8,21 +8,18 @@ exposes any of it.
 
 Design rationale/history: docs/claude_context/article_style_and_page_mixins.md"""
 
-from ifiplatform.apps.account_app.permissions import is_pending_editor
+from account_app.permissions import is_pending_editor
 from django.utils.functional import cached_property
-from wagtail.models import Locale
-from wagtail_localize.models import TranslationSource
 
 from django.db import models
 
 from .article.constants import HEX_COLOR_VALIDATOR
 from ..translation.status import page_needs_translation, translation_status
-from ..translation.sync import SOURCE_LANGUAGE_CODE
 
 
 class TranslationWarningMixin:
-    """Adds `needs_translation` to context: True if this specific page is
-    untranslated (an alias placeholder, or an incomplete translation)."""
+    """Adds `needs_translation` to context: True if this page's English is
+    incomplete (see translation/status.page_needs_translation)."""
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
@@ -31,10 +28,9 @@ class TranslationWarningMixin:
 
 
 def editor_mode_allowed(target, user, action):
-    """Wagtail's own permission for `action` against `target` (an already
-    alias/locale-resolved page), AND that `user` isn't a pending editor.
-    Exported (not private) so ArticlePage's publish/unpublish methods can
-    reuse this against publish_target instead of duplicating it."""
+    """Wagtail's own permission for `action` against `target`, AND that
+    `user` isn't a pending editor. Exported (not private) so ArticlePage's
+    publish/unpublish methods can reuse it instead of duplicating it."""
     permissions = target.permissions_for_user(user)
     wagtail_allowed = getattr(permissions, f"can_{action}")()
     return wagtail_allowed and not is_pending_editor(user)
@@ -44,39 +40,24 @@ class EditorModeMixin:
     """Mixed into any Page subtype that exposes on-page editor-mode
     tooling. See docs/claude_context/article_style_and_page_mixins.md."""
 
-    @property
-    def style_target(self):
-        """The page revisions/saves should actually apply to -- an alias
-        page can't take its own revisions, so edits go to its source."""
-        return self.alias_of.specific if self.alias_of_id else self
-
     def can_edit_in_editor_mode(self, user):
-        return editor_mode_allowed(self.style_target, user, "edit")
+        return editor_mode_allowed(self, user, "edit")
 
-    def can_sync_mirrored_page(self, user):
-        """Whether `user` may push this page's synchronized fields to its
-        translations right now: needs edit permission, this page must be
-        the nb ("OG") copy, and it needs an existing translation to push to."""
-        target = self.style_target
-        if target.locale.language_code != SOURCE_LANGUAGE_CODE:
-            return False
-        if not editor_mode_allowed(target, user, "edit"):
-            return False
-        source = TranslationSource.objects.get_for_instance_or_none(target)
-        return source is not None and source.translations.filter(enabled=True).exists()
+    def english_editor_url(self, user):
+        """The English editor for this page (editor mode's "English" link),
+        or None unless `user` may edit it."""
+        from ..translation.english_editor import editor_url
+
+        if not self.can_edit_in_editor_mode(user):
+            return None
+        return editor_url(self)
 
     def translation_nudge(self, user):
-        """translation_status() of this page's nb copy, for the editor-mode
-        banner -- None unless `user` may edit it. Resolved to nb so the
-        banner also shows on the en alias/translation of an outdated page."""
-        target = self.style_target
-        if target.locale.language_code != SOURCE_LANGUAGE_CODE:
-            target = target.get_translation_or_none(
-                Locale.objects.get(language_code=SOURCE_LANGUAGE_CODE)
-            )
-        if target is None or not editor_mode_allowed(target, user, "edit"):
+        """translation_status() of this page, for the editor-mode banner --
+        None unless `user` may edit it."""
+        if not self.can_edit_in_editor_mode(user):
             return None
-        return translation_status(target, user)
+        return translation_status(self, user)
 
 
 class PageBannerStyle(models.Model):

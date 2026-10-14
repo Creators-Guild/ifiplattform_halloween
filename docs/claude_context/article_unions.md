@@ -1,6 +1,6 @@
 # models/article/unions.py — design notes
 
-Last updated: 2026-10-09
+Last updated: 2026-10-12
 Covers: ifiplatform/apps/ifi_home_app/management/seed_dev_data/unions.py, ifiplatform/apps/ifi_home_app/models/article/unions.py
 
 Context for future Claude sessions. Not a human-facing doc.

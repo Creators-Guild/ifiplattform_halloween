@@ -14,9 +14,9 @@ from taggit.models import TaggedItemBase
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
-from wagtail.models import Locale, Page
+from wagtail.models import Page
 
-from ifiplatform.apps.ifi_home_app.models.article_models import (
+from ifi_home_app.models.article_models import (
     HEX_COLOR_VALIDATOR,
     TranslationWarningMixin,
     article_card_block,
@@ -36,6 +36,7 @@ from .constants import (
 )
 from .dates import group_events_by_month
 from .peoply import PEOPLY_SYNCED_FIELDS
+from ...translation.english_overlay import EnglishPreviewMixin
 
 
 class EventPageTag(TaggedItemBase):
@@ -60,10 +61,11 @@ class EventPageForm(WagtailAdminPageForm):
             field.help_text = _("Synced from Peoply -- edit it on Peoply instead.")
 
 
-class EventIndexPage(TranslationWarningMixin, Page):
+class EventIndexPage(EnglishPreviewMixin, TranslationWarningMixin, Page):
     """Landing page listing all events."""
 
     template = "events/event_index_page.html"
+    translated_fields = ["intro"]
 
     intro = RichTextField(blank=True)
 
@@ -76,10 +78,7 @@ class EventIndexPage(TranslationWarningMixin, Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         events = list(
-            EventPage.objects.child_of(self)
-            .live()
-            .filter(locale=Locale.get_active())
-            .order_by("event_date", "event_time")
+            EventPage.objects.child_of(self).live().order_by("event_date", "event_time")
         )
         today = timezone.localdate()
         # Same "still going" rule as is_happening_now: an event only counts
@@ -108,11 +107,12 @@ class EventIndexPage(TranslationWarningMixin, Page):
         return context
 
 
-class EventPage(TranslationWarningMixin, Page):
+class EventPage(EnglishPreviewMixin, TranslationWarningMixin, Page):
     """A single event -- covers dated events, week-long events (via
     end_date), and deadlines through the same shape."""
 
     template = "events/event_page.html"
+    translated_fields = ["location", "intro", "location_map_links", "calendar_legend"]
 
     event_type = models.CharField(
         max_length=20, choices=EVENT_TYPE_CHOICES, default="other"
@@ -277,12 +277,10 @@ class EventPage(TranslationWarningMixin, Page):
         return self.sub_events.count()
 
     @property
-    def localized_location_articles(self):
-        """Linked ArticlePages resolved to the active locale -- see
-        docs/claude_context/event_models.md (PageChooserBlock isn't
-        auto-translated by wagtail-localize)."""
+    def location_article_pages(self):
+        """The linked ArticlePages (specific), skipping deleted ones."""
         return [
-            entry.value["article"].localized.specific
+            entry.value["article"].specific
             for entry in self.location_articles
             if entry.value["article"] is not None
         ]
@@ -290,9 +288,9 @@ class EventPage(TranslationWarningMixin, Page):
     @cached_property
     def all_related_unions(self):
         """This event's related_unions plus every sub_event's, deduped by
-        union keeping the highest-priority role, each resolved to
-        `.localized.specific` here rather than in every template. See
-        docs/claude_context/event_models.md for the host-capping rule."""
+        union keeping the highest-priority role, each made `.specific` here
+        rather than in every template. See docs/claude_context/event_models.md
+        for the host-capping rule."""
         role_priority = {"host": 0, "collaborator": 1, "contributor": 2}
         best_by_union = {}
 
@@ -304,7 +302,7 @@ class EventPage(TranslationWarningMixin, Page):
                 role = entry.value["role"]
                 if cap_host and role == "host":
                     role = "collaborator"
-                key = union.translation_key
+                key = union.pk
                 if (
                     key not in best_by_union
                     or role_priority[role] < role_priority[best_by_union[key][0]]
@@ -320,7 +318,7 @@ class EventPage(TranslationWarningMixin, Page):
             {
                 "role": role,
                 "role_label": role_labels[role],
-                "union": union.localized.specific,
+                "union": union.specific,
             }
             for role, union in best_by_union.values()
         ]

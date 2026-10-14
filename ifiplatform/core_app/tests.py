@@ -13,7 +13,7 @@ from django.core.management import call_command
 from django.test import Client, RequestFactory, TestCase, TransactionTestCase, tag
 from django.urls import reverse
 
-from ifiplatform.core_app.deploy_notice import deploy_notice
+from core_app.deploy_notice import deploy_notice
 
 
 class DeployNoticeTests(TestCase):
@@ -142,15 +142,9 @@ class SiteCrawlTests(TransactionTestCase):
     broken; a literal href="None" always is, since that can only come from
     a template tag that failed to resolve a real page's URL.
 
-    TransactionTestCase, not TestCase: wagtail_localize defers each
-    translated page's actual publish (the flip to live=True) to
-    transaction.on_commit() (see create_or_update_translation in
-    wagtail_localize/models.py). Plain TestCase wraps every test in a
-    transaction that gets rolled back, never committed, so those on_commit
-    callbacks would never fire and every translated page would come out
-    live=False here -- a test-harness artifact, not a real bug. Confirmed
-    by reproducing it against a real Postgres database outside the test
-    runner, where seed_dev_data behaves correctly."""
+    TransactionTestCase, not TestCase, so seed_dev_data runs with real
+    commits and its on_commit callbacks (Wagtail's page_slug_changed, ...)
+    fire the way they do on a real database."""
 
     HREF_RE = re.compile(r'href="([^"]*)"')
     EXCLUDED_PREFIXES = ("/static/", "/media/", "/admin/", "/wagtail-admin/")

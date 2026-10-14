@@ -17,7 +17,6 @@ from .integrations.peoply_api import (
 )
 from .models import StudentUnion
 from .models.article.unions import StudentUnionCategoryPage, UnionPage
-from .models.event.pages import EventPage
 from .models.event.peoply import (
     PeoplyOrgsWithoutUnion,
     PeoplyRemovedEvent,
@@ -146,10 +145,7 @@ class PeoplyRemovedEventAdmin(admin.ModelAdmin):
         if not targets:
             return
         for removal in targets:
-            translation_key = removal.page.translation_key
-            # Every locale's copy (nb + its en alias/translation).
-            for page in EventPage.objects.filter(translation_key=translation_key):
-                page.delete()
+            removal.page.delete()
             removal.page = None  # already SET_NULL in the DB by the delete above
             removal.resolved_at = timezone.now()
             removal.resolution = "deleted"

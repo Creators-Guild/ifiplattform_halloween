@@ -1,0 +1,1 @@
+For claude plans so that they are stored in project rather than locally. Delete them when done.

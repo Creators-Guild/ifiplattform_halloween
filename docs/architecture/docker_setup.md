@@ -1,12 +1,15 @@
 # Docker setup
 
-Last updated: 2026-10-11
+Last updated: 2026-10-14
 
 How the local Docker setup is built and why. To start it, see the Quick
 start in the main [README.md](../../README.md#quick-start). For day-to-day
 use and troubleshooting, see
 [contributing/docker.md](../contributing/docker.md). It is for local
-development only. Production doesn't use Docker (see
+development only. Servers use a separate Docker setup (`Dockerfile`,
+`compose.prod.yml`), described in
+[operations/docker_server.md](../operations/docker_server.md). The real
+site still runs without Docker until it moves over (see
 [operations/server_setup.md](../operations/server_setup.md)).
 
 ## Files

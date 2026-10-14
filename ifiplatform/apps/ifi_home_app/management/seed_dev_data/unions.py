@@ -1,7 +1,7 @@
 """Student-union seeding: the two demo unions under Sosialt, and the
 Fadderuke-hosting union roster used by events.py's sub-event seeding."""
 
-from ifiplatform.apps.ifi_home_app.models.article_models import StudentUnionCategoryPage, UnionPage
+from ifi_home_app.models.article_models import StudentUnionCategoryPage, UnionPage
 
 from .constants import (
     FADDERUKE_UNION_PEOPLY_IDS,
@@ -11,14 +11,14 @@ from .constants import (
 
 
 class UnionSeedMixin:
-    def _seed_student_unions(self, sosialt_category, nb_locale, en_locale, seed_image):
+    def _seed_student_unions(self, sosialt_category, nb_locale, seed_image):
         union_category = self._get_or_create_page(
             sosialt_category,
             StudentUnionCategoryPage,
             "Studentforeninger",
             nb_locale,
         )
-        self._translate_page(union_category, en_locale)
+        self._translate_page(union_category)
 
         for name in ["Testforening 1", "Testforening 2", LONG_UNION_NAME]:
             union = self._get_or_create_page(
@@ -74,9 +74,9 @@ class UnionSeedMixin:
                     ),
                 ],
             )
-            self._translate_page(union, en_locale)
+            self._translate_page(union)
 
-    def _seed_fadderuke_unions(self, nb_locale, en_locale, seed_image):
+    def _seed_fadderuke_unions(self, nb_locale, seed_image):
         """Creates the minimal UnionPage per name in FADDERUKE_UNION_SPECS
         (as children of the same Studentforeninger category Testforening
         1/2 live under), for FADDERUKE_SUB_EVENT_UNIONS to link sub-events
@@ -142,7 +142,7 @@ class UnionSeedMixin:
                 peoply_organization_id=FADDERUKE_UNION_PEOPLY_IDS.get(title, ""),
                 **extra_kwargs,
             )
-            self._translate_page(union, en_locale)
+            self._translate_page(union)
             unions[title] = union
         return unions
 
@@ -150,7 +150,7 @@ class UnionSeedMixin:
         # Every optional CharBlock below is given an explicit value (even ""
         # or []) rather than omitted -- an omitted key resolves to None here
         # (raw StreamField construction, unlike an admin form submission)
-        # and crashes _translate_page's wagtail_localize export. picture
+        # and crashes the English extraction (_translate_page). picture
         # (ImageChooserBlock, not a string segment) is unaffected, so it's
         # simply left out where there's no picture. responsibilities takes a
         # plain list of strings here (raw-construction input, not the

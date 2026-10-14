@@ -29,7 +29,6 @@ is UX, not the security boundary.
       data-quick-style-url="{% url 'article_quick_style' page.id %}"
       data-publish-url="{% url 'article_publish' page.id %}"
       data-unpublish-url="{% url 'article_unpublish' page.id %}"
-      data-sync-mirrored-url="{% url 'page_sync_mirrored' page.id %}"
       data-default-padding="{{ quick_style_defaults.padding|unlocalize }}" data-default-alignment="{{ quick_style_defaults.alignment }}" data-default-font-size="{{ quick_style_defaults.font_size|unlocalize }}"
       data-default-bg-color="{{ quick_style_defaults.bg_color }}"
       data-default-header-padding="{{ quick_style_defaults.header_padding|unlocalize }}" data-default-title-font-size="{{ quick_style_defaults.title_font_size|unlocalize }}"
@@ -61,23 +60,14 @@ is UX, not the security boundary.
             {% comment %}
             This page's own published state -- not a style field, so it's
             not part of the dirty-tracking/save-bar flow the fields below
-            use. Publish/Unpublish always act on the nb ("OG") copy
-            regardless of which locale you're looking at, then sync the en
-            translation to match (see ArticlePage.publish_target/
-            article_views.publish_page/unpublish_page) --
-            can_publish_page/can_unpublish_page already check permission
-            against that nb copy, not this one, so they're the only gate
-            these two buttons need (see ArticlePage.get_context()).
-            Publish only shows up when there's actually something to
-            publish; Unpublish only when the nb copy is actually live
-            (can_unpublish_page is False otherwise -- Wagtail's own
-            can_unpublish() requires it). Sync mirrored page is the odd one
-            out here -- it's not about *this* page's publish state at all,
-            just whether we're standing on the nb ("OG") copy with an
-            existing translation to push synchronized fields
-            (status, etc.) to (see EditorModeMixin.can_sync_mirrored_page) --
-            grouped with Publish/Unpublish anyway since it's the same kind
-            of immediate, no-preview action.
+            use. can_publish_page/can_unpublish_page are the only gate these
+            two buttons need (see ArticlePage.get_context()). Publish only
+            shows up when there's actually something to publish; Unpublish
+            only when the page is actually live (can_unpublish_page is
+            False otherwise -- Wagtail's own can_unpublish() requires it).
+            English is the odd one out -- a link to the page's English
+            editor (EditorModeMixin.english_editor_url), grouped here as
+            the same kind of immediate, no-preview action.
             {% endcomment %}
             <div class="quick-style-field quick-style-status-row">
                 <span class="quick-style-status-badge{% if not page_is_live %} quick-style-status-badge--draft{% elif page_has_unpublished_changes %} quick-style-status-badge--pending{% else %} quick-style-status-badge--live{% endif %}">
@@ -94,10 +84,8 @@ is UX, not the security boundary.
                             {% trans "Unpublish" %}
                         </button>
                     {% endif %}
-                    {% if can_sync_mirrored_page %}
-                        <button type="button" id="quick-style-sync-mirrored-button" class="quick-style-publish-button">
-                            {% trans "Sync mirrored page" %}
-                        </button>
+                    {% if english_editor_url %}
+                        <a href="{{ english_editor_url }}" class="quick-style-publish-button">{% trans "English" %}</a>
                     {% endif %}
                 </span>
             </div>

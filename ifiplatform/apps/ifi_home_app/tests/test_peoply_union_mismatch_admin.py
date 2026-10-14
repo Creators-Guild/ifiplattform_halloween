@@ -8,8 +8,8 @@ from django.utils import timezone
 
 from wagtail.models import Locale, Page
 
-from ifiplatform.apps.ifi_home_app.models.article.unions import StudentUnionCategoryPage, UnionPage
-from ifiplatform.apps.ifi_home_app.models.event.peoply import PeoplyUnionMismatch
+from ifi_home_app.models.article.unions import StudentUnionCategoryPage, UnionPage
+from ifi_home_app.models.event.peoply import PeoplyUnionMismatch
 
 User = get_user_model()
 

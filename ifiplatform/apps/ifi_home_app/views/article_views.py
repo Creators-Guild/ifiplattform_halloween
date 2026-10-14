@@ -9,9 +9,9 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
-from wagtail.models import Locale, Page
+from wagtail.models import Page
 
-from ifiplatform.apps.ifi_home_app.models.article_models import (
+from ifi_home_app.models.article_models import (
     BOX_COLOR_CHOICES,
     COLOR_CHOICES,
     CONTENT_ALIGNMENT_CHOICES,
@@ -23,7 +23,6 @@ from ifiplatform.apps.ifi_home_app.models.article_models import (
     PageBannerStyle,
     alignment_capable_block_ids,
 )
-from ifiplatform.apps.ifi_home_app.translation.sync import sync_synchronized_fields
 
 BOX_FIELDS = {
     "box_enabled",
@@ -104,7 +103,7 @@ def save_quick_style(request, page_id):
     """Upsert onto the page's shared ArticleStyle row. Live immediately, no
     Wagtail revision/publish. apply_alignment_to_blocks and reset_header are
     the two destructive exceptions -- see docs/claude_context/article_views.md."""
-    page = get_object_or_404(ArticlePage, pk=page_id).style_target
+    page = get_object_or_404(ArticlePage, pk=page_id)
 
     if not page.can_edit_in_editor_mode(request.user):
         return JsonResponse(
@@ -231,7 +230,7 @@ def save_block_style(request, page_id):
     """Upsert a single block's ArticleBlockStyle override -- outside
     Wagtail's StreamField/revision/publish system entirely, live
     immediately, no draft step."""
-    page = get_object_or_404(ArticlePage, pk=page_id).style_target
+    page = get_object_or_404(ArticlePage, pk=page_id)
 
     if not page.can_edit_in_editor_mode(request.user):
         return JsonResponse(
@@ -373,7 +372,7 @@ def save_block_style(request, page_id):
 def save_header_style(request, page_id):
     """Upsert title/intro/meta alignment/font-size + header_side_padding
     onto the page's shared ArticleStyle row."""
-    page = get_object_or_404(ArticlePage, pk=page_id).style_target
+    page = get_object_or_404(ArticlePage, pk=page_id)
 
     if not page.can_edit_in_editor_mode(request.user):
         return JsonResponse(
@@ -414,7 +413,7 @@ def save_header_style(request, page_id):
 def save_hero_image_style(request, page_id):
     """Upsert hero image position/size/box fields onto the page's shared
     ArticleStyle row."""
-    page = get_object_or_404(ArticlePage, pk=page_id).style_target
+    page = get_object_or_404(ArticlePage, pk=page_id)
 
     if not page.can_edit_in_editor_mode(request.user):
         return JsonResponse(
@@ -487,7 +486,7 @@ def save_hero_image_style(request, page_id):
 @require_POST
 def save_toc_icon_style(request, page_id):
     """Upsert toc_icon_size onto the page's shared ArticleStyle row."""
-    page = get_object_or_404(ArticlePage, pk=page_id).style_target
+    page = get_object_or_404(ArticlePage, pk=page_id)
 
     if not page.can_edit_in_editor_mode(request.user):
         return JsonResponse(
@@ -507,30 +506,12 @@ def save_toc_icon_style(request, page_id):
     return JsonResponse({"ok": True})
 
 
-def _translation_to_sync(nb_page):
-    """The real (non-alias) en translation of nb_page, if one exists. Only
-    called with nb_page already resolved to nb, so this only looks nb -> en.
-    See docs/claude_context/article_views.md."""
-    if nb_page.locale.language_code != ArticlePage.SOURCE_LANGUAGE_CODE:
-        return None
-    en_locale = Locale.objects.exclude(
-        language_code=ArticlePage.SOURCE_LANGUAGE_CODE
-    ).first()
-    if en_locale is None:
-        return None
-    translation = nb_page.get_translation_or_none(en_locale)
-    if translation is None or translation.alias_of_id:
-        return None
-    return translation
-
-
 @require_POST
 def publish_page(request, page_id):
     """Publish the latest draft revision of one ArticlePage from its
-    front-end URL, bypassing wagtail-admin. Always acts on the nb copy
-    (ArticlePage.publish_target), then syncs the en translation. See
+    front-end URL, bypassing wagtail-admin. See
     docs/claude_context/article_views.md."""
-    page = get_object_or_404(ArticlePage, pk=page_id).publish_target
+    page = get_object_or_404(ArticlePage, pk=page_id)
 
     if not page.can_publish_in_editor_mode(request.user):
         return JsonResponse(
@@ -543,24 +524,13 @@ def publish_page(request, page_id):
 
     revision.publish(user=request.user)
 
-    translation = _translation_to_sync(page)
-    if translation is not None:
-        translation_revision = translation.get_latest_revision()
-        if translation_revision is not None:
-            translation_revision.publish(user=request.user, skip_permission_checks=True)
-
-    # SynchronizedFields are synced automatically by the page_published
-    # signal handler (wagtail_hooks.py) fired from revision.publish() above
-    # -- no explicit call needed here.
-
     return JsonResponse({"ok": True})
 
 
 @require_POST
 def unpublish_page(request, page_id):
-    """Unpublish one ArticlePage -- same nb-first, sync-en-after pattern as
-    publish_page."""
-    page = get_object_or_404(ArticlePage, pk=page_id).publish_target
+    """Unpublish one ArticlePage from its front-end URL."""
+    page = get_object_or_404(ArticlePage, pk=page_id)
 
     if not page.can_unpublish_in_editor_mode(request.user):
         return JsonResponse(
@@ -568,32 +538,6 @@ def unpublish_page(request, page_id):
         )
 
     page.unpublish(user=request.user)
-
-    translation = _translation_to_sync(page)
-    if translation is not None and translation.live:
-        # Omitting user= skips the internal permission check -- see
-        # docs/claude_context/article_views.md before changing this.
-        translation.unpublish(log_action=True)
-
-    return JsonResponse({"ok": True})
-
-
-@require_POST
-def sync_mirrored_page(request, page_id):
-    """Manually push this page's wagtail-localize synchronized fields to
-    its translation -- "Sync mirrored page" in editor mode. Not
-    ArticlePage-specific; see docs/claude_context/article_views.md."""
-    page = get_object_or_404(Page, pk=page_id).specific.style_target
-
-    if not page.can_sync_mirrored_page(request.user):
-        return JsonResponse(
-            {
-                "error": "You don't have permission to sync this page, or there's nothing to sync."
-            },
-            status=403,
-        )
-
-    sync_synchronized_fields(page, user=request.user)
 
     return JsonResponse({"ok": True})
 
@@ -603,7 +547,7 @@ def save_banner_style(request, page_id):
     """Upsert onto the page's shared PageBannerStyle row. Not
     ArticlePage-specific -- shared by CategoryPage/ArticleIndexPage/
     StudentUnionCategoryPage via BannerStyleMixin."""
-    page = get_object_or_404(Page, pk=page_id).specific.style_target
+    page = get_object_or_404(Page, pk=page_id).specific
 
     if not page.can_edit_in_editor_mode(request.user):
         return JsonResponse(

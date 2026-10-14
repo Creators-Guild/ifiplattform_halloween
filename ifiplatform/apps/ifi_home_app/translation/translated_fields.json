@@ -1,0 +1,96 @@
+{
+  "ifi_home_app.HomeBoardMessage": {
+    "body": "body",
+    "sender_role": "sender_role",
+    "title": "title"
+  },
+  "ifi_home_app.ToolPage": {
+    "description": "description",
+    "search_description": "search_description",
+    "seo_title": "seo_title",
+    "title": "title"
+  },
+  "ifi_home_app.UnionPage": {
+    "activities": "activities",
+    "purpose": "purpose",
+    "search_description": "search_description",
+    "seo_title": "seo_title",
+    "sitting_members → member → availability_note": "sitting_members.*.availability_note",
+    "sitting_members → member → responsibilities → []": "sitting_members.*.responsibilities.*",
+    "sitting_members → member → role": "sitting_members.*.role",
+    "sitting_members → member → role_nickname": "sitting_members.*.role_nickname",
+    "title": "title",
+    "union_links → link → label": "union_links.*.label",
+    "vedtekter": "vedtekter"
+  },
+  "ifi_home_app.StudentUnionCategoryPage": {
+    "general_info": "general_info",
+    "intro": "intro",
+    "search_description": "search_description",
+    "seo_title": "seo_title",
+    "title": "title",
+    "union_groups → group → general_info": "union_groups.*.general_info",
+    "union_groups → group → title": "union_groups.*.title",
+    "union_groups → row → groups → [] → general_info": "union_groups.*.groups.*.general_info",
+    "union_groups → row → groups → [] → title": "union_groups.*.groups.*.title",
+    "union_groups → row → title": "union_groups.*.title"
+  },
+  "ifi_home_app.ArticlePage": {
+    "body → heading → text": "body.*.text",
+    "body → image → alt_text": "body.*.alt_text",
+    "body → image → caption": "body.*.caption",
+    "body → multi_column → columns → [] → content → image → alt_text": "body.*.columns.*.content.*.alt_text",
+    "body → multi_column → columns → [] → content → image → caption": "body.*.columns.*.content.*.caption",
+    "body → multi_column → columns → [] → content → paragraph → text": "body.*.columns.*.content.*.text",
+    "body → multi_column → columns → [] → title": "body.*.columns.*.title",
+    "body → paragraph → text": "body.*.text",
+    "hero_image_alt": "hero_image_alt",
+    "hero_image_caption": "hero_image_caption",
+    "hero_image_title": "hero_image_title",
+    "intro": "intro",
+    "search_description": "search_description",
+    "seo_title": "seo_title",
+    "title": "title"
+  },
+  "ifi_home_app.CategoryPage": {
+    "general_info": "general_info",
+    "intro": "intro",
+    "search_description": "search_description",
+    "seo_title": "seo_title",
+    "title": "title"
+  },
+  "ifi_home_app.ArticleIndexPage": {
+    "general_info": "general_info",
+    "intro": "intro",
+    "search_description": "search_description",
+    "seo_title": "seo_title",
+    "title": "title"
+  },
+  "ifi_home_app.HeaderMessage": {
+    "text": "text"
+  },
+  "ifi_home_app.EventIndexPage": {
+    "intro": "intro",
+    "search_description": "search_description",
+    "seo_title": "seo_title",
+    "title": "title"
+  },
+  "ifi_home_app.EventPage": {
+    "calendar_legend → entry → label": "calendar_legend.*.label",
+    "intro": "intro",
+    "location": "location",
+    "location_map_links → map_link → title": "location_map_links.*.title",
+    "search_description": "search_description",
+    "seo_title": "seo_title",
+    "title": "title"
+  },
+  "ifi_home_app.MenuGroup": {
+    "short_title": "short_title",
+    "title": "title"
+  },
+  "ifi_home_app.MenuGroupLink": {
+    "description": "description",
+    "label": "label",
+    "label_prefix": "label_prefix"
+  }
+}

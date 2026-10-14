@@ -4,6 +4,9 @@ name: Auto-merge
 # as CI passes. No label = merge by hand as usual. Remove the label before
 # CI finishes to cancel. If you add the label after CI already passed,
 # re-run CI or just merge by hand.
+#
+# Note: merges done by this workflow don't trigger other workflows, so
+# trello_sync.yml won't move the closed issue's card to Done.
 on:
   workflow_run:
     workflows: [CI]

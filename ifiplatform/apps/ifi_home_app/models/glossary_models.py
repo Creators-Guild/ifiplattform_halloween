@@ -1,9 +1,9 @@
-"""Tracks when the DeepL glossary (see deepl_glossary_terms.py and the
-sync_deepl_glossary command) was last pushed, so translation_views.py can
-tell "this sentence's existing machine translation predates the current
-glossary" apart from "this sentence just hasn't changed" -- the former
-should be redone (the glossary may now translate it differently), the
-latter shouldn't (wagtail-localize already skips it)."""
+"""Tracks when the DeepL glossary (see translation/glossary_terms.py and
+the sync_deepl_glossary command) was last pushed, so the nightly
+translate_english run can tell "this sentence's DeepL English predates the
+current glossary" apart from "this sentence just hasn't changed" -- the
+former is redone (the glossary may now translate it differently), the
+latter isn't (stored_translations.forget_stale_glossary_rows)."""
 
 from django.db import models
 

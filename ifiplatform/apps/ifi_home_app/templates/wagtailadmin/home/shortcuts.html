@@ -1,0 +1,18 @@
+{% load wagtailadmin_tags %}
+{% panel id="shortcuts" heading="Shortcuts" classname="w-panel--dashboard" %}
+    <div class="dashboard-panel__body">
+        <div class="dashboard-panel__links">
+            {% for label, url, icon in shortcuts %}
+                <a class="button button-secondary bicolor button--icon" href="{{ url }}">{% icon name=icon wrapped=1 %}{{ label }}</a>
+            {% endfor %}
+        </div>
+        {% if settings %}
+            <h3 class="dashboard-panel__subheading">Settings</h3>
+            <div class="dashboard-panel__links">
+                {% for label, url in settings %}
+                    <a class="button button-small button-secondary" href="{{ url }}">{{ label }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endpanel %}

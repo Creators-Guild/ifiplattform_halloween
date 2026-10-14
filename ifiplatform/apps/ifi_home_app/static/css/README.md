@@ -16,7 +16,9 @@ length without adding organization.
 06_components/ -- styled pieces, one subfolder per area or widget family
                   (article/, article_editor/, article_toc/, cards/,
                   category/, event/, home/, newsbar/, tool/, union/), plus
-                  shared/ for pieces used by more than one area
+                  shared/ for pieces used by more than one area, and
+                  admin/ for the few Wagtail admin additions (loaded by
+                  wagtail_hooks.py's insert_global_admin_css, not by the site)
 ```
 
 An "area" is a Wagtail page type (ArticlePage, EventPage, UnionPage,

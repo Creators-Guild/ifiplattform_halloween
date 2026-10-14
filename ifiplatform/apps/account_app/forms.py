@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 
-from ifiplatform.apps.account_app.models import Profile
+from account_app.models import Profile
 
 
 class SignupForm(UserCreationForm):

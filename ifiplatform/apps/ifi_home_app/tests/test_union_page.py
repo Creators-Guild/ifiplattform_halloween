@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from wagtail.models import Locale, Page
 
-from ifiplatform.apps.ifi_home_app.models.article.unions import UnionPage
+from ifi_home_app.models.article.unions import UnionPage
 
 CARD_TEMPLATE = "info_articles/partials/union_position_card.html"
 

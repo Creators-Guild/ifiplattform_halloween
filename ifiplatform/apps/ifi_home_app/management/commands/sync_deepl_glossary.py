@@ -1,10 +1,8 @@
 """Pushes ifi_home_app/translation/glossary_terms.py's nb -> en term list to
 DeepL as a glossary, so DeepL honours those exact translations (or "don't
 translate this") on every machine-translation call this project makes --
-the single-page "Machine Translate" button, the API, and the
-"Machine-translate subtree" bulk action (translation/views.py) all go
-through the same wagtail-localize DeepLTranslator, so one glossary covers
-all three.
+everything goes through translation/deepl.py's translate_texts(), so one
+glossary covers it all.
 
 DeepL's v2 glossaries are immutable once created (no "update entries"
 endpoint) -- this command deletes any existing glossary with the same name
@@ -14,21 +12,21 @@ re-run whenever glossary_terms.py changes.
 By default, just prints the new glossary_id -- copy it into
 DEEPL_GLOSSARY_ID in .env (same copy-paste flow as DJANGO_SECRET_KEY in
 README.md's setup steps) and restart the server; settings.py reads it from
-there into WAGTAILLOCALIZE_MACHINE_TRANSLATOR's GLOSSARY_IDS option.
+there as DEEPL_GLOSSARY_ID.
 --write-env does that .env edit itself instead -- used by deploy/deploy.sh so
 production never needs that manual step (a stale DEEPL_GLOSSARY_ID is what
 caused a real KeyError: 'translations' machine-translation outage once).
 
-Also records the sync time via GlossarySyncState, so translation_views.py
-knows which existing machine translations predate this glossary version and
-should be redone the next time someone runs a machine translation."""
+Also records the sync time via GlossarySyncState, so the nightly
+translate_english run knows which DeepL translations predate this glossary
+version and redoes them (stored_translations.forget_stale_glossary_rows)."""
 
 import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from ifiplatform.apps.ifi_home_app.translation.glossary_terms import GLOSSARY_TERMS
-from ifiplatform.apps.ifi_home_app.models import GlossarySyncState
+from ifi_home_app.translation.glossary_terms import GLOSSARY_TERMS
+from ifi_home_app.models import GlossarySyncState
 
 GLOSSARY_NAME = "ifiplatform-nb-en"
 SOURCE_LANG = "NB"
@@ -54,9 +52,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        auth_key = settings.WAGTAILLOCALIZE_MACHINE_TRANSLATOR["OPTIONS"].get(
-            "AUTH_KEY"
-        )
+        auth_key = settings.DEEPL_API_KEY
         if not auth_key:
             raise CommandError("DEEPL_API_KEY is not set in .env.")
 

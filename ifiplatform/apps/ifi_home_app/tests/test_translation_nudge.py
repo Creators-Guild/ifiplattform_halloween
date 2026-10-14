@@ -1,29 +1,30 @@
 # pylint: disable=C0114,C0115,C0116
-from unittest.mock import patch
+from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
-from django.core.management import call_command
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from django.utils import timezone
 from wagtail.models import Locale, Page, Site
-from wagtail_localize.operations import TranslationCreator
-from wagtail_localize.strings import StringValue
 
-from ifiplatform.apps.ifi_home_app.models import ArticleIndexPage
-from ifiplatform.apps.ifi_home_app.translation import nudge
-from ifiplatform.apps.ifi_home_app.translation.status import (
+from ifi_home_app.models import ArticleIndexPage, SegmentTranslation, WaitingForEnglish
+from ifi_home_app.translation import (
+    english_editor,
+    nudge,
+    page_segments,
+    stored_translations,
+)
+from ifi_home_app.translation.english_overlay import english
+from ifi_home_app.translation.status import (
+    page_needs_translation,
     pages_needing_translation,
     translation_status,
 )
 
 User = get_user_model()
-
-
-def _fake_translate(source_locale, target_locale, strings):
-    return {string: StringValue(f"[EN] {string.data}") for string in strings}
 
 
 class TranslationNudgeTests(TestCase):
@@ -32,12 +33,9 @@ class TranslationNudgeTests(TestCase):
 
     def setUp(self):
         self.nb, _ = Locale.objects.get_or_create(language_code="nb")
-        self.en, _ = Locale.objects.get_or_create(language_code="en")
         self.user = User.objects.create_superuser("admin", "a@test.com", "pw")
         self.root = Page.get_first_root_node()
-        # Wagtail's own default welcome page -- it has no en copy either,
-        # so it would show up as "needs translation" in every listing.
-        Page.objects.filter(depth=2).delete()
+        Page.objects.filter(depth=2).delete()  # Wagtail's default welcome page
         self.hub = self._page(self.root, "Artikler")
         Site.objects.update_or_create(
             is_default_site=True,
@@ -50,95 +48,86 @@ class TranslationNudgeTests(TestCase):
         )
         parent.add_child(instance=page)
         page.save_revision().publish()
-        return page
+        return Page.objects.get(pk=page.pk).specific
 
-    def _translate(self, page, complete):
-        """A real wagtail-localize en translation of `page`, with every
-        segment translated (`complete`) or none of them."""
-        with self.captureOnCommitCallbacks(execute=True):
-            TranslationCreator(self.user, [self.en]).create_translations(page)
-        if complete:
-            translation = page.get_translation(self.en)
-            from wagtail_localize.models import (
-                Translation,
-            )  # pylint: disable=import-outside-toplevel
-
-            translation_obj = Translation.objects.get(
-                source__object_id=page.translation_key, target_locale=self.en
-            )
-            po = translation_obj.export_po()
-            for entry in po:
-                entry.msgstr = f"EN {entry.msgid}"
-            translation_obj.import_po(po)
-            with self.captureOnCommitCallbacks(execute=True):
-                translation_obj.save_target(publish=True)
-            return translation
-        return page.get_translation(self.en)
-
-    def test_missing_without_english_copy(self):
-        self.assertEqual(translation_status(self.hub, self.user)["reason"], "missing")
-
-    def test_missing_for_alias(self):
-        self.hub.copy_for_translation(self.en, alias=True)
-        self.assertEqual(translation_status(self.hub, self.user)["reason"], "missing")
-
-    def test_outdated_for_incomplete_translation(self):
-        en_page = self._translate(self.hub, complete=False)
-        status = translation_status(self.hub, self.user)
-        self.assertEqual(status["reason"], "outdated")
-        self.assertEqual(
-            status["editor_url"], reverse("wagtailadmin_pages:edit", args=[en_page.id])
+    def _english(self, page):
+        stored_translations.save_machine(
+            page,
+            {s: f"EN {s.norwegian_text}" for s in page_segments.extract_segments(page)},
         )
 
-    def test_none_when_up_to_date(self):
-        self._translate(self.hub, complete=True)
+    def _waiting(self, page, minutes_ago):
+        content_type_id, object_id = stored_translations.object_key(page)
+        WaitingForEnglish.objects.create(
+            content_type_id=content_type_id,
+            object_id=object_id,
+            requested_at=timezone.now() - timedelta(minutes=minutes_ago),
+        )
+
+    def test_missing_without_english(self):
+        status = translation_status(self.hub, self.user)
+        self.assertEqual(status["reason"], "missing")
+        self.assertEqual(status["editor_url"], english_editor.editor_url(self.hub))
+        self.assertIsNone(status["machine_url"])
+
+    def test_outdated_after_norwegian_changes(self):
+        self._english(self.hub)
+        self.hub.title = "Artikler og nyheter"
+        self.hub.save_revision().publish()
+        status = translation_status(
+            Page.objects.get(pk=self.hub.pk).specific, self.user
+        )
+        self.assertEqual(status["reason"], "outdated")
+
+    def test_none_when_complete_or_on_its_way(self):
+        self._english(self.hub)
         self.assertIsNone(translation_status(self.hub, self.user))
-
-    def test_none_for_english_pages(self):
-        en_page = self._translate(self.hub, complete=False)
-        self.assertIsNone(translation_status(en_page, self.user))
-
-    def test_machine_url_needs_translator_and_permission(self):
-        with patch(
-            "ifi_home_app.translation.status.get_machine_translator",
-            return_value=object(),
-        ):
-            self.assertIsNotNone(translation_status(self.hub, self.user)["machine_url"])
-            editor = User.objects.create_user("editor", "e@test.com", "pw")
-            self.assertIsNone(translation_status(self.hub, editor)["machine_url"])
-        with patch(
-            "ifi_home_app.translation.status.get_machine_translator", return_value=None
-        ):
-            self.assertIsNone(translation_status(self.hub, self.user)["machine_url"])
-
-    def test_dashboard_list_only_affected_pages(self):
-        self._translate(self.hub, complete=True)
         child = self._page(self.hub, "Nyheter")
-        total, statuses = pages_needing_translation(self.user)
-        self.assertEqual(total, 1)
-        self.assertEqual(statuses[0]["page"].pk, child.pk)
+        self._waiting(child, minutes_ago=1)
+        self.assertIsNone(translation_status(child, self.user))
 
-    def test_after_publish_adds_warning_with_buttons(self):
+    def test_dashboard_lists_stuck_and_failed_pages_only(self):
+        self._page(self.hub, "Uoversatt")  # missing, but not stuck: not listed
+        stuck = self._page(self.hub, "Stuck")
+        self._waiting(stuck, minutes_ago=30)
+        failed = self._page(self.hub, "Failed")
+        self._english(failed)
+        SegmentTranslation.objects.filter(norwegian_text="Failed").update(
+            has_error=True
+        )
+        total, statuses = pages_needing_translation(self.user)
+        self.assertEqual(total, 2)
+        self.assertEqual({s["page"].pk for s in statuses}, {stuck.pk, failed.pk})
+
+    def test_visitor_banner_one_rule(self):
+        complete = self._page(self.hub, "Komplett")
+        self._english(complete)
+        waiting = self._page(self.hub, "Venter")
+        self._waiting(waiting, minutes_ago=1)
+        self.assertFalse(page_needs_translation(self.hub))  # Norwegian shown
+        with english():  # nothing may be saved in here (write blocker)
+            self.assertTrue(page_needs_translation(self.hub))
+            self.assertFalse(page_needs_translation(Page.objects.get(pk=complete.pk)))
+            self.assertFalse(page_needs_translation(waiting))
+
+    def test_after_publish_adds_warning_with_editor_button(self):
         request = RequestFactory().get("/")
         request.user = self.user
         request.session = SessionStore()
         request._messages = FallbackStorage(request)  # pylint: disable=protected-access
-        with patch(
-            "ifi_home_app.translation.status.get_machine_translator",
-            return_value=object(),
-        ):
-            nudge.warn_after_publish(request, self.hub)
+        nudge.warn_after_publish(request, self.hub)
         text = str(list(get_messages(request))[0])
         self.assertIn("missing", text)
-        self.assertIn("Machine-translate now", text)
-        self.assertIn("Open translation editor", text)
+        self.assertIn("Open English editor", text)
 
     def test_admin_surfaces_show_the_nudge(self):
+        stuck = self._page(self.hub, "Stuck")
+        self._waiting(stuck, minutes_ago=30)
         self.client.force_login(self.user)
         edit_html = self.client.get(
             reverse("wagtailadmin_pages:edit", args=[self.hub.id])
         ).content.decode()
-        self.assertIn("Open translation editor", edit_html)
+        self.assertIn("Open English editor", edit_html)
         explore_html = self.client.get(
             reverse("wagtailadmin_explore", args=[self.root.id])
         ).content.decode()
@@ -146,8 +135,8 @@ class TranslationNudgeTests(TestCase):
         home_html = self.client.get(reverse("wagtailadmin_home")).content.decode()
         self.assertIn("Needs English translation", home_html)
 
-    def test_no_nudge_when_up_to_date(self):
-        self._translate(self.hub, complete=True)
+    def test_no_nudge_when_complete(self):
+        self._english(self.hub)
         self.client.force_login(self.user)
         explore_html = self.client.get(
             reverse("wagtailadmin_explore", args=[self.root.id])
@@ -155,17 +144,19 @@ class TranslationNudgeTests(TestCase):
         self.assertNotIn("Needs translation", explore_html)
         home_html = self.client.get(reverse("wagtailadmin_home")).content.decode()
         self.assertNotIn("Needs English translation", home_html)
+        self.assertIn("All English is up to date", home_html)
 
-    @patch("ifi_home_app.translation.deepl.DeepLTranslator.translate")
-    def test_page_only_command_skips_children(self, mock_translate):
-        mock_translate.side_effect = _fake_translate
-        child = self._page(self.hub, "Nyheter")
-        with self.captureOnCommitCallbacks(execute=True):
-            call_command(
-                "machine_translate_subtree",
-                str(self.hub.id),
-                str(self.user.id),
-                "--page-only",
+    def test_wagtail_localize_ui_is_gone(self):
+        self.client.force_login(self.user)
+        home_html = self.client.get(reverse("wagtailadmin_home")).content.decode()
+        edit_html = self.client.get(
+            reverse("wagtailadmin_pages:edit", args=[self.hub.id])
+        ).content.decode()
+        for html in (home_html, edit_html):
+            self.assertNotIn(
+                "wagtail-localize", html.lower().replace("_", "-").split("<script")[0]
             )
-        self.assertIn("[EN]", self.hub.get_translation(self.en).title)
-        self.assertIsNone(child.get_translation_or_none(self.en))
+            self.assertNotIn("Translate this page", html)
+            self.assertNotIn("Sync translated pages", html)
+        self.assertNotIn(">Translations<", home_html)
+        self.assertNotIn(">Locales<", home_html)

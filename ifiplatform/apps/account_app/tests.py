@@ -10,9 +10,9 @@ from django.utils import timezone, translation
 
 from wagtail.models import GroupPagePermission, Page
 
-from ifiplatform.apps.account_app.models import Profile
-from ifiplatform.apps.ifi_home_app.models import ArticlePage
-from ifiplatform.apps.study_app.models import Card, Deck
+from account_app.models import Profile
+from ifi_home_app.models import ArticlePage
+from study_app.models import Card, Deck
 
 User = get_user_model()
 

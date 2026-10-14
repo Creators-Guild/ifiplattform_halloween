@@ -1,8 +1,11 @@
 {% load wagtailadmin_tags %}
 {% panel id="translations-needed" heading=heading classname="w-panel--dashboard" %}
-    {% if total > statuses|length %}
-        <p class="help-block help-warning">Showing the {{ statuses|length }} most recently published of {{ total }} pages.</p>
-    {% endif %}
+    {% if not total %}
+        <p class="dashboard-panel__body">All English is up to date. DeepL fills in new text about a minute after publishing.</p>
+    {% else %}
+        {% if total > statuses|length %}
+            <p class="dashboard-panel__body help-block help-warning">Showing the {{ statuses|length }} most recently published of {{ total }} pages.</p>
+        {% endif %}
     <table class="listing listing--dashboard listing-page">
         <thead class="w-sr-only">
             <tr>
@@ -27,13 +30,11 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if status.machine_url %}
-                            <a class="button button-small" href="{{ status.machine_url }}">Machine-translate now</a>
-                        {% endif %}
-                        <a class="button button-small button-secondary" href="{{ status.editor_url }}">Open translation editor</a>
+                        <a class="button button-small button-secondary" href="{{ status.editor_url }}">Open English editor</a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+    {% endif %}
 {% endpanel %}

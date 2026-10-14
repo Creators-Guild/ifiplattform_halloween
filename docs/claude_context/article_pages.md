@@ -1,6 +1,6 @@
 # models/article/pages.py — design notes
 
-Last updated: 2026-08-15
+Last updated: 2026-10-13
 Covers: ifiplatform/apps/ifi_home_app/models/article/pages.py
 
 Context for future Claude sessions. Not a human-facing doc.
@@ -46,37 +46,24 @@ edit rights on it, instead of the plain 404 `Page.route()` raises for
 everyone. `subpage_types` is empty (articles have no children), so
 `path_components` is only ever non-empty while routing *through* this page
 toward another page — meaning the not-live branch here is the only case
-that needs overriding. Uses `style_target`, not `self`, for the permission
-check — an alias page's own permissions aren't meaningful, only its
-source's are.
+that needs overriding.
 
-## style / SOURCE_LANGUAGE_CODE / publish_target
+## style
 
-- `style`: this article's shared `ArticleStyle` row, same one across every
-  locale translation (keyed by `translation_key`). Created with defaults on
-  first access. Cached per-instance since templates read it repeatedly.
-- `SOURCE_LANGUAGE_CODE = SOURCE_LANGUAGE_CODE` aliases the shared constant
-  from `translation/sync.py` rather than a separate literal, so every
-  existing `self.SOURCE_LANGUAGE_CODE`/`ArticlePage.SOURCE_LANGUAGE_CODE`
-  reference elsewhere keeps working unchanged.
-- `publish_target`: the nb-locale copy — publish/unpublish
-  (`article_views.publish_page`/`unpublish_page`) always acts on this one
-  regardless of which locale is being viewed, since nb is the tree every
-  other locale mirrors/translates from. Resolves aliases first via
-  `style_target` (an alias can't take its own actions). Falls back to
-  `style_target` itself if there's no nb locale or no nb translation of
-  this specific article (shouldn't normally happen).
+`style`: this article's `ArticleStyle` row (keyed by `translation_key`).
+Created with defaults on first access. Cached per-instance since templates
+read it repeatedly. The two-tree `publish_target` / `SOURCE_LANGUAGE_CODE`
+(acting on the nb copy from an en page) went in step 4 of the translation
+redesign: there is only one page now.
 
 ## get_context (ArticlePage)
 
 - `page_has_pending_publish` is computed here rather than inline in the
   template because Django's `{% if %}` can't parse parenthesized
   expressions.
-- `can_publish_page`/`can_unpublish_page` check permission on
-  `publish_target` (the nb copy), not `style_target`, since that's the page
-  whose state (and, via sync, the en translation's) actually changes — an
-  editor without nb-tree permissions shouldn't be able to trigger that just
-  because they can edit the en copy.
+- `can_publish_page`/`can_unpublish_page` check Wagtail's publish/
+  unpublish permission, stricter than the edit permission behind
+  `can_edit_style`.
 - `title`/`meta`/`intro` aren't part of the `body` StreamField (their
   alignment/font-size are `ArticleStyle` fields), so `_effective_block_styles`
   never sees them — their box/text-color styling is added here via fixed
@@ -101,5 +88,4 @@ reachable by clicking into the subcategory). Turning this on lists every
 ## CategoryPage / ArticleIndexPage get_context
 
 Both add `can_edit_style` (same permission check `save_banner_style`
-enforces) and `can_sync_mirrored_page` (whether the "Sync mirrored page"
-button should show).
+enforces), `english_editor_url` and `translation_nudge`.

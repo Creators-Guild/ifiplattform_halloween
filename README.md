@@ -9,10 +9,10 @@ Goals:
 - A collection of study tools to build and represent study-resources (ex. flashcards, multiple choice, mock exam etc.)
 - A low-threshold way for students — including those with little to no development experience — to contribute to and help shape the platform, building an open community around it
 
-Note: the site is bilingual (Norwegian Bokmål + English) via wagtail-localize — new content pages generally need both locales.
+Note: the site is bilingual (Norwegian Bokmål + English). Pages are written in Norwegian; DeepL fills in the English, and editors can correct it. See [docs/architecture/shared/translations.md](docs/architecture/shared/translations.md).
 
 ## Tech stack
-Django + Wagtail (Python, HTML and CSS, plus a little JavaScript), wagtail-localize for Norwegian/English, and PostgreSQL. Full list: [docs/architecture/tech_stack.md](docs/architecture/tech_stack.md).
+Django + Wagtail (Python, HTML and CSS, plus a little JavaScript), DeepL for Norwegian → English, and PostgreSQL. Full list: [docs/architecture/tech_stack.md](docs/architecture/tech_stack.md).
 
 ## Quick start
 The recommended setup is Docker. One step installs everything: Python, the packages, a PostgreSQL database and test data. Can't use Docker? See [setup without Docker](docs/contributing/setup_without_docker.md).
@@ -21,14 +21,18 @@ The recommended setup is Docker. One step installs everything: Python, the packa
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows and macOS). On Linux, install Docker Engine with the Compose plugin.
 - [Visual Studio Code](https://code.visualstudio.com/) with the **Dev Containers** extension (by Microsoft).
 
-Start Docker Desktop and leave it running.
+Start Docker Desktop and leave it running. On Linux there's no Docker Desktop app — start the daemon instead:
+```bash
+sudo systemctl start docker
+sudo systemctl enable --now docker
+```
 
 ### 2. Open the project in the container
 1. **Fork** the repo on GitHub (the "Fork" button at the top right), then clone your fork and connect it to the main repo:
    ```bash
-   git clone https://github.com/<your-username>/ifiplattform_halloween.git
-   cd ifiplattform_halloween
-   git remote add upstream https://github.com/Creators-Guild/ifiplattform_halloween.git
+   git clone https://github.com/<your-username>/IfiPlatform.git
+   cd IfiPlatform
+   git remote add upstream https://github.com/Creators-Guild/IfiPlatform.git
    ```
    `origin` is now your own fork, which is where you push. `upstream` is the main repo, where you get everyone else's changes. Collaborators with write access clone this repo directly instead, skip the last line, and use `origin` wherever the docs say `upstream`.
 

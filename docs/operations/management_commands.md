@@ -1,6 +1,6 @@
 # Custom manage.py commands
 
-Last updated: 2026-10-11
+Last updated: 2026-10-13
 
 This project's own `manage.py` commands, beyond Django's built-in ones
 (`migrate`, `createsuperuser`, `test`, `makemessages`/`compilemessages`,
@@ -31,44 +31,65 @@ seeding dummy data into what looks like a real (non-local) database.
 `--force` overrides that check — mainly useful in tests, since Django's
 test runner always forces `DEBUG=False` regardless of `.env`.
 
-### machine_translate_subtree
+### translate_english
 
 ```bash
-python manage.py machine_translate_subtree <page_id> <user_id> [--page-only]
+python manage.py translate_english [--nightly]
 ```
 
-`--page-only` translates just `page_id`, not its descendants. The
-"Machine-translate now" button (`machine_translate_page` view) uses it.
+Fills in missing English with DeepL. Publishing a page or saving a menu
+group, header message or other translated snippet puts it on a "waiting
+for English" list (the `WaitingForEnglish` table). This command
+translates everything on that list, one object at a time, and takes each
+one off the list when it's done. Only text that is new or changed since
+the last run goes to DeepL. English that a person has fixed is never
+overwritten.
 
-Not meant to be run by hand — this is the real implementation behind the
-"Translate and publish" button on the wagtail-admin "Machine-translate
-subtree" screen (`translation/views.py`). The view only validates the
-request and launches this command as a **detached background process**
-(`subprocess.Popen(..., start_new_session=True)`), returning immediately —
-a real subtree does one DeepL API call per page, which for anything but a
-tiny subtree is far too slow for any request/response cycle (a 164-page
-subtree once took a gunicorn worker down with it via `WORKER TIMEOUT`
-before this existed).
+A failed object (DeepL quota, network trouble, a bad answer) stays on the
+list with the error. It's tried again after 2, 4, 8 … up to 60 minutes.
+The English editor in the Wagtail admin shows what's missing.
 
-Each page gets its own transaction and a `time.sleep(DEEPL_CALL_DELAY_SECONDS)`
-gap before the next DeepL call (stops requests firing back-to-back, which
-is what tripped DeepL's own rate limiting the one time this got tested at
-real scale). A single page failing (DeepL rate limit, network hiccup,
-whatever) is logged and skipped, not fatal to the rest of the run —
-`apply_machine_translation()` only ever skips segments that already have a
-translation, so simply re-running this later picks up exactly the pages
-that failed or were never reached, at zero extra DeepL cost for anything
-already done.
+`--nightly` first puts everything that still has missing English on the
+list, translates it, then deletes translation rows nobody needs any more
+(for deleted pages, removed blocks, and old DeepL text for Norwegian that
+has since changed).
 
-Progress and the final "N translated, M failed" summary go to stdout — on
-the real server, the view wraps this in `systemd-cat -t
-machine-translate-subtree`, so check `journalctl -t
-machine-translate-subtree -f`. Locally (no `systemd-cat`, e.g. Windows) it
-just inherits the runserver terminal's stdout instead.
+Without `DEEPL_API_KEY` (local dev, tests) nothing goes to DeepL. On
+production, two systemd timers run it. `deploy/deploy.sh` installs both
+(see [`sync_peoply_events`](#automatic-scheduling) for how):
 
-It runs as a separate background process, not inside the web request,
-because translating a large subtree takes longer than Gunicorn's worker
-timeout. Run inside the request, the worker was killed partway through.
+| Timer | Runs | Command |
+|---|---|---|
+| `ifiplatform-translate.timer` | every minute | `translate_english` |
+| `ifiplatform-translate-nightly.timer` | 03:30 | `translate_english --nightly` |
+
+So English shows up about a minute after publishing. If the timers stop,
+pages still show; they just show Norwegian text with a "not translated
+yet" notice until the timers run again. To check on them:
+
+```bash
+systemctl list-timers 'ifiplatform-translate*'
+journalctl -u ifiplatform-translate.service -n 50
+journalctl -u ifiplatform-translate-nightly.service
+```
+
+Superusers can switch automatic translation off under Settings →
+Translation settings in the Wagtail admin. The "Machine-translate now"
+button in the English editor still works then.
+
+### update_translation_snapshot
+
+```bash
+python manage.py update_translation_snapshot
+```
+
+Rewrites `ifi_home_app/translation/translated_fields.json`, the list of
+every place on every model that has English (for example `ArticlePage:
+body → image → caption`). A test compares that list with the models, so
+renaming or removing a translated field fails the tests instead of
+silently losing its English. The test's message says what to do. Run this
+command only when you have added or removed a translated field on
+purpose.
 
 ### sync_deepl_glossary
 
@@ -83,43 +104,19 @@ machine-translation call this project makes. DeepL glossaries can't be
 edited in place, so this deletes any existing glossary with the same name
 and recreates it — safe to re-run whenever `glossary_terms.py` changes.
 
-Requires `DEEPL_API_KEY` set in `.env`. **One-time manual step after
-running it:** copy the printed `glossary_id` into `DEEPL_GLOSSARY_ID` in
-`.env` and restart the server.
+Requires `DEEPL_API_KEY` set in `.env`. After running it, copy the
+printed `glossary_id` into `DEEPL_GLOSSARY_ID` in `.env` and restart the
+server. `--write-env` makes that `.env` change for you. `deploy/deploy.sh`
+runs it with `--write-env` whenever `glossary_terms.py` changed.
 
-### sync_translated_page_fields
+The nightly `translate_english` run redoes DeepL English that contains a
+glossary term and is older than the new glossary. English fixed by a
+person is left alone.
 
-```bash
-python manage.py sync_translated_page_fields [--dry-run]
-```
-
-Re-syncs wagtail-localize `SynchronizedField`s (`status`,
-etc.) from every nb page to its existing English translation. One-off,
-historical catch-up only — `ifi_home_app/wagtail_hooks.py`'s auto-sync
-listens on Wagtail's `page_published` *signal* (not the `after_publish_page`
-*hook*), which is dispatched from `Page.publish()` itself, so it fires for
-every publish path uniformly: single-page admin edits, the page-listing
-bulk "Publish" action, and script-based
-`page.save_revision().publish()` calls alike (e.g. `sync_peoply_events`,
-`seed_dev_data`). Nothing should drift going forward, on any of those
-paths. This command is only for data that drifted before that switch (or
-before the sync existed at all) — a genuinely one-time cleanup, not
-something to re-run periodically.
-
-Safe to re-run: re-syncing an already-synced page is a no-op. `--dry-run`
-lists what would be synced without changing anything.
-
-### link_menu_translations
-
-```bash
-python manage.py link_menu_translations
-```
-
-Registers every English `MenuGroup` copy that isn't yet a wagtail-localize
-translation of its nb group, keeping its current English text. The copies
-migration `0152_menus` created are the ones that need it. After this they
-are edited through the translation editor and synced from nb. Run it once after that migration, locally
-and on prod. Safe to re-run: groups that are already linked are skipped.
+**Careful:** local dev and production use the same DeepL account, and the
+glossary is replaced by name. Running this anywhere invalidates the
+`DEEPL_GLOSSARY_ID` everywhere else, and DeepL then fails with a 404 until
+that `.env` gets the new ID.
 
 ### link_peoply_organizations
 
@@ -142,8 +139,7 @@ peoply.app.
 **Dry run by default** — unlike most of this project's commands, this one
 flips that default deliberately, since a wrong automated match has real
 consequences (a union's page would start showing another union's events).
-Pass `--apply` to actually write the matches. A match is applied to every
-locale of that union, not just nb.
+Pass `--apply` to actually write the matches.
 
 Not something a fresh local dev database needs — `seed_dev_data`
 deliberately only sets `peoply_organization_id` on 2 example unions
@@ -183,35 +179,23 @@ before but no longer comes back from Peoply is unpublished and logged as a
 admin. If it reappears on Peoply, it's published again and the log row is
 marked resolved.
 
-New events are created nb-only (untranslated) and published immediately.
+New events are created in Norwegian and published immediately. DeepL
+fills in their English about a minute later (see
+[`translate_english`](#translate_english)).
 `event_type` is inferred from the title — defaults to `"social"`, upgrades
 to `"company"` when the title contains "Bedriftspresentasjon"; anything
 else (deadline, academic) needs manual correction, since Peoply doesn't
 expose a comparable category itself.
 
-After creating pages, the command also runs `sync_locale_trees`
-(wagtail-localize's own command) and clears Wagtail's site-root-paths
-cache, itself — every caller (the scheduled timer, a local dev running it
-by hand, the "Sync Peoply now" admin button) gets both for free, nothing
-extra to run afterwards:
-
-- **`sync_locale_trees`**: creates each newly-synced event's English alias
-  page. `sync_peoply_events` creates pages via `add_child()`/
-  `save_revision().publish()` directly, which bypasses wagtail-admin's
-  `after_create_page` hook — the one thing that would otherwise create
-  that alias automatically. Without it, a synced event has no English URL
-  at all, and switching language on its page silently lands on the events
-  overview instead (the nearest translated ancestor — see
-  `site_tags.translated_page_url`). Safe to run every time:
-  `sync_locale_trees` only ever creates an alias for a page that has
-  neither a real translation nor an alias yet, so it's a no-op for
-  anything already caught up.
-- **cache clear**: bulk page creation/deletion like this doesn't trigger
-  Wagtail's own site-root-paths cache invalidation (that only listens for
-  `Site` row changes, not ordinary page churn), so without this, links
-  across the whole site can start resolving to `href="None"` until the
-  cache happens to expire or get cleared some other way — confirmed the
-  hard way once, see [`clear_cache`](#clear_cache) below for the full story.
+After syncing, the command clears Wagtail's site-root-paths cache itself,
+so every caller (the scheduled timer, a local dev running it by hand, the
+"Sync Peoply now" admin button) gets it for free. Bulk page creation and
+deletion like this doesn't trigger Wagtail's own site-root-paths cache
+invalidation (that only listens for `Site` row changes, not ordinary page
+churn). Without the clear, links across the whole site can start
+resolving to `href="None"` until the cache expires or gets cleared some
+other way. This happened once; see [`clear_cache`](#clear_cache) below
+for the full story.
 
 #### Automatic scheduling
 

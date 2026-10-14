@@ -70,11 +70,11 @@
         {% endif %}
       </div>
 
-        {% if page.localized_location_articles %}
+        {% if page.location_article_pages %}
             <div class="event-location-articles">
                 <h2>{% trans "About this location" %}</h2>
                 <div class="event-location-articles-grid">
-                    {% for article in page.localized_location_articles %}
+                    {% for article in page.location_article_pages %}
                         {% include "info_articles/partials/article_card.html" with article=article %}
                     {% endfor %}
                 </div>

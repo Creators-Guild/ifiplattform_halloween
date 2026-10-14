@@ -1,6 +1,6 @@
 # models/event/ — design notes
 
-Last updated: 2026-10-09
+Last updated: 2026-10-12
 Covers: ifiplatform/apps/ifi_home_app/models/event/
 
 Context for future Claude sessions. Not a human-facing doc.
@@ -35,8 +35,8 @@ without that second import Django would stop seeing the Peoply models and
 UnionPage`. No `EditorModeMixin`/`BannerStyleMixin` on either page yet —
 unlike `ArticlePage`/`CategoryPage`, there's no on-page style panel for
 events to plug into; add it later if that changes. `TranslationWarningMixin`
-is kept since these pages need nb/en translations like everything else on
-this bilingual site.
+is kept for the "not translated yet" banner under /en/ (English overlay,
+see `translation_overlay.md`).
 
 `EventPage` covers dated events (Bar til bar), date ranges/week-long events
 (Fadderuke, via `end_date`), and deadlines (Frist for funk-oppmelding)
@@ -73,9 +73,9 @@ one from `event_type`" (see `_resolve_calendar_color`), not a fixed default.
 ## upcoming_events_for_union
 
 Filtered in Python, not `.filter()` — `related_unions` is a StreamField, not
-a real relation. Compares by `translation_key` (not page id) so a union
-tagged on an nb event still matches when viewing the en translation of that
-union. Imported into `article/unions.py` via a **function-local** import to
+a real relation. Compares by page id (one page tree since the English
+overlay switch-over; it used to compare `translation_key` across locale
+copies). Imported into `article/unions.py` via a **function-local** import to
 avoid a circular import (this module imports from the `article_models` shim
 at module level; `unions.py` importing this module at module level too
 would cycle back).
@@ -92,15 +92,10 @@ tagged host directly on *this* page; a union hosting one sub-event (e.g. CYB
 running one quiz night) isn't the host of the whole week, so a sub-event's
 own `host` role is capped down to `collaborator` once rolled up.
 
-Each entry's `union` is resolved to `.localized.specific` here, once, rather
-than leaving every template to remember it — same reasoning as
-`localized_location_articles` below. Dedup still happens on the raw union's
-`translation_key`, which is shared across locales, so resolving afterwards
-doesn't change which unions survive. Without the `.localized` step an English
-event page would link to and display the Norwegian union page, since a
-`PageChooserBlock` inside a StreamField is deliberately not auto-translated
-by wagtail-localize (see `handle_related_object_block()` in
-`wagtail_localize/segments/extract.py`).
+Each entry's `union` is made `.specific` here, once, rather than leaving
+every template to remember it, and deduped by page id. Under /en/ the
+union's fields and address are English by themselves (English overlay), so
+no per-language lookup is needed.
 
 ## host_unions / supporting_unions
 
@@ -162,11 +157,8 @@ back separately under `"untimed"` rather than being silently dropped.
   to a plain f-string float or a template filter** — it has to stay
   locale-independent string formatting.
 
-## localized_location_articles
+## location_article_pages
 
-Resolves each linked ArticlePage to `.localized.specific` once, here,
-rather than leaving every template to remember to do it. `PageChooserBlock`
-references aren't auto-translated by wagtail-localize (see
-`handle_related_object_block()` in `wagtail_localize/segments/extract.py`)
-— applies the same way to a plain ForeignKey too, so there's no simpler
-field type that sidesteps this.
+Each linked ArticlePage as `.specific`, skipping deleted ones, once here
+rather than in every template. (Was `localized_location_articles`, which
+resolved the English copy; the English overlay made that unnecessary.)

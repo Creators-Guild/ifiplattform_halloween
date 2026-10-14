@@ -1,6 +1,6 @@
 # Homepage events box — design rationale
 
-Last updated: 2026-10-09
+Last updated: 2026-10-13
 Covers: ifiplatform/apps/ifi_home_app/static/css/06_components/home/home_eventsbox.css, ifiplatform/apps/ifi_home_app/static/css/06_components/home/home_eventsbox_event.css
 
 Covers the homepage "This month at Ifi" box:
@@ -79,11 +79,9 @@ about what such an event's heading should actually say.
 
 ## Template details
 
-- **Union tags must go through `.localized`.** A `PageChooserBlock` inside a
-  StreamField is not translated by wagtail-localize (page references keep
-  pointing at the source-locale page; see `handle_related_object_block()` in
-  `wagtail_localize/segments/extract.py`). Without `entry.union.localized`, an
-  English homepage links to the Norwegian union pages.
+- **Union tags need no language handling.** Since the English overlay
+  switch-over there is one (Norwegian) union page, and on /en/ its title
+  and address are English by themselves (`translation_overlay.md`).
 - **`event.all_related_unions`, not `event.related_unions`:** it rolls in every
   sub-event's unions too (docstring in `models/event/pages.py`). A week-long event
   like Fadderuke tags unions on its individual days, not on itself.

@@ -12,14 +12,14 @@ from django.urls import reverse
 
 from wagtail.models import Locale, Page
 
-from ifiplatform.apps.ifi_home_app.integrations.peoply_api import get_events
-from ifiplatform.apps.ifi_home_app.models.article.unions import StudentUnionCategoryPage, UnionPage
-from ifiplatform.apps.ifi_home_app.models.event.pages import EventIndexPage, EventPage
-from ifiplatform.apps.ifi_home_app.models.event.peoply import (
+from ifi_home_app.integrations.peoply_api import get_events
+from ifi_home_app.models.article.unions import StudentUnionCategoryPage, UnionPage
+from ifi_home_app.models.event.pages import EventIndexPage, EventPage
+from ifi_home_app.models.event.peoply import (
     PeoplyRemovedEvent,
     PeoplyUnionMismatch,
 )
-from ifiplatform.apps.ifi_home_app.models.event.queries import upcoming_events_for_union
+from ifi_home_app.models.event.queries import upcoming_events_for_union
 
 SAMPLE_EVENT = {
     "id": "d01f8be8-6bd0-40ff-850d-7e3ccc04d8f5",

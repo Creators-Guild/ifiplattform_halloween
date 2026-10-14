@@ -27,42 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const fontSizeValue = document.getElementById("banner-style-font-size-value");
   const statusEl = document.getElementById("banner-style-status");
   const minimizeButton = document.getElementById("banner-style-minimize");
-  const syncMirroredButton = document.getElementById("banner-style-sync-mirrored-button");
   const MINIMIZED_KEY = "ifiBannerStyleMinimized";
-
-  // Same immediate confirm/disable/fetch/reload pattern as article_quick_
-  // style.js's runPublishAction -- not shared/imported across the two panel
-  // files (see this file's own convention, e.g. the hex-swatch handling
-  // above), just reimplemented here for this one button.
-  if (syncMirroredButton) {
-    syncMirroredButton.addEventListener("click", () => {
-      if (!window.confirm("Push this page's synchronized fields (menu visibility, status, etc.) to its English translation now?")) {
-        return;
-      }
-      const csrfToken = panel.querySelector("[name=csrfmiddlewaretoken]").value;
-      syncMirroredButton.disabled = true;
-      syncMirroredButton.textContent = "Syncing...";
-      fetch(panel.dataset.syncMirroredUrl, {
-        method: "POST",
-        headers: { "X-CSRFToken": csrfToken },
-      })
-        .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
-        .then(({ ok, data }) => {
-          if (ok) {
-            window.location.reload();
-            return;
-          }
-          window.alert(data.error || "Failed to sync mirrored page.");
-          syncMirroredButton.disabled = false;
-          syncMirroredButton.textContent = "Sync mirrored page";
-        })
-        .catch(() => {
-          window.alert("Failed to sync mirrored page (network error).");
-          syncMirroredButton.disabled = false;
-          syncMirroredButton.textContent = "Sync mirrored page";
-        });
-    });
-  }
 
   const applyMinimized = (isMinimized) => {
     panel.classList.toggle("is-minimized", isMinimized);

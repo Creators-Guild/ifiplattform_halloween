@@ -1,0 +1,16 @@
+{% extends "wagtailadmin/base.html" %}
+{% block titletag %}Machine-translate: {{ title }}{% endblock %}
+
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title="Machine-translate" subtitle=title icon="globe" %}
+
+    <div class="nice-padding">
+        <p>DeepL fills in the missing English for {{ what }}. English that's already there, including people's fixes, stays as it is.</p>
+        <p>{{ how }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="button">Machine-translate</button>
+            <a href="{{ cancel_url }}" class="button button-secondary">Cancel</a>
+        </form>
+    </div>
+{% endblock %}

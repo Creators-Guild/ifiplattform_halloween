@@ -1,0 +1,75 @@
+{% extends "wagtailadmin/base.html" %}
+{% block titletag %}English: {{ title }}{% endblock %}
+
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title="English" subtitle=title icon="globe" %}
+
+    <div class="nice-padding">
+        <p>
+            {% if back_url %}<a href="{{ back_url }}" class="button button-small button-secondary">← Back to the Norwegian {{ is_page|yesno:"page,item" }}</a>{% endif %}
+            {% if english_page_url %}<a href="{{ english_page_url }}" class="button button-small button-secondary" target="_blank" rel="noopener">View in English</a>{% endif %}
+            {% if subtree_url %}<a href="{{ subtree_url }}" class="button button-small button-secondary">Machine-translate this page and the pages under it</a>{% endif %}
+        </p>
+        <p>
+            Your English replaces DeepL's and stays until the Norwegian under it changes.
+            Keep tags such as <code>&lt;b&gt;…&lt;/b&gt;</code> and <code>&lt;a id="a1"&gt;…&lt;/a&gt;</code>
+            around the matching words.
+        </p>
+
+        {% if deepl_configured %}
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" name="machine_translate" class="button button-secondary">Machine-translate now</button>
+            </form>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="piece_count" value="{{ rows|length }}">
+
+            {% if is_page %}
+                <p>
+                    <label for="english-slug">English slug (address under /en/)</label>
+                    <input id="english-slug" name="english_slug" value="{{ english_slug }}" class="w-field__input">
+                </p>
+            {% endif %}
+
+            <table class="listing">
+                <thead>
+                    <tr><th>Where</th><th>Norwegian</th><th>English</th><th>By</th></tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            <td>{{ row.label }}</td>
+                            <td><code>{{ row.segment.norwegian_text }}</code></td>
+                            <td>
+                                <input type="hidden" name="piece-{{ forloop.counter0 }}-object" value="{{ row.object }}">
+                                <input type="hidden" name="piece-{{ forloop.counter0 }}-path" value="{{ row.segment.path }}">
+                                <input type="hidden" name="piece-{{ forloop.counter0 }}-norwegian" value="{{ row.segment.norwegian_text }}">
+                                <input type="hidden" name="piece-{{ forloop.counter0 }}-original" value="{{ row.english }}">
+                                <textarea name="piece-{{ forloop.counter0 }}-english" rows="2" class="w-field__input" aria-label="English for {{ row.label }}">{{ row.english }}</textarea>
+                                {% if row.error %}<p class="error-message">{{ row.error }}</p>{% endif %}
+                            </td>
+                            <td>
+                                {% if row.row.has_error %}
+                                    DeepL output didn't fit: {{ row.row.error }}
+                                {% elif row.row.source == "human" %}
+                                    Person{% if row.row.translated_by %}: {{ row.row.translated_by.get_full_name|default:row.row.translated_by.get_username }}{% endif %}
+                                {% elif row.row %}
+                                    DeepL
+                                {% else %}
+                                    Missing
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="4">No text to translate.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <p><button type="submit" class="button">Save English</button></p>
+        </form>
+    </div>
+{% endblock %}

@@ -1,7 +1,7 @@
 # Menus (`ifi_home_app/models/menus.py`)
 
-Last updated: 2026-10-09
-Covers: ifiplatform/apps/ifi_home_app/models/menus.py, ifiplatform/apps/ifi_home_app/translation/snippets.py
+Last updated: 2026-10-13
+Covers: ifiplatform/apps/ifi_home_app/models/menus.py
 
 The sidemenu, the homepage navbar dropdowns ("home dropmenus") and the
 homepage shortcut cards are all editor-curated snippets. None of them is
@@ -35,25 +35,30 @@ Any restructure or slug rename broke them silently. A tree-driven redesign
 rejected as too implicit for editors. Explicit picks are easier to explain
 and don't depend on where pages sit.
 
+## label_prefix, not prefix
+
+Renamed in migration 0159: a form field called `prefix` shadows
+`form.prefix` in Wagtail's inline panel template
+(`{{ child.form.prefix }}` builds the child's ids; Django templates try
+`form["prefix"]` first, a BoundField), so the Links panel rendered its
+own markup as text. The migration moves stored English
+(`rename_segment_path`). `get_menu()` still
+hands templates a `"prefix"` key.
+
 ## Translation
 
-- `MenuGroup` and `MenuGroupLink` are both `TranslatableMixin`, so
-  wagtail-localize translates group titles, link labels and prefixes.
-- `Menu`/`MenuSlot` are **not** translatable. The structure is shared by
-  every language, and `get_menu()` resolves each slot's group with
-  `.localized`, falling back to the nb group when there's no translation.
-- Page links are resolved with `.specific.localized` at render time, so a
-  link stored against the nb page still points to the en page on `/en/`.
-- A blank link label means "use the page's own title", which is already
-  translated.
-- English groups are real wagtail-localize translations of their nb group.
-  They're edited in the translation editor and synced from nb, and link
-  URLs and pages are synced rather than translated.
-  `translation/snippets.py:link_existing_translation` registers an
-  existing English copy with wagtail-localize without losing its text.
-  Seeding uses it, and so does `manage.py link_menu_translations` for the
-  plain copies migration `0152_menus` created. New groups just use the
-  normal "Translate" button.
+- Since the English overlay switch-over there is one set of groups (nb).
+  `MenuGroup.translated_fields` (title, short_title) and
+  `MenuGroupLink.translated_fields` (label, description, label_prefix) show in
+  English under /en/ by themselves (see `translation_overlay.md`); each
+  link is its own object in the English tables, and the English editor of
+  a group lists its links too.
+- `Menu`/`MenuSlot` aren't translated: one structure for every language.
+- Page links resolve to the page itself; under /en/ its title and address
+  are English automatically. A blank link label means "use the page's own
+  title", so it's English too.
+- `MenuGroup`/`MenuGroupLink` are still `TranslatableMixin` (wagtail-localize
+  needed it); nothing uses their locale any more.
 
 ## Resolving (`get_menu(key)`)
 
@@ -69,13 +74,13 @@ first of `logo`, `image`, `hero_image` that the page has.
 ## Editor upkeep
 
 - A new page doesn't appear in any menu until someone adds it to a group.
-- After editing an nb group, its en translation needs a sync in
-  wagtail-localize.
+- After editing a group, DeepL fills its new English on save (the English
+  editor shows and fixes it).
 
 ## Defaults
 
 - Migration `0152_menus` builds the groups and menus from the old
   `show_in_menu` flags and slug lookups, with nb and en copies, then
-  removes the flags. It is forward-only. Its en copies are only linked
-  to wagtail-localize once `link_menu_translations` has run.
+  removes the flags. It is forward-only. The switch-over command turned
+  the en copies' text into stored English (paired by place).
 - `seed_dev_data/menus.py` builds the same layout for fresh databases.

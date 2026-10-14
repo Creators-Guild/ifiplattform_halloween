@@ -1,8 +1,7 @@
 """Template tags for small site-wide content, e.g. the rotating header message."""
 
 from django import template
-from django.utils import timezone
-from wagtail.models import Locale
+from django.utils import timezone, translation
 
 from ..models.site_models import HeaderMessage
 
@@ -18,11 +17,7 @@ def get_header_message():
     same one at the same time regardless of which gunicorn worker or how
     many times they reload, and it advances to the next one every 10
     minutes on its own."""
-    messages = list(
-        HeaderMessage.objects.filter(
-            is_active=True, locale=Locale.get_active()
-        ).order_by("pk")
-    )
+    messages = list(HeaderMessage.objects.filter(is_active=True).order_by("pk"))
     if not messages:
         return None
     bucket = int(timezone.now().timestamp() // HEADER_MESSAGE_ROTATE_SECONDS)
@@ -31,33 +26,14 @@ def get_header_message():
 
 @register.simple_tag(takes_context=True)
 def translated_page_url(context, locale_code):
-    """URL of the current Wagtail page's translation into the given locale.
-
-    Wagtail lets each locale have its own slug, so Django's generic language
-    switcher (which just swaps the URL's language prefix) produces a broken
-    URL whenever the slugs differ between locales. This walks up from the
-    current page to the nearest ancestor that does have a translation into
-    `locale_code`, and returns its real URL instead. Falls back to the
-    current path for non-Wagtail views (e.g. the home page).
-    """
+    """URL of the current Wagtail page in the given language: the same
+    page, that language's address (English slugs under /en/). Falls back to
+    the current path for non-Wagtail views (e.g. the home page), whose
+    address Django's language switch translates by itself."""
     request = context.get("request")
     fallback = request.path if request else "/"
-
     page = context.get("page")
     if not page:
         return fallback
-
-    try:
-        locale = Locale.objects.get(language_code=locale_code)
-    except Locale.DoesNotExist:
-        return fallback
-
-    candidates = [page] + list(page.get_ancestors(inclusive=False).order_by("-depth"))
-    for candidate in candidates:
-        translated = candidate.get_translation_or_none(locale)
-        if translated is not None:
-            url = translated.get_url(request)
-            if url is not None:
-                return url
-
-    return fallback
+    with translation.override(locale_code):
+        return page.get_url(request) or fallback

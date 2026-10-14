@@ -5,6 +5,6 @@ __all__ = [
     "dummy_tools_objects",
 ]
 
-from .....IfiPlatform.ifiplatform.apps.ifi_home_app.dummydata import dummy_news_objects
-from .....IfiPlatform.ifiplatform.apps.ifi_home_app.dummydata import dummy_studentunions_objects
-from .....IfiPlatform.ifiplatform.apps.ifi_home_app.dummydata import dummy_tools_objects
+from . import dummy_news_objects
+from . import dummy_studentunions_objects
+from . import dummy_tools_objects

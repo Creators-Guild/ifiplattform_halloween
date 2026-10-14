@@ -10,7 +10,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
-from wagtail.models import Locale, Page
+from wagtail.models import Page
 from wagtail.url_routing import RouteResult
 
 from .blocks import _body_content_blocks, _iter_toc_entries
@@ -29,7 +29,7 @@ from ..page_mixins import (
 )
 from .tools import ToolPage
 from .unions import StudentUnionCategoryPage
-from ...translation.sync import SOURCE_LANGUAGE_CODE
+from ...translation.english_overlay import EnglishPreviewMixin
 
 
 def _split_categories_by_season(categories):
@@ -48,24 +48,26 @@ def _articles_including_drafts_for_editor(queryset, listing_page, user):
 
 
 def get_section_index(section):
-    """The site's live ArticleIndexPage for `section` ('info_articles' or 'news'),
-    in the active locale."""
-    return (
-        ArticleIndexPage.objects.live()
-        .filter(locale=Locale.get_active(), section=section)
-        .first()
-    )
+    """The site's live ArticleIndexPage for `section` ('info_articles' or 'news')."""
+    return ArticleIndexPage.objects.live().filter(section=section).first()
 
 
 # Current tree: ArticleIndexPage -> CategoryPage -> ArticlePage
 
 
 class ArticlePage(
-    EditorModeMixin, TranslationWarningMixin, Page
+    EnglishPreviewMixin, EditorModeMixin, TranslationWarningMixin, Page
 ):  # pylint: disable=too-many-ancestors
     """A single article page, published under a CategoryPage."""
 
     template = "info_articles/pages/article_page.html"
+    translated_fields = [
+        "intro",
+        "hero_image_title",
+        "hero_image_alt",
+        "hero_image_caption",
+        "body",
+    ]
 
     intro = RichTextField(blank=True)
     # hero_image itself and its title/alt/caption are content; how it's
@@ -188,29 +190,11 @@ class ArticlePage(
             0
         ]
 
-    # aliases the shared constant so existing SOURCE_LANGUAGE_CODE
-    # references keep working unchanged.
-    SOURCE_LANGUAGE_CODE = SOURCE_LANGUAGE_CODE
-
-    @property
-    def publish_target(self):
-        """The nb-locale copy -- publish/unpublish always acts on this one
-        regardless of viewed locale. See docs/claude_context/article_pages.md."""
-        target = self.style_target
-        if target.locale.language_code == self.SOURCE_LANGUAGE_CODE:
-            return target
-        nb_locale = Locale.objects.filter(
-            language_code=self.SOURCE_LANGUAGE_CODE
-        ).first()
-        if nb_locale is None:
-            return target
-        return target.get_translation_or_none(nb_locale) or target
-
     def can_publish_in_editor_mode(self, user):
-        return editor_mode_allowed(self.publish_target, user, "publish")
+        return editor_mode_allowed(self, user, "publish")
 
     def can_unpublish_in_editor_mode(self, user):
-        return editor_mode_allowed(self.publish_target, user, "unpublish")
+        return editor_mode_allowed(self, user, "unpublish")
 
     @property
     def toc_entries(self):
@@ -233,7 +217,7 @@ class ArticlePage(
         ) or self.has_unpublished_changes
         context["can_publish_page"] = self.can_publish_in_editor_mode(request.user)
         context["can_unpublish_page"] = self.can_unpublish_in_editor_mode(request.user)
-        context["can_sync_mirrored_page"] = self.can_sync_mirrored_page(request.user)
+        context["english_editor_url"] = self.english_editor_url(request.user)
         context["translation_nudge"] = self.translation_nudge(request.user)
         overrides_by_block_id = {
             style.block_id: style
@@ -303,11 +287,16 @@ class ArticlePage(
 
 
 class CategoryPage(
-    EditorModeMixin, BannerStyleMixin, TranslationWarningMixin, Page
+    EnglishPreviewMixin,
+    EditorModeMixin,
+    BannerStyleMixin,
+    TranslationWarningMixin,
+    Page,
 ):  # pylint: disable=too-many-ancestors
     """A category of articles, optionally shown only during a specific date range."""
 
     template = "info_articles/pages/article_category_page.html"
+    translated_fields = ["intro", "general_info"]
 
     intro = RichTextField(blank=True)
     general_info = RichTextField(
@@ -390,22 +379,16 @@ class CategoryPage(
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         context["can_edit_style"] = self.can_edit_in_editor_mode(request.user)
-        context["can_sync_mirrored_page"] = self.can_sync_mirrored_page(request.user)
+        context["english_editor_url"] = self.english_editor_url(request.user)
         context["translation_nudge"] = self.translation_nudge(request.user)
-        subcategories = (
-            CategoryPage.objects.child_of(self)
-            .live()
-            .filter(locale=Locale.get_active())
-        )
+        subcategories = CategoryPage.objects.child_of(self).live()
         context["main_subcategories"], context["seasonal_subcategories"] = (
             _split_categories_by_season(subcategories)
         )
-        context["union_categories"] = (
-            StudentUnionCategoryPage.objects.child_of(self)
-            .live()
-            .filter(locale=Locale.get_active())
-        )
-        articles = ArticlePage.objects.child_of(self).filter(locale=Locale.get_active())
+        context["union_categories"] = StudentUnionCategoryPage.objects.child_of(
+            self
+        ).live()
+        articles = ArticlePage.objects.child_of(self)
         context["articles"] = _articles_including_drafts_for_editor(
             articles, self, request.user
         ).order_by("-published_date")
@@ -414,18 +397,21 @@ class CategoryPage(
             if self.show_nested_tools
             else ToolPage.objects.child_of(self)
         )
-        context["tools"] = (
-            tools_query.live().filter(locale=Locale.get_active()).order_by("title")
-        )
+        context["tools"] = tools_query.live().order_by("title")
         return context
 
 
 class ArticleIndexPage(
-    EditorModeMixin, BannerStyleMixin, TranslationWarningMixin, Page
+    EnglishPreviewMixin,
+    EditorModeMixin,
+    BannerStyleMixin,
+    TranslationWarningMixin,
+    Page,
 ):  # pylint: disable=too-many-ancestors
     """Landing page listing all article categories and suggested articles."""
 
     template = "info_articles/pages/article_index_page.html"
+    translated_fields = ["intro", "general_info"]
 
     intro = RichTextField(blank=True)
     general_info = RichTextField(
@@ -470,31 +456,18 @@ class ArticleIndexPage(
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         context["can_edit_style"] = self.can_edit_in_editor_mode(request.user)
-        context["can_sync_mirrored_page"] = self.can_sync_mirrored_page(request.user)
+        context["english_editor_url"] = self.english_editor_url(request.user)
         context["translation_nudge"] = self.translation_nudge(request.user)
-        categories = (
-            CategoryPage.objects.child_of(self)
-            .live()
-            .filter(locale=Locale.get_active())
-        )
+        categories = CategoryPage.objects.child_of(self).live()
         context["main_categories"], context["seasonal_categories"] = (
             _split_categories_by_season(categories)
         )
-        context["union_categories"] = (
-            StudentUnionCategoryPage.objects.child_of(self)
-            .live()
-            .filter(locale=Locale.get_active())
-        )
-        suggested_articles = ArticlePage.objects.descendant_of(self).filter(
-            locale=Locale.get_active()
-        )
+        context["union_categories"] = StudentUnionCategoryPage.objects.child_of(
+            self
+        ).live()
+        suggested_articles = ArticlePage.objects.descendant_of(self)
         context["suggested_articles"] = _articles_including_drafts_for_editor(
             suggested_articles, self, request.user
         ).order_by("-published_date")[:4]
-        context["tools"] = (
-            ToolPage.objects.child_of(self)
-            .live()
-            .filter(locale=Locale.get_active())
-            .order_by("title")
-        )
+        context["tools"] = ToolPage.objects.child_of(self).live().order_by("title")
         return context

@@ -51,9 +51,9 @@ from django.utils.text import slugify
 from wagtail.coreutils import find_available_slug
 from wagtail.models import Locale
 
-from ifiplatform.apps.ifi_home_app.integrations.peoply_api import find_exact_match, get_organizations
-from ifiplatform.apps.ifi_home_app.models.article.unions import StudentUnionCategoryPage, UnionPage
-from ifiplatform.apps.ifi_home_app.models.event.peoply import PeoplyUnionMismatch
+from ifi_home_app.integrations.peoply_api import find_exact_match, get_organizations
+from ifi_home_app.models.article.unions import StudentUnionCategoryPage, UnionPage
+from ifi_home_app.models.event.peoply import PeoplyUnionMismatch
 
 
 class Command(BaseCommand):

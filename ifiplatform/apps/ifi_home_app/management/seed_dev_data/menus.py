@@ -1,17 +1,15 @@
 """Menu seeding: the MenuGroups and the three Menus (sidemenu, home
 dropmenus, homepage shortcuts) -- same layout migration 0152_menus builds
-for existing databases. Each group gets an en copy via copy_for_translation,
-with its title and link labels swapped for English, then registered with
-wagtail-localize so it's mirrored from nb (translation/snippets.py)."""
+for existing databases. Each group's title and link labels get stored
+English (_store_english)."""
 
-from ifiplatform.apps.ifi_home_app.models import ArticleIndexPage, EventIndexPage
-from ifiplatform.apps.ifi_home_app.models.article_models import (
+from ifi_home_app.models import ArticleIndexPage, EventIndexPage
+from ifi_home_app.models.article_models import (
     CategoryPage,
     StudentUnionCategoryPage,
     UnionPage,
 )
-from ifiplatform.apps.ifi_home_app.models.menus import Menu, MenuGroup, MenuGroupLink, MenuSlot
-from ifiplatform.apps.ifi_home_app.translation.snippets import link_existing_translation
+from ifi_home_app.models.menus import Menu, MenuGroup, MenuGroupLink, MenuSlot
 
 from .constants import CATEGORY_SPECS, LONG_UNION_NAME
 
@@ -19,7 +17,7 @@ LISTINGS_AT = ("Annonser hos", "Listings at")
 
 
 class MenuSeedMixin:
-    def _seed_menus(self, nb_locale, en_locale):
+    def _seed_menus(self, nb_locale):
         if Menu.objects.exists():
             self.skipped_count += 1
             return
@@ -56,22 +54,28 @@ class MenuSeedMixin:
                         page=link.get("page"),
                         url=link.get("url", ""),
                         label=link.get("label", ("", ""))[0],
-                        prefix=link.get("prefix", ("", ""))[0],
+                        label_prefix=link.get("prefix", ("", ""))[0],
                         description=link.get("description", ""),
                     )
                 )
             nb_group.save()
 
-            en_group = nb_group.copy_for_translation(en_locale)
-            en_group.title, en_group.short_title = titles[1], short_titles[1]
-            for en_link, link in zip(en_group.links.all(), links):
-                en_link.label = link.get("label", ("", ""))[1]
-                en_link.prefix = link.get("prefix", ("", ""))[1]
-            en_group.save()
-            link_existing_translation(nb_group, en_group)
+            self._store_english(
+                nb_group, {"title": titles[1], "short_title": short_titles[1]}
+            )
+            for nb_link, link in zip(nb_group.links.all(), links):
+                self._store_english(
+                    nb_link,
+                    {
+                        "label": link.get("label", ("", ""))[1],
+                        "label_prefix": link.get("prefix", ("", ""))[1],
+                        # names (Peoply, Navet), the same in English
+                        "description": link.get("description", ""),
+                    },
+                )
 
-            self.created_count += 2
-            self.stdout.write(f"  created MenuGroup (+en): {titles[0]}")
+            self.created_count += 1
+            self.stdout.write(f"  created MenuGroup: {titles[0]}")
             return nb_group
 
         def pages(page_list):

@@ -1,6 +1,6 @@
 # Articles
 
-Last updated: 2026-10-09
+Last updated: 2026-10-13
 
 How information articles and news are built: the three page types
 (`ArticleIndexPage`, `CategoryPage` and `ArticlePage`), the StreamField
@@ -162,10 +162,9 @@ editors can use `paragraph`, `image` and the four card blocks, but not
 ## Article and block styles
 
 Styling lives outside the Wagtail page on purpose, in two plain Django
-models. Both are keyed by the page's `translation_key`, which is the same
-for the Norwegian and English copies of a page. So an article looks the
-same in both languages, and a style change needs no translation or
-publish.
+models, keyed by the page's `translation_key`. English is shown on the
+same page, so an article looks the same in both languages, and a style
+change needs no translation or publish.
 
 | Model | File | One row per | Saved by |
 | --- | --- | --- | --- |
@@ -254,8 +253,7 @@ are in `urls.py` under `api/articles/<page_id>/` and `api/pages/<page_id>/`.
 | `save_hero_image_style` | The hero image fields on `ArticleStyle` |
 | `save_toc_icon_style` | `toc_icon_size` |
 | `save_banner_style` | `PageBannerStyle`, for index and category pages |
-| `publish_page`, `unpublish_page` | Publish or unpublish the article from the page, see [Translations](#translations) |
-| `sync_mirrored_page` | Push the Norwegian page's synchronized fields to its translation |
+| `publish_page`, `unpublish_page` | Publish or unpublish the article from the page (both languages at once) |
 
 Every view checks permission again with `can_edit_in_editor_mode()` (or
 the publish versions), so the Editor mode switch is not a security
@@ -296,21 +294,17 @@ tree and calls its `get_context()` and `template`:
 
 ## Translations
 
-Norwegian (`nb`) is the source. Each language has its own copy of the
-page tree, and every context query filters on `Locale.get_active()`. A
-full guide is planned as `shared/translations.md`. What is special here:
+There is one Norwegian page tree; English is shown on the same pages. How
+that works is in [translations.md](../shared/translations.md). What is
+special here:
 
-- **Styles are shared** between languages, because they are keyed by
-  `translation_key`. Edits made on an alias (an English page that only
-  mirrors the Norwegian one) go to the Norwegian page (`style_target` in
-  `EditorModeMixin`).
-- **Publish and Unpublish** in the Global editor always act on the
-  Norwegian copy (`ArticlePage.publish_target`), then do the same to the
-  English translation if a real one exists.
+- **Styles, publish and unpublish** apply to both languages at once,
+  since there is only one page.
 - `TranslationWarningMixin` sets `needs_translation`, which shows a
-  warning to visitors on untranslated pages. `EditorModeMixin.translation_nudge()`
-  shows editors a "missing" or "out of date" banner with a
-  machine-translate button.
+  "This page hasn't been translated yet" note to visitors when some of the
+  English is missing. `EditorModeMixin.translation_nudge()` shows editors
+  a "missing" or "out of date" banner, and `english_editor_url()` links
+  Editor mode to the English editor.
 
 ## Where to change things
 

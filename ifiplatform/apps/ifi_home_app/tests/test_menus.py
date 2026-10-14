@@ -6,9 +6,9 @@ from django.test import TestCase
 from django.utils import timezone, translation
 from wagtail.models import Locale, Page, Site
 
-from ifiplatform.apps.ifi_home_app.models import ArticleIndexPage
-from ifiplatform.apps.ifi_home_app.models.article_models import CategoryPage
-from ifiplatform.apps.ifi_home_app.models.menus import (
+from ifi_home_app.models import ArticleIndexPage
+from ifi_home_app.models.article_models import CategoryPage
+from ifi_home_app.models.menus import (
     SHORTCUT_ICONS,
     Menu,
     MenuGroup,
@@ -16,7 +16,9 @@ from ifiplatform.apps.ifi_home_app.models.menus import (
     MenuSlot,
     get_menu,
 )
-from ifiplatform.apps.ifi_home_app.templatetags.article_tags import get_shortcut_columns
+from ifi_home_app.templatetags.article_tags import get_shortcut_columns
+from ifi_home_app.translation import page_segments, stored_translations
+from ifi_home_app.translation.english_overlay import english
 
 
 class MenuTests(TestCase):
@@ -24,7 +26,6 @@ class MenuTests(TestCase):
 
     def setUp(self):
         self.nb, _ = Locale.objects.get_or_create(language_code="nb")
-        self.en, _ = Locale.objects.get_or_create(language_code="en")
         self.index = ArticleIndexPage(
             locale=self.nb, title="Artikler", slug="artikler", section="info_articles"
         )
@@ -127,33 +128,41 @@ class MenuTests(TestCase):
         with self.assertRaises(ValidationError):
             MenuGroupLink(page=self.index, url="https://example.com").clean()
 
-    def test_blank_label_uses_localized_page_title(self):
+    def _english(self, obj, english_by_norwegian):
+        stored_translations.save_machine(
+            obj,
+            {
+                segment: english_by_norwegian[segment.norwegian_text]
+                for segment in page_segments.extract_segments(obj)
+                if segment.norwegian_text in english_by_norwegian
+            },
+        )
+
+    def test_blank_label_uses_english_page_title(self):
         category = self._category("Akademisk")
-        en_category = category.copy_for_translation(self.en, copy_parents=True)
-        en_category.title = "Academic"
-        en_category.save_revision().publish()
+        self._english(category, {"Akademisk": "Academic"})
         self._menu("sidemenu", self._group(links=[{"page": category}]))
 
-        with translation.override("en"):
+        with translation.override("en"), english():
             link = get_menu("sidemenu")[0]["links"][0]
+            expected_url = category.url
         self.assertEqual(link["label"], "Academic")
-        self.assertEqual(link["url"], en_category.url)
+        self.assertEqual(link["url"], expected_url)
 
     def test_en_falls_back_to_untranslated_nb_group(self):
         self._menu("sidemenu", self._group("Bare norsk"))
 
-        with translation.override("en"):
+        with translation.override("en"), english():
             self.assertEqual(get_menu("sidemenu")[0]["title"], "Bare norsk")
 
-    def test_en_uses_translated_group(self):
+    def test_en_uses_english_group_title(self):
         group = self._group("Nyheter")
-        en_group = group.copy_for_translation(self.en)
-        en_group.title = "News"
-        en_group.save()
+        self._english(group, {"Nyheter": "News"})
         self._menu("sidemenu", group)
 
-        with translation.override("en"):
+        with translation.override("en"), english():
             self.assertEqual(get_menu("sidemenu")[0]["title"], "News")
+        self.assertEqual(self._nb("sidemenu")[0]["title"], "Nyheter")
 
     def test_shortcuts_are_grouped_by_column(self):
         self._menu(
@@ -169,14 +178,10 @@ class MenuTests(TestCase):
             [[g["title"] for g in column] for column in columns], [["B"], ["A", "C"]]
         )
 
-    def test_icon_comes_from_the_nb_group(self):
-        group = self._group("Nyheter", icon="news")
-        en_group = group.copy_for_translation(self.en)
-        en_group.icon = ""
-        en_group.save()
-        self._menu("shortcuts", group)
+    def test_icon_also_shows_in_english(self):
+        self._menu("shortcuts", self._group("Nyheter", icon="news"))
 
-        with translation.override("en"):
+        with translation.override("en"), english():
             self.assertEqual(get_menu("shortcuts")[0]["icon"], "news")
 
     def test_shortcut_icon_partial(self):

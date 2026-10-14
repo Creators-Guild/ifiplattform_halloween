@@ -1,0 +1,15 @@
+# fail2ban rules for the Docker servers, installed by setup_server.sh.
+# Only SSH: see docs/operations/docker_server.md for why there is no
+# rule for the website.
+[DEFAULT]
+bantime = 1h
+findtime = 10m
+maxretry = 5
+ignoreip = 127.0.0.1/8 ::1
+
+[sshd]
+enabled = true
+port = 22
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 5

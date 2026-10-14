@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
 
-from ifiplatform.apps.study_app.forms import DeckForm, CardForm
-from ifiplatform.apps.study_app.models import Deck, Card
+from study_app.forms import DeckForm, CardForm
+from study_app.models import Deck, Card
 
 
 @login_required

@@ -11,11 +11,9 @@ from .pages import EventPage
 def _tags_union(event, union):
     """Whether `event`'s own related_unions (regardless of role) tags
     `union` directly -- doesn't roll up sub-events, see
-    EventPage.all_related_unions for that. Compares by translation_key so
-    an event in one locale still matches a union viewed in another."""
+    EventPage.all_related_unions for that."""
     return any(
-        entry.value["union"] is not None
-        and entry.value["union"].translation_key == union.translation_key
+        entry.value["union"] is not None and entry.value["union"].pk == union.pk
         for entry in event.related_unions
         if entry.block_type == "union"
     )
@@ -27,7 +25,7 @@ def upcoming_events_for_union(union):
     today = timezone.localdate()
     candidates = (
         EventPage.objects.live()
-        .filter(locale=union.locale_id, is_archived=False)
+        .filter(is_archived=False)
         .filter(
             models.Q(end_date__gte=today)
             | models.Q(end_date__isnull=True, event_date__gte=today)
@@ -44,7 +42,7 @@ def events_for_union_between(union, start_date, end_date):
     whose date falls in [start_date, end_date]."""
     candidates = (
         EventPage.objects.live()
-        .filter(locale=union.locale_id, is_archived=False)
+        .filter(is_archived=False)
         .filter(event_date__lte=end_date)
         .filter(
             models.Q(end_date__gte=start_date)

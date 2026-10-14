@@ -1,0 +1,10 @@
+[Unit]
+Description=Catch up on missing English with DeepL, then clean up old translation rows
+After=postgresql.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/IfiPlatform/ifiplatform
+ExecStart=/home/ubuntu/IfiPlatform/venv/bin/python manage.py translate_english --nightly

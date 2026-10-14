@@ -10,6 +10,8 @@ from wagtail.models import TranslatableMixin
 class HeaderMessage(TranslatableMixin, models.Model):
     """A short message shown in the site header; one is picked at random per page load."""
 
+    translated_fields = ["text"]
+
     text = RichTextField(
         features=["bold", "italic", "link"],
         help_text="Short message shown in the site header, e.g. 'Lost? Need a map? Use IfiRom'.",

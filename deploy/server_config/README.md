@@ -17,20 +17,10 @@ run. These copies exist so the server can be rebuilt if it's lost.
   `certbot --nginx` add them.
 - **When you change one of these files on the server, copy the change
   here**, or the copies stop being useful.
-- **These copies describe the production server, not the halloween mock
-  server:** they still hold production's domain, certificate paths and
-  `/home/ubuntu/IfiPlatform` directory. Fill in the mock server's own
-  values when it has a hostname.
-- [check_server_config.sh](../check_server_config.sh) compares these
-  copies with the live files and prints a yellow warning on the deploy
-  run's page for each one that differs. It never changes anything. The
-  stripped-down [deploy.sh](../deploy.sh) does **not** run it, because
-  the copies above would warn on every deploy. Run it by hand on the
-  server, or add the line back to `deploy.sh`, once the copies match:
-
-  ```bash
-  bash deploy/check_server_config.sh
-  ```
+- Every deploy runs [check_server_config.sh](../check_server_config.sh),
+  which compares these copies with the live files. If one differs, a
+  yellow warning appears at the top of the deploy run's page in GitHub
+  Actions, and the log shows the difference. It never changes anything.
 
 How to rebuild the server step by step: see
 [docs/operations/server_setup.md](../../docs/operations/server_setup.md).

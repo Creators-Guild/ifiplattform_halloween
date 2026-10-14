@@ -1,6 +1,6 @@
 # event_layout.css — design rationale
 
-Last updated: 2026-09-22
+Last updated: 2026-10-13
 Covers: ifiplatform/apps/ifi_home_app/static/css/05_objects/event_layout.css
 
 Covers `ifi_home_app/static/css/05_objects/event_layout.css` — the single
@@ -20,7 +20,7 @@ squeeze a multi-day calendar into a paragraph-width column.
 
 ## Card grids
 
-- `.event-location-articles-grid` (`EventPage.localized_location_articles`)
+- `.event-location-articles-grid` (`EventPage.location_article_pages`)
   reuses `.articlecard` (`article_card.css`) as-is. `article_card.css`'s
   sizing assumes a grid/list container that controls width, so each card
   is capped here (`flex: 0 1 18rem; max-width: 18rem`) — otherwise a lone

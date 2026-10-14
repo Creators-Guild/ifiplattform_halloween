@@ -62,7 +62,7 @@ def _has_leftover_description(page):
 def resync(apps, schema_editor):
     from wagtail_localize.models import TranslationSource
 
-    from ifiplatform.apps.ifi_home_app.models.article_models import UnionPage
+    from ifi_home_app.models.article_models import UnionPage
 
     for page in UnionPage.objects.filter(locale__language_code="nb"):
         if not _has_leftover_description(page):

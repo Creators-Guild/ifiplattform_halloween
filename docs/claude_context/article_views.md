@@ -1,6 +1,6 @@
 # views/article_views.py — design notes
 
-Last updated: 2026-09-24
+Last updated: 2026-10-13
 Covers: ifiplatform/apps/ifi_home_app/views/article_views.py
 
 Context for future Claude sessions. Not a human-facing doc.
@@ -80,54 +80,20 @@ reject it"): `text_color`/`text_custom_color` blank means "leave the text
 color alone"; `box_shadow_color` blank means "keep using the theme's own
 shadow color." Same convention in `save_hero_image_style`'s `shadow_color`.
 
-## _translation_to_sync
-
-An *alias* translation doesn't need any of this — Wagtail already keeps
-aliases in sync with their source automatically on publish/unpublish (see
-`PublishPageRevisionAction`/`UnpublishPageAction` in Wagtail's own source).
-Only called with `nb_page` already resolved to the nb locale, so it only
-ever needs to look one direction: nb → en.
-
 ## publish_page / unpublish_page
 
-Both always act on the nb ("OG") copy regardless of which locale is being
-viewed (`ArticlePage.publish_target`), then propagate to the en translation
-so the two don't drift — nb is the source of truth. `can_publish`/
-`can_unpublish` are checked on that nb copy specifically, stricter than the
-`can_edit_style` every other endpoint here checks.
-
-- `publish_page` publishes the en translation's own latest revision too
-  (if one exists), then runs `sync_synchronized_fields` **last** so a
-  freshly-synced field value always wins over whatever the translation's
-  own revision publish just put live.
-- The translation-side revision publish uses `skip_permission_checks=True`
-  — the editor's permission was already verified against the nb copy; this
-  is a system-triggered side effect, not a separate action needing its own
-  permission.
-- `unpublish_page`'s `translation.unpublish(log_action=True)` deliberately
-  omits `user=` — that's what actually skips the internal permission check
-  (`UnpublishAction.check()` in `wagtail/actions/unpublish.py` only checks
-  when `self.user` is set). `Page.unpublish()` has no `skip_permission_checks`
-  kwarg of its own the way `Revision.publish()` does, so this is the
-  equivalent trick for the unpublish path specifically. Same "already
-  verified against nb" reasoning as the publish side.
-- This view calls `Revision.publish()` directly rather than going through
-  wagtail-admin's edit view, so `wagtail_hooks.py`'s `after_publish_page`
-  hook never fires for it — that's why `publish_page` pushes synchronized
-  fields itself instead of relying on that hook.
-
-## sync_mirrored_page
-
-Not `ArticlePage`-specific — `CategoryPage`/`ArticleIndexPage`/
-`StudentUnionCategoryPage` have no publish concept in editor mode at all,
-but do have synchronized fields (e.g. `status`) that can still drift, so
-this is a plain `Page` lookup through `style_target` rather than
-`ArticlePage`'s own `publish_target`.
+Act on the page itself (one Norwegian tree since the English overlay
+switch-over; DeepL fills the English after publishing via the
+`page_published` signal, which `Revision.publish()` sends too).
+`can_publish`/`can_unpublish` are checked, stricter than the
+`can_edit_style` every other endpoint here checks. The two-tree versions
+also published/unpublished the en copy and synced fields; that went in
+step 4 of the translation redesign, together with `sync_mirrored_page`.
 
 ## save_banner_style
 
-Not `ArticlePage`-specific either — looks up the plain Wagtail `Page` then
-resolves to its specific subtype's `style_target`, since `CategoryPage`,
+Not `ArticlePage`-specific — looks up the plain Wagtail `Page` then
+its `.specific` subtype, since `CategoryPage`,
 `ArticleIndexPage`, and `StudentUnionCategoryPage` all share this one
 endpoint via `BannerStyleMixin`. `banner_width_rem`/`height_rem`/
 `font_size`: blank or `0` both mean "auto" — stored as `None` either way,

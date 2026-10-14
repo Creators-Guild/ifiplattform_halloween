@@ -1,0 +1,80 @@
+# The server setup: database, Django and Caddy. Local development uses
+# docker-compose.yml instead. Guide: docs/operations/docker_server.md.
+#
+# Values that differ per server, or are secret, come from .env in the repo
+# root. Values that are the same on every server are set here.
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    # Never change the major version (16) without a dump and restore:
+    # PostgreSQL can't read another major version's data files.
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      # The same values Django uses, so they're written in .env only once.
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    logging: *logging
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Fixed by this setup, so not in .env.
+      USE_POSTGRES: "True"
+      DB_HOST: db
+      DB_PORT: "5432"
+      # Built from SITE_DOMAIN in .env.
+      DJANGO_ALLOWED_HOSTS: ${SITE_DOMAIN}
+      CSRF_TRUSTED_ORIGINS: https://${SITE_DOMAIN}
+      # Caddy's requests arrive from a Docker address. Without this,
+      # Gunicorn ignores Caddy's "this was HTTPS" header and Django
+      # redirects forever. Safe because web has no published port.
+      FORWARDED_ALLOW_IPS: "*"
+    volumes:
+      - media:/app/media
+      - cache:/app/django_cache
+    depends_on:
+      db:
+        condition: service_healthy
+    logging: *logging
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN}
+      ROBOTS_TAG: ${ROBOTS_TAG:-all}
+    volumes:
+      - ./deploy/docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - media:/srv/media:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    logging: *logging
+
+volumes:
+  pgdata:
+  media:
+  cache:
+  caddy_data:
+  caddy_config:

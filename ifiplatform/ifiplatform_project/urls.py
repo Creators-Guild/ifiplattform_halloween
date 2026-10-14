@@ -21,19 +21,19 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 from wagtail.admin import urls as wagtailadmin_urls
-from wagtail.contrib.sitemaps.views import sitemap as wagtail_sitemap_view
+from django.contrib.sitemaps.views import sitemap as sitemap_view
 
-from ifiplatform.core_app.sitemaps import IfiPlatformSitemap
+from core_app.sitemaps import IfiPlatformSitemap
 
 # language selection
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     # deliberately outside i18n_patterns -- one sitemap.xml listing both
-    # locales' URLs together is what search engines expect, not a separate
-    # sitemap per locale prefix.
+    # languages' URLs together is what search engines expect, not a separate
+    # sitemap per language prefix.
     path(
         "sitemap.xml",
-        wagtail_sitemap_view,
+        sitemap_view,
         {"sitemaps": {"pages": IfiPlatformSitemap}},
         name="sitemap",
     ),

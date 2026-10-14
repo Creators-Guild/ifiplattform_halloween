@@ -13,11 +13,6 @@ confirmed the hard way that Peoply's search is substring-based, not exact
 first-result match would risk silently linking a union to someone else's
 events. Anything without an exact match is reported, not guessed at.
 
-A match is applied to every locale of that union (not just nb), not left
-for the auto-sync hook to catch up on, since this runs outside
-wagtail-admin the same way sync_peoply_events does (see that command's own
-docstring on why that hook doesn't fire here).
-
 Dry run by default -- unlike most of this project's commands, this one
 flips that default deliberately, since a wrong automated match would
 misattribute a whole union's worth of events. Pass --apply to actually
@@ -26,8 +21,8 @@ write peoply_organization_id."""
 import requests
 from django.core.management.base import BaseCommand
 
-from ifiplatform.apps.ifi_home_app.integrations.peoply_api import apply_peoply_match, find_exact_match
-from ifiplatform.apps.ifi_home_app.models.article.unions import UnionPage
+from ifi_home_app.integrations.peoply_api import apply_peoply_match, find_exact_match
+from ifi_home_app.models.article.unions import UnionPage
 
 PEOPLY_ORGANIZATIONS_URL = "https://api.peoply.app/organizations"
 

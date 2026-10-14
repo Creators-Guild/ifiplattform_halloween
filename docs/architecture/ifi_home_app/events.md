@@ -1,6 +1,6 @@
 # Events
 
-Last updated: 2026-10-09
+Last updated: 2026-10-13
 
 How events work on the site: the event pages, the event list and the
 sub-event calendar, the events box on the home page, and the sync that
@@ -91,12 +91,11 @@ Useful properties on `EventPage`:
 | `all_related_unions` | This event's unions plus every sub-event's, one entry per union. A sub-event's "host" counts as "collaborator" for the parent |
 | `highlighted_sub_events` | Today's sub-events if there are any, otherwise the ones marked `is_highlighted` |
 | `calendar_days` | The sub-events laid out for the week calendar (see below) |
-| `localized_location_articles` | The linked articles in the active language |
+| `location_article_pages` | The linked articles, skipping deleted ones |
 
-Why `.localized`? A page picked in a StreamField (a `PageChooserBlock`)
-is not translated by wagtail-localize. It keeps pointing to the Norwegian
-page. So templates call `.localized` on unions and articles, or the
-English site would link to Norwegian pages.
+Linked unions and articles need no language handling: there is only one
+(Norwegian) page each, and on `/en/` it shows its English text and English
+address by itself (see [translations.md](../shared/translations.md)).
 
 ### Peoply bookkeeping models
 
@@ -141,7 +140,7 @@ peoply_api.get_events(org_id, after)   ← all unions fetched before anything is
         │
 known upcoming events Peoply no longer returns  →  unpublish, log a PeoplyRemovedEvent
         │
-sync_locale_trees  →  clear the site-root-paths cache  →  PeoplySyncState.touch()
+clear the site-root-paths cache  →  PeoplySyncState.touch()
         │
 check_peoply_union_matches  (a report only; its failure does not undo the sync)
 ```
@@ -154,7 +153,7 @@ check_peoply_union_matches  (a report only; its failure does not undo the sync)
    An error response raises an exception, so the run stops before it has
    changed anything.
 3. **Match.** An event is found again by `external_source="peoply"` and
-   `external_uid` (Peoply's event id), in the nb locale.
+   `external_uid` (Peoply's event id).
 4. **Convert.** Peoply times are UTC. They are converted to Oslo time
    before being split into date and time. The description is plain text and
    is turned into HTML paragraphs. The location is `freeformAddress`, or
@@ -167,13 +166,12 @@ check_peoply_union_matches  (a report only; its failure does not undo the sync)
    title contains "Bedriftspresentasjon" and "social" otherwise, and the
    union as host in `related_unions`. It is published at once.
 7. **Hide removed events.** A synced event that Peoply no longer returns is
-   unpublished (its English alias too) and logged, but only if it starts
+   unpublished and logged, but only if it starts
    after the `afterDate` and its host union was synced in this run. Past
    events are never hidden, because Peoply never returns them.
-8. **English copies.** Pages made in code skip the Wagtail admin hook
-   that creates the English alias. So the command runs `sync_locale_trees`,
-   which creates the missing aliases. New events are not translated; the
-   English page shows the Norwegian text until someone translates it.
+8. **English.** Publishing puts the new or changed event on the "waiting
+   for English" list, like any other page. DeepL fills in its English
+   about a minute later.
 9. **Clear the cache.** Creating many pages in code does not clear Wagtail's
    site-root-paths cache. A stale cache once made links render as
    `href="None"`, so the command clears it.

@@ -1,0 +1,134 @@
+
+{
+  "article": [
+    [
+      "title",
+      "Fadderuke &amp; velkomst",
+      "9751392b-219c-5f23-9cc8-50dc2197d876"
+    ],
+    [
+      "search_description",
+      "Alt om fadderuka.",
+      "7a55e40e-b82a-5cd2-8ab3-28b41421b1cf"
+    ],
+    [
+      "intro",
+      "Velkommen til Ifi. Her er alt du trenger.",
+      "1abbb1e3-add9-5250-89ed-0311817246a3"
+    ],
+    [
+      "intro",
+      "Les mer om <a id=\"a1\">fadderuka</a> og <a id=\"a2\">UiO</a> her.",
+      "846a7336-1d78-5b7b-836b-d6f07fb5551e"
+    ],
+    [
+      "hero_image_title",
+      "Plenen",
+      "93b520ff-b058-5313-833d-05ac34d57d49"
+    ],
+    [
+      "hero_image_alt",
+      "Studenter på plenen",
+      "6184aff8-f6f5-521c-9943-de302a4034aa"
+    ],
+    [
+      "hero_image_caption",
+      "Første dag, 2026",
+      "57f14648-1287-553a-9e88-593d158104c8"
+    ],
+    [
+      "body.00000000-0000-4000-8000-000000000001.text",
+      "Program",
+      "280d40ac-ac4e-5588-ab59-18e2974aa92a"
+    ],
+    [
+      "body.00000000-0000-4000-8000-000000000002.text",
+      "Første dag er <b>mandag</b>. Ta med:",
+      "d43bbe61-6091-58e6-85a4-94ec2278cf4e"
+    ],
+    [
+      "body.00000000-0000-4000-8000-000000000002.text",
+      "Studentkort",
+      "b03e4b38-991f-5ea6-bd80-869f6dbe7ed4"
+    ],
+    [
+      "body.00000000-0000-4000-8000-000000000002.text",
+      "Godt humør",
+      "57fd1ede-c2c7-5514-86d6-da5d5335ef7f"
+    ],
+    [
+      "body.00000000-0000-4000-8000-000000000003.alt_text",
+      "Kart",
+      "8dce893f-eef8-509a-b128-50fd61702c80"
+    ],
+    [
+      "body.00000000-0000-4000-8000-000000000003.caption",
+      "Kart over Ifi",
+      "d90d1fcc-b886-57ce-b174-29a0ec3fd97e"
+    ],
+    [
+      "body.00000000-0000-4000-8000-000000000004.columns.00000000-0000-4000-8000-000000000005.title",
+      "Kolonne",
+      "33821b7a-53ce-56e5-83b5-4cceac76170d"
+    ],
+    [
+      "body.00000000-0000-4000-8000-000000000004.columns.00000000-0000-4000-8000-000000000005.content.00000000-0000-4000-8000-000000000006.text",
+      "Inni kolonnen.",
+      "77542c97-27aa-5b27-ba28-383547dc6be3"
+    ]
+  ],
+  "union": [
+    [
+      "title",
+      "Navet",
+      "b8be0438-c638-5a82-a63a-f09b1190fa01"
+    ],
+    [
+      "sitting_members.00000000-0000-4000-8000-000000000007.role",
+      "Leder",
+      "5e585c43-6e9c-572d-8adf-9f2ff6c96074"
+    ],
+    [
+      "sitting_members.00000000-0000-4000-8000-000000000007.role_nickname",
+      "Husets sjel",
+      "d9fe3475-38c2-510d-b054-89b51d2a10ee"
+    ],
+    [
+      "sitting_members.00000000-0000-4000-8000-000000000007.responsibilities.00000000-0000-4000-8000-000000000009",
+      "Driver <i>Navet</i>.",
+      "9125716e-502b-5a5e-88d1-139f7de8842f"
+    ],
+    [
+      "sitting_members.00000000-0000-4000-8000-000000000007.responsibilities.00000000-0000-4000-8000-000000000010",
+      "Frivillige.",
+      "1a926b8b-13c3-5ee5-bdf4-ce7e181ceb53"
+    ],
+    [
+      "sitting_members.00000000-0000-4000-8000-000000000007.availability_note",
+      "Etter generalforsamlingen",
+      "4f3f4de2-5d71-53ab-bd2d-7dad9863411f"
+    ],
+    [
+      "sitting_members.00000000-0000-4000-8000-000000000008.role",
+      "Kasserer",
+      "dd679f44-adf2-511e-92c8-354a30ba64d9"
+    ]
+  ],
+  "menu_link": [
+    [
+      "label",
+      "Ifi",
+      "27a16b89-01e2-5315-a340-41088c1c1deb"
+    ],
+    [
+      "description",
+      "Peoply",
+      "7627fead-bf02-55cc-a4e5-33f4ca054447"
+    ],
+    [
+      "label_prefix",
+      "Stillinger hos",
+      "496dadd3-1991-5388-aa0c-e175b47077e7"
+    ]
+  ]
+}

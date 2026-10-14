@@ -1,6 +1,6 @@
 # models/article/block_style.py — design notes
 
-Last updated: 2026-08-15
+Last updated: 2026-10-13
 Covers: ifiplatform/apps/ifi_home_app/models/article/block_style.py
 
 Context for future Claude sessions working on per-block article styling. Not
@@ -85,13 +85,12 @@ where the deeper "why" lives instead of as inline comments.
   different content recreated in its place, the new block gets a new id and
   won't match any existing override (harmless — renders with stored
   defaults, same as never having been styled).
-- Keyed by `translation_key` (identical across every locale copy of "the
-  same" page, confirmed empirically including for alias pages), not by a
-  specific `ArticlePage` row — styling shouldn't differ between locale
-  translations of one article, and wagtail_localize preserves StreamField
-  block ids across translations, so this and `body` always talk about the
-  same block regardless of locale. See `ArticlePage.style_target` for how a
-  page resolves to the identity these overrides are saved against.
+- Keyed by `translation_key`, not the `ArticlePage` row id: a leftover
+  from the two-tree setup, where it was shared by the nb and en copies of
+  one article. Since the English overlay switch-over there is one page per
+  `translation_key`, so the two are equivalent; re-keying would need a
+  data migration for no gain. English under /en/ is the same page, so
+  styles apply to both languages automatically.
 - `block_id` max_length is 48, not 36 (a UUID's length) — a few synthetic
   ids (e.g. `"<column-uuid>-title"`) run longer than a plain block UUID.
 - `text_color` is deliberately *not* part of `_effective_box_style()`'s

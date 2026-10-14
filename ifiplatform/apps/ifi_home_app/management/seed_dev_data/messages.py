@@ -4,13 +4,13 @@ the homepage's rotating board messages."""
 from django.utils import timezone
 from wagtail.rich_text import RichText
 
-from ifiplatform.apps.ifi_home_app.models import HeaderMessage, HomeBoardMessage
+from ifi_home_app.models import HeaderMessage, HomeBoardMessage
 
 from .constants import BANNER_TEXT, BOARD_MESSAGE_SPECS
 
 
 class MessageSeedMixin:
-    def _seed_header_message(self, nb_locale, en_locale):
+    def _seed_header_message(self, nb_locale):
         text = f"<p>{BANNER_TEXT}</p>"
         message = HeaderMessage.objects.filter(text=text, locale=nb_locale).first()
         if message is None:
@@ -24,15 +24,9 @@ class MessageSeedMixin:
         else:
             self.skipped_count += 1
 
-        if not message.has_translation(en_locale):
-            translation = message.copy_for_translation(en_locale)
-            translation.save()
-            self.created_count += 1
-            self.stdout.write(f"  created HeaderMessage (en): {BANNER_TEXT}")
-        else:
-            self.skipped_count += 1
+        self._translate_page(message)
 
-    def _seed_home_board_message(self, nb_locale, en_locale):
+    def _seed_home_board_message(self, nb_locale):
         for i, spec in enumerate(BOARD_MESSAGE_SPECS):
             title = spec["title"]
             message = HomeBoardMessage.objects.filter(
@@ -55,10 +49,4 @@ class MessageSeedMixin:
             else:
                 self.skipped_count += 1
 
-            if not message.has_translation(en_locale):
-                translation = message.copy_for_translation(en_locale)
-                translation.save()
-                self.created_count += 1
-                self.stdout.write(f"  created HomeBoardMessage (en): {title}")
-            else:
-                self.skipped_count += 1
+            self._translate_page(message)

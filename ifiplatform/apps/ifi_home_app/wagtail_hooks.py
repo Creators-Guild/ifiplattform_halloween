@@ -1,111 +1,110 @@
 """Site-wide wagtail hooks for ifi_home_app.
 
-The nb -> en synchronized-field auto-sync (see the function docstring below),
-the "Machine-translate subtree"/"page" admin buttons/URLs (see
-translation/views.py), the Norwegian-only admin (see
-translation/admin_locales.py) and the translate-now nudges (see
-translation/nudge.py) -- add
-further hooks here rather than starting new files, unless a hook is
+The English editor (its URL, the "English" buttons on pages and snippets,
+the read-only "Stored English" list -- see translation/english_editor.py),
+the translate-now nudges (see translation/nudge.py), the translated
+snippets' registration, and hiding what's left of wagtail-localize's admin
+-- add further hooks here rather than starting new files, unless a hook is
 specific enough to a single feature area to warrant its own module."""
 
-from django.dispatch import receiver
-from django.urls import path, reverse
+from django.templatetags.static import static
+from django.urls import path
+from django.utils.html import format_html
 from wagtail import hooks
-from wagtail.admin.widgets.button import Button
-from wagtail.signals import page_published
+from wagtail.admin.menu import MenuItem
+from wagtail.admin.ui.sidebar import LinkMenuItem
 from wagtail.snippets.models import register_snippet
-from wagtail_localize.machine_translators import get_machine_translator
 
 from .models import HeaderMessage, HomeBoardMessage, MenuGroup
-from .translation import nudge
-from .translation import views as translation_views
-from .translation import admin_locales
-from .translation.sync import SOURCE_LANGUAGE_CODE, sync_synchronized_fields
+from . import admin_dashboard
+from .translation import english_editor, nudge
 
 
 @hooks.register("register_admin_urls")
 def register_admin_urls():
     return [
         path(
-            "machine-translate-subtree/<int:page_id>/",
-            translation_views.machine_translate_subtree,
-            name="machine_translate_subtree",
+            "english/<int:content_type_id>/<int:object_id>/",
+            english_editor.edit,
+            name="english_editor",
         ),
         path(
-            "machine-translate-page/<int:page_id>/",
-            translation_views.machine_translate_page,
-            name="machine_translate_page",
+            "english/subtree/<int:page_id>/",
+            english_editor.machine_translate_subtree,
+            name="english_machine_translate_subtree",
         ),
         path(
-            "toggle-all-locales/",
-            admin_locales.toggle_all_locales,
-            name="toggle_all_locales",
+            "english/menu/<int:menu_id>/",
+            english_editor.machine_translate_menu,
+            name="english_machine_translate_menu",
         ),
     ]
 
 
-hooks.register("construct_explorer_page_queryset", admin_locales.filter_explorer_pages)
-hooks.register("construct_page_chooser_queryset", admin_locales.filter_chooser_pages)
+@hooks.register("register_admin_viewset")
+def register_stored_english_viewset():
+    return english_editor.StoredEnglishViewSet("stored_english")
 
-# Translatable snippets -- registered here rather than with @register_snippet
-# so their listing and chooser open on nb (see admin_locales.py).
+
+hooks.register("register_page_header_buttons", english_editor.page_button)
+hooks.register("register_page_listing_more_buttons", english_editor.page_button)
+hooks.register("register_page_header_buttons", english_editor.subtree_button)
+hooks.register("register_page_listing_more_buttons", english_editor.subtree_button)
+hooks.register("register_snippet_listing_buttons", english_editor.snippet_button)
+
 for _snippet_model in (HeaderMessage, HomeBoardMessage, MenuGroup):
-    register_snippet(_snippet_model, viewset=admin_locales.NorwegianFirstSnippetViewSet)
-
-
-@hooks.register("register_admin_menu_item")
-def register_toggle_all_locales_menu_item():
-    return admin_locales.ToggleAllLocalesMenuItem()
-
+    register_snippet(_snippet_model)
 
 hooks.register("after_publish_page", nudge.warn_after_publish)
 hooks.register("before_edit_page", nudge.warn_on_edit)
-hooks.register("construct_homepage_panels", nudge.add_dashboard_panel)
-hooks.register("register_page_listing_buttons", nudge.listing_status_button)
-hooks.register("register_page_header_buttons", nudge.machine_translate_button)
-hooks.register("register_page_listing_more_buttons", nudge.machine_translate_button)
+hooks.register("construct_homepage_panels", admin_dashboard.add_dashboard_panel)
 
 
-def _machine_translate_subtree_button(page, user, view_name=None, next_url=None):
-    """Shown on nb pages with descendants -- see translation/views.py."""
-    if (
-        page.is_root()
-        or page.locale.language_code != SOURCE_LANGUAGE_CODE
-        or not page.get_descendants().exists()
-        or not user.has_perm("wagtail_localize.submit_translation")
-    ):
-        return
+class LanguageSwitchMenuItem(MenuItem):
+    """Sidebar link to the same admin page in the other language. The admin
+    speaks the language of its address (/nb/ or /en/) unless a user picked
+    one in Account -> Preferences."""
 
-    if get_machine_translator() is None:
-        return
+    OTHER = {"nb": ("en", "English"), "en": ("nb", "Norsk")}
 
-    yield Button(
-        "Machine-translate subtree",
-        reverse("machine_translate_subtree", args=[page.id]),
-        priority=61,
-        icon_name="doc-empty-inverse",
+    def _target(self, request):
+        language = request.path.split("/")[1]
+        if language not in self.OTHER:
+            return None
+        other, label = self.OTHER[language]
+        return label, f"/{other}" + request.get_full_path()[len(language) + 1 :]
+
+    def is_shown(self, request):
+        return self._target(request) is not None
+
+    def render_component(self, request):
+        label, url = self._target(request)
+        return LinkMenuItem(self.name, label, url, icon_name=self.icon_name)
+
+
+@hooks.register("register_admin_menu_item")
+def register_language_switch():
+    return LanguageSwitchMenuItem(
+        "Language", "", name="language", icon_name="site", order=10500
     )
 
 
-hooks.register("register_page_header_buttons", _machine_translate_subtree_button)
-hooks.register("register_page_listing_more_buttons", _machine_translate_subtree_button)
+@hooks.register("insert_global_admin_css")
+def dashboard_panel_css():
+    return format_html(
+        '<link rel="stylesheet" href="{}">',
+        static("css/06_components/admin/dashboard_panel.css"),
+    )
 
 
-@receiver(page_published)
-def sync_synchronized_fields_to_translations(sender, instance, revision, **kwargs):
-    """On every nb page publish, push its wagtail-localize SynchronizedFields
-    (status, etc.) out to every enabled translation, so they
-    don't silently drift (see translation/sync.py).
+hooks.register("construct_homepage_panels", nudge.add_dashboard_panel)
+hooks.register("register_page_listing_buttons", nudge.listing_status_button)
 
-    Listens on the page_published *signal* rather than Wagtail's
-    after_publish_page *hook* -- that hook only fires from the single-page
-    admin edit/create views, not from the page-listing bulk "Publish" action
-    or from any script-based page.save_revision().publish() call (e.g.
-    sync_peoply_events, seed_dev_data). page_published fires from
-    Page.publish() itself, so it covers all of those uniformly. Safe against
-    recursion: sync_synchronized_fields() publishes the *English* copy,
-    which re-fires this same signal, but the locale guard below no-ops it
-    immediately."""
-    if instance.locale.language_code != SOURCE_LANGUAGE_CODE:
-        return
-    sync_synchronized_fields(instance, user=revision.user)
+
+@hooks.register("construct_reports_menu")
+def hide_wagtail_localize_report(request, menu_items):
+    """wagtail-localize stays installed only for translation/page_segments.py;
+    its "Translations" report has nothing to show. Its other buttons hide
+    themselves: they need a second locale or translation records, and the
+    switch-over removed both."""
+    menu_items[:] = [item for item in menu_items if item.name != "translations"]

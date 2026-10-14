@@ -1,6 +1,6 @@
 # Student unions and tools
 
-Last updated: 2026-10-09
+Last updated: 2026-10-13
 
 How the student union pages and the tool pages are built: the page types,
 how they are listed on category pages, the cards that show them, and how a
@@ -233,8 +233,8 @@ EventPage  (new events get related_unions = [this union, role "host"])
 - A union page shows every live event whose `related_unions` includes it,
   whatever the role. Events added by hand in the Wagtail admin show up
   too.
-- Unions are matched by `translation_key`, so an event still matches the
-  English copy of the union.
+- Unions are matched by page id. On `/en/` it is the same union page,
+  shown in English.
 - Sub-events count on their own: a union tagged only on one sub-event
   still gets that sub-event.
 
@@ -321,4 +321,4 @@ Paths are in `apps/ifi_home_app/`.
 - **Some headings are in Norwegian in the code.** "Programspesifikke
   foreninger" and "Andre foreninger" are Norwegian `{% trans %}` strings,
   while the others are English. Translate them in `ifiplatform/locale/`
-  (a full translations guide is planned as `shared/translations.md`).
+  (see [translations.md](../shared/translations.md)).

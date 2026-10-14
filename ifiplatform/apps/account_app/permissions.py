@@ -5,7 +5,7 @@ so the two can't drift out of sync on what counts as "a pending editor"."""
 
 from wagtail.permissions import page_permission_policy
 
-from ifiplatform.apps.account_app.models import Profile
+from account_app.models import Profile
 
 
 def is_pending_editor(user):

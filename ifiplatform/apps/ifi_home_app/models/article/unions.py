@@ -12,19 +12,31 @@ from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Locale, Page
+from wagtail.models import Page
 
 from .blocks import union_group_block
 from ..event.calendar_layout import build_calendar_days, hour_range_for_events
 from ..event.dates import group_events_by_month, semester_bounds, week_bounds
 from ..page_mixins import BannerStyleMixin, EditorModeMixin, TranslationWarningMixin
+from ...translation.english_overlay import EnglishPreviewMixin
 
 
 # Model for a student union's own page, published under a StudentUnionCategoryPage
-class UnionPage(TranslationWarningMixin, Page):  # pylint: disable=too-many-ancestors
+class UnionPage(
+    EnglishPreviewMixin, TranslationWarningMixin, Page
+):  # pylint: disable=too-many-ancestors
     """A single student union's page: contact info, purpose, activities and members."""
 
     template = "info_articles/pages/union_page.html"
+    translated_fields = [
+        "purpose",
+        "activities",
+        "vedtekter",
+        "union_links",
+        "sitting_members",
+    ]
+    # people's names stay as written
+    untranslated_block_paths = ["sitting_members.*.name"]
 
     email = models.EmailField(blank=True)
     logo = models.ForeignKey(
@@ -356,11 +368,16 @@ class UnionPage(TranslationWarningMixin, Page):  # pylint: disable=too-many-ance
 
 # Model for the category listing all student unions
 class StudentUnionCategoryPage(
-    EditorModeMixin, BannerStyleMixin, TranslationWarningMixin, Page
+    EnglishPreviewMixin,
+    EditorModeMixin,
+    BannerStyleMixin,
+    TranslationWarningMixin,
+    Page,
 ):  # pylint: disable=too-many-ancestors
     """A category page whose only children are student union pages."""
 
     template = "info_articles/pages/studentunion_category_page.html"
+    translated_fields = ["intro", "general_info", "union_groups"]
 
     intro = RichTextField(blank=True)
     general_info = RichTextField(
@@ -421,14 +438,9 @@ class StudentUnionCategoryPage(
         docs/claude_context/article_unions.md."""
         context = super().get_context(request, *args, **kwargs)
         context["can_edit_style"] = self.can_edit_in_editor_mode(request.user)
-        context["can_sync_mirrored_page"] = self.can_sync_mirrored_page(request.user)
+        context["english_editor_url"] = self.english_editor_url(request.user)
         context["translation_nudge"] = self.translation_nudge(request.user)
-        unions = (
-            UnionPage.objects.child_of(self)
-            .live()
-            .filter(locale=Locale.get_active())
-            .order_by("title")
-        )
+        unions = UnionPage.objects.child_of(self).live().order_by("title")
         active_unions = unions.filter(status="active")
         context["active_unions"] = active_unions
         context["retired_unions"] = unions.filter(status="retired")

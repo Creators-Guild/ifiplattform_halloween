@@ -6,6 +6,6 @@ a package itself. The actual implementation -- split by content area
 ifi_home_app/management/seed_dev_data/ instead; this just re-exports its
 Command so `manage.py seed_dev_data` still finds it."""
 
-from ifiplatform.apps.ifi_home_app.management.seed_dev_data.command import Command
+from ifi_home_app.management.seed_dev_data.command import Command
 
 __all__ = ["Command"]

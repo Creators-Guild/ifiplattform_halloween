@@ -1,6 +1,6 @@
 # models/article/style.py and models/page_mixins.py — design notes
 
-Last updated: 2026-10-09
+Last updated: 2026-10-13
 Covers: ifiplatform/apps/ifi_home_app/models/article/style.py, ifiplatform/apps/ifi_home_app/models/page_mixins.py
 
 Context for future Claude sessions. Not a human-facing doc.
@@ -12,13 +12,13 @@ title/meta/intro, background color, hero image display, table-of-contents
 icon size. Edited on-page via editor mode (`article_quick_style.js`), same
 UI pattern as `ArticleBlockStyle`'s per-block overrides. Deliberately not
 part of `ArticlePage` (or any Page model), so outside Wagtail's
-revision/publish system entirely — styling shouldn't differ between locale
-translations of "the same" article, only content should.
+revision/publish system entirely — styling is the same in Norwegian and
+English, only content differs.
 
-Keyed by `translation_key`, exactly like `ArticleBlockStyle` — identical
-across every locale copy of one logical article, so every locale
-automatically shares one style with no sync code needed. See
-`ArticlePage.style` for how a page reaches its row (get-or-create).
+Keyed by `translation_key`, exactly like `ArticleBlockStyle` (a two-tree
+leftover; one page per key since the switch-over, see
+`article_block_style.md`). See `ArticlePage.style` for how a page reaches
+its row (get-or-create).
 
 ### content_bg_* is passed as a CSS custom property, not an inline declaration
 
@@ -74,19 +74,16 @@ terms gate) only changes in one place. The terms-gate itself is owned by
 a plain boolean, keeping Wagtail-permission concerns and account-specific
 concerns separated.
 
-- `style_target`: the page revisions/saves should actually apply to. An
-  alias page (an untranslated locale mirroring another locale's page)
-  can't take its own revisions — Wagtail raises if you try — so edits
-  always go to the source instead, which Wagtail propagates back to the
-  alias automatically on publish.
 - Publish/unpublish aren't part of this mixin: only `ArticlePage` has that
   concept (the other three page types expose no publish controls), so
-  those live as `ArticlePage`'s own methods, reusing `editor_mode_allowed()`
-  directly rather than being forced through a `style_target` every other
-  page type also has to carry.
-- `can_sync_mirrored_page`: unlike publish/unpublish, this one *is* shared
-  by all four page types, since it's just a plain edit action
-  (`translation/sync.py`) rather than a Wagtail publish action.
+  those live as `ArticlePage`'s own methods, reusing `editor_mode_allowed()`.
+- `english_editor_url`: the editor-mode "English" link (replaced the
+  two-tree "Sync mirrored page" button at the switch-over). Shared by all
+  four page types, since it's a plain edit action, not a Wagtail publish
+  action.
+- The two-tree `style_target` (an alias page's source) was removed in
+  step 4 of the translation redesign: there are no alias pages any more,
+  so every save acts on the page itself.
 
 ### PageBannerStyle
 

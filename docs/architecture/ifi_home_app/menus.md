@@ -1,6 +1,6 @@
 # Menus
 
-Last updated: 2026-10-09
+Last updated: 2026-10-13
 
 How the site's menus are stored, edited and turned into HTML. Menus are
 Wagtail snippets. Read the [architecture overview](../overview.md) first if
@@ -38,14 +38,13 @@ All four models are in `apps/ifi_home_app/models/menus.py`.
 ```
 Menu (key = "sidemenu")               one per key, shared by all languages
 └── MenuSlot (column, hide_on_mobile) the group's place in this menu
-    └── MenuGroup (nb)                a titled list of links
+    └── MenuGroup                     a titled list of links
         ├── MenuGroupLink             a page or an external URL
         └── MenuGroupLink
-    MenuGroup (en)                    translation of the nb group
 ```
 
-**`MenuGroup`**: a heading plus an ordered list of links. It is
-translatable, so there is one row per language.
+**`MenuGroup`**: a heading plus an ordered list of links. One row serves
+both languages (see [Languages](#languages)).
 
 | Field | Meaning |
 | --- | --- |
@@ -54,13 +53,13 @@ translatable, so there is one row per language.
 | `link_page` / `link_url` | Where the heading goes: a page, an external address, or neither (plain text). `clean()` stops you from setting both |
 | `icon` | One of `SHORTCUT_ICONS` (`info`, `news`, `unions`, `jobs`, `events`, `tools`). Only used on shortcut cards. Blank shows the plain menu icon |
 
-**`MenuGroupLink`**: one link in a group. Also translatable.
+**`MenuGroupLink`**: one link in a group.
 
 | Field | Meaning |
 | --- | --- |
 | `page` / `url` | Exactly one of them. `clean()` checks this |
 | `label` | Link text. Blank means "use the page's own title" |
-| `prefix` | Optional non-bold text before the label, like "Listings at" (shortcuts only) |
+| `label_prefix` | Optional non-bold text before the label, like "Listings at" (shortcuts only) |
 | `description` | Optional small text under the label (shortcuts only) |
 
 **`Menu`**: one row per `key`. The key is unique, so there are at most
@@ -83,18 +82,16 @@ Which fields each menu actually shows:
 | `short_title` | no | yes, on mobile | yes, if the title doesn't fit |
 | `icon` | no | no | yes |
 | Link thumbnail | no | yes | no |
-| `prefix`, `description` | no | no | yes |
+| `label_prefix`, `description` | no | no | yes |
 
 ## Editing in the Wagtail admin
 
 Both models are under **Snippets** in the admin.
 
 - `Menu` is registered with `@register_snippet` in `menus.py`.
-- `MenuGroup` is registered in `apps/ifi_home_app/wagtail_hooks.py` with
-  `NorwegianFirstSnippetViewSet` (from `translation/admin_locales.py`). Its
-  listing and its chooser open on Norwegian groups, so editors don't pick
-  the English copies by mistake. This is the same setup as the header
-  message and the home message board.
+- `MenuGroup` is registered in `apps/ifi_home_app/wagtail_hooks.py`,
+  together with the header message and the home message board. Each row
+  in its listing has an "English" button that opens the English editor.
 
 The panels are defined on each model (`panels = [...]`). Links are edited
 inline on the group, and slots inline on the menu.
@@ -118,15 +115,14 @@ Step by step, for one request:
    `templates/partials/sidemenu/groups.html`.
 2. The partial calls `get_menu`. It loads the `Menu` for the key. If it
    doesn't exist, you get an empty list and the menu is just empty.
-3. For each slot, `_resolve_group()` takes `slot.group.localized`: the
-   group in the visitor's language, or the Norwegian one if there is no
-   translation.
+3. For each slot, `_resolve_group()` reads the slot's group. On `/en/` its
+   title is English by itself (see [Languages](#languages)).
 4. For each link, `_resolve_link()`:
    - External URL: kept as it is, marked `external`.
-   - Page: `_resolve_page()` takes `page.specific.localized`, the page in
-     the visitor's language. The link is **dropped** if the page is not
-     live, or if it is a `CategoryPage` that is out of season
-     (`is_visible` is false, see `active_from` / `active_until`).
+   - Page: `_resolve_page()` takes `page.specific`. The link is
+     **dropped** if the page is not live, or if it is a `CategoryPage`
+     that is out of season (`is_visible` is false, see `active_from` /
+     `active_until`).
    - The thumbnail is the first of `logo`, `image`, `hero_image` the page
      has.
 5. The group becomes a plain dict: `title`, `short_title`, `icon`, `url`,
@@ -140,80 +136,32 @@ The dicts keep the templates simple: they never touch models or querysets.
 
 ## Languages
 
-- `MenuGroup` and `MenuGroupLink` use `TranslatableMixin`. English groups
-  are wagtail-localize translations of the Norwegian ones. Titles, labels,
-  prefixes and descriptions are translated. URLs and icons are
-  synchronized from Norwegian.
-- `Menu` and `MenuSlot` are not translated. Slots point at a group
-  (normally the Norwegian one), and `.localized` swaps in the English
-  group on `/en/`.
-- Page links are stored once and resolved at render time, so a link to the
-  Norwegian page goes to the English page on `/en/`.
-- The icon is read from the group the slot points at, and only falls back
-  to the translated group's icon when that is blank.
-- `manage.py link_menu_translations` registers English groups that were
-  made as plain copies (by migration `0152_menus`) with wagtail-localize.
-  See [management_commands.md](../../operations/management_commands.md).
-  New groups use the normal "Translate" button.
+There is one set of groups and menus. English is shown on top of them on
+`/en/`, the same way as for pages (see
+[translations.md](../shared/translations.md)):
 
-The full translation workflow is planned as `shared/translations.md`.
-
-## The `section` field
-
-`ArticleIndexPage.section` (`hub`, `info_articles`, `news`) no longer
-decides what is in a menu. Menus used to be built from `section`, a
-`show_in_menu` flag on pages and hard-coded slugs. Migration `0152_menus`
-turned that into editable groups and removed the flag. Today `section` is
-used by `get_section_index()` (for example, the home page's news list),
-breadcrumbs and article cards. Seeding and migration `0152_menus` also use
-it once, to find the pages for the default groups.
-
-## Caching
-
-Menus are **not cached**. `get_menu()` runs on every render, with several
-database queries per group and per link. The home page calls it three
-times. The site's file cache (`clear_cache`) does not hold menus, so an
-editor's change shows on the next page load.
-
-## JavaScript and CSS
-
-| File | What it does |
-| --- | --- |
-| `static/css/06_components/sidemenu.css` (global) | Side menu. Opens on hover or focus on desktop, on tap on touch and below 45rem. Loaded by `css_links/home_base.html` |
-| `apps/ifi_home_app/static/js/sidemenu.js` | Closes the open side menu when you tap outside it |
-| `static/css/06_components/dropdownmenu.css` (global) | Home dropdowns. Hover reveal on mouse devices, `.is-open` on touch. Hides the "All" link on mouse devices |
-| `apps/ifi_home_app/static/js/dropdown_menu.js` | Tap to open and close dropdowns on touch devices. Also used by the header's profile dropdown |
-| `.../06_components/home/home_navbar_mobile.css` | Below 45rem: hides `hide_on_mobile` dropdowns, swaps in `short_title` |
-| `.../06_components/home/home_shortcuts.css` | Shortcut cards. On desktop, links appear on hover. On mobile, each card is an icon that opens a `popover` with the links |
-| `apps/ifi_home_app/static/js/shortcut_fit.js` | Fits each card title: full title, then `short_title`, then smaller text |
-| `home/partials/shortcuts/shortcut_icon.html` | The inline SVG for each `icon` value |
-
-The side menu and the shortcut popovers use native `<details>` and
-`popover`, so they work without JavaScript.
-
-## Where to change things
-
-| If you want to… | Look at |
-| --- | --- |
-| Add a field to groups or links | `models/menus.py`, then `_resolve_group()` / `_resolve_link()`, then the templates |
-| Add a new menu | Add a key to `MENU_KEYS`, a migration, and a template that calls `get_menu` |
-| Add a shortcut icon | `SHORTCUT_ICONS` in `models/menus.py` (needs a migration) and `home/partials/shortcuts/shortcut_icon.html` |
-| Change which links are hidden | `_resolve_page()` in `models/menus.py` |
-| Change how a menu looks | The template in the first table, and the CSS above |
-| Change the default menus for a new database | `management/seed_dev_data/menus.py` |
-| Change the header links | `templates/partials/header.html` (not a menu snippet) |
+- Group titles and short titles, and link labels, descriptions and
+  prefixes, have English. URLs and icons are the same in both languages.
+- `Menu` and `MenuSlot` have no text to translate.
+- A page link shows the page's English title and English address on
+  `/en/`. A blank link label means "use the page's title", so that is
+  English too.
+- Saving a group puts it and its links on the "waiting for English" list,
+  and DeepL fills in the English about a minute later. To fix the English
+  by hand, use the group's "English" button. The "Machine-translate menu"
+  button on a `Menu` row translates all its groups and links at once.
 
 ## Gotchas
 
+- **Don't name a field `prefix`** on a model edited in an inline panel.
+  Wagtail's panel template reads the form's own `prefix`, and a field with
+  that name replaces it, which breaks the whole panel. That's why the field
+  is `label_prefix`.
 - **An empty menu is silent.** If a `Menu` row is missing, the menu is
   simply not rendered. Run `seed_dev_data` locally to get the default
   menus.
-- **English lags behind.** After an editor changes a Norwegian group, the
-  English group keeps its old links and text until it is synced in
-  wagtail-localize.
-- **Draft translations fall back to Norwegian.** `.localized` skips pages
-  that are not live, so if the English page is a draft, English visitors
-  get a link to the Norwegian page.
+- **English lags behind by about a minute.** Until DeepL has run, a new
+  or changed group title or label shows in Norwegian on `/en/`.
 - **Deleting things.** Deleting a page deletes its links
   (`on_delete=CASCADE`). Deleting a heading page leaves the heading as
   plain text (`SET_NULL`). Deleting a group removes it from every menu.

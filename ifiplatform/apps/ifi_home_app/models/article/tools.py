@@ -7,13 +7,17 @@ from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Page
 
 from ..page_mixins import TranslationWarningMixin
+from ...translation.english_overlay import EnglishPreviewMixin
 
 
 # Model for an ifi-tool's own page (e.g. event calendar, map webpage)
-class ToolPage(TranslationWarningMixin, Page):  # pylint: disable=too-many-ancestors
+class ToolPage(
+    EnglishPreviewMixin, TranslationWarningMixin, Page
+):  # pylint: disable=too-many-ancestors
     """A single ifi-tool's page: what it is, an image, an optional link and maker."""
 
     template = "info_articles/pages/tool_page.html"
+    translated_fields = ["description"]
 
     description = RichTextField(help_text="What this tool is / what it does.")
     image = models.ForeignKey(

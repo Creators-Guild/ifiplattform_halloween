@@ -13,7 +13,7 @@ use."""
 from django.shortcuts import redirect
 from django.urls import reverse
 
-from ifiplatform.apps.account_app.permissions import is_pending_editor
+from account_app.permissions import is_pending_editor
 
 # wagtail-admin/ is mounted inside i18n_patterns (see ifiplatform_project/
 # urls.py), so the real request path is locale-prefixed (/en/wagtail-admin/,

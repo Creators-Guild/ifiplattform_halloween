@@ -28,7 +28,7 @@ import time
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
-from ifiplatform.core_app.deploy_notice import DEPLOY_NOTICE_CACHE_KEY
+from core_app.deploy_notice import DEPLOY_NOTICE_CACHE_KEY
 
 
 class Command(BaseCommand):

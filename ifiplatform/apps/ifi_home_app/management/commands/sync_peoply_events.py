@@ -15,13 +15,10 @@ run) is unpublished and logged as a PeoplyRemovedEvent, for a superuser to
 delete or archive from Django admin. If it later reappears on Peoply, it's
 republished and that log row marked resolved.
 
-After syncing, also runs sync_locale_trees (creates each new event's
-English alias -- pages here are created via add_child()/save_revision().
-publish() directly, which bypasses the admin-only hook that would otherwise
-do this) and clears Wagtail's site-root-paths cache (bulk page-tree churn
-like this doesn't trigger Wagtail's own cache invalidation, which only
+After syncing, clears Wagtail's site-root-paths cache (bulk page-tree
+churn like this doesn't trigger Wagtail's own cache invalidation, which only
 listens for Site row changes -- confirmed the hard way once, see
-clear_cache's own docstring). Both make every caller -- the scheduled
+clear_cache's own docstring). That makes every caller -- the scheduled
 systemd timer, a local dev running this by hand, and the "Sync Peoply now"
 admin button -- self-contained, with nothing extra to run afterwards."""
 
@@ -36,11 +33,11 @@ from django.utils.text import slugify
 from wagtail.coreutils import find_available_slug
 from wagtail.models import Locale, Site
 
-from ifiplatform.apps.ifi_home_app.integrations.peoply_api import get_events
-from ifiplatform.apps.ifi_home_app.models.article.unions import UnionPage
-from ifiplatform.apps.ifi_home_app.models.event.constants import SITE_TIMEZONE
-from ifiplatform.apps.ifi_home_app.models.event.pages import EventIndexPage, EventPage
-from ifiplatform.apps.ifi_home_app.models.event.peoply import (
+from ifi_home_app.integrations.peoply_api import get_events
+from ifi_home_app.models.article.unions import UnionPage
+from ifi_home_app.models.event.constants import SITE_TIMEZONE
+from ifi_home_app.models.event.pages import EventIndexPage, EventPage
+from ifi_home_app.models.event.peoply import (
     PEOPLY_SYNCED_FIELDS,
     PeoplyRemovedEvent,
     PeoplySyncState,
@@ -129,14 +126,14 @@ def _peoply_fields(event):
     return fields
 
 
-def _host_translation_key(page):
+def _host_union_id(page):
     for entry in page.related_unions:
         if (
             entry.block_type == "union"
             and entry.value["role"] == "host"
             and entry.value["union"]
         ):
-            return entry.value["union"].translation_key
+            return entry.value["union"].pk
     return None
 
 
@@ -181,16 +178,12 @@ class Command(BaseCommand):
             )
 
         unions = UnionPage.objects.live().exclude(peoply_organization_id="")
-        # A union's nb/en translations share the same peoply_organization_id
-        # -- sync once per union, not once per locale.
-        seen_translation_keys = set()
+        synced_union_ids = set()
         # Fetch every union first -- get_events raises on an outage, and
         # removal detection below must never run on a partial fetch.
         fetched = []
         for union in unions:
-            if union.translation_key in seen_translation_keys:
-                continue
-            seen_translation_keys.add(union.translation_key)
+            synced_union_ids.add(union.pk)
             fetched += [
                 (union, event)
                 for event in get_events(union.peoply_organization_id, after_date)
@@ -208,7 +201,6 @@ class Command(BaseCommand):
         for union, event in fetched:
             fetched_uids.add(event["id"])
             fields = _peoply_fields(event)
-            # locale=nb: the English alias copies external_uid too.
             page = EventPage.objects.filter(
                 external_source="peoply", external_uid=event["id"], locale=nb_locale
             ).first()
@@ -270,7 +262,7 @@ class Command(BaseCommand):
         for page in candidates:
             if not _starts_on_or_after(page, after_date):
                 continue
-            if _host_translation_key(page) not in seen_translation_keys:
+            if _host_union_id(page) not in synced_union_ids:
                 continue
 
             page.unpublish()
@@ -287,7 +279,6 @@ class Command(BaseCommand):
             counts["hidden"] += 1
             self.stdout.write(f"  hid EventPage (gone from Peoply): {page.title}")
 
-        call_command("sync_locale_trees")
         Site.clear_site_root_paths_cache()
 
         PeoplySyncState.touch()

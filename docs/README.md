@@ -1,6 +1,6 @@
 # docs/
 
-Last updated: 2026-10-11
+Last updated: 2026-10-14
 
 Project documentation beyond the main [README.md](../README.md). Each
 folder holds one kind of document. When you add a new doc, put it in the
@@ -24,9 +24,13 @@ into one folder per app, and features that span several apps go in
 - [frontend.md](architecture/frontend.md): how HTML templates and CSS are
   organized, loaded and written
 - [docker_setup.md](architecture/docker_setup.md): how the local Docker
-  setup is built and why
+  setup is built and why (the server setup is in
+  [operations/docker_server.md](operations/docker_server.md))
 - [eraser_links.md](architecture/eraser_links.md): feature concept map
-- `shared/`: cross-app features and `core_app` (no docs yet)
+- `shared/`: cross-app features and `core_app`
+  - [translations.md](architecture/shared/translations.md): Norwegian
+    pages with English on top, DeepL, English addresses, and fixed texts
+    in templates and code
 - `ifi_home_app/`: feature docs for the main site
   - [articles.md](architecture/ifi_home_app/articles.md): article,
     category and index pages, StreamField blocks, and article and block
@@ -52,6 +56,8 @@ into one folder per app, and features that span several apps go in
   backed up, how to check it, and how to restore
 - [server_setup.md](operations/server_setup.md): how to rebuild the
   production server from zero
+- [docker_server.md](operations/docker_server.md): setting up and running
+  a server with Docker (the mock site now, the real site later)
 - [access_and_handover.md](operations/access_and_handover.md): accounts
   and keys, and checklists for adding, removing and handing over people
 
@@ -157,16 +163,16 @@ nobody can recover without them.
   template.
 - [ ] `architecture/wagtail.md`: how this project uses Wagtail:
   pages vs snippets vs plain Django models, the page tree and
-  `subpage_types`, StreamField blocks, locales, `wagtail_hooks.py`, and how
+  `subpage_types`, StreamField blocks, `translated_fields`, `wagtail_hooks.py`, and how
   to add a new page type from start to finish. Also why an app prefix
   hides a page with the same slug, and why the hub page is never shown on
   its own.
-- [ ] `architecture/shared/translations.md`: the Norwegian/English workflow
-  end to end: wagtail-localize, DeepL and its glossary,
-  `makemessages`/`compilemessages`, locale aliases.
+- [x] `architecture/shared/translations.md`: the Norwegian/English workflow
+  end to end: English on top of the Norwegian pages, DeepL and its
+  glossary, `makemessages`/`compilemessages`.
 - [ ] `architecture/shared/background_jobs.md`: the jobs that run outside
   a web request: the Peoply event sync (a systemd timer), the DeepL
-  glossary sync (run by hand), and cleanup of unverified accounts (meant to
+  translation timers, the DeepL glossary sync (run on deploy), and cleanup of unverified accounts (meant to
   run on a schedule, but nothing schedules it yet). Cover how each one runs,
   how often, where it logs, and what to do when one fails.
 - [x] `architecture/ifi_home_app/articles.md`: article, category and index

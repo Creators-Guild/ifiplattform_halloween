@@ -12,3 +12,5 @@ ifiplatform/django_cache/
 ifiplatform/staticfiles/
 # Personal Claude Code settings. The shared ones are in .claude/settings.json.
 .claude/settings.local.json
+# Local Claude plans, not shared.
+.claude/plans/

@@ -1,0 +1,33 @@
+# Caddy's settings for the Docker servers (compose.prod.yml). Caddy gets
+# and renews the HTTPS certificate for SITE_DOMAIN by itself.
+
+{
+	servers {
+		# HTTP/3 needs UDP port 443, which the security group doesn't open.
+		protocols h1 h2
+	}
+}
+
+{$SITE_DOMAIN} {
+	encode gzip
+
+	request_body {
+		max_size 20MB
+	}
+
+	# "noindex, nofollow" on the mock site, "all" (the default) on the real one.
+	header X-Robots-Tag "{$ROBOTS_TAG:all}"
+
+	# Uploaded files straight from the media volume. Everything else,
+	# /static/ included, goes to Django.
+	handle /media/* {
+		root * /srv
+		file_server
+	}
+
+	handle {
+		reverse_proxy web:8000
+	}
+
+	log
+}

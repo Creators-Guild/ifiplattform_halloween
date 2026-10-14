@@ -39,6 +39,8 @@ class MenuGroup(TranslatableMixin, ClusterableModel):
     """A titled, ordered list of links, placed into one or more Menus.
     Registered as a snippet in wagtail_hooks.py (Norwegian-first listing)."""
 
+    translated_fields = ["title", "short_title"]
+
     title = models.CharField(max_length=100)
     short_title = models.CharField(
         max_length=50,
@@ -97,6 +99,8 @@ class MenuGroup(TranslatableMixin, ClusterableModel):
 class MenuGroupLink(TranslatableMixin, Orderable):
     """One link in a MenuGroup: a page on the site or an external address."""
 
+    translated_fields = ["label", "description", "label_prefix"]
+
     group = ParentalKey(MenuGroup, on_delete=models.CASCADE, related_name="links")
     label = models.CharField(
         max_length=100,
@@ -110,7 +114,9 @@ class MenuGroupLink(TranslatableMixin, Orderable):
         blank=True, help_text="An external address instead of a page."
     )
     description = models.CharField(max_length=100, blank=True)
-    prefix = models.CharField(
+    # Not "prefix": Wagtail's inline panel template reads form.prefix (the
+    # formset prefix), and a field of that name shadows it.
+    label_prefix = models.CharField(
         max_length=50,
         blank=True,
         help_text='Optional non-bold text before the label, e.g. "Listings at".',
@@ -121,7 +127,7 @@ class MenuGroupLink(TranslatableMixin, Orderable):
         FieldPanel("page"),
         FieldPanel("url"),
         FieldPanel("description"),
-        FieldPanel("prefix"),
+        FieldPanel("label_prefix"),
     ]
 
     class Meta(Orderable.Meta):
@@ -176,10 +182,10 @@ def _thumbnail(page):
 
 
 def _resolve_page(page):
-    """The live, visible version of `page` in the active locale, or None."""
+    """`page` (specific) if it's live and visible, else None."""
     if page is None:
         return None
-    page = page.specific.localized
+    page = page.specific
     if not page.live:
         return None
     if isinstance(page, CategoryPage) and not page.is_visible:
@@ -194,7 +200,7 @@ def _resolve_link(link):
             "url": link.url,
             "external": True,
             "description": link.description,
-            "prefix": link.prefix,
+            "prefix": link.label_prefix,
             "image": None,
         }
     page = _resolve_page(link.page)
@@ -205,13 +211,13 @@ def _resolve_link(link):
         "url": page.url,
         "external": False,
         "description": link.description,
-        "prefix": link.prefix,
+        "prefix": link.label_prefix,
         "image": _thumbnail(page),
     }
 
 
 def _resolve_group(slot):
-    group = slot.group.localized
+    group = slot.group
     link_page = _resolve_page(group.link_page)
     links = [
         link for link in (_resolve_link(link) for link in group.links.all()) if link
@@ -220,7 +226,7 @@ def _resolve_group(slot):
     return {
         "title": group.title,
         "short_title": group.short_title,
-        "icon": slot.group.icon or group.icon,
+        "icon": group.icon,
         "url": url,
         "external": bool(group.link_url) and not link_page,
         # an "All" link to the heading's own target, unless a link already goes there
@@ -232,8 +238,9 @@ def _resolve_group(slot):
 
 
 def get_menu(key):
-    """The Menu with this key, resolved to plain dicts for the active locale:
-    one per group, in order. Empty if the menu hasn't been set up."""
+    """The Menu with this key, resolved to plain dicts (English labels under
+    /en/, via the English overlay): one per group, in order. Empty if the
+    menu hasn't been set up."""
     menu = Menu.objects.filter(key=key).first()
     if menu is None:
         return []

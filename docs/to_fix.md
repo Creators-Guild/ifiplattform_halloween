@@ -1,6 +1,6 @@
 # To fix
 
-Last updated: 2026-09-29
+Last updated: 2026-10-14
 
 Known problems found while writing the docs, waiting to be turned into
 GitHub issues. When you create an issue for one, delete it here. Paths are
@@ -24,31 +24,10 @@ folder.
   `models/article/blocks.py`. Fix: add `-2`, `-3` to repeated ids.
 - [ ] **Hand-picked union groups show retired and unpublished unions.**
   The `union_groups` cards on a `StudentUnionCategoryPage` aren't filtered
-  for live, language or status. Where: `StudentUnionCategoryPage.get_context()`
+  for live or status. Where: `StudentUnionCategoryPage.get_context()`
   in `models/article/unions.py`.
-- [ ] **The sync doesn't filter unions by language.** It loops over live
-  unions in every language, so a new event's host in `related_unions` can
-  point at the English copy of the union. Pages still display correctly
-  (templates use `.localized`), but the stored data is inconsistent. Where:
-  `management/commands/sync_peoply_events.py`. Fix: only use nb unions.
 - [ ] **`--after` is read as midnight UTC**, not Oslo midnight. Where:
   `management/commands/sync_peoply_events.py`.
-- [ ] **The "DRAFT" banner doesn't show on the English version** of a
-  draft article. Likely cause: the banner checks `page_is_live`, which is
-  the English page's own `live` flag, while Publish and Unpublish in
-  Editor mode act on the Norwegian copy (`publish_target`). Where:
-  `ArticlePage.get_context()` in `models/article/pages.py`,
-  `templates/info_articles/pages/article_page.html`. Fix: base the banner
-  on the Norwegian copy's status.
-- [ ] **Menu edits don't reach the English menus.** Changes to the home
-  shortcuts and to menu groups (`MenuGroup`, `MenuGroupLink`) only show on
-  the Norwegian site. The English groups are separate wagtail-localize
-  translations, and nothing copies changes over: pages get their synced
-  fields copied on publish (the `page_published` receiver in
-  `wagtail_hooks.py`), but snippets have no such hook. Editors have to
-  sync each translated group by hand. Where: `models/menus.py`,
-  `wagtail_hooks.py`. Fix: sync the English group when a Norwegian group
-  is saved, the way pages do on publish.
 
 ## Features
 
@@ -65,88 +44,114 @@ folder.
   articles that already use it (they do today, since an empty field means
   "use the default").
 
-- [ ] **Move student unions out of the info articles, like events.**
-  Unions are more than information articles: they have their own events,
-  calendar, board members and Peoply link. Today `StudentUnionCategoryPage`
-  sits under an `ArticleIndexPage` or `CategoryPage` (for example under
-  "Sosialt"). The goal is a tree like this:
+- [ ] **Redesign the page tree: one page type per job.** Today
+  `ArticleIndexPage` is the site root ("hub"), the info index and the news
+  index, told apart by its `section` field, and student unions sit inside
+  the info articles although they have their own events, calendar, board
+  and Peoply link. The goal:
   ```
-  ArticleIndexPage (hub)
-  ├── ArticleIndexPage (info_articles)   articles *about* unions stay here
-  ├── ArticleIndexPage (news)
-  ├── EventIndexPage
-  └── Union index page                   one per language, all unions below it
+  SiteRootPage           the site root; structural only, never shown
+  ├── InfoIndexPage      once
+  │   └── CategoryPage → ArticlePage, ToolPage
+  ├── NewsIndexPage      once
+  │   └── CategoryPage → ArticlePage
+  ├── EventIndexPage     once (as today)
+  │   └── EventPage
+  └── UnionIndexPage     once; replaces StudentUnionCategoryPage
       └── UnionPage
   ```
   What it involves:
-  - **One union index page**, like `EventIndexPage`: it may only sit under
-    the hub, and only once (`max_count_per_parent = 1`). The simplest way
-    is to turn the existing `StudentUnionCategoryPage` into it, since it
-    already lists all unions. Renaming the model to `UnionIndexPage` is
-    optional and needs a migration.
-  - Remove it from the `subpage_types` of `CategoryPage` and the
-    info-articles index (`models/article/pages.py`,
-    `models/article/unions.py`).
-  - Move the existing union category page, in Norwegian and English. Check
-    that the English copies move with it.
-  - **Every union URL changes.** Wagtail's redirects app is installed and
-    should create redirects from the old URLs automatically when the page
-    is moved in the admin. Check that they appear under Settings →
-    Redirects, so links from outside, such as Peoply, keep working.
-  - Replace the purple union category card on category pages with a link
-    or an info article that points to the unions page.
-  - Update the menus, `seed_dev_data`, the breadcrumbs, and the page tree
-    in `docs/architecture/overview.md` and `unions_and_tools.md`.
+  - **New page types**: `SiteRootPage` (only under Wagtail's root, once,
+    children only the four indexes) and `InfoIndexPage`,
+    `NewsIndexPage`, `UnionIndexPage` (only under `SiteRootPage`,
+    `max_count_per_parent = 1`). Each declares `translated_fields`; update
+    `translated_fields.json` with `update_translation_snapshot`.
+  - **Wagtail can't change a page's type**, and recreating the index
+    pages would give them new ids. Stored English (`SegmentTranslation`,
+    keyed by content type + id), `EnglishSlug`, `Site.root_page`, menu
+    links and page choosers all point at those ids. Prefer a data
+    migration that swaps the type in place: add the new type's row with
+    the same `page_ptr_id`, drop the old type's row, update
+    `content_type` on the page and on its `SegmentTranslation` rows. Ids
+    and URLs then stay the same. Forward-only; rehearse on a copy of the
+    production database and take a backup first.
+  - **Unions move** under `SiteRootPage`, so every union URL changes.
+    Wagtail's redirects app creates redirects for the old URLs in both
+    languages; check Settings → Redirects (Peoply links to union pages).
+    Remove the union index from the `subpage_types` of `CategoryPage` and
+    the info index, and replace the purple union category card on
+    category pages with a link to the unions page.
+  - **Remove `section`** and everything that reads it:
+    `get_section_index()` (the home page finds the news index),
+    `category_section` (article cards), `ArticlePage.can_create_at()`
+    (blocks articles under the hub), and the breadcrumbs (skip the root by
+    type instead).
+  - Update `seed_dev_data`, the menus, the home templates (they crash if
+    an index is missing, see the project rules), the dashboard guide
+    (`templates/wagtailadmin/home/guide.html` describes the tree), and
+    `overview.md`, `articles.md`, `unions_and_tools.md`, `menus.md`.
+  - Open question: should tools get their own `ToolIndexPage` too? Today
+    they sit under categories ("Verktøy").
+  - Do it in two steps (root + unions first, then info/news), each with
+    its own rehearsal on a copy of the production database.
 
-- [ ] **Give news and info articles their own index page types.** Today
-  the hub, the info-articles index and the news index are all the same
-  model, `ArticleIndexPage`, told apart by its `section` field. The goal is
-  one page type per job, so the rules are in the page types instead of a
-  field:
-  ```
-  hub                                    the site root, one per language
-  ├── InfoIndexPage                      one per language
-  │   └── CategoryPage → ArticlePage
-  ├── NewsIndexPage                      one per language
-  │   └── CategoryPage → ArticlePage
-  ├── EventIndexPage
-  └── UnionIndexPage                     see the item above
-  ```
-  What it involves:
-  - New models `InfoIndexPage` and `NewsIndexPage`, each allowed only
-    under the hub and only once (`max_count_per_parent = 1`). Decide what
-    the hub becomes: keep `ArticleIndexPage` for it, or a small `HubPage`.
-  - **Wagtail can't change the type of an existing page**, so the live
-    index pages need a data migration: create the new pages (in both
-    languages), move their children over, then delete the old ones. This
-    is the riskiest part. Test it on a copy of the production database
-    first, and take a backup before deploying it.
-  - Replace everything that reads `section`:
-    - `get_section_index()`, which the home page uses to find the news
-      index
-    - `category_section`, used by article cards
-    - `ArticlePage.can_create_at()`, which blocks articles under the hub
-    - the breadcrumbs, which skip the hub
-
-    Then remove the field.
-  - Check `seed_dev_data`, the menus, and the home templates (they crash
-    if an index is missing, see the project rules).
-  - Update `overview.md`, `articles.md` and `menus.md`.
-  - Worth doing together with the unions move above, since both change
-    the page tree and need page moves in production.
-
-- [ ] **The links in a menu group look odd in the Wagtail admin.** Add a
-  screenshot to the issue showing what looks wrong. What the code does
-  today: each link in the "Links" list shows five full-width fields in
-  this order: label, page, URL, description, prefix. There is no custom
-  admin CSS. Possible improvements:
+- [ ] **Tidy the link fields in the menu group editor.** (The broken
+  "Links" panel was fixed by renaming `prefix` to `label_prefix`.) Each
+  link shows five full-width fields: label, page, URL, description,
+  label prefix. Possible improvements:
   - put page and URL side by side (`FieldRowPanel`), since only one of
     them may be filled
-  - move `prefix` before `label`, the order they appear on the site
-  - add help texts saying `prefix` and `description` only show on the
-    home page shortcuts
+  - move `label_prefix` before `label`, the order they appear on the site
+  - add help texts saying `label_prefix` and `description` only show on
+    the home page shortcuts
 
   Where: `panels` on `MenuGroupLink` and `MenuGroup` in `models/menus.py`.
+
+## For future features
+
+Problems that don't hurt today, but will once the student resource library
+(documents, flashcards, images) and the wiki arrive. Plan for them before
+those features launch.
+
+- [ ] **Uploads will fill the server's disk.** The server has one 20 GB disk
+  for Ubuntu, Docker images, the database and every uploaded file. A
+  resource library can fill that within a few semesters. Fix: keep the
+  database and `media` on a separate NREC volume mounted at a fixed folder
+  (for example `/srv/ifiplatform-data`). An NREC volume can be made bigger
+  later without rebuilding the server. If even that isn't enough, store
+  uploads in object storage (NREC has S3-style storage) with the
+  `django-storages` package.
+- [ ] **Private documents can be downloaded without logging in.** Wagtail
+  checks a document's privacy settings only when it's downloaded through
+  Wagtail (`/documents/<id>/<name>`). The files themselves sit in
+  `media/documents/`, and the web server hands out everything under
+  `/media/` directly, so anyone with that direct link skips the check. This
+  is already true today with Nginx, but it only matters once something is
+  uploaded as login-only. Fix: make the web server refuse `/media/documents/`
+  (one line in the Nginx or Caddy config), as Wagtail's docs recommend.
+- [ ] **Upload size limits must be chosen on purpose.** Lecture slides and
+  scanned notes can be large, and there are several limits in different
+  places: the web server (Nginx today allows only 1 MB, see Server below),
+  and Wagtail's image limit (`WAGTAILIMAGES_MAX_UPLOAD_SIZE`, 10 MB by
+  default, not set in `ifiplatform/ifiplatform_project/settings.py`).
+  Wagtail has no limit of its own for documents. Fix: decide the largest
+  file we accept, set every limit to match, and write down where they are.
+- [ ] **Media backups will become huge.** `deploy/backup/backup_db.sh` makes
+  a full `.tar.gz` of all of `media` every day, plus one before every
+  deploy, and keeps 14 days of them. That's 14 or more complete copies of
+  every uploaded file on the backup volume. Fix: copy media with `rsync`,
+  which only copies new and changed files, and keep the 14-day history for
+  the database dumps.
+- [ ] **Wiki history will fill the database.** Wagtail saves a full copy of
+  a page every time someone saves it, and keeps them forever. A busy wiki
+  makes many copies. Fix: decide how long history is kept, and run
+  Wagtail's `purge_revisions --days=<N>` as a scheduled job.
+- [ ] **Content must never be committed into a `static/` folder.** Uploaded
+  material (PDFs, images, flashcard pictures) belongs in Wagtail, where it
+  ends up in `media`. `static/` is only for the CSS, JS and icons that
+  developers write. Files committed there are copied into every build and
+  every deploy. Fix: write this rule in the contributing docs when the
+  library is built.
 
 ## Safety and cleanup
 
@@ -174,6 +179,15 @@ folder.
 - [ ] **The Editor mode "On/Off" label is always English.**
   `static/js/article_editor_mode.js` replaces the translated text with
   hard-coded English.
+- [ ] **Images with text in them can't get an English version.** Every
+  image is shared between Norwegian and English, so a poster or diagram
+  with Norwegian writing on it stays Norwegian on the English site.
+  Possible fix: an optional "English version" image field next to images,
+  used on `/en/` when set.
+- [ ] **Search needs an English index.** The site has no public search
+  today. If it gets one later, Wagtail's search index will only hold the
+  Norwegian text, since English isn't stored as pages, so English search
+  needs its own index of the translated text.
 - [ ] **Two union headings are Norwegian in the code.** "Programspesifikke
   foreninger" and "Andre foreninger" are Norwegian `{% trans %}` strings in
   `studentunion_category_page.html`, while every other heading is English.
@@ -189,14 +203,8 @@ folder.
 - [ ] `ArticleStyle` help texts name `article_page.css` and
   `category_page.css`, which don't exist (the real files are
   `article_layout.css`, `article_header.css` and `page_title.css`).
-- [ ] `translation/sync.py` says `publish_page` calls the sync itself. It
-  relies on the `page_published` signal.
 - [ ] `save_banner_style` says blank or 0 means "auto". There is no auto;
   blank falls back to a fixed default.
-- [ ] The `link_peoply_organizations` docstring suggests
-  `peoply_organization_id` is copied to English by the publish hook. It
-  isn't a synced field; it works because `apply_peoply_match()` writes
-  every language copy.
 - [ ] Template comments say `.union-group-row` is in `category_card.css`
   (it's in `05_objects/category_layout.css`), and the union and tool card
   partials point to `article_models.py` (the blocks are in
@@ -213,4 +221,13 @@ From [operations/server_setup.md](operations/server_setup.md#notes-and-known-iss
 - [ ] **Uploads over 1 MB probably fail** with "413", because Nginx has no
   `client_max_body_size`. Test with a large image in the Wagtail admin.
 - [ ] **Gunicorn's timeout is 30 minutes** (`--timeout 1800`). The usual
-  value is 30–120 seconds.
+  value is 30–120 seconds. It was raised for machine-translating a whole
+  subtree inside the web request; that now runs from the
+  `ifiplatform-translate` timer, so the long timeout can probably go.
+  Check that nothing else needs it (the "Sync Peoply now" button runs in
+  the request too, see Bugs).
+- [ ] **Local dev and production share one DeepL account.**
+  `sync_deepl_glossary` replaces the glossary by name, so running it
+  locally gives prod's `DEEPL_GLOSSARY_ID` a deleted glossary, and DeepL
+  then fails with 404 until prod's `.env` is updated. Fix: a separate
+  DeepL key for development (or none: without a key nothing is sent).

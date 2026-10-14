@@ -4,14 +4,14 @@ articles."""
 
 from django.utils import timezone
 
-from ifiplatform.apps.ifi_home_app.models import ArticlePage
-from ifiplatform.apps.ifi_home_app.models.article_models import CategoryPage, ToolPage
+from ifi_home_app.models import ArticlePage
+from ifi_home_app.models.article_models import CategoryPage, ToolPage
 
 from .constants import NEW_STUDENT_ARTICLE_SPECS
 
 
 class ToolSeedMixin:
-    def _seed_tool(self, praktisk_category, nb_locale, en_locale, seed_image):
+    def _seed_tool(self, praktisk_category, nb_locale, seed_image):
         # Slug pinned explicitly -- plain slugify() would strip the "ø", and
         # menus.py (and existing databases) look this category up by it.
         # show_nested_tools=True so this category's own page also
@@ -28,7 +28,7 @@ class ToolSeedMixin:
             slug="ifi-verktøy",
             show_nested_tools=True,
         )
-        self._translate_page(tool_category, en_locale)
+        self._translate_page(tool_category)
 
         tool = self._get_or_create_page(
             tool_category,
@@ -42,7 +42,7 @@ class ToolSeedMixin:
             made_by="Ifi Platform",
             preview_images=[("image", seed_image)],
         )
-        self._translate_page(tool, en_locale)
+        self._translate_page(tool)
 
         nested_tool_category = self._get_or_create_page(
             tool_category,
@@ -52,7 +52,7 @@ class ToolSeedMixin:
             color="pink",
             slug="uio-verktoy",
         )
-        self._translate_page(nested_tool_category, en_locale)
+        self._translate_page(nested_tool_category)
 
         nested_tool = self._get_or_create_page(
             nested_tool_category,
@@ -67,11 +67,9 @@ class ToolSeedMixin:
             link="https://example.com",
             made_by="Ifi Platform",
         )
-        self._translate_page(nested_tool, en_locale)
+        self._translate_page(nested_tool)
 
-    def _seed_new_student_articles(
-        self, praktisk_category, nb_locale, en_locale, seed_image
-    ):
+    def _seed_new_student_articles(self, praktisk_category, nb_locale, seed_image):
         # Slug pinned explicitly, like "ifi-verktøy" above -- menus.py looks
         # this category up by it for the "New Student?" menu group.
         new_student_category = self._get_or_create_page(
@@ -83,7 +81,7 @@ class ToolSeedMixin:
             color="turq",
             intro="Her er alt du skulle trenge som en ny Ifi Student!",
         )
-        self._translate_page(new_student_category, en_locale)
+        self._translate_page(new_student_category)
 
         today = timezone.now().date()
         for title, intro, heading, text in NEW_STUDENT_ARTICLE_SPECS:
@@ -97,4 +95,4 @@ class ToolSeedMixin:
                 hero_image=seed_image,
                 body=self._build_article_body(heading, text),
             )
-            self._translate_page(article, en_locale)
+            self._translate_page(article)

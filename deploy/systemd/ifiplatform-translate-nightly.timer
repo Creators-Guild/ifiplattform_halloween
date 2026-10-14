@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the nightly English catch-up and cleanup at 03:30
+
+[Timer]
+# 03:30 keeps clear of the 01:00 deploy, the ~04:00 unattended upgrades and
+# the 05:00 backup.
+OnCalendar=*-*-* 03:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

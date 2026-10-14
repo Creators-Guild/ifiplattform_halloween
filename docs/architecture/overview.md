@@ -1,6 +1,6 @@
 # Architecture overview
 
-Last updated: 2026-10-11
+Last updated: 2026-10-13
 
 A map of how IfiPlatform fits together: which app does what, how pages are
 organized, and what happens between a browser request and the HTML that
@@ -133,7 +133,8 @@ ArticleIndexPage (hub)
 ```
 
 - **(hub), (info_articles), (news)** are the index page's `section` field.
-- **The hub** is the site's root page. There is one per language.
+- **The hub** is the site's root page. There is one, in Norwegian; English
+  is shown on the same pages (see [shared/translations.md](shared/translations.md)).
 - **CategoryPage** examples: "Sosialt", "Praktisk", and "Siste nytt"
   under news. Categories can be nested.
 - **EventPage** can hold sub-events (more `EventPage`s).
@@ -146,8 +147,8 @@ tells the site which part an index is: the home page finds the news index
 by it, and breadcrumbs leave out the hub. Menus don't use it, since editors
 pick every menu link by hand (see [ifi_home_app/menus.md](ifi_home_app/menus.md)).
 
-A guide to Wagtail itself in this project (pages vs snippets, StreamField,
-locales and how to add a new page type) is planned as
+A guide to Wagtail itself in this project (pages vs snippets, StreamField
+and how to add a new page type) is planned as
 `wagtail.md`.
 
 ## From request to page
@@ -185,14 +186,14 @@ and the production keys are in
 
 ## Languages
 
-The site is bilingual. `nb` is the main language: content is written in
-Norwegian first and then translated to English, with wagtail-localize and
-DeepL machine translation. Each language has its own copy of the page tree.
+The site is bilingual. `nb` is the main language: there is one page tree,
+written in Norwegian. On `/en/` the same pages show English text, which
+DeepL fills in after publishing and editors can correct.
 Texts in templates and Python code are translated with Django's own
 `{% trans %}` / `_()` and the files in `ifiplatform/locale/`.
 [contributing/everyday_commands.md](../contributing/everyday_commands.md#translations)
-shows the commands. A full guide is planned as
-`shared/translations.md`.
+shows the commands. Both are explained in
+[shared/translations.md](shared/translations.md).
 
 ## External services
 

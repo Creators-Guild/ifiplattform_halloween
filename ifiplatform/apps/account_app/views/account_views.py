@@ -14,11 +14,11 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from ifiplatform.apps.account_app.forms import AccountDeleteForm, NicknameForm, ProfileForm
-from ifiplatform.apps.account_app.models import Profile
-from ifiplatform.apps.account_app.permissions import is_pending_editor
-from ifiplatform.apps.ifi_home_app.models import ArticlePage
-from ifiplatform.apps.study_app.models import Card, Deck
+from account_app.forms import AccountDeleteForm, NicknameForm, ProfileForm
+from account_app.models import Profile
+from account_app.permissions import is_pending_editor
+from ifi_home_app.models import ArticlePage
+from study_app.models import Card, Deck
 
 _EMAIL_CHANGE_SALT = "account_app.email_change"
 _EMAIL_CHANGE_MAX_AGE = 60 * 60 * 24 * 3  # 3 days

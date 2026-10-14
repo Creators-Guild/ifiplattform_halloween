@@ -88,18 +88,10 @@ def find_exact_match(title, candidates):
 
 
 def apply_peoply_match(union, org):
-    """Writes org["id"] as peoply_organization_id for every locale sharing
-    union's translation_key, not just the one passed in -- a union's
-    translations should share one Peoply link, same convention
-    link_peoply_organizations and the "link matched unions" admin action
-    (admin.py) both rely on. Uses queryset.update(), not
-    save_revision().publish(): peoply_organization_id isn't editor-facing
-    draft/live content that needs a Wagtail revision, and both callers
-    already run outside wagtail-admin the same way sync_peoply_events does
-    (see that command's own docstring on why the publish-signal auto-sync
-    hook doesn't apply here)."""
-    from ifiplatform.apps.ifi_home_app.models.article.unions import UnionPage
+    """Writes org["id"] as union's peoply_organization_id. Uses
+    queryset.update(), not save_revision().publish():
+    peoply_organization_id isn't editor-facing draft/live content that
+    needs a Wagtail revision."""
+    from ifi_home_app.models.article.unions import UnionPage
 
-    UnionPage.objects.filter(translation_key=union.translation_key).update(
-        peoply_organization_id=org["id"]
-    )
+    UnionPage.objects.filter(pk=union.pk).update(peoply_organization_id=org["id"])
