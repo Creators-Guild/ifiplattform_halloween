@@ -1,6 +1,6 @@
 # Custom manage.py commands
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
 
 This project's own `manage.py` commands, beyond Django's built-in ones
 (`migrate`, `createsuperuser`, `test`, `makemessages`/`compilemessages`,
@@ -30,6 +30,25 @@ Refuses to run when `DEBUG` is off, as a guard against accidentally
 seeding dummy data into what looks like a real (non-local) database.
 `--force` overrides that check — mainly useful in tests, since Django's
 test runner always forces `DEBUG=False` regardless of `.env`.
+
+### seed_halloween_data
+
+```bash
+python manage.py seed_halloween_data
+```
+
+For the Halloween mock server only. Fills an empty database with a
+bare-minimum, Halloween-themed site: the same categories, student unions
+and menus as `seed_dev_data`, plus one article per category, two news
+articles, three events, one tool and a banner. The commit event is about
+filling the site in, so it's sparse on purpose.
+
+`deploy/docker/deploy.sh` runs it on every deploy (`SEED_COMMAND` in
+`.env`), but it only seeds once: if the site already has content, it does
+nothing. Pages people change or delete in wagtail-admin stay that way.
+
+It creates **no users**. Make the admin login yourself with
+`createsuperuser` (see [docker_server.md](docker_server.md)).
 
 ### translate_english
 

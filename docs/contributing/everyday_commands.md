@@ -1,6 +1,6 @@
 # Everyday commands
 
-Last updated: 2026-10-11
+Last updated: 2026-10-14
 
 These work the same in both setups. With Docker, run them in the container's terminal.
 
@@ -12,8 +12,7 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 ## To create superuser/admin user
-`seed_dev_data` (runs on every Docker start, or step 6 of the [setup without Docker](setup_without_docker.md)) already creates an `admin` / `admin` superuser for
-local development, so you usually don't need this. To make your own:
+The Docker setup seeds the site with `seed_halloween_data`, which creates no users, so make your own login:
 ```bash
 python manage.py createsuperuser
 ```

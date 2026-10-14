@@ -42,12 +42,12 @@ sudo systemctl enable --now docker
 2. VS Code shows a popup: **"Reopen in Container"**. Click it. (No popup? Open the Command Palette and run `Dev Containers: Reopen in Container`.)
 3. Wait. The first time takes a few minutes, because Docker downloads Python and PostgreSQL and installs the packages. Later starts take seconds.
 
-While it starts, the container sets up the database, fills it with test data (`seed_dev_data`) and starts the website.
+While it starts, the container sets up the database, fills it with the Halloween starter content (`seed_halloween_data`) and starts the website.
 
 ### 3. Open the site
 Go to http://localhost:8000.
 
-To edit pages, log in at http://localhost:8000/wagtail-admin with username `admin` and password `admin`. This is a test admin user that the test data (`seed_dev_data`) creates in your local database only. It doesn't exist on the real site, so you can't use it there, and it's never created when `DEBUG` is off.
+To edit pages, first make your own admin login. In the VS Code terminal, run `python manage.py createsuperuser` and answer its questions. Then log in at http://localhost:8000/wagtail-admin. The login only exists in your local database.
 
 ### 4. Start working
 The VS Code terminal now runs **inside** the container, and you're already in the `ifiplatform/` folder. You don't need a venv or a `.env` file. The site reloads when you save a file, so you don't need to run `runserver`.

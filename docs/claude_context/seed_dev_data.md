@@ -1,7 +1,7 @@
 # management/seed_dev_data/ — design notes
 
-Last updated: 2026-10-13
-Covers: ifiplatform/apps/ifi_home_app/management/seed_dev_data/events.py, ifiplatform/apps/ifi_home_app/management/seed_dev_data/helpers.py, ifiplatform/apps/ifi_home_app/management/seed_dev_data/users.py
+Last updated: 2026-10-14
+Covers: ifiplatform/apps/ifi_home_app/management/seed_dev_data/events.py, ifiplatform/apps/ifi_home_app/management/seed_dev_data/helpers.py, ifiplatform/apps/ifi_home_app/management/seed_dev_data/users.py, ifiplatform/apps/ifi_home_app/management/seed_halloween_data/command.py
 
 Context for future Claude sessions. Not a human-facing doc.
 
@@ -37,3 +37,14 @@ slugs from the English title alone would clash (-2, -3 ...).
 has no English or a page no English slug. The
 old wagtail-localize gotchas (translating Fadderuke before its
 sub-events, re-saving slugs) no longer apply: order doesn't matter now.
+
+## seed_halloween_data reuses these mixins
+
+`seed_halloween_data` (Halloween mock site) reuses `SeedHelpersMixin`,
+`UnionSeedMixin` and `MenuSeedMixin` unchanged. It swaps in its own
+English tables by overriding `SeedHelpersMixin._english_for`, so the
+lookup must stay behind that method. Its `TRANSLATIONS` extends the dev
+table, so English for union and menu text has to stay in the dev one.
+`menus.py` finds pages by the slugs `ifi-verktøy`, `ny-ifi-student`,
+`hjelp` and the titles Navet/`LONG_UNION_NAME`, so the Halloween seed keeps
+them. It never uses `UserSeedMixin`: the mock site is public.

@@ -25,9 +25,10 @@ site still runs without Docker until it moves over (see
 ## What happens on start
 
 1. `db` starts. `web` waits until the database answers (the healthcheck).
-2. `web` runs `migrate`, then `seed_dev_data`, then `runserver`.
-   `seed_dev_data` skips what already exists, so it's safe to run on
-   every start.
+2. `web` runs `migrate`, then `seed_halloween_data`, then `runserver`.
+   `seed_halloween_data` only seeds an empty database, so it's safe to
+   run on every start. It creates no users: make your own login with
+   `createsuperuser`.
 3. The site is served at `localhost:8000`.
 4. If any of these steps fails or the server stops, the container keeps
    running (`sleep infinity`). Without that, a broken migration or a typo

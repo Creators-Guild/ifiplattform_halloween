@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16
-    container_name: ifiplatform-db
+    container_name: halloween-db
     environment:
       POSTGRES_DB: ifiplatform
       POSTGRES_USER: ifiplatform_user
@@ -20,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: ifiplatform-web
+    container_name: halloween-web
     depends_on:
       db:
         condition: service_healthy
@@ -46,7 +46,7 @@ services:
     # the VS Code terminal still works for fixing the error.
     command: >
       sh -c "python manage.py migrate &&
-             python manage.py seed_dev_data &&
+             python manage.py seed_halloween_data &&
              python manage.py runserver 0.0.0.0:8000;
              echo 'The server stopped. Fix the error above, then run: python manage.py runserver 0.0.0.0:8000';
              sleep infinity"

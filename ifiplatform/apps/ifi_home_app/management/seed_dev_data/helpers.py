@@ -43,6 +43,11 @@ def _seed_english(stored_text):
 
 
 class SeedHelpersMixin:
+    def _english_for(self, stored_text):
+        """English for one stored Norwegian piece, or None. Overridden by
+        seed_halloween_data to use its own tables."""
+        return _seed_english(stored_text)
+
     def _build_article_body(self, heading=None, text=None):
         if heading is None and text is None:
             return [item for item in ARTICLE_BODY]
@@ -58,7 +63,7 @@ class SeedHelpersMixin:
         Re-runnable: English that's already stored is kept."""
         english = {}
         for segment in page_segments.extract_segments(obj):
-            text = _seed_english(segment.norwegian_text)
+            text = self._english_for(segment.norwegian_text)
             if text is not None:
                 english[segment] = text
         if english:
