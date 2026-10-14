@@ -93,7 +93,25 @@ the certificate.
 
 ## Deploying new code
 
-**Always deploy with the script:**
+Every merge into `main` deploys by itself. The GitHub Actions workflow
+`.github/workflows/deploy.yml` runs the tests and lint, then logs in to
+the server over SSH and runs the deploy script. To deploy without a
+merge, start it by hand: Actions tab, "Deploy", "Run workflow". The
+`skip_ci` option there skips the tests, for emergencies only.
+
+The workflow needs three secrets in the repo (Settings, Secrets and
+variables, Actions):
+
+| Secret | Value |
+| ------ | ----- |
+| `SERVER_IP` | The server's IPv4 address |
+| `SERVER_USER` | `ubuntu` |
+| `SSH_PRIVATE_KEY` | A private key whose public key is in the server's `~/.ssh/authorized_keys`. Make a new key just for this, not your own |
+
+The workflow expects the repo at `/home/ubuntu/ifiplattform_halloween`.
+If you clone it somewhere else, change the `cd` line in the workflow.
+
+To deploy by hand on the server, **always use the script:**
 
 ```bash
 bash deploy/docker/deploy.sh
