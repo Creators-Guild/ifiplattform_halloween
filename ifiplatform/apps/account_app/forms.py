@@ -28,6 +28,16 @@ class SignupForm(UserCreationForm):
         return email
 
 
+class OpenSignupForm(UserCreationForm):
+    """Username and password only, for settings.OPEN_SIGNUP (the Halloween
+    mock site): no email or real name, since that site can't promise to keep
+    personal data safe -- see signin_view."""
+
+    class Meta(UserCreationForm.Meta):
+        model = get_user_model()
+        fields = ["username"]
+
+
 class ResendVerificationForm(forms.Form):
     """Just an email address -- the view looks up the matching inactive
     account (if any) itself, see resend_verification_view."""

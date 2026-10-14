@@ -104,7 +104,12 @@ class Command(HalloweenHelpersMixin, UnionSeedMixin, MenuSeedMixin, BaseCommand)
         today = timezone.now().date()
         for title, intro, heading, text, days_ago in NEWS_SPECS:
             self._article(
-                news_category, title, intro, heading, text, nb_locale,
+                news_category,
+                title,
+                intro,
+                heading,
+                text,
+                nb_locale,
                 published_date=today - timedelta(days=days_ago),
             )
 

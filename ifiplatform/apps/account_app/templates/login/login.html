@@ -38,9 +38,11 @@
             <p class="auth-links">
                 <a class="back-to" href="{% url 'signin' %}">{% trans "New user? Sign in here" %}</a>
             </p>
-            <p class="auth-links">
-                <a class="back-to" href="{% url 'resend_verification' %}">{% trans "Didn't get a verification email?" %}</a>
-            </p>
+            {% if not OPEN_SIGNUP %}
+                <p class="auth-links">
+                    <a class="back-to" href="{% url 'resend_verification' %}">{% trans "Didn't get a verification email?" %}</a>
+                </p>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -49,6 +49,10 @@ your own computer show up right away and `runserver` reloads.
   `docker-compose.yml`. A student's own `ifiplatform/.env` can't override
   them, because python-dotenv never replaces a variable that is already
   set. The same `.env` keeps working with SQLite outside Docker.
+- **Sign-up works like the mock site.** `docker-compose.yml` sets
+  `OPEN_SIGNUP=True`, so you sign up with just a username and password
+  and can edit pages right away. See
+  [docker_server.md](../operations/docker_server.md#open-sign-up-mock-site-only).
 - **Same versions as production:** Python 3.12 and PostgreSQL 16. CI
   also runs the tests on PostgreSQL 16, so a test that passes in the
   container passes in CI.

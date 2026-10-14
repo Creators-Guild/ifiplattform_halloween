@@ -3,7 +3,7 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -38,6 +38,7 @@ def _make_category(**kwargs):
     return category
 
 
+@override_settings(OPEN_SIGNUP=False)
 class EditorModeMixinTests(TestCase):
     """Unit-level coverage of the shared rule itself (EditorModeMixin.
     can_edit_in_editor_mode / ArticlePage.can_publish_in_editor_mode /
@@ -97,6 +98,7 @@ class EditorModeMixinTests(TestCase):
         self.assertFalse(self.article.can_unpublish_in_editor_mode(user))
 
 
+@override_settings(OPEN_SIGNUP=False)
 class EditorModeEndpointTests(TestCase):
     """HTTP-level regression coverage confirming the terms-gate actually
     reaches the real save endpoints, not just the underlying mixin method.
@@ -263,6 +265,7 @@ class EditorModeEndpointTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+@override_settings(OPEN_SIGNUP=False)
 class ArticlePageContextTests(TestCase):
     """Confirms get_context()'s can_edit_style/can_publish_page/
     can_unpublish_page reflect the terms-gate too -- the UI-visibility side

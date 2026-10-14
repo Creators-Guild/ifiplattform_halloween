@@ -9,6 +9,6 @@
   vertical midpoint on that point.
   -->
   <text x="256" y="189.63" font-family="Consolas, 'Courier New', monospace" font-weight="bold"
-        font-size="284" fill="#0ef7b9" text-anchor="middle" dominant-baseline="central"
+        font-size="284" fill="#ff7518" text-anchor="middle" dominant-baseline="central"
         transform="scale(1, 1.35)">Ifi</text>
 </svg>

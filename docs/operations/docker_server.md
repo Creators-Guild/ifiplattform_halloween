@@ -70,7 +70,8 @@ every container gets, run `docker compose config`.
    ```
    Follow the comments in the file. `DJANGO_SECRET_KEY` and
    `DB_PASSWORD` must be new random values, never copied from another
-   server.
+   server. On the mock site, keep `OPEN_SIGNUP=True` (see
+   [Open sign-up](#open-sign-up-mock-site-only)).
 6. **Check that DNS works** from your own computer:
    `nslookup <the site's address>` should show the server's IP. Caddy
    can't get a certificate before it does.
@@ -130,6 +131,31 @@ from the new copy (`--after-reset`). That way a change to `deploy.sh`
 takes effect in the same deploy.
 
 To roll back a bad deploy, revert the commit on GitHub and deploy again.
+
+## Open sign-up (mock site only)
+
+`OPEN_SIGNUP=True` in `.env` makes it easy for event participants to get
+in, and keeps personal data off a server we can't promise to keep safe:
+
+- Signing up asks only for a username and password. No email, no name,
+  and no verification email.
+- Every new account is logged in at once and joins Wagtail's
+  **Moderators** group, so it can write, edit and publish pages and
+  upload images. It can't manage users or site settings.
+- There are no content-ownership terms to accept before using the
+  Wagtail admin or the editor mode on pages.
+- There is no privacy policy: the page returns "404 Not found" and the
+  links to it (sign-up page, account page, footer) are hidden.
+- The account page hides the email and name fields.
+
+Leave `OPEN_SIGNUP` out of `.env`, or set it to `False`, on the real site.
+That gives the normal sign-up with email verification, the privacy policy
+and the terms.
+
+If you created `.env` before this setting existed, add the line
+`OPEN_SIGNUP=True` by hand and run `docker compose up -d` to restart
+with it. Don't copy `.env.example` over `.env` again: that deletes your
+secrets.
 
 ## Everyday commands
 

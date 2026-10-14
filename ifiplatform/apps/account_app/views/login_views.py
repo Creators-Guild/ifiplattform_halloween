@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import Group
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
@@ -10,8 +11,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-
-from account_app.forms import ResendVerificationForm, SignupForm
+from account_app.forms import OpenSignupForm, ResendVerificationForm, SignupForm
 
 
 def _send_verification_email(request, user):
@@ -47,17 +47,30 @@ def signin_view(request):
     """Handle new user registration (username/email/first name/last name all
     required, see SignupForm). The account starts inactive -- Django's
     ModelBackend already refuses to authenticate an inactive user, so login
-    stays blocked on its own until they click the emailed verification link."""
+    stays blocked on its own until they click the emailed verification link.
+
+    With settings.OPEN_SIGNUP (the Halloween mock site), only a username and
+    password are asked for (OpenSignupForm), and the account is active at
+    once, joins Wagtail's "Moderators" group and is logged straight in. The
+    content-ownership terms still gate wagtail-admin as for any other
+    editor -- see EditorTermsGateMiddleware."""
+    form_class = OpenSignupForm if settings.OPEN_SIGNUP else SignupForm
     if request.method == "POST":
-        form = SignupForm(request.POST)
+        form = form_class(request.POST)
         if form.is_valid():
+            if settings.OPEN_SIGNUP:
+                user = form.save()
+                user.groups.add(*Group.objects.filter(name="Moderators"))
+                user.backend = "django.contrib.auth.backends.ModelBackend"
+                login(request=request, user=user)
+                return redirect("signin_success")
             user = form.save(commit=False)
             user.is_active = False
             user.save()
             _send_verification_email(request, user)
             return redirect("verify_email_sent")
     else:  # if GET
-        form = SignupForm()
+        form = form_class()
 
     return render(
         request=request, template_name="login/signin.html", context={"form": form}

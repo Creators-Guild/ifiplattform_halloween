@@ -3,6 +3,7 @@
 EditorTermsGateMiddleware (to actually gate wagtail-admin access on it),
 so the two can't drift out of sync on what counts as "a pending editor"."""
 
+from django.conf import settings
 from wagtail.permissions import page_permission_policy
 
 from account_app.models import Profile
@@ -23,8 +24,11 @@ def is_pending_editor(user):
     True and the terms are shown again, with no separate plumbing needed to
     reset that status back to "pending" first. A disagreed user whose
     permission was never re-granted still fails the permission check above
-    regardless."""
-    if not user.is_authenticated:
+    regardless.
+
+    Always False with settings.OPEN_SIGNUP: the Halloween mock site has no
+    content-ownership terms, so nobody is ever pending."""
+    if settings.OPEN_SIGNUP or not user.is_authenticated:
         return False
     if user.is_staff or user.is_superuser:
         return False

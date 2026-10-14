@@ -93,7 +93,8 @@ def account_settings_view(request):
     user = request.user
     profile, _ = Profile.objects.get_or_create(user=user)
     allow_clearing = user.is_staff or user.is_superuser
-    if request.method == "POST":
+    # With OPEN_SIGNUP the form isn't shown, so a POST is ignored too.
+    if request.method == "POST" and not settings.OPEN_SIGNUP:
         # ModelForm.is_valid() mutates the bound instance in place (via
         # _post_clean() -> construct_instance()) before this view ever runs
         # -- capture the pre-change value now, or comparing user.email to

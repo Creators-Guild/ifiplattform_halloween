@@ -26,29 +26,31 @@
                     {% endfor %}
                 </div>
 
-                <div>
-                    {{ form.email.label_tag }}
-                    {{ form.email }}
-                    {% for error in form.email.errors %}
-                        <p class="error">{{ error }}</p>
-                    {% endfor %}
-                </div>
+                {% if not OPEN_SIGNUP %}
+                    <div>
+                        {{ form.email.label_tag }}
+                        {{ form.email }}
+                        {% for error in form.email.errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
 
-                <div>
-                    {{ form.first_name.label_tag }}
-                    {{ form.first_name }}
-                    {% for error in form.first_name.errors %}
-                        <p class="error">{{ error }}</p>
-                    {% endfor %}
-                </div>
+                    <div>
+                        {{ form.first_name.label_tag }}
+                        {{ form.first_name }}
+                        {% for error in form.first_name.errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
 
-                <div>
-                    {{ form.last_name.label_tag }}
-                    {{ form.last_name }}
-                    {% for error in form.last_name.errors %}
-                        <p class="error">{{ error }}</p>
-                    {% endfor %}
-                </div>
+                    <div>
+                        {{ form.last_name.label_tag }}
+                        {{ form.last_name }}
+                        {% for error in form.last_name.errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
                 <div>
                     {{ form.password1.label_tag }}
@@ -66,10 +68,12 @@
                     {% endfor %}
                 </div>
 
-                {% url 'privacy_policy' as privacy_policy_url %}
-                <p class="form-notice">
-                    {% blocktrans %}By creating an account you agree to our <a href="{{ privacy_policy_url }}">Privacy Policy</a>.{% endblocktrans %}
-                </p>
+                {% if not OPEN_SIGNUP %}
+                    {% url 'privacy_policy' as privacy_policy_url %}
+                    <p class="form-notice">
+                        {% blocktrans %}By creating an account you agree to our <a href="{{ privacy_policy_url }}">Privacy Policy</a>.{% endblocktrans %}
+                    </p>
+                {% endif %}
                 <button type="submit" class="btn">{% trans "Sign In" %}</button>
             </form>
             <p class="auth-links">

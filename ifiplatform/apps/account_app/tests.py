@@ -3,8 +3,9 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
+from django.core import mail
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone, translation
 
@@ -173,6 +174,7 @@ class ExportDataTests(TestCase):
         self.assertEqual(data["authored_articles"][0]["title"], "Dana's Article")
 
 
+@override_settings(OPEN_SIGNUP=False)
 class EditorNoticeTests(TestCase):
     def setUp(self):
         self.root = Page.get_first_root_node()
@@ -220,6 +222,7 @@ class EditorNoticeTests(TestCase):
         self.assertFalse(response.context["show_editor_notice"])
 
 
+@override_settings(OPEN_SIGNUP=False)
 class WagtailBuiltinGroupsTests(TestCase):
     """is_pending_editor() is a permission check (add_page/change_page),
     not a check against a specific group name -- so it applies equally to
@@ -331,6 +334,7 @@ class IndividualUserPermissionsTests(TestCase):
         self.assertFalse(response.context["show_editor_notice"])
 
 
+@override_settings(OPEN_SIGNUP=False)
 class EditorTermsGateMiddlewareTests(TestCase):
     """Covers the actual enforcement point (see EditorTermsGateMiddleware's
     own docstring for why account_settings_view's notice alone isn't
@@ -445,3 +449,75 @@ class CleanupUnverifiedAccountsTests(TestCase):
         user = self._make_unverified("dry_run_unverified", 10)
         call_command("cleanup_unverified_accounts", "--dry-run")
         self.assertTrue(User.objects.filter(pk=user.pk).exists())
+
+
+class SignupTests(TestCase):
+    """Signup with and without settings.OPEN_SIGNUP (the Halloween mock
+    site) -- see signin_view."""
+
+    form_data = {
+        "username": "newbie",
+        "email": "newbie@example.com",
+        "first_name": "New",
+        "last_name": "Bie",
+        "password1": "a-long-Test-passw0rd",
+        "password2": "a-long-Test-passw0rd",
+    }
+    open_form_data = {
+        "username": "newbie",
+        "password1": "a-long-Test-passw0rd",
+        "password2": "a-long-Test-passw0rd",
+    }
+
+    @override_settings(OPEN_SIGNUP=False)
+    def test_normal_signup_waits_for_email_verification(self):
+        response = self.client.post(reverse("signin"), self.form_data)
+        self.assertRedirects(response, reverse("verify_email_sent"))
+        user = User.objects.get(username="newbie")
+        self.assertFalse(user.is_active)
+        self.assertFalse(user.groups.exists())
+        self.assertEqual(len(mail.outbox), 1)
+
+    @override_settings(OPEN_SIGNUP=True)
+    def test_open_signup_is_active_moderator_and_logged_in(self):
+        response = self.client.post(reverse("signin"), self.open_form_data)
+        self.assertRedirects(response, reverse("signin_success"))
+        user = User.objects.get(username="newbie")
+        self.assertTrue(user.is_active)
+        self.assertEqual((user.email, user.first_name, user.last_name), ("", "", ""))
+        self.assertEqual(
+            list(user.groups.values_list("name", flat=True)), ["Moderators"]
+        )
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(int(self.client.session["_auth_user_id"]), user.pk)
+
+    @override_settings(OPEN_SIGNUP=True)
+    def test_open_signup_goes_straight_to_wagtail_admin(self):
+        self.client.post(reverse("signin"), self.open_form_data)
+        response = self.client.get(reverse("account_settings"))
+        self.assertFalse(response.context["show_editor_notice"])
+        response = self.client.get(reverse("wagtailadmin_home"))
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(OPEN_SIGNUP=True)
+    def test_open_signup_has_no_privacy_policy(self):
+        self.assertEqual(self.client.get(reverse("privacy_policy")).status_code, 404)
+        response = self.client.get(reverse("signin"))
+        self.assertNotContains(response, reverse("privacy_policy"))
+
+    @override_settings(OPEN_SIGNUP=True)
+    def test_open_signup_asks_for_no_personal_data(self):
+        response = self.client.get(reverse("signin"))
+        self.assertNotContains(response, 'name="email"')
+        self.assertNotContains(response, 'name="first_name"')
+
+        self.client.post(reverse("signin"), self.open_form_data)
+        response = self.client.get(reverse("account_settings"))
+        self.assertNotContains(response, 'name="email"')
+        self.client.post(
+            reverse("account_settings"),
+            {"email": "x@example.com", "first_name": "X", "last_name": "Y"},
+        )
+        user = User.objects.get(username="newbie")
+        self.assertEqual((user.email, user.first_name, user.last_name), ("", "", ""))
+        self.assertEqual(len(mail.outbox), 0)

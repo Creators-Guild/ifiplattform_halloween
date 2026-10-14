@@ -28,6 +28,8 @@ services:
       DEBUG: "True"
       DJANGO_SECRET_KEY: "dev-only-insecure-key-do-not-use-in-production"
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1"
+      # Same sign-up as the Halloween mock site: username and password only.
+      OPEN_SIGNUP: "True"
       USE_POSTGRES: "True"
       DB_NAME: ifiplatform
       DB_USER: ifiplatform_user

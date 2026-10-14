@@ -34,6 +34,7 @@
                 <p class="profile-notice">{% trans "Your permission to write pages has been removed." %}</p>
             {% endif %}
 
+            {% if not OPEN_SIGNUP %}
             {% if profile_incomplete %}
                 <p class="profile-notice">
                     {% blocktrans %}Your profile is missing some details -- filling them in is <span class="notice-highlight">optional</span>, but helps us reach you if needed.{% endblocktrans %}
@@ -96,6 +97,7 @@
                 </div>
             </form>
             <script src="{% static 'js/profile_edit_toggle.js' %}" defer></script>
+            {% endif %}
 
             <form class="profile-form" action="{% url 'update_nickname' %}" method="post">
                 {% csrf_token %}
@@ -114,7 +116,9 @@
 
             <div class="account-actions">
                 <a class="btn" href="{% url 'export_data' %}">{% trans "Download my data" %}</a>
-                <a class="btn" href="{% url 'privacy_policy' %}">{% trans "Privacy Policy" %}</a>
+                {% if not OPEN_SIGNUP %}
+                    <a class="btn" href="{% url 'privacy_policy' %}">{% trans "Privacy Policy" %}</a>
+                {% endif %}
                 <a class="btn" href="{% url 'logout' %}">{% trans "Log out" %}</a>
             </div>
 

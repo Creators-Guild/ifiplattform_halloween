@@ -1,6 +1,6 @@
 # Architecture overview
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
 
 A map of how IfiPlatform fits together: which app does what, how pages are
 organized, and what happens between a browser request and the HTML that
@@ -53,7 +53,11 @@ in `ifiplatform/ifiplatform_project/`. `core_app` sits directly in
   translation tools in the Wagtail admin.
 - **`account_app`** handles sign-up, login, email verification, the privacy
   policy, exporting and deleting your data, and the terms editors must
-  accept before using the Wagtail admin.
+  accept before using the Wagtail admin. With `OPEN_SIGNUP=True` (the
+  Halloween mock site and its local Docker setup), sign-up asks only for
+  a username and password and makes the account a Wagtail moderator at
+  once, and the privacy policy and terms are switched off. See
+  [docker_server.md](../operations/docker_server.md#open-sign-up-mock-site-only).
 - **`study_app`** and **`yourpage_app`** show a placeholder page for now.
   This is switched by `APPS_UNDER_DEVELOPMENT` in `settings.py`.
 

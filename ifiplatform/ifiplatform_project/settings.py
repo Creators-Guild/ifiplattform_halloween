@@ -124,6 +124,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "core_app.deploy_notice.deploy_notice",
                 "core_app.context_processors.umami",
+                "core_app.context_processors.open_signup",
             ],
         },
     },
@@ -364,6 +365,11 @@ if "test" in sys.argv[1:2]:
 # swept-away accounts safely past their dead-link point without being
 # needlessly aggressive.
 UNVERIFIED_ACCOUNT_RETENTION_DAYS = 7
+
+# True on the Halloween mock site only: signup skips email verification,
+# logs the user straight in and adds them to Wagtail's "Moderators" group --
+# see account_app.views.login_views.signin_view.
+OPEN_SIGNUP = os.environ.get("OPEN_SIGNUP", "False") == "True"  # check .env
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "/"  # where the user will be redirected when finished logging in
