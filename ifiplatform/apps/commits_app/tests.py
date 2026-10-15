@@ -292,9 +292,7 @@ class PagesTests(TestCase):
     def test_duplicate_username_is_refused_any_case(self):
         self.link(self.helper, "spooky")
         self.client.login(username="ghostie", password="pw")
-        response = self.client.post(
-            reverse("commits_main"), {"github_login": "SPOOKY"}
-        )
+        response = self.client.post(reverse("commits_main"), {"github_login": "SPOOKY"})
         self.assertContains(response, "already linked")
         self.assertFalse(GitHubLink.objects.filter(user=self.user).exists())
 
@@ -333,9 +331,7 @@ class PagesTests(TestCase):
     def test_unlinked_names_shown_to_helpers(self):
         make_credit(1, "stranger")
         self.client.login(username="helper", password="pw")
-        self.assertContains(
-            self.client.get(reverse("commits_leaderboard")), "stranger"
-        )
+        self.assertContains(self.client.get(reverse("commits_leaderboard")), "stranger")
 
     def test_tie_goes_to_whoever_got_there_first(self):
         self.link(self.user, "late")
@@ -563,9 +559,7 @@ class PagesTests(TestCase):
     def test_difficulty_filter(self):
         make_credit(1, "a", "🎃 pumpkin")
         make_credit(2, "b", "🍬 candy")
-        response = self.client.get(
-            reverse("commits_issues"), {"difficulty": "pumpkin"}
-        )
+        response = self.client.get(reverse("commits_issues"), {"difficulty": "pumpkin"})
         _response, groups = self.board(difficulty="pumpkin")
         self.assertEqual(groups["closed_groups"], [1])
         self.assertContains(response, "🎃 pumpkin (hard)")

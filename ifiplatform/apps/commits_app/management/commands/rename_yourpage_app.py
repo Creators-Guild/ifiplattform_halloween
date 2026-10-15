@@ -33,7 +33,7 @@ class Command(BaseCommand):
         quote = connection.ops.quote_name
         with transaction.atomic(), connection.cursor() as cursor:
             for old in old_tables:
-                new = NEW + old[len(OLD):]
+                new = NEW + old[len(OLD) :]
                 cursor.execute(f"ALTER TABLE {quote(old)} RENAME TO {quote(new)}")
             cursor.execute(
                 "UPDATE django_migrations SET app = %s WHERE app = %s", [NEW, OLD]
@@ -43,5 +43,7 @@ class Command(BaseCommand):
                 [NEW, OLD],
             )
         self.stdout.write(
-            self.style.SUCCESS(f"Renamed {len(old_tables)} table(s) from {OLD} to {NEW}.")
+            self.style.SUCCESS(
+                f"Renamed {len(old_tables)} table(s) from {OLD} to {NEW}."
+            )
         )
