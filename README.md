@@ -1,9 +1,8 @@
 # Welcome to IfiPlattform Halloween 🎃
 
-This is the repo for **Commit for Candy**, the event where IfiPlattform goes open source. For one evening we host a mock copy of [IfiPlattform](https://github.com/Creators-Guild/IfiPlatform) and get it ready for Halloween, together. The aim is to approve every contribution... and maybe even not crash it? ☠️
+This is the repo for **Commit for Candy**, the event where IfiPlattform goes open source. For one evening we host a mock copy of [IfiPlattform](https://github.com/Creators-Guild/IfiPlatform) and get it ready for Halloween, together. Our goal: merge every contribution... and maybe, just maybe, not crash the site. ☠️
 
-📅 **19 October 2026 at 18:00**. More details (place, programme) are coming.
-
+📅 **19 October 2026 at 18:00**
 > 🎉Ifi Plattform blir Open Source🎉
 >
 > Det blir faglige presentasjoner og hurtigkurs i Open Source og hvordan å bidra i GitHub prosjekter etterfulgt pizza,🍕 bar og Commit for Candy (and Dr*nks!) med halloween som tema🎃👻🍬
@@ -92,3 +91,8 @@ We welcome contributions mainly from IFI students(with certain exceptions)! Plea
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
+
+## After the event
+This repo will be **archived** some time after the event. It then becomes read-only, but nothing is deleted: the code, issues and pull requests stay here, so your contributions stay visible.
+
+Good changes (bug fixes and improvements, not the Halloween look) may be moved into the real [IfiPlattform](https://github.com/Creators-Guild/IfiPlatform) repo, with you still credited as the author. Want to keep contributing? Head over there.
