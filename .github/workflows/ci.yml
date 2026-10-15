@@ -1,6 +1,7 @@
 name: CI
 
-# Tests (on PostgreSQL) + lint (Black and pylint). Runs on every PR to main,
+# Tests (on PostgreSQL). Lint (Black and pylint) is off in this repo, see
+# the lint job. Runs on every PR to main,
 # when started by hand from the Actions tab ("Run workflow", any branch), and
 # from deploy.yml before a deploy.
 on:
@@ -59,21 +60,11 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python ifiplatform/manage.py test
 
+  # Black and pylint are off in this event repo, so formatting or a low lint
+  # score never blocks a beginner's PR. The real IfiPlatform repo still runs
+  # both. The job stays, passing at once, in case branch protection requires
+  # a "lint" check: removing it would leave every PR waiting for it forever.
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.13"
-          cache: pip
-      - run: pip install -r requirements.txt
-      # Fails if any file isn't formatted. Fix with `black .` from the repo root.
-      - run: black --check .
-      # Fails only if the overall score drops below 7/10.
-      - run: >
-          pylint --load-plugins pylint_django
-          --django-settings-module=ifiplatform_project.settings
-          --ignore-paths=ifiplatform/.*/migrations
-          --fail-under=7
-          $(git ls-files '*.py')
+      - run: echo "Black and pylint are turned off in this repo."

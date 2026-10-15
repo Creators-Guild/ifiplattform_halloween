@@ -1,6 +1,6 @@
 # Events
 
-Last updated: 2026-10-13
+Last updated: 2026-10-15
 
 How events work on the site: the event pages, the event list and the
 sub-event calendar, the events box on the home page, and the sync that
@@ -127,22 +127,22 @@ jobs is planned as `shared/background_jobs.md`.
 
 `apps/ifi_home_app/management/commands/sync_peoply_events.py`:
 
-```
-live UnionPages with a peoply_organization_id
-        │   one fetch per union (nb and en copies share the id)
-        ▼
-peoply_api.get_events(org_id, after)   ← all unions fetched before anything is written
-        │
-        ├─ new event?          create an EventPage under the nb EventIndexPage, publish it
-        ├─ known, changed?     overwrite the Peoply fields, publish a new revision
-        ├─ known, unchanged?   do nothing (no new revision)
-        └─ back after removal? republish it, mark the removal log "reappeared"
-        │
-known upcoming events Peoply no longer returns  →  unpublish, log a PeoplyRemovedEvent
-        │
-clear the site-root-paths cache  →  PeoplySyncState.touch()
-        │
-check_peoply_union_matches  (a report only; its failure does not undo the sync)
+```mermaid
+flowchart TD
+    A["Live UnionPages with a peoply_organization_id<br/>(one fetch per union; nb and en copies share the id)"]
+    A --> B["peoply_api.get_events(org_id, after)<br/>all unions fetched before anything is written"]
+    B --> C{"For each event"}
+    C -- "new" --> C1["Create an EventPage under the nb<br/>EventIndexPage, publish it"]
+    C -- "known, changed" --> C2["Overwrite the Peoply fields,<br/>publish a new revision"]
+    C -- "known, unchanged" --> C3["Do nothing<br/>(no new revision)"]
+    C -- "back after removal" --> C4["Republish it, mark the<br/>removal log 'reappeared'"]
+    C1 --> D
+    C2 --> D
+    C3 --> D
+    C4 --> D
+    D["Known upcoming events Peoply no longer returns:<br/>unpublish, log a PeoplyRemovedEvent"]
+    D --> E["Clear the site-root-paths cache,<br/>PeoplySyncState.touch()"]
+    E --> F["check_peoply_union_matches<br/>(a report only; its failure does not undo the sync)"]
 ```
 
 1. **Pick unions.** Every live `UnionPage` with a `peoply_organization_id`.

@@ -4,11 +4,12 @@ Last updated: 2026-10-15
 
 Day-to-day use of the Docker setup: extensions, running it without VS Code,
 stopping and resetting, and fixing problems. To start it the first time, see
-the quick start in the main [README.md](../../README.md#quick-start). How it's
+[setup_with_docker.md](setup_with_docker.md). New to Docker? Read
+[Docker, explained simply](docker_explained.md). How it's
 built and why: [architecture/docker_setup.md](../architecture/docker_setup.md).
 
 ## Adding your own VS Code extensions
-The container comes with the extensions this project needs (Python, Black, Pylint and Django templates). Themes and keyboard shortcuts you already have keep working. Other extensions (for example Claude Code or GitHub Copilot) have to be installed inside the container, and ones you install by hand disappear when the container is rebuilt.
+The container comes with the extensions this project needs (Python, Black, Pylint, Django templates, and Mermaid diagrams in the Markdown preview). Themes and keyboard shortcuts you already have keep working. Other extensions (for example Claude Code or GitHub Copilot) have to be installed inside the container, and ones you install by hand disappear when the container is rebuilt.
 
 To get them in every container automatically, add them to your own VS Code settings (Command Palette → `Preferences: Open User Settings (JSON)`):
 ```json

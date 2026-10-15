@@ -2,8 +2,8 @@
 
 Last updated: 2026-10-15
 
-How the local Docker setup is built and why. To start it, see the Quick
-start in the main [README.md](../../README.md#quick-start). For day-to-day
+How the local Docker setup is built and why. To start it, see
+[contributing/setup_with_docker.md](../contributing/setup_with_docker.md). For day-to-day
 use and troubleshooting, see
 [contributing/docker.md](../contributing/docker.md). It is for local
 development only. Servers use a separate Docker setup (`Dockerfile`,
@@ -76,10 +76,10 @@ your own computer show up right away and `runserver` reloads.
   every file with LF, even on Windows. Without it, Git on Windows turns
   files into CRLF, and Git inside the Linux container then sees every file
   as changed (and shell scripts break).
-- **Editor tools come with the container.** The Python, Black, Pylint and
-  Django template extensions are installed automatically. Pylint uses the
-  same plugin and settings module as CI, so the editor underlines what CI
-  would complain about. Black formats Python files on save. The whole
+- **Editor tools come with the container.** The Python, Black, Pylint,
+  Django template and Markdown Mermaid extensions are installed automatically. Pylint uses the
+  pylint-django plugin and the project's settings module, so the editor
+  underlines real problems. CI doesn't run Black or Pylint in this repo. Black formats Python files on save. The whole
   codebase was formatted once, so saving only changes the lines you
   edited.
 - **Editor settings live in `.vscode/`, not in `devcontainer.json`,** so

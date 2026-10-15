@@ -25,14 +25,16 @@ must be unique across every folder. That is why the app base is called
 Pages don't repeat the `<html>`, `<head>`, header and footer. They extend
 a base template and only fill in the parts that are theirs:
 
-```
-global_base.html                global shell, every page on the site
-├── home_base.html              ifi_home_app layout: side menu + main content
-│   ├── home/home_index.html
-│   ├── events/*.html
-│   └── info_articles/pages/*.html
-├── account_app, study_app and commits_app pages   (extend global_base directly)
-└── under_development.html
+```mermaid
+flowchart TD
+    g["global_base.html<br/>global shell, every page on the site"]
+    h["home_base.html<br/>ifi_home_app layout: app CSS + main content"]
+    g --> h
+    h --> p1["home/home_index.html"]
+    h --> p2["events/*.html"]
+    h --> p3["info_articles/pages/*.html"]
+    g --> o["account_app, study_app and commits_app pages<br/>(extend global_base directly)"]
+    g --> u["under_development.html"]
 ```
 
 - **`global_base.html`** (global) renders what every page has: the `<head>`
@@ -44,6 +46,13 @@ global_base.html                global shell, every page on the site
   `ifi_home_app` has one so far (`home_base.html`). The other apps' pages
   extend `global_base.html` directly for now.
 - **Pages** extend their app's base and fill in its blocks.
+- **The side menu** is a global partial, `templates/partials/sidemenu/`, so
+  any app can use it. `global_base.html` has an empty `sidemenu` block in
+  `<aside>`. Each page that wants the menu fills that block with
+  `{% include "partials/sidemenu/sidemenu.html" %}`. The app base doesn't.
+  Only the `ifi_home_app` pages use it so far. Its CSS,
+  `static/css/06_components/sidemenu.css`, is global too, but each app
+  links it itself (`ifi_home_app` in `css_links/home_base.html`).
 
 A new app with more than one page should get its own `<app>_base.html`
 rather than having every page extend `global_base.html` and repeat the same
@@ -147,6 +156,29 @@ template fills only its own tier, so it can never drop the tier above it:
 {% block page_css %}{% endblock %}     {# one page only, rare #}
 {% block extra_head %}{% endblock %}   {# non-CSS: meta, preloads, JS #}
 ```
+
+The whole cascade on an article page, top to bottom:
+
+```mermaid
+flowchart TD
+    subgraph t1["1. Global tier: css_links/global.html, every page"]
+        direction LR
+        s01["01_settings<br/>tokens"] --> s03["03_generics<br/>reset"] --> s04["04_elements<br/>tags"] --> s05["05_objects<br/>layout"] --> s06["06_components<br/>header, footer, buttons"]
+    end
+    subgraph t2["2. app_css: the app's partial"]
+        a["css_links/home_base.html"]
+    end
+    subgraph t3["3. section_css: the page family's partial"]
+        b["css_links/article.html"]
+    end
+    subgraph t4["4. page_css: one page only, rare"]
+        c["(usually empty)"]
+    end
+    t1 --> t2 --> t3 --> t4
+```
+
+Later files win when two rules are equally specific, so each tier can
+build on the ones above it.
 
 Each tier includes exactly one **template partial** holding the `<link>`
 tags for that tier, in cascade order. The global one is

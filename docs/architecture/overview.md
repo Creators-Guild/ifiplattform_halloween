@@ -66,6 +66,188 @@ in `ifiplatform/ifiplatform_project/`. `core_app` sits directly in
 - **`study_app`** shows a placeholder page for now. This is switched by
   `APPS_UNDER_DEVELOPMENT` in `settings.py`.
 
+### How the apps fit together
+
+Every request first goes through the root `urls.py`, which hands it to
+one app by the start of the path. `ifi_home_app` takes everything the
+others don't. (The diagrams render on GitHub, and in VS Code's Markdown
+preview with the Markdown Preview Mermaid Support extension.)
+
+```mermaid
+flowchart TD
+    browser(["Browser"]) --> root["ifiplatform_project/urls.py<br/>picks the app by the start of the path"]
+
+    root --> apps
+    root --> admins
+
+    subgraph apps["Apps"]
+        direction LR
+        home["ifi_home_app<br/>/ (everything else)"]
+        account["account_app<br/>/account/"]
+        commits["commits_app<br/>/commits/"]
+        study["study_app<br/>/study/"]
+    end
+
+    subgraph admins["Admin pages"]
+        direction LR
+        wtadmin["Wagtail admin<br/>/wagtail-admin/"]
+        djadmin["Django admin<br/>/admin/"]
+    end
+
+    apps --> db[("Database<br/>PostgreSQL or SQLite")]
+
+    subgraph ext["External services"]
+        direction LR
+        peoply{{"Peoply"}}
+        deepl{{"DeepL"}}
+        github{{"GitHub API"}}
+    end
+
+    peoply -- "events" --> home
+    deepl -- "translations" --> home
+    github -- "issues and PRs" --> commits
+```
+
+Not drawn, to keep it readable:
+- **`core_app`** has no pages of its own. It holds helpers every app uses.
+- **`account_app`** also guards the Wagtail admin: editors must accept the
+  terms first (unless `OPEN_SIGNUP` is on).
+- Every address starts with `/nb/` or `/en/`, which picks the language.
+
+### Each app on its own
+
+Each diagram reads left to right: the addresses the app answers, the
+code that handles them, and the data and templates it uses.
+
+#### `ifi_home_app`: the main site
+
+```mermaid
+flowchart LR
+    subgraph addr["Addresses"]
+        a1["/ (home page)"]
+        a2["/api/...<br/>small JSON endpoints"]
+        a3["every other path"]
+    end
+    subgraph code["Code"]
+        v1["views/home_views.py"]
+        v2["views/article_views.py<br/>views/event_views.py"]
+        w["Wagtail looks up the<br/>page tree"]
+        m["models/: page types<br/>ArticlePage, CategoryPage, UnionPage,<br/>ToolPage, EventPage ..."]
+        sn["Snippets<br/>Menu, HeaderMessage,<br/>HomeBoardMessage"]
+    end
+    subgraph tpl["Templates"]
+        t1["home/home_index.html"]
+        t2["info_articles/pages/*.html"]
+        t3["events/*.html"]
+    end
+    a1 --> v1 --> t1
+    a2 --> v2 --> m
+    a3 --> w --> m
+    m --> t2
+    m --> t3
+    sn -. "shown inside pages" .-> t1
+    peoply{{"Peoply"}} -- "sync_peoply_events" --> m
+    deepl{{"DeepL"}} <-- "translation/" --> m
+```
+
+- The `/api/...` endpoints are for buttons on the site: the article
+  editor's style and publish buttons, and "Sync Peoply now".
+- Translation code is in `translation/`, and the Peoply client in
+  `integrations/peoply_api.py`.
+- Details: [articles](ifi_home_app/articles.md),
+  [unions and tools](ifi_home_app/unions_and_tools.md),
+  [events](ifi_home_app/events.md), [menus](ifi_home_app/menus.md) and
+  [translations](shared/translations.md).
+
+#### `account_app`: sign-up, login and your data
+
+```mermaid
+flowchart LR
+    subgraph addr["Addresses under /account/"]
+        a1["signin, login, logout,<br/>verify/..."]
+        a2["account_settings, export_data,<br/>delete_account, ..."]
+        a3["privacy_policy"]
+    end
+    subgraph code["Code in views/"]
+        v1["login_views.py"]
+        v2["account_views.py"]
+        v3["legal_views.py"]
+    end
+    subgraph tpl["Templates"]
+        t1["login/*.html"]
+        t2["core/account_settings.html"]
+        t3["legal/*.html"]
+    end
+    a1 --> v1 --> t1
+    a2 --> v2 --> t2
+    a3 --> v3 --> t3
+    v1 --> m[("Django User<br/>+ Profile")]
+    v2 --> m
+    mw["middleware.py<br/>EditorTermsGateMiddleware"] -. "checks every<br/>/wagtail-admin/ request" .-> m
+```
+
+- With `OPEN_SIGNUP=True` (the mock site and local setups), sign-up asks
+  only for a username and password, and the editor terms are off.
+
+#### `commits_app`: the event points
+
+```mermaid
+flowchart LR
+    subgraph addr["Addresses under /commits/"]
+        a1["/ (My issues)"]
+        a2["leaderboard/"]
+        a3["issues/, issues/NUMBER/"]
+        a4["issues/NUMBER/claim/,<br/>release/, keep/, issues/lucky/"]
+    end
+    subgraph code["Code"]
+        v1["views/core_views.py"]
+        v2["views/board_views.py"]
+        v3["views/claim_views.py<br/>+ claims.py"]
+        sc["scoring.py<br/>credits to points"]
+        sync["github_sync.py"]
+    end
+    subgraph data["Models"]
+        m1[("EventIssue, Credit")]
+        m2[("Claim, GitHubLink,<br/>DrinkTicket, EventSolution")]
+    end
+    a1 --> v1
+    a2 --> v1
+    a3 --> v2
+    a4 --> v3
+    v1 --> sc --> m1
+    v2 --> m1
+    v3 --> m2
+    github{{"GitHub API"}} -- "issues and merged PRs" --> sync --> m1
+    labels["labels.py<br/>which labels count"] -.-> sync
+```
+
+- The sync runs after every deploy (`sync_github_points`) and at most once
+  a minute when someone opens the leaderboard or the issue board.
+- Templates are in `templates/core/`. More in
+  [docker_server.md](../operations/docker_server.md#points-leaderboard-and-helper-solutions).
+
+#### `study_app`: study tools (not open yet)
+
+```mermaid
+flowchart LR
+    a["/study/..."] --> flag{"APPS_UNDER_DEVELOPMENT<br/>study_app: True?"}
+    flag -- "yes (now)" --> ph["Placeholder page<br/>core/study_under_development.html"]
+    flag -- "no" --> v["views/: flashcards, multiple choice,<br/>mixed sets, study games"]
+    v --> m[("Deck, Card")]
+```
+
+#### `core_app`: shared helpers
+
+```mermaid
+flowchart LR
+    cp["context_processors.py<br/>Umami, OPEN_SIGNUP"] --> every["every template"]
+    dn["deploy_notice.py<br/>+ announce_deploy"] --> banner["the 'deploy coming'<br/>banner"]
+    ud["under_development.py"] --> ph["placeholder pages<br/>for unfinished apps"]
+    sm["sitemaps.py"] --> xml["/sitemap.xml"]
+    st["storage.py"] --> static["static files in production"]
+    cmd["management/commands/<br/>clear_cache, compile_translations"]
+```
+
 ## Two kinds of pages
 
 The site has two kinds of pages, and it is worth knowing which one you are
@@ -124,21 +306,24 @@ have as children (`subpage_types`) and, sometimes, which it may sit under
 (`parent_page_types`). That is what keeps the tree below in shape. All page
 types are in `apps/ifi_home_app/models/`.
 
-```
-ArticleIndexPage (hub)
-├── ArticleIndexPage (info_articles)
-│   └── CategoryPage
-│       ├── ArticlePage
-│       ├── CategoryPage
-│       │   └── ToolPage
-│       ├── ToolPage
-│       └── StudentUnionCategoryPage
-│           └── UnionPage
-├── ArticleIndexPage (news)
-│   └── CategoryPage
-│       └── ArticlePage
-└── EventIndexPage
-    └── EventPage
+```mermaid
+flowchart TD
+    hub["ArticleIndexPage (hub)"] --> info["ArticleIndexPage (info_articles)"]
+    hub --> news["ArticleIndexPage (news)"]
+    hub --> evidx["EventIndexPage"]
+
+    info --> cat["CategoryPage"]
+    cat --> art["ArticlePage"]
+    cat --> subcat["CategoryPage"]
+    subcat --> tool1["ToolPage"]
+    cat --> tool2["ToolPage"]
+    cat --> ucat["StudentUnionCategoryPage"]
+    ucat --> union["UnionPage"]
+
+    news --> ncat["CategoryPage"]
+    ncat --> nart["ArticlePage"]
+
+    evidx --> ev["EventPage"]
 ```
 
 - **(hub), (info_articles), (news)** are the index page's `section` field.
@@ -178,8 +363,8 @@ How Django matches URLs in general is in the
 
 There is one settings file: `ifiplatform/ifiplatform_project/settings.py`.
 Anything that differs between your machine and production comes from the
-`.env` file in `ifiplatform/`. The setup steps are in the main
-[README.md](../../README.md) and
+`.env` file in `ifiplatform/`. The setup steps are in
+[contributing/setup_with_docker.md](../contributing/setup_with_docker.md) and
 [contributing/setup_without_docker.md](../contributing/setup_without_docker.md),
 and the production keys are in
 [operations/prod_server.md](../operations/prod_server.md#environment-variables).

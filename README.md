@@ -15,7 +15,7 @@ This is the repo for **Commit for Candy**, the event where IfiPlattform goes ope
 ## How the event works
 - **Everyone is welcome**, whatever your skill level. You don't need to have used Git, Django or open source before.
 - **Pick an issue.** The [Issues tab](https://github.com/Creators-Guild/ifiplattform_halloween/issues) is filled with things to change and restyle for Halloween, from a single colour to whole pages. Comment on one to claim it.
-- **Make the change** on your own computer (see [Quick start](#quick-start) below), then open a pull request.
+- **Make the change** on your own computer (see [Get started](#get-started) below), then open a pull request.
 - **See it live.** When your pull request is merged, the mock site at https://halloween.ifiplattform.no updates by itself within a few minutes.
 - **Edit content on the mock site.** Sign up there with just a username and password, and you can write and publish pages right away. Don't use your real name or a password you use anywhere else: this is a test site.
 
@@ -34,68 +34,42 @@ Note: the site is bilingual (Norwegian Bokmål + English). Pages are written in 
 ## Tech stack
 Django + Wagtail (Python, HTML and CSS, plus a little JavaScript), DeepL for Norwegian → English, and PostgreSQL. Full list: [docs/architecture/tech_stack.md](docs/architecture/tech_stack.md).
 
-## Quick start
-The recommended setup is Docker. One step installs everything: Python, the packages, a PostgreSQL database and test data. Can't use Docker? See [setup without Docker](docs/contributing/setup_without_docker.md).
+## Get started
+Pick one setup. Both end with the site running at http://localhost:8000.
 
-### 1. Install the tools
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows and macOS). On Linux, install Docker Engine with the Compose plugin.
-- [Visual Studio Code](https://code.visualstudio.com/) with the **Dev Containers** extension (by Microsoft).
-- **Recommended if you're not comfortable with Git:** [GitHub Desktop](https://desktop.github.com/). It lets you clone, commit, push and open pull requests with buttons instead of commands. If you already use Git in the terminal, you don't need it.
-
-Start Docker Desktop and leave it running. On Linux there's no Docker Desktop app — start the daemon instead:
-```bash
-sudo systemctl start docker
-sudo systemctl enable --now docker
-```
-
-### 2. Open the project in the container
-1. **Fork** the repo on GitHub (the "Fork" button at the top right), then clone your fork and connect it to the main repo:
-   ```bash
-   git clone https://github.com/<your-username>/ifiplattform_halloween.git
-   cd ifiplattform_halloween
-   git remote add upstream https://github.com/Creators-Guild/ifiplattform_halloween.git
-   ```
-   `origin` is now your own fork, which is where you push. `upstream` is the main repo, where you get everyone else's changes. Collaborators with write access clone this repo directly instead, skip the last line, and use `origin` wherever the docs say `upstream`.
-
-   **With GitHub Desktop:** fork the repo on GitHub as above, then in GitHub Desktop choose **File → Clone repository** and pick your fork. When it asks how you plan to use the fork, choose **"To contribute to the parent project"**. That sets up the connection to the main repo for you.
-
-   **On Windows**, clone inside WSL, not to a drive like `C:\`: open the Ubuntu terminal, clone there, and run `code .` in the repo folder. Docker is much faster that way. GitHub Desktop always clones to a Windows folder, so the site runs slower with it, but it still works.
-
-   Then open the repo's root folder in VS Code.
-2. VS Code shows a popup: **"Reopen in Container"**. Click it. (No popup? Open the Command Palette and run `Dev Containers: Reopen in Container`.)
-3. Wait. The first time takes a few minutes, because Docker downloads Python and PostgreSQL and installs the packages. Later starts take seconds.
-
-While it starts, the container sets up the database, fills it with the Halloween starter content (`seed_halloween_data`) and starts the website.
-
-### 3. Open the site
-Go to http://localhost:8000.
-
-To edit pages, sign up at http://localhost:8000/account/signin with any username and password. You can edit pages at once, at http://localhost:8000/wagtail-admin. The login only exists in your local database. For the Django admin (users and raw database tables) you need a superuser: run `python manage.py createsuperuser` in the VS Code terminal.
-
-### 4. Start working
-The VS Code terminal now runs **inside** the container, and you're already in the `ifiplatform/` folder. You don't need a venv or a `.env` file (only for optional keys, like the GitHub token: see [docs/contributing/docker.md](docs/contributing/docker.md#keys-and-tokens-env)). The site reloads when you save a file, so you don't need to run `runserver`.
+- 🐳 **[Setup with Docker](docs/contributing/setup_with_docker.md) (recommended).** One click installs everything: Python, the packages, a database and the Halloween starter content.
+- 🐍 **[Setup without Docker](docs/contributing/setup_without_docker.md).** Plain Python and SQLite, for laptops where Docker is too heavy or won't install.
 
 ## Next steps
-- **Make your first change:** follow [Your First Contribution, Step by Step](CONTRIBUTING.md#your-first-contribution-step-by-step) in CONTRIBUTING.md.
-- **Using Docker day to day** (your own extensions, stopping and resetting, when something goes wrong): [docs/contributing/docker.md](docs/contributing/docker.md)
-- **Commands you'll use often:** [docs/contributing/everyday_commands.md](docs/contributing/everyday_commands.md)
+1. **Set up** with one of the guides above.
+2. **Make your first change:** follow [Make a change, step by step](CONTRIBUTING.md#2-make-a-change-step-by-step) in CONTRIBUTING.md.
+
+You don't have to read anything else first. The issues explain what to change and usually where, so you can start right away.
+
+If you want more background, or you're on a harder issue, these short pages can help:
+- [How this project works](docs/contributing/how_this_project_works.md): Django in plain words, the folders, and **where to change what**
+- [Everyday commands](docs/contributing/everyday_commands.md): tests, migrations and translations
+- [Tutorials](TUTORIALS.md): beginner guides to Git, Docker, Django, HTML and CSS
+
+Stuck? Ask one of the helpers at the event. That's what they're there for.
 
 ## Everyday commands
-Run these in the container's terminal.
+With Docker, run these in the VS Code terminal (it's inside the container). Without Docker, run them in the `ifiplatform/` folder with your venv active.
 
 | What | Command |
 | --- | --- |
 | Run the quick tests | `python manage.py test --exclude-tag=slow` |
 | After changing a model | `python manage.py makemigrations` then `python manage.py migrate` |
-| Edit pages and articles | http://localhost:8000/wagtail-admin (sign up first, see [Open the site](#3-open-the-site)) |
-| Users and raw database tables | http://localhost:8000/admin |
+| Edit pages and articles | http://localhost:8000/wagtail-admin (sign up first at http://localhost:8000/account/signin) |
+| Users and raw database tables | http://localhost:8000/admin (needs `python manage.py createsuperuser`) |
 
-More, including translations: [docs/contributing/everyday_commands.md](docs/contributing/everyday_commands.md).
+More, including translations: [docs/contributing/everyday_commands.md](docs/contributing/everyday_commands.md). Docker day to day (stopping, resetting, fixing problems): [docs/contributing/docker.md](docs/contributing/docker.md).
 
 ## Docs
 All docs, sorted by topic: [docs/README.md](docs/README.md).
 
-- **Start here:** [overview.md](docs/architecture/overview.md), the map of the whole system: apps, the page tree and how a request becomes a page
+- **Start here:** [How this project works](docs/contributing/how_this_project_works.md), the beginner's map: where things are and what the words mean
+- **The full map, when you want more:** [overview.md](docs/architecture/overview.md), with diagrams of every app, the page tree and how a request becomes a page
 - **Working on the code:**
   - [frontend.md](docs/architecture/frontend.md): how templates and CSS are organized and written
   - Features: [articles](docs/architecture/ifi_home_app/articles.md), [events](docs/architecture/ifi_home_app/events.md), [unions and tools](docs/architecture/ifi_home_app/unions_and_tools.md), [menus](docs/architecture/ifi_home_app/menus.md)

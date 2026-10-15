@@ -1,24 +1,34 @@
 # Setup without Docker (Python + SQLite)
 
-Last updated: 2026-10-11
+Last updated: 2026-10-15
 
 Only use this if Docker is too heavy for your laptop or won't install. The
-recommended setup is Docker, see the quick start in the main
-[README.md](../../README.md#quick-start).
+recommended setup is [Setup with Docker](setup_with_docker.md).
+
+Here you install Python packages yourself and use SQLite, a database that
+is just one file on your computer. The site looks the same as in Docker.
 
 ## Requirements
 - Python 3.12 or newer (tested on 3.12, 3.13 and 3.14)
+- [Visual Studio Code](https://code.visualstudio.com/) (recommended)
 - SQLite, which comes with Python
 
-> **A note on file paths below:** "repo root" means the top-level folder you get from cloning (likely named `IfiPlatform`). 
+**About folders:** cloning gives you a folder called `ifiplattform_halloween`
+(the "repo root"). Inside it is a folder called `ifiplatform`, where
+`manage.py` and the Django code live. Each step says which folder to run it in.
 
->Steps also reference the `ifiplatform/` subdirectory inside it (likely named `ifiplatform`, lowercase (*not to be confused with `ifiplatform/ifiplatform_project/`, which is just the Django settings package*) — that's where manage.py, `.env` and all the Django apps actually live. Steps say which one they're relative to.
+## 1. Fork and clone
+Follow [Fork and clone](setup_with_docker.md#2-fork-and-clone) in the Docker
+guide (it's the same without Docker), then open the `ifiplattform_halloween`
+folder in VS Code. If VS Code offers to "Reopen in Container", say no: that's
+the Docker setup.
 
-## 0. Fork and clone
-Follow item 1 under "2. Open the project in the container" in the README's [Quick start](../../README.md#quick-start): fork the repo, clone your fork and add the `upstream` remote. Skip the rest of the Quick start, which is for Docker.
+## 2. Make a virtual environment
+A virtual environment (venv) is a private box for this project's Python
+packages, so they don't mix with anything else on your computer. Run this in
+the repo root:
 
-## 1. Set up Virtual Environment
-### Windows (PowerShell)
+**Windows (PowerShell)**
 ```bash
 py -m venv venv
 venv\Scripts\Activate.ps1
@@ -27,64 +37,102 @@ If PowerShell says running scripts is disabled, run this once and try again:
 ```bash
 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
-### macOS / Linux
+
+**macOS / Linux**
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
-### Or through Visual Studio Code
-Run this command from the Command Palette:
-```bash
-Python: Create Environment
-```
-## 2. Install dependencies
-Run from the repo root:
+
+**Or in VS Code:** Command Palette (Ctrl+Shift+P) → `Python: Create Environment`.
+
+When it's active, your terminal prompt starts with `(venv)`. Activate it
+again every time you open a new terminal.
+
+## 3. Install the packages
+In the repo root:
 ```bash
 pip install -r requirements.txt
 ```
-In VS Code, click **Install** when it offers the project's recommended extensions (Python, Black, Pylint and Django templates). Then pick your venv with Command Palette → `Python: Select Interpreter`, so the editor uses the same Black and pylint versions as everyone else. Black formats Python files when you save, just like in Docker.
+In VS Code, click **Install** when it offers the project's recommended
+extensions (Python, Black, Pylint, Django templates and Mermaid diagrams). Then pick your venv
+with Command Palette → `Python: Select Interpreter`, so the editor uses the
+same Black and pylint versions as everyone else. Black formats Python files
+when you save, just like in Docker.
 
-## 3. Move into the ifiplatform/ folder
-manage.py, `.env` and all the Django apps live in `ifiplatform/`. Every command from here on assumes you're inside it:
+## 4. Move into the ifiplatform folder
 ```bash
 cd ifiplatform
 ```
+Every command from here on is run in this folder.
 
-## 4. Create .env for Secrets
-Copy `.env.example` to `.env`:
+## 5. Create the .env file
+The `.env` file holds settings for your own computer. Copy the example:
 ```bash
 cp .env.example .env
 ```
-That's enough for local development: the placeholder secret key works on your own computer, and you can ignore the rest of the file. (Any server needs a real random key. This prints one:)
-```bash
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-```
-If you skip this step, Django stops with an error saying `DJANGO_SECRET_KEY is not set`.
+(In PowerShell `cp` works too. In the old Windows `cmd`, use `copy`.)
 
-## 5. Run Migrations
+That's all you need. The example values work on your own computer. If you
+skip this step, Django stops with `DJANGO_SECRET_KEY is not set`.
+
+## 6. Create the database
 ```bash
 python manage.py migrate
 ```
+This creates `db.sqlite3` and all the tables in it.
 
-## 6. Fill database with dummy data(recommended)
+## 7. Fill it with the Halloween starter content
 ```bash
-python manage.py seed_dev_data
+python manage.py seed_halloween_data
 ```
-Fills your local database with a dummy article tree (index pages, categories, a test article, a test student union and a test tool) so you're not starting from a blank site. Safe to re-run — it skips anything that already exists instead of duplicating it.
+This adds the same starter pages as the Docker setup and the mock site:
+categories, a few articles, news, events, menus and a banner. It only adds
+pages to an empty site, so running it again does nothing.
 
-## 7. Run website on localhost
+Want more pages to test with? `python manage.py seed_dev_data` adds a fuller
+set. See [management_commands.md](../operations/management_commands.md#seed_dev_data).
+
+## 8. Start the site
 ```bash
 python manage.py runserver
 ```
-Once running, open your browser and go to:
-```
-http://localhost:8000
+Open http://localhost:8000. The server reloads when you save a file. Stop it
+with Ctrl+C.
+
+## 9. Make a login
+To edit pages, sign up at http://localhost:8000/account/signin with any
+username and password. You can edit pages at once, at
+http://localhost:8000/wagtail-admin. The login only exists in your local
+database.
+
+For the Django admin (http://localhost:8000/admin) you need a superuser.
+Open a second terminal, activate the venv, `cd ifiplatform` and run:
+```bash
+python manage.py createsuperuser
 ```
 
-### Access from your phone (same Wi-Fi)
-Useful for testing responsive/mobile layout on a real device. This only works with this setup: the Docker setup only accepts connections from your own computer.
+## Check that it works
+- [ ] http://localhost:8000 shows the Halloween site.
+- [ ] You can sign up and open http://localhost:8000/wagtail-admin.
+- [ ] The quick tests pass:
+  ```bash
+  python manage.py test --exclude-tag=slow
+  ```
 
-1. Start the server bound to all network interfaces, not just localhost:
+Your tests run on SQLite, while CI uses PostgreSQL. Now and then a test can
+pass for you and fail in CI. That's not your fault: ask a helper.
+
+## Next
+- New to Django? Read [How this project works](how_this_project_works.md).
+- Make your first change: [Make a change, step by step](../../CONTRIBUTING.md#2-make-a-change-step-by-step).
+- Commands you'll use often: [everyday_commands.md](everyday_commands.md).
+
+## Extra: open the site on your phone (same Wi-Fi)
+Useful for testing the mobile layout on a real device. This only works with
+this setup: the Docker setup only accepts connections from your own computer.
+
+1. Start the server so it listens on your network, not just your computer:
    ```bash
    python manage.py runserver 0.0.0.0:8000
    ```
@@ -96,11 +144,10 @@ Useful for testing responsive/mobile layout on a real device. This only works wi
    ```
    DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost,192.168.1.23
    ```
-   Without this, Django rejects the request with a 400 `DisallowedHost` error — `ALLOWED_HOSTS` is read straight from this env var (`settings.py`), it isn't relaxed just because `DEBUG=True`.
-4. On your phone, connected to the **same Wi-Fi network**, open:
-   ```
-   http://192.168.1.23:8000
-   ```
-   (use your own IP from step 2, not this example one)
+   Without this, Django rejects the request with a 400 `DisallowedHost` error.
+4. On your phone, connected to the **same Wi-Fi network**, open
+   `http://192.168.1.23:8000` (with your own IP from step 2).
 
-If it still doesn't load, your computer's firewall may be blocking incoming connections on port 8000 — Windows will usually prompt to allow this the first time; allow it for at least "Private networks."
+If it still doesn't load, your computer's firewall may be blocking port
+8000. Windows usually asks the first time: allow it for at least "Private
+networks".

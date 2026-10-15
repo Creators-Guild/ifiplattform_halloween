@@ -122,14 +122,15 @@ production are listed in
 ## Tooling and GitHub workflows
 
 - **GitHub** hosts the code, issues and pull requests.
-- **black** is used for code formatting. CI fails if a file isn't formatted.
+- **black** is used for code formatting.
 - **pylint** (with pylint-django) checks code quality. Both are in
-  `requirements.txt`, and the dev container's editor runs them.
+  `requirements.txt`, and the dev container's editor runs them. CI
+  doesn't run either one in this repo, so they never block a pull request.
 - **GitHub Actions** workflows in `.github/workflows/`:
 
 | Workflow                 | When it runs                                | What it does                                                     |
 | ------------------------ | ------------------------------------------- | ---------------------------------------------------------------- |
-| `ci.yml`                 | Every PR to `main`, by hand, before deploys | Runs the test suite on Python 3.12–3.14 against PostgreSQL 16, checks Black formatting, and runs pylint (fails below 7/10) |
+| `ci.yml`                 | Every PR to `main`, by hand, before deploys | Runs the test suite on Python 3.12–3.14 against PostgreSQL 16, The `lint` job is a placeholder that always passes: Black and pylint are turned off in this repo |
 | `automerge.yml`          | After CI passes on a PR                     | Merges the PR automatically if it has the `automerge` label      |
 | `deploy.yml`             | Nightly at 01:00 UTC, or by hand            | Deploys `main` to production (see [prod_server.md](../operations/prod_server.md#deploy-flow)) |
 | `trello_sync.yml`        | Issue opened, edited or closed              | Mirrors GitHub issues as Trello cards                            |
