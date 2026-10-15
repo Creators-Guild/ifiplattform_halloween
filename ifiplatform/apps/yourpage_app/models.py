@@ -7,7 +7,7 @@ numbers, titles and labels."""
 from django.conf import settings
 from django.db import models
 
-from .labels import CATEGORY_SLUGS, size_label
+from .labels import CATEGORY_SLUGS, difficulty_text, size_label
 
 
 class EventIssue(models.Model):
@@ -40,6 +40,10 @@ class EventIssue(models.Model):
     @property
     def size_label(self):
         return size_label(self.size)
+
+    @property
+    def difficulty_text(self):
+        return difficulty_text(self.size)
 
     @property
     def category_slug(self):

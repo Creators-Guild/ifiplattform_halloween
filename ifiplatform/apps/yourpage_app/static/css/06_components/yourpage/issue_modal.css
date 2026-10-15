@@ -1,0 +1,212 @@
+:where(.issue-panel) {
+  --issue-color: color-mix(in srgb, var(--color-slate) 25%, var(--color-white));
+}
+
+.issue-panel {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-border) 10%, transparent);
+  border-radius: 20px;
+  background-color: var(--color-card-bg);
+  box-shadow: 0 4px 16px var(--color-shadow);
+}
+
+.issue-panel__band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 3.5rem;
+  padding: 0.6rem 4rem 0.6rem 1.5rem;
+  background-color: var(--issue-color);
+}
+
+.issue-panel__band .issue-card__category {
+  font-size: 1rem;
+}
+
+.issue-panel__band .issue-card__points {
+  font-size: 1rem;
+}
+
+.issue-panel--closed .issue-panel__band {
+  filter: saturate(0.4);
+}
+
+.issue-panel__content {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.issue-panel__title {
+  margin: 0.1rem 0 0.75rem;
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
+  line-height: 1.2;
+  overflow-wrap: break-word;
+}
+
+.issue-panel__status .issue-chip {
+  font-size: 0.9rem;
+}
+
+.issue-panel__facts {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1.25rem 0;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  background-color: color-mix(in srgb, var(--color-text) 4%, transparent);
+}
+
+.issue-panel__facts:not(:has(div)) {
+  display: none;
+}
+
+.issue-panel__facts > div {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 0.75rem;
+}
+
+.issue-panel__facts dt {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.issue-panel__facts dd {
+  margin: 0;
+}
+
+.issue-panel__facts a,
+.issue-panel__solution a {
+  color: var(--color-link);
+}
+
+.issue-panel__heading {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.issue-panel__subs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.issue-panel__solution {
+  margin-top: 1.5rem;
+  padding: 0 1.25rem 1rem;
+  border: 2px solid var(--color-secondary);
+  border-radius: 14px;
+}
+
+.issue-panel__diff {
+  overflow-x: auto;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background-color: var(--color-bg-dark);
+  color: var(--color-on-accent);
+  font-size: 0.85rem;
+}
+
+.issue-panel__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1.5rem 0 0;
+}
+
+.issue-modal {
+  width: min(46rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 4rem);
+  padding: 0;
+  overflow: auto;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  overscroll-behavior: contain;
+}
+
+.issue-modal::backdrop {
+  background-color: rgba(10, 8, 20, 0.6);
+  backdrop-filter: blur(3px);
+}
+
+.issue-modal .issue-panel {
+  border: none;
+  box-shadow: 0 20px 60px var(--color-shadow-strong);
+}
+
+.issue-modal__close-form {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 0;
+}
+
+.issue-modal__close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--color-card-bg);
+  box-shadow: 0 1px 4px var(--color-shadow);
+  color: var(--color-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.issue-modal__close:hover {
+  background-color: color-mix(in srgb, var(--color-text) 8%, var(--color-card-bg));
+}
+
+body:has(.issue-modal[open]) {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .issue-modal[open] {
+    animation: issue-modal-in 0.18s ease-out;
+  }
+
+  .issue-modal[open]::backdrop {
+    animation: issue-modal-fade 0.18s ease-out;
+  }
+}
+
+@keyframes issue-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.97);
+  }
+}
+
+@keyframes issue-modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 40rem) {
+  .issue-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92dvh;
+    margin: auto 0 0;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .issue-modal .issue-panel {
+    min-height: 92dvh;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .issue-panel__facts > div {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

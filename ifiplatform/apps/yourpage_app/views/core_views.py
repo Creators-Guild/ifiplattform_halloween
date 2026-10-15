@@ -287,12 +287,28 @@ def issue_detail_view(request, number):
     )
     show_solutions = can_see_solutions(request.user)
     _annotate([issue], show_solutions)
+    credit = getattr(issue, "credit", None)
+    # The repo's URL is the issue's minus "/issues/<n>"; PRs live beside it.
+    pr_url = (
+        f"{issue.url.rsplit('/issues/', 1)[0]}/pull/{credit.pr_number}"
+        if credit and credit.pr_number
+        else ""
+    )
     return render(
         request,
         "core/issue_detail.html",
         {
             "issue": issue,
-            "sub_issues": EventIssue.objects.filter(parent_number=number),
+            "parent": (
+                EventIssue.objects.filter(number=issue.parent_number).first()
+                if issue.parent_number
+                else None
+            ),
+            "credit": credit,
+            "pr_url": pr_url,
+            "sub_issues": _annotate(
+                list(EventIssue.objects.filter(parent_number=number)), show_solutions
+            ),
             "solution": (
                 EventSolution.objects.filter(issue_number=number).first()
                 if show_solutions

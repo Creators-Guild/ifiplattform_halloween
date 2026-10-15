@@ -41,6 +41,11 @@ def size_label(size):
     return next((label for label, (name, _) in SIZE_LABELS.items() if name == size), "")
 
 
+def difficulty_text(size):
+    """ "candy" -> "🍬 candy (easy)", as the Difficulty filter shows it."""
+    return dict(difficulty_choices()).get(size, "")
+
+
 def difficulty_choices():
     """(size, text) pairs for the issue list's Difficulty filter, easiest first."""
     words = {1: _("easy"), 2: _("medium"), 3: _("hard")}

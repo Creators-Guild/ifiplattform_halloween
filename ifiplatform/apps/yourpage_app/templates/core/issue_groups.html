@@ -1,11 +1,11 @@
 {% if carousel %}<ul class="issue-list issue-list--carousel" data-carousel-track tabindex="0"{% if label %} aria-label="{{ label }}"{% endif %}>{% else %}<ul class="issue-list">{% endif %}
     {% for issue, sub_issues in groups %}
-        <li class="issue-list__item{% if issue.category_slug %} issue-list__item--{{ issue.category_slug }}{% endif %}">
+        <li class="issue-card{% if issue.category_slug %} issue-card--{{ issue.category_slug }}{% endif %}{% if issue.state == 'CLOSED' %} issue-card--closed{% endif %}{% if sub_issues %} issue-card--parent{% endif %}">
             {% include "core/issue_row.html" %}
             {% if sub_issues %}
-                <ul class="issue-list issue-list--sub">
+                <ul class="issue-card__subs">
                     {% for issue in sub_issues %}
-                        <li class="issue-list__item{% if issue.category_slug %} issue-list__item--{{ issue.category_slug }}{% endif %}">{% include "core/issue_row.html" %}</li>
+                        <li class="issue-card issue-card--mini{% if issue.category_slug %} issue-card--{{ issue.category_slug }}{% endif %}{% if issue.state == 'CLOSED' %} issue-card--closed{% endif %}">{% include "core/issue_row.html" with mini=True %}</li>
                     {% endfor %}
                 </ul>
             {% endif %}

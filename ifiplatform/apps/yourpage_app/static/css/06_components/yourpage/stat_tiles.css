@@ -1,0 +1,87 @@
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  gap: 1rem;
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--color-border) 10%, transparent);
+  border-radius: 16px;
+  background-color: var(--color-card-bg);
+  box-shadow: 0 1px 3px var(--color-shadow);
+}
+
+.stat-tile__value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-tile__label {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.stat-tile__text {
+  font-weight: 700;
+}
+
+.stat-tile--drink {
+  grid-column: span 2;
+}
+
+@media (max-width: 40rem) {
+  .stat-tile--drink {
+    grid-column: auto;
+  }
+}
+
+.stat-tile__progress {
+  width: 100%;
+  height: 0.75rem;
+  overflow: hidden;
+  border: none;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--color-text) 8%, transparent);
+  appearance: none;
+}
+
+.stat-tile__progress::-webkit-progress-bar {
+  background-color: transparent;
+}
+
+.stat-tile__progress::-webkit-progress-value {
+  border-radius: 999px;
+  background-color: var(--color-accent);
+}
+
+.stat-tile__progress::-moz-progress-bar {
+  border-radius: 999px;
+  background-color: var(--color-accent);
+}
+
+.stat-tile--ready {
+  border-color: var(--color-cta-border);
+  background-color: var(--color-cta);
+  color: var(--color-on-accent);
+}
+
+.stat-tile--ready .stat-tile__label {
+  color: inherit;
+}
+
+.stat-tile--ready .stat-tile__text {
+  font-size: 1.25rem;
+}
+
+.stat-tile--muted {
+  background-color: color-mix(in srgb, var(--color-text) 4%, var(--color-card-bg));
+  box-shadow: none;
+}

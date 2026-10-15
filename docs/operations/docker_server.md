@@ -1,6 +1,6 @@
 # Docker server
 
-Last updated: 2026-10-14
+Last updated: 2026-10-15
 
 How to set up and run a server with Docker. Today this runs the Halloween
 mock site. The real site (`ifiplattform.no`) still runs the old setup in
@@ -165,11 +165,15 @@ secrets.
 The mock site counts points for the event. Three public pages, all under
 `/commits/`:
 
-- **Commits** (`/commits/`, needs a login): a participant enters their
+- **My commits** (`/commits/`, needs a login): a participant enters their
   GitHub username once and sees their points and drink-ticket progress.
+  The site menu still calls the whole section "Commits".
 - **Leaderboard** (`/commits/leaderboard/`): reloads itself every 30
   seconds, so it can stay on the projector.
 - **Issues** (`/commits/issues/`): every event issue, free or done.
+  Clicking an issue opens it in a pop-up with more details (who solved it,
+  the PR, the issue it is part of). Each issue also has its own page,
+  `/commits/issues/<number>/`, for sharing a link.
 
 ### Where the points come from
 

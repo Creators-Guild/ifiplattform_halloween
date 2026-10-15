@@ -1,0 +1,61 @@
+{% load i18n %}
+{% comment %}
+One issue, enlarged. Shown on the issue's own page, and copied from there
+into the pop-up on the issue lists by issue_modal.js (it looks for
+data-issue-panel).
+{% endcomment %}
+<article class="issue-panel{% if issue.category_slug %} issue-card--{{ issue.category_slug }}{% endif %}{% if issue.state == 'CLOSED' %} issue-panel--closed{% endif %}" data-issue-panel>
+    <div class="issue-panel__band">
+        <span class="issue-card__category">{{ issue.category }}</span>
+        {% if issue.points %}{% include "core/difficulty_badge.html" %}{% endif %}
+    </div>
+
+    <div class="issue-panel__content">
+        <span class="issue-card__number">#{{ issue.number }}</span>
+        <h1 class="issue-panel__title" id="issue-panel-title">{{ issue.title }}</h1>
+        <div class="issue-panel__status">{% include "core/issue_status.html" %}</div>
+
+        <dl class="issue-panel__facts">
+            {% if issue.size_label %}
+                <div><dt>{% trans "Difficulty" %}</dt><dd>{{ issue.difficulty_text }} · {{ issue.points }} p</dd></div>
+            {% endif %}
+            {% if issue.category %}
+                <div><dt>{% trans "Category" %}</dt><dd>{{ issue.category }}</dd></div>
+            {% endif %}
+            {% if credit %}
+                <div>
+                    <dt>{% trans "Done by" %}</dt>
+                    <dd>
+                        {% if issue.done_by %}{{ issue.done_by }} · {% endif %}
+                        {% if pr_url %}<a href="{{ pr_url }}" target="_blank" rel="noopener">{% blocktrans with n=credit.pr_number %}via PR #{{ n }}{% endblocktrans %} ↗</a> · {% endif %}
+                        <time datetime="{{ credit.credited_at|date:'c' }}">{{ credit.credited_at|date:"j M H:i" }}</time>
+                    </dd>
+                </div>
+            {% endif %}
+            {% if parent %}
+                <div><dt>{% trans "Part of" %}</dt><dd><a href="{% url 'yourpage_issue_detail' parent.number %}" data-issue-link>#{{ parent.number }} {{ parent.title }}</a></dd></div>
+            {% endif %}
+        </dl>
+
+        {% if sub_issues %}
+            <h2 class="issue-panel__heading">{% trans "Sub-issues" %}</h2>
+            <ul class="issue-panel__subs">
+                {% for issue in sub_issues %}
+                    <li class="issue-card issue-card--mini{% if issue.category_slug %} issue-card--{{ issue.category_slug }}{% endif %}{% if issue.state == 'CLOSED' %} issue-card--closed{% endif %}">{% include "core/issue_row.html" with mini=True %}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if solution %}
+            <section id="solution" class="issue-panel__solution">
+                <h2 class="issue-panel__heading">🔑 {% trans "Solution (helpers only)" %}</h2>
+                {% if solution.note %}{{ solution.note|linebreaks }}{% endif %}
+                {% if solution.diff %}<pre class="issue-panel__diff"><code>{{ solution.diff }}</code></pre>{% endif %}
+            </section>
+        {% endif %}
+
+        <p class="issue-panel__actions">
+            <a class="btn" href="{{ issue.url }}" target="_blank" rel="noopener">{% trans "Open the issue on GitHub" %} ↗</a>
+        </p>
+    </div>
+</article>

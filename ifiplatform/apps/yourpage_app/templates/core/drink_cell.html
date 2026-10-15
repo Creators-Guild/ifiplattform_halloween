@@ -1,0 +1,13 @@
+{% load i18n %}
+{% if row.drink_given %}
+    <span class="drink-badge drink-badge--given" title="{% trans 'Drink collected. Cheers!' %}">✓</span>
+{% elif row.drink_earned %}
+    {% if is_organiser %}
+        <form method="post" action="{% url 'yourpage_hand_out_drink' row.user.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn">{% trans "Handed out" %}</button>
+        </form>
+    {% else %}
+        <span class="drink-badge">🍹</span>
+    {% endif %}
+{% endif %}

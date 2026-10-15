@@ -2589,3 +2589,34 @@ msgstr "Forrige side"
 
 msgid "Next page"
 msgstr "Neste side"
+
+msgid "My commits"
+msgstr "Mine commits"
+
+msgid "Link yours on the My commits page."
+msgstr "Koble til din på Mine commits-siden."
+
+msgid "Organiser tools"
+msgstr "Arrangørverktøy"
+
+msgid "All issues"
+msgstr "Alle oppgaver"
+
+msgid "Change"
+msgstr "Endre"
+
+msgid "Solved"
+msgstr "Løst"
+
+msgid "in progress"
+msgstr "pågår"
+
+msgid "Done by"
+msgstr "Løst av"
+
+msgid "Part of"
+msgstr "Del av"
+
+#, python-format
+msgid "via PR #%(n)s"
+msgstr "via PR #%(n)s"

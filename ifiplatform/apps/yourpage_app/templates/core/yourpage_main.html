@@ -1,67 +1,91 @@
 {% extends "global_base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
-{% block title %}{% trans "Commits" %}{% endblock %}
+{% block title %}{% trans "My commits" %}{% endblock %}
 
 {% block app_css %}
     {% include "css_links/yourpage.html" %}
 {% endblock app_css %}
 
+{% block extra_head %}
+    <script src="{% static 'js/issue_modal.js' %}" defer></script>
+{% endblock extra_head %}
+
 {% block content %}
 <div class="yourpage">
     {% include "core/yourpage_nav.html" %}
-    <h1>{% trans "Commits" %}</h1>
-
-    <section class="yourpage__section">
-        <h2>{% trans "Your GitHub username" %}</h2>
-        <p>{% trans "Link it once: every issue you solve on GitHub then counts as points here." %}</p>
-        <form class="yourpage__form" method="post" action="{% url 'yourpage_main' %}">
-            {% csrf_token %}
-            {{ form.github_login.label_tag }}
-            {{ form.github_login }}
-            {% for error in form.github_login.errors %}
-                <p class="error">{{ error }}</p>
-            {% endfor %}
-            <button type="submit" class="btn">{% trans "Save" %}</button>
-        </form>
-        {% url 'privacy_policy' as privacy_url %}
-        <p class="yourpage__hint">
-            {% blocktrans %}Used only for points on this site, and deleted with the site by 2 November 2026. See the <a href="{{ privacy_url }}">privacy notice</a>.{% endblocktrans %}
-        </p>
-    </section>
+    <header class="yourpage__header">
+        <h1>{% trans "My commits" %}</h1>
+    </header>
 
     {% if link %}
-        <section class="yourpage__section">
-            <h2>{% trans "Your assigned issues" %}</h2>
-            {% if assigned_groups %}
-                {% include "core/issue_groups.html" with groups=assigned_groups %}
-            {% else %}
-                <p class="yourpage__hint">{% trans "Nothing assigned to you right now. Pick a free issue and comment on it on GitHub to get it assigned." %}</p>
-            {% endif %}
-        </section>
+        <details class="github-bar"{% if form.errors %} open{% endif %}>
+            <summary class="github-bar__summary">
+                <span class="github-bar__label">{% trans "Your GitHub username" %}</span>
+                <strong class="github-bar__login">@{{ link.github_login }} ✓</strong>
+                <span class="github-bar__change">{% trans "Change" %}</span>
+            </summary>
+            <div class="github-bar__form">
+                {% include "core/github_link_form.html" %}
+            </div>
+        </details>
 
-        <section class="yourpage__section">
-            <h2>{% trans "Your closed issues" %}</h2>
-            {% if closed_groups %}
-                <p class="yourpage__points">{% blocktrans count points=score.points %}{{ points }} point{% plural %}{{ points }} points{% endblocktrans %}</p>
-                {% include "core/issue_groups.html" with groups=closed_groups %}
-            {% else %}
-                <p class="yourpage__hint">
-                    {% blocktrans with login=link.github_login %}Nothing credited to {{ login }} yet. Check that it matches your GitHub username exactly. Points appear about a minute after your PR is merged.{% endblocktrans %}
-                </p>
-            {% endif %}
-        </section>
-
-        <section class="yourpage__section">
-            <h2>{% trans "Drink ticket" %} 🍹</h2>
+        <div class="stat-tiles">
+            <div class="stat-tile">
+                <span class="stat-tile__value">{{ score.points }}</span>
+                <span class="stat-tile__label">{% trans "Points" %}</span>
+            </div>
+            <div class="stat-tile">
+                <span class="stat-tile__value">{{ closed_groups|length }}</span>
+                <span class="stat-tile__label">{% trans "Solved" %} · {{ assigned_groups|length }} {% trans "in progress" %}</span>
+            </div>
             {% if drink_given %}
-                <p>{% trans "Drink collected. Cheers!" %}</p>
+                <div class="stat-tile stat-tile--drink stat-tile--muted">
+                    <span class="stat-tile__label">{% trans "Drink ticket" %} 🍹</span>
+                    <span class="stat-tile__text">{% trans "Drink collected. Cheers!" %}</span>
+                </div>
             {% elif score.drink_earned %}
-                <p class="yourpage__drink-ready">{% trans "Show this to get your drink!" %} 🍹</p>
+                <div class="stat-tile stat-tile--drink stat-tile--ready">
+                    <span class="stat-tile__label">{% trans "Drink ticket" %} 🍹</span>
+                    <span class="stat-tile__text">{% trans "Show this to get your drink!" %} 🍹</span>
+                </div>
             {% else %}
-                <p>{{ score.points }}/{{ drink_points }} 🍹</p>
-                <progress class="yourpage__progress" value="{{ score.points }}" max="{{ drink_points }}">{{ score.points }}/{{ drink_points }}</progress>
+                <div class="stat-tile stat-tile--drink">
+                    <span class="stat-tile__label">{% trans "Drink ticket" %} 🍹</span>
+                    <progress class="stat-tile__progress" value="{{ score.points }}" max="{{ drink_points }}">{{ score.points }}/{{ drink_points }}</progress>
+                    <span class="stat-tile__text">{{ score.points }}/{{ drink_points }} 🍹</span>
+                </div>
             {% endif %}
+        </div>
+
+        <div class="yourpage__columns">
+            <section class="yourpage__section">
+                <h2>{% trans "Your assigned issues" %}</h2>
+                {% if assigned_groups %}
+                    {% include "core/issue_groups.html" with groups=assigned_groups %}
+                {% else %}
+                    <p class="yourpage__empty">{% trans "Nothing assigned to you right now. Pick a free issue and comment on it on GitHub to get it assigned." %}</p>
+                {% endif %}
+            </section>
+
+            <section class="yourpage__section">
+                <h2>{% trans "Your closed issues" %}</h2>
+                {% if closed_groups %}
+                    {% include "core/issue_groups.html" with groups=closed_groups %}
+                {% else %}
+                    <p class="yourpage__empty">
+                        {% blocktrans with login=link.github_login %}Nothing credited to {{ login }} yet. Check that it matches your GitHub username exactly. Points appear about a minute after your PR is merged.{% endblocktrans %}
+                    </p>
+                {% endif %}
+            </section>
+        </div>
+
+        {% include "core/issue_modal.html" %}
+    {% else %}
+        <section class="github-setup">
+            <h2>{% trans "Your GitHub username" %}</h2>
+            <p>{% trans "Link it once: every issue you solve on GitHub then counts as points here." %}</p>
+            {% include "core/github_link_form.html" %}
         </section>
     {% endif %}
 </div>

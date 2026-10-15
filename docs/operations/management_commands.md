@@ -1,6 +1,6 @@
 # Custom manage.py commands
 
-Last updated: 2026-10-14
+Last updated: 2026-10-15
 
 This project's own `manage.py` commands, beyond Django's built-in ones
 (`migrate`, `createsuperuser`, `test`, `makemessages`/`compilemessages`,
@@ -405,9 +405,9 @@ py manage.py seed_fake_points [--clear]
 Local only (refuses unless `DEBUG=True`). Fills the points system with 25
 fake issues (numbered from 900, with sub-issues), six fake people
 (`fake_...`, who can't log in), points, a handed-out drink ticket and two
-solutions, so the Commits page, leaderboard and issue list can be styled
+solutions, so the My commits page, leaderboard and issue list can be styled
 without a GitHub token. `--me <your GitHub username>` assigns two open
-issues to you and credits two to you, to fill your own Commits page. `--extra 60`
+issues to you and credits two to you, to fill your own My commits page. `--extra 60`
 adds 60 more open issues (numbered from 1000), to see the issue list's
 pages fill up. `--clear` removes it again. A real
 `sync_github_points` replaces the fake issues and credits.

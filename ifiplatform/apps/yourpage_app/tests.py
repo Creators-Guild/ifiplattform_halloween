@@ -499,6 +499,18 @@ class PagesTests(TestCase):
             self.assertContains(self.client.get(detail), "Edit footer.css")
             self.assertContains(self.client.get(reverse("yourpage_issues")), "Solution")
 
+    def test_issue_page_shows_parent_and_pr(self):
+        self.open_issue(1, "🍬 candy", "🎨 restyle")
+        credit = make_credit(2, "someone")
+        credit.pr_number = 57
+        credit.save()
+        EventIssue.objects.filter(number=2).update(parent_number=1)
+        response = self.client.get(reverse("yourpage_issue_detail", args=[2]))
+        self.assertContains(response, "https://github.com/o/r/pull/57")
+        self.assertContains(response, "#1 Issue 1")
+        self.assertContains(response, "data-issue-panel")
+        self.assertNotContains(response, "someone")
+
     @override_settings(OPEN_SIGNUP=True)
     def test_deleting_the_account_deletes_link_and_ticket(self):
         self.link(self.user, "spooky")

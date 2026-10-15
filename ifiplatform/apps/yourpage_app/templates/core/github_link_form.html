@@ -1,0 +1,14 @@
+{% load i18n %}
+<form class="yourpage__form" method="post" action="{% url 'yourpage_main' %}">
+    {% csrf_token %}
+    {{ form.github_login.label_tag }}
+    {{ form.github_login }}
+    <button type="submit" class="btn">{% trans "Save" %}</button>
+    {% for error in form.github_login.errors %}
+        <p class="error">{{ error }}</p>
+    {% endfor %}
+</form>
+{% url 'privacy_policy' as privacy_url %}
+<p class="yourpage__hint">
+    {% blocktrans %}Used only for points on this site, and deleted with the site by 2 November 2026. See the <a href="{{ privacy_url }}">privacy notice</a>.{% endblocktrans %}
+</p>

@@ -1,0 +1,11 @@
+{% load i18n %}
+{% comment %}
+The one dialog that issue_modal.js fills with an issue's panel
+(core/issue_panel.html, fetched from its own page) when a card is clicked.
+{% endcomment %}
+<dialog class="issue-modal" data-issue-modal aria-labelledby="issue-panel-title">
+    <form method="dialog" class="issue-modal__close-form">
+        <button type="submit" class="issue-modal__close" aria-label="{% trans 'Close' %}">✕</button>
+    </form>
+    <div class="issue-modal__body" data-issue-modal-body></div>
+</dialog>

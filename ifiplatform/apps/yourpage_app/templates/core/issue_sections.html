@@ -1,8 +1,9 @@
 {% load i18n %}
 {% for title, groups in sections %}
-    <section class="issue-section" data-carousel>
+    {% with first=groups.0.0 %}
+    <section class="issue-section{% if first.category_slug and title == first.category %} issue-card--{{ first.category_slug }}{% endif %}" data-carousel>
         <div class="issue-section__head">
-            {% if title %}<h3 class="issue-section__title">{{ title }}</h3>{% endif %}
+            {% if title %}<h3 class="issue-section__title">{{ title }} <span class="issue-section__count">{{ groups|length }}</span></h3>{% endif %}
             <div class="issue-carousel__controls" data-carousel-controls hidden>
                 <button type="button" class="issue-carousel__button" data-carousel-prev aria-label="{% trans 'Previous page' %}">‹</button>
                 <span class="issue-carousel__status" data-carousel-status aria-live="polite"></span>
@@ -11,4 +12,5 @@
         </div>
         {% include "core/issue_groups.html" with carousel=True label=title %}
     </section>
+    {% endwith %}
 {% endfor %}
