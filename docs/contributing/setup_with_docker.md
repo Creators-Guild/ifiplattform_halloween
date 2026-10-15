@@ -5,7 +5,7 @@ Last updated: 2026-10-15
 The recommended way to run the project on your own computer. One step
 installs everything: Python, the packages, a PostgreSQL database and the
 Halloween test content. You don't need to know Docker to follow this. If
-you're curious what it does, read [Docker, explained simply](docker_explained.md).
+you're curious what it does, read the [Docker guide](docker_guide.md).
 
 Can't use Docker? Use the [setup without Docker](setup_without_docker.md)
 instead.
@@ -30,7 +30,7 @@ Rather start Docker yourself each time you need it? Use `sudo systemctl start do
 2. VS Code shows a popup: **"Reopen in Container"**. Click it. (No popup? Open the Command Palette with Ctrl+Shift+P, or Cmd+Shift+P on macOS, and run `Dev Containers: Reopen in Container`.)
 3. Wait. The first time takes a few minutes, because Docker downloads Python and PostgreSQL and installs the packages. Later starts take seconds.
 
-While it starts, the container sets up the database, fills it with the Halloween starter content and starts the website. [Docker, explained simply](docker_explained.md#what-happens-when-you-click-reopen-in-container) shows each step.
+While it starts, the container sets up the database, fills it with the Halloween starter content and starts the website. The [Docker guide](docker_guide.md#what-happens-when-you-click-reopen-in-container) shows each step.
 
 ## 3. Open the site
 Go to http://localhost:8000.
@@ -44,7 +44,7 @@ python manage.py createsuperuser
 
 ## 4. You're in
 - The VS Code terminal now runs **inside** the container, and you're already in the `ifiplatform/` folder, where `manage.py` is.
-- You don't need a venv or a `.env` file. A `.env` is only for optional keys, like the GitHub token: see [Keys and tokens](docker.md#keys-and-tokens-env).
+- You don't need a venv or a `.env` file. A `.env` is only for optional keys, like the GitHub token: see [Keys and tokens](docker_guide.md#keys-and-tokens-env).
 - The site reloads when you save a file, so you don't need to run `runserver`. Just refresh the browser.
 
 ## Check that it works
@@ -55,9 +55,9 @@ python manage.py createsuperuser
   python manage.py test --exclude-tag=slow
   ```
 
-Something wrong? See [If something goes wrong](docker.md#if-something-goes-wrong), or ask a helper.
+Something wrong? See [If something goes wrong](docker_guide.md#if-something-goes-wrong), or ask a helper.
 
 ## Next
 - New to Django? Read [How this project works](how_this_project_works.md). It explains the folders and where to find things.
 - Make your first change: [Make a change, step by step](../../CONTRIBUTING.md#2-make-a-change-step-by-step).
-- Using Docker day to day (stopping, resetting, your own extensions): [docker.md](docker.md).
+- Using Docker day to day (restart or rebuild, your own extensions, fixing problems): [Docker guide](docker_guide.md).

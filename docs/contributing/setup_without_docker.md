@@ -74,8 +74,21 @@ cp .env.example .env
 ```
 (In PowerShell `cp` works too. In the old Windows `cmd`, use `copy`.)
 
-That's all you need. The example values work on your own computer. If you
-skip this step, Django stops with `DJANGO_SECRET_KEY is not set`.
+If you skip this step, Django stops with `DJANGO_SECRET_KEY is not set`.
+
+**The secret key.** Django uses `DJANGO_SECRET_KEY` to sign logins and
+other data, so on a real server it must be a long random value that
+nobody else knows. On your own computer the placeholder from the example
+works fine. To use a proper key anyway, generate one:
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+Copy what it prints into `.env`, after `DJANGO_SECRET_KEY=` (no spaces or
+quotes). Run the command with your venv active, since it needs Django. If
+you change the key later, you're logged out of your local site, but nothing
+else breaks.
+
+The rest of the example values work as they are.
 
 ## 6. Create the database
 ```bash

@@ -69,7 +69,7 @@ With Docker, run these in the VS Code terminal (it's inside the container). With
 | Edit pages and articles | http://localhost:8000/wagtail-admin (sign up first at http://localhost:8000/account/signin) |
 | Users and raw database tables | http://localhost:8000/admin (needs `python manage.py createsuperuser`) |
 
-More, including translations: [docs/contributing/everyday_commands.md](docs/contributing/everyday_commands.md). Docker day to day (stopping, resetting, fixing problems): [docs/contributing/docker.md](docs/contributing/docker.md).
+More, including translations: [docs/contributing/everyday_commands.md](docs/contributing/everyday_commands.md). Docker day to day (restart or rebuild, fixing problems): [docs/contributing/docker_guide.md](docs/contributing/docker_guide.md).
 
 ## Docs
 All docs, sorted by topic: [docs/README.md](docs/README.md).

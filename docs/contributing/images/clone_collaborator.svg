@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 390" width="720" height="390" role="img" aria-labelledby="title desc">
   <title id="title">Clone as a collaborator</title>
-  <desc id="desc">On GitHub: origin, our repo (Ifiplattform), with the main branch and your branch inside it. On your computer: your clone. Once: clone origin to your computer. Every change: git fetch from main, git push to your branch, then a pull request from your branch to main.</desc>
+  <desc id="desc">On GitHub: origin, our repo (Ifiplattform), with the main branch and your branch inside it. On your computer: your clone. Once: clone origin to your computer. Every change: git fetch origin to get everyone's changes, git push origin to send your branch, then a pull request from your branch to main.</desc>
   <style>
     svg { --band: #f1f3f7; --line: #d5dae3; --box: #ffffff; --pill: #f1f3f7; --fg: #1d2330; --muted: #5b6475; --once: #7a3fd1; --loop: #0b8a78; }
     @media (prefers-color-scheme: dark) {
@@ -48,14 +48,15 @@
   <text class="sub" x="360" y="346" text-anchor="middle">Where you edit and run the site</text>
 
   <line class="loop" x1="250" y1="158" x2="318" y2="284" marker-end="url(#headLoop)"/>
-  <text class="loop-t" x="270" y="218" text-anchor="end">git fetch</text>
+  <text class="loop-t" x="270" y="218" text-anchor="end">git fetch origin</text>
   <text class="note" x="270" y="234" text-anchor="end">get everyone's changes</text>
 
   <line class="once" x1="360" y1="182" x2="360" y2="284" marker-end="url(#headOnce)"/>
   <text class="once-t" x="368" y="236">1. Clone</text>
 
   <line class="loop" x1="420" y1="286" x2="468" y2="160" marker-end="url(#headLoop)"/>
-  <text class="loop-t" x="458" y="230">git push</text>
+  <text class="loop-t" x="458" y="216">git push origin</text>
+  <text class="note" x="458" y="232">send your branch</text>
 
   <line class="once" x1="530" y1="316" x2="560" y2="316"/>
   <text class="note" x="568" y="320">once</text>

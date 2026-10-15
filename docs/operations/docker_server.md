@@ -8,7 +8,7 @@ mock site. The real site (`ifiplattform.no`) still runs the old setup in
 until it moves over.
 
 This setup is for **servers only**. Local development uses the dev Docker
-setup in [contributing/docker.md](../contributing/docker.md). Never run
+setup in [contributing/docker_guide.md](../contributing/docker_guide.md). Never run
 this one on your own computer (see [HTTPS and HSTS](#https-and-hsts)).
 
 ## How it works

@@ -75,13 +75,12 @@ below.
   contributors fork, collaborators clone the main repo
 - [setup_with_docker.md](contributing/setup_with_docker.md): first-time
   setup with Docker (recommended)
-- [docker_explained.md](contributing/docker_explained.md): for beginners:
-  what Docker is and what runs where
+- [docker_guide.md](contributing/docker_guide.md): everything after the
+  first start: how Docker works here, restart or rebuild, everyday tasks,
+  and fixing problems
 - [collaborators.md](contributing/collaborators.md): for people with
   write access: cloning the main repo and using `origin` instead of
   `upstream`
-- [docker.md](contributing/docker.md): using the Docker setup day to day:
-  your own extensions, stopping and resetting, and fixing problems
 - [setup_without_docker.md](contributing/setup_without_docker.md): the
   Python + SQLite setup, for when Docker won't work
 - [everyday_commands.md](contributing/everyday_commands.md): migrations,

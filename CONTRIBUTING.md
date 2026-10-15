@@ -8,12 +8,7 @@ Never contributed to an open source project before? This guide walks you through
 
 ## 1. Set up (once)
 
-Two steps:
-
-1. **Get the code.** [Get the code](docs/contributing/get_the_code.md) tells you whether you're a contributor (you fork) or a collaborator (you clone directly).
-2. **Run the site.** Follow one of these:
-   - [Setup with Docker](docs/contributing/setup_with_docker.md) (recommended)
-   - [Setup without Docker](docs/contributing/setup_without_docker.md)
+Follow [Get started](README.md#get-started) in the README. When the site runs at http://localhost:8000, come back here.
 
 **Not used to Git in the terminal?** Install [GitHub Desktop](https://desktop.github.com/). It does branches, commits, pushes and pull requests with buttons.
 
@@ -35,8 +30,11 @@ Do this for every change. There are two ways to do the Git parts. Pick the one y
 
    ```bash
    git fetch upstream
-   git checkout -b <type>/<few-words> upstream/main
+   git switch -c <type>/<few-words> upstream/main
    ```
+
+   - `git fetch upstream` downloads everyone's latest changes from the main repo. It doesn't change your files yet.
+   - `git switch -c <type>/<few-words> upstream/main` makes a new branch, starting from that latest `main`, and switches to it. `-c` means "create".
 
    `<type>` is the issue's Type: `bug`, `feature` or `task`. For example `bug/login-redirect` or `feature/mobile-nav`.
 
@@ -55,10 +53,14 @@ Do this for every change. There are two ways to do the Git parts. Pick the one y
 6. **Commit and push.**
 
    ```bash
-   git add <the files you changed>
+   git add .
    git commit -m "Short description of what you changed"
    git push -u origin <your-branch-name>
    ```
+
+   `git add .` adds every file `git status` listed in step 5, so do that check first.
+
+   Asked to log in, or "Please tell me who you are"? See [Log in to GitHub](docs/contributing/get_the_code.md#log-in-to-github-once).
 
 7. **Open a pull request.**
    Click **Compare & pull request** on GitHub, fill in the template, and add `Closes #<issue number>`.

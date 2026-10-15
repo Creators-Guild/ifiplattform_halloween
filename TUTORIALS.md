@@ -4,7 +4,7 @@ New to some of this? You don't need to know everything before you start. Pick th
 
 **Read these first:** they're short and explain this project in plain words.
 - [How this project works](docs/contributing/how_this_project_works.md): Django, the folders, and where to change what
-- [Docker, explained simply](docs/contributing/docker_explained.md): what the container is and what runs where
+- [Docker guide](docs/contributing/docker_guide.md): what the container is, what runs where, and when to restart or rebuild
 
 ## Git and GitHub
 Needed for every contribution: cloning, branches, commits and pull requests.
@@ -15,7 +15,7 @@ Needed for every contribution: cloning, branches, commits and pull requests.
 - GitHub Desktop (recommended if you'd rather click than type commands) | Getting started: https://docs.github.com/en/desktop/overview/getting-started-with-github-desktop
 
 ## Docker and Dev Containers
-The recommended setup runs the project in Docker. You don't need to understand Docker to use it, but these help when something goes wrong. Start with [Docker, explained simply](docs/contributing/docker_explained.md).
+The recommended setup runs the project in Docker. You don't need to understand Docker to use it, but these help when something goes wrong. Start with our [Docker guide](docs/contributing/docker_guide.md).
 
 - VS Code | Developing inside a container: https://code.visualstudio.com/docs/devcontainers/containers
 - Docker | Get started: https://docs.docker.com/get-started/

@@ -1,0 +1,193 @@
+# Docker guide
+
+Last updated: 2026-10-15
+
+Everything about the Docker setup after the first start: how it works, when
+to restart or rebuild, everyday tasks, and fixing problems. Starting for the
+first time? Follow [Setup with Docker](setup_with_docker.md). You don't need
+to read this page to get going.
+
+**On this page:** [How it works](#how-it-works) · [Restart, reopen, rebuild or reset?](#restart-reopen-rebuild-or-reset) · [Everyday tasks](#everyday-tasks) · [If something goes wrong](#if-something-goes-wrong)
+
+## How it works
+
+### Why we use Docker
+
+To run this website you need Python, about fifty Python packages in the
+right versions, and a PostgreSQL database. Installing all of that by hand
+is different on Windows, macOS and Linux, and it often goes wrong in a
+different way on every laptop ("but it works on my machine!").
+
+Docker packs all of it into a ready-made box. Everyone runs the same box,
+so everyone gets the same setup, with one click.
+
+### The words, in plain language
+
+| Word | What it means | In this project |
+| --- | --- | --- |
+| **Image** | A recipe for the box: which operating system, which programs, which packages. | `Dockerfile.dev` |
+| **Container** | A running box made from an image. Think of it as a small computer inside your computer. | `web` (the website) and `db` (the database) |
+| **Volume** | A storage space for a container that survives restarts. | Where the database keeps its data |
+| **Docker Compose** | A tool that starts several containers together and connects them. | `docker-compose.yml` |
+| **Dev Container** | A VS Code feature that opens your project *inside* a container, so the editor's terminal and tools run there. | `.devcontainer/devcontainer.json` |
+
+### What runs where
+
+```mermaid
+flowchart LR
+    subgraph laptop["Your computer"]
+        vscode["VS Code"]
+        browser["Browser<br/>localhost:8000"]
+        files[("Repo folder<br/>ifiplattform_halloween")]
+    end
+    subgraph web["Container: web"]
+        django["Python + Django<br/>runserver on port 8000"]
+        terminal["The VS Code terminal"]
+        mount["/workspace<br/>(the same repo folder)"]
+    end
+    subgraph db["Container: db"]
+        postgres["PostgreSQL"]
+        volume[("Volume:<br/>the database data")]
+    end
+
+    vscode -- "edit files" --> files
+    files <-- "shared, always in sync" --> mount
+    vscode -. "terminal runs in here" .-> terminal
+    browser -- "port 8000" --> django
+    django -- "reads and writes data" --> postgres
+    postgres --- volume
+```
+
+Three things to remember:
+
+- **Your files live on your own computer.** The container sees the same
+  folder at `/workspace`. When you save a file in VS Code, the container
+  sees the change at once, and the site reloads.
+- **The VS Code terminal runs *inside* the `web` container.** That's why
+  `python manage.py ...` works there without installing Python yourself.
+- **http://localhost:8000 reaches the container.** Docker forwards the
+  port, so your browser can open the site as if it ran on your computer.
+
+### What happens when you click "Reopen in Container"
+
+```mermaid
+flowchart TD
+    A["Build the image from Dockerfile.dev<br/>(slow the first time, a second or two after that)"] --> B["Start the db container<br/>(PostgreSQL)"]
+    B --> C{"Is the database ready?"}
+    C -- "not yet, wait 2 s" --> C
+    C -- yes --> D["Start the web container"]
+    D --> E["migrate<br/>create or update the database tables"]
+    E --> F["seed_halloween_data<br/>add the starter pages, only if the site is empty"]
+    F --> G["runserver<br/>the site is up at localhost:8000"]
+    G -- "the server stopped" --> G
+```
+
+- The first start is slow because Docker downloads Python and PostgreSQL.
+  Later starts take seconds.
+- If the server stops (for example after a code error), it starts again
+  by itself after 2 seconds.
+- `seed_halloween_data` only adds pages to an empty database, so the
+  pages you make yourself are kept.
+
+### Inside or outside the container?
+
+| Command | Where to run it |
+| --- | --- |
+| `python manage.py ...` | **Inside**: the VS Code terminal, when the project is open in the container |
+| `restart-server` | **Inside** |
+| `git ...` or GitHub Desktop | Either. Both see the same folder |
+| `docker compose ...` | **Outside**: a terminal on your own computer, in the repo folder |
+
+Not sure where you are? In the container, VS Code shows
+**"Dev Container: IfiPlatform Halloween"** in the bottom left corner.
+
+## Restart, reopen, rebuild or reset?
+
+Four ways to "start again", from smallest to biggest. Pick the smallest one
+that fixes your problem.
+
+| | What it does | When | You lose |
+| --- | --- | --- | --- |
+| **Restart the server**<br>`restart-server` in the container terminal | Starts Django again. The container keeps running | A new `templatetags` file, a changed `.env`, or the site stopped after an error | Nothing |
+| **Close and reopen**<br>close the VS Code window, then **Reopen in Container** | Closing stops the containers. Reopening starts them again | End of the day, after restarting your computer | Nothing |
+| **Rebuild**<br>Command Palette → `Dev Containers: Rebuild Container` | Builds the image again and makes a new `web` container | `requirements.txt` or the Docker files changed, `ModuleNotFoundError`, or the docs say "your container is older than…" | Extensions and packages you installed by hand inside the container |
+| **Reset**<br>`docker compose down -v` outside the container, then reopen | Deletes the containers **and the database** | You want a fresh site with new starter content | Everything you made on your local site (pages, logins), and your Claude Code login if you use it |
+
+**Your code is always safe.** It lives on your own computer, not in the
+container, so none of these touch your files or your Git branches.
+
+**Rebuild from scratch.** "Rebuild Container **Without Cache**" in VS Code
+doesn't build the image from scratch here, because the image is built by our
+own build step. For a truly clean build, run this outside the container, in
+the repo folder, and then rebuild in VS Code:
+```bash
+docker compose build --no-cache web
+```
+
+The same things from a terminal on your own computer, in the repo folder:
+```bash
+docker compose down             # stop everything, keep the database
+docker compose down -v          # stop everything and DELETE the database
+docker compose up -d --build    # build and start again
+```
+
+## Everyday tasks
+
+### Adding your own VS Code extensions
+The container comes with the extensions this project needs (Python, Black, Pylint, Django templates, and Mermaid diagrams in the Markdown preview). Themes and keyboard shortcuts you already have keep working. Other extensions (for example Claude Code or GitHub Copilot) have to be installed inside the container, and ones you install by hand disappear when the container is rebuilt.
+
+To get them in every container automatically, add them to your own VS Code settings (Command Palette → `Preferences: Open User Settings (JSON)`):
+```json
+"dev.containers.defaultExtensions": ["anthropic.claude-code"]
+```
+Each extension's ID is shown as "Identifier" on its page in the Extensions view. Claude Code stays logged in when the container is rebuilt.
+
+### Keys and tokens (.env)
+The site runs without a `.env` file, because `docker-compose.yml` sets everything it needs. You only need one for extra features, like the GitHub token that updates the event points. Copy the example and fill in what you need from its first part:
+```bash
+cp .env.example .env
+```
+Part 2 of the file ("Only without Docker") does nothing in the container, because `docker-compose.yml` already sets those settings. You can leave it or delete it. After changing `.env`, run `restart-server`.
+
+### Without VS Code
+Run these from the repo root in any terminal:
+```bash
+docker compose up -d
+```
+Builds and starts everything in the background. The site is ready at http://localhost:8000 after a minute.
+```bash
+docker compose exec web bash
+```
+Opens a terminal inside the container. From there, every `python manage.py ...` command works as normal. Type `exit` to leave.
+
+### Looking at the database
+The Docker database is also reachable from your own computer at `localhost:5433`, for example from a database tool (user `ifiplatform_user`, password `devpassword`).
+
+## If something goes wrong
+
+**The container won't start**
+- **"An error occurred setting up the container":** find the real error first. Click **More Actions…** in the popup, or open **View → Output** and pick **Dev Containers**, or run `docker compose build` in a terminal on your own computer, in the repo folder. The error is near the end.
+- **The error says `additional privileges requested`:** your copy of the repo is older than the fix for newer Docker versions. Get the latest code (`git fetch upstream` and rebase, or pull), then try again. Stuck on an old branch? On a Mac, run `launchctl setenv BUILDX_BAKE_ENTITLEMENTS_FS 0`, quit VS Code completely (Cmd+Q) and open it again.
+- **"Port 8000 is already in use":** another `runserver` is running on your computer. Stop it (Ctrl+C in its terminal) and try again.
+- **Docker Desktop won't start (Windows):** it needs WSL2 and virtualization. Run `wsl --install` in PowerShell as administrator and restart. If Docker still complains, turn on virtualization in your computer's BIOS/UEFI settings (called "Intel VT-x", "AMD-V" or "SVM"). Docker Desktop's error message usually says which one is missing.
+
+**The site doesn't work**
+- **The site stopped or won't load after a code error:** the error is in the log (`docker compose logs web`, or follow it live with `docker compose logs -f web`). Fix it and the server comes back by itself within a few seconds; if it doesn't, run `restart-server`. If start-up failed (for example a broken migration), `restart-server` runs `migrate` and starts the server in your terminal. The container keeps running while the server is stopped, so the terminal still works.
+- **A change doesn't show up:** some things are only read when the server starts: a new `templatetags` file ("is not a registered tag library"), or a new setting in `.env`. Run `restart-server`. Settings that `docker-compose.yml` sets can't be changed in `.env` at all.
+- **`ModuleNotFoundError` after pulling or switching branches:** someone added a package to `requirements.txt`, and your container doesn't have it yet. [Rebuild](#restart-reopen-rebuild-or-reset).
+- **My pages and logins on my local site are gone:** the database was reset, with `docker compose down -v`. The next start gives you a fresh database with new starter content. See [Restart, reopen, rebuild or reset?](#restart-reopen-rebuild-or-reset)
+
+**The terminal or editor is odd**
+- **Tab doesn't complete, or the arrow keys print `^[[A`:** your container is older than the fix that gives the terminal bash instead of sh. [Rebuild](#restart-reopen-rebuild-or-reset). Your database is kept.
+- **`restart-server` isn't found:** your container is older than this command. [Rebuild](#restart-reopen-rebuild-or-reset).
+
+**It's slow, or Docker won't work at all**
+- **Everything is slow (Windows):** projects cloned to a Windows drive like `C:\` are slow in Docker. Clone inside WSL instead, see [Get the code](get_the_code.md).
+- **Docker is too slow or won't install:** use the [setup without Docker](setup_without_docker.md) instead.
+
+## More
+- First-time setup: [setup_with_docker.md](setup_with_docker.md)
+- How the setup is built and why (for maintainers):
+  [architecture/docker_setup.md](../architecture/docker_setup.md)
+- Docker's own beginner guides: the Docker section in
+  [TUTORIALS.md](../../TUTORIALS.md#docker-and-dev-containers)

@@ -34,7 +34,7 @@ The guides use `upstream`. You use `origin` instead:
 
 | Step | Guide says | You run |
 | --- | --- | --- |
-| Make a branch | `git fetch upstream`<br>`git checkout -b <type>/<few-words> upstream/main` | `git fetch origin`<br>`git checkout -b <type>/<few-words> origin/main` |
+| Make a branch | `git fetch upstream`<br>`git switch -c <type>/<few-words> upstream/main` | `git fetch origin`<br>`git switch -c <type>/<few-words> origin/main` |
 | Update your branch | `git fetch upstream`<br>`git rebase upstream/main` | `git fetch origin`<br>`git rebase origin/main` |
 | Push | `git push -u origin <branch>` | The same |
 

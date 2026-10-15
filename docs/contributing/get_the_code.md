@@ -15,7 +15,7 @@ depends on one thing.
 
 **Not sure? You're a contributor.**
 
-**On Windows, and going to use Docker?** Clone inside WSL, not to a drive like `C:\`: open the Ubuntu terminal, clone there, and run `code .` in the repo folder. Docker is much faster that way. GitHub Desktop always clones to a Windows folder, so the site runs slower with it, but it still works.
+**On Windows, and going to use Docker?** You can clone to a windows folder, but WSL is faster. Clone inside WSL, not to a drive like `C:\`: open the Ubuntu terminal, clone there, and run `code .` in the repo folder. Docker is much faster that way. GitHub Desktop always clones to a Windows folder, so the site runs slower with it, but it still works.
 
 **Rather click than type commands?** Install [GitHub Desktop](https://desktop.github.com/). Each section below says how to do it there.
 
@@ -47,6 +47,31 @@ Don't add an `upstream` remote. `origin` already is the main repo, so you use `o
 You only clone once. After that the work goes in a loop: get the latest code from `origin`, push your branch to `origin`, and open a pull request from your branch into `main`. The commands are listed in [For collaborators](collaborators.md).
 
 **With GitHub Desktop:** choose **File → Clone repository** and pick `Creators-Guild/ifiplattform_halloween`. It doesn't ask about a fork.
+
+## Log in to GitHub (once)
+Cloning needs no login, but committing and pushing do. Do this once, on your own computer. If you use Docker, VS Code shares this login with the container, so don't do it inside the container.
+
+**1. Tell Git who you are.** Otherwise your first `git commit` stops with "Please tell me who you are":
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+```
+Don't want your email to be public in the commits? Use the private no-reply address from GitHub → **Settings → Emails**. It looks like `12345678+username@users.noreply.github.com`.
+
+**2. Log in for pushing.** GitHub doesn't accept your password in the terminal: you get `Authentication failed` even when it's right. Log in through the browser instead. VS Code does this for you: the first time you run `git push` in VS Code's terminal, a pop-up asks you to sign in to GitHub. Click **Allow**, log in in the browser window that opens, and go back to VS Code. You only do this once.
+
+The same pop-up comes if you push from VS Code's **Source Control** panel instead. That's the panel for Git with buttons instead of commands. Open it with the branch-shaped icon in the left sidebar, or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> (Mac: <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd>).
+
+Other ways that do the same:
+- **Windows:** Git for Windows opens a GitHub login window the first time you push. Choose **Sign in with your browser**.
+- **GitHub CLI**, if you have it: run `gh auth login`, pick **GitHub.com**, **HTTPS** and **Login with a web browser**.
+
+**Logged in as the wrong user?** The push fails with `Permission to Creators-Guild/… denied to <someone else>` or a `403`. Your computer remembers another GitHub account. Remove the saved login, and the next push asks you to log in again:
+- **Mac:** open **Keychain Access**, search for `github.com`, and delete the entry.
+- **Windows:** open **Credential Manager → Windows Credentials**, and remove `git:https://github.com`.
+- **GitHub CLI:** `gh auth switch`, or `gh auth logout` and then `gh auth login`.
+
+**GitHub Desktop** has its own login (**Settings → Accounts**, on Windows **File → Options → Accounts**). It doesn't log in the terminal, and the terminal login doesn't log in GitHub Desktop.
 
 ## Next: run the site
 You have the code. Now get the site running:

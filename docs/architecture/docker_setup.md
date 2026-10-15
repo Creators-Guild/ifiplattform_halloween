@@ -5,7 +5,7 @@ Last updated: 2026-10-15
 How the local Docker setup is built and why. To start it, see
 [contributing/setup_with_docker.md](../contributing/setup_with_docker.md). For day-to-day
 use and troubleshooting, see
-[contributing/docker.md](../contributing/docker.md). It is for local
+[contributing/docker_guide.md](../contributing/docker_guide.md). It is for local
 development only. Servers use a separate Docker setup (`Dockerfile`,
 `compose.prod.yml`), described in
 [operations/docker_server.md](../operations/docker_server.md). The real
@@ -126,7 +126,7 @@ your own computer show up right away and `runserver` reloads.
   `.claude/settings.json`. Personal ones go in
   `.claude/settings.local.json`, which Git ignores. The extension
   isn't installed for everyone; students who want it add it themselves
-  (see [contributing/docker.md](../contributing/docker.md)).
+  (see [contributing/docker_guide.md](../contributing/docker_guide.md)).
 - **Code isn't copied into the image.** It's shared in instead, so the image
   only needs rebuilding when `requirements.txt` changes.
 

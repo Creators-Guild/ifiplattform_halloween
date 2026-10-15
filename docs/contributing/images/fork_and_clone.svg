@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 390" width="720" height="390" role="img" aria-labelledby="title desc">
   <title id="title">Fork and clone</title>
-  <desc id="desc">On GitHub: upstream, our repo (Ifiplattform), and origin, your repo forked from ours. On your computer: your clone. Once: fork upstream to origin, then clone origin to your computer. Every change: git fetch from upstream, git push to origin, then a pull request from origin to upstream.</desc>
+  <desc id="desc">On GitHub: upstream, our repo (Ifiplattform), and origin, your repo forked from ours. On your computer: your clone. Once: fork upstream to origin, then clone origin to your computer. Every change: git fetch upstream to get everyone's changes, git push origin to send your branch, then a pull request from origin to upstream.</desc>
   <style>
     svg { --band: #f1f3f7; --line: #d5dae3; --box: #ffffff; --fg: #1d2330; --muted: #5b6475; --once: #7a3fd1; --loop: #0b8a78; }
     @media (prefers-color-scheme: dark) {
@@ -49,10 +49,11 @@
   <line class="once" x1="520" y1="142" x2="422" y2="278" marker-end="url(#headOnce)"/>
   <text class="once-t" x="452" y="214" text-anchor="end">2. Clone</text>
   <line class="loop" x1="452" y1="280" x2="550" y2="144" marker-end="url(#headLoop)"/>
-  <text class="loop-t" x="524" y="214">git push</text>
+  <text class="loop-t" x="524" y="214">git push origin</text>
+  <text class="note" x="524" y="230">send your branch</text>
 
   <line class="loop" x1="180" y1="142" x2="296" y2="278" marker-end="url(#headLoop)"/>
-  <text class="loop-t" x="226" y="206" text-anchor="end">git fetch</text>
+  <text class="loop-t" x="226" y="206" text-anchor="end">git fetch upstream</text>
   <text class="note" x="226" y="222" text-anchor="end">get everyone's changes</text>
 
   <line class="once" x1="530" y1="310" x2="560" y2="310"/>
