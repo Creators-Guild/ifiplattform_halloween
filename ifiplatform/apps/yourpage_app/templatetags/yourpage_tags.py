@@ -3,9 +3,16 @@
 from django import template
 
 from ..models import GitHubLink
+from ..permissions import can_see_solutions
 from ..scoring import score_for
 
 register = template.Library()
+
+
+@register.simple_tag(takes_context=True)
+def is_helper(context):
+    """Helpers and organisers: they get Sync now in the tab bar."""
+    return can_see_solutions(context["request"].user)
 
 
 @register.inclusion_tag("core/my_points.html", takes_context=True)

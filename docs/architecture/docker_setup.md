@@ -51,10 +51,13 @@ your own computer show up right away and `runserver` reloads.
   (VS Code's terminal, or `docker compose exec web bash`), so the
   README's `python manage.py ...` commands work unchanged. `py` is
   linked to `python` in the container, so the Windows style works too.
-- **No `.env` needed.** `web` sets every needed setting in
+- **No `.env` needed to run the site.** `web` sets every needed setting in
   `docker-compose.yml`. A student's own `ifiplatform/.env` can't override
   them, because python-dotenv never replaces a variable that is already
   set. The same `.env` keeps working with SQLite outside Docker.
+  `.env.example` is split to match: part 1 (keys like
+  `GITHUB_READ_TOKEN`) is read in Docker too, part 2 is only for running
+  without Docker.
 - **Sign-up works like the mock site.** `docker-compose.yml` sets
   `OPEN_SIGNUP=True`, so you sign up with just a username and password
   and can edit pages right away. See

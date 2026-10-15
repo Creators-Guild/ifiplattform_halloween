@@ -73,7 +73,7 @@ Go to http://localhost:8000.
 To edit pages, sign up at http://localhost:8000/account/signin with any username and password. You can edit pages at once, at http://localhost:8000/wagtail-admin. The login only exists in your local database. For the Django admin (users and raw database tables) you need a superuser: run `python manage.py createsuperuser` in the VS Code terminal.
 
 ### 4. Start working
-The VS Code terminal now runs **inside** the container, and you're already in the `ifiplatform/` folder. You don't need a venv or a `.env` file. The site reloads when you save a file, so you don't need to run `runserver`.
+The VS Code terminal now runs **inside** the container, and you're already in the `ifiplatform/` folder. You don't need a venv or a `.env` file (only for optional keys, like the GitHub token: see [docs/contributing/docker.md](docs/contributing/docker.md#keys-and-tokens-env)). The site reloads when you save a file, so you don't need to run `runserver`.
 
 ## Next steps
 - **Make your first change:** follow [Your First Contribution, Step by Step](CONTRIBUTING.md#your-first-contribution-step-by-step) in CONTRIBUTING.md.

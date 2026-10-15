@@ -2795,3 +2795,10 @@ msgstr "Prøv en annen"
 
 msgid "new"
 msgstr "ny"
+
+msgid "Synced from GitHub."
+msgstr "Synkronisert fra GitHub."
+
+#, python-format
+msgid "Sync failed: %(error)s"
+msgstr "Synkroniseringen feilet: %(error)s"

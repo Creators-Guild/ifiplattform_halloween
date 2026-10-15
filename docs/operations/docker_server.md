@@ -259,7 +259,8 @@ organisers. Revoke the token after the event.
 - After every deploy (the last step of `deploy.sh`).
 - When someone opens the leaderboard or the issue list, at most once a
   minute.
-- When an organiser presses **Sync now** on the leaderboard.
+- When a helper or organiser presses **Sync now**, at the left of the
+  tab bar on every Commits page.
 
 By hand: `docker compose exec web python manage.py sync_github_points`.
 If GitHub is down, the site keeps the points it already has.
@@ -267,12 +268,13 @@ If GitHub is down, the site keeps the points it already has.
 ### Organisers and helpers
 
 - **Organisers** are site users with "staff status" or superusers. On the
-  leaderboard they see warnings, **Sync now**, and a **Handed out**
+  leaderboard they see warnings and a **Handed out**
   button for everyone who has earned a drink ticket
   (`DRINK_TICKET_POINTS` in `settings.py`, 5 points).
 - **Helpers** get a solution button on every issue card. It opens the
   issue with its solution, or says "Solution missing" if none was loaded
-  for that issue. They also see the GitHub usernames of contributors who haven't linked an account yet. To
+  for that issue. They also have **Sync now** in the tab bar, and see
+  the GitHub usernames of contributors who haven't linked an account yet. To
   make someone a helper: they sign up on the site, then in `/admin/` →
   Users → their user → Groups, add **Helpers** and save.
 

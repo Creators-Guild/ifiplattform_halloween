@@ -112,10 +112,19 @@ def hand_out_drink_view(request, user_id):
 
 @require_POST
 def sync_now_view(request):
-    if not is_organiser(request.user):
+    """The tab bar's Sync now (helpers and organisers): fetch from GitHub
+    now instead of waiting for the once-a-minute sync."""
+    if not can_see_solutions(request.user):
         raise PermissionDenied
-    sync()
-    return redirect("yourpage_leaderboard")
+    if sync():
+        messages.success(request, _("Synced from GitHub."), extra_tags="claim claim-ok")
+    else:
+        messages.warning(
+            request,
+            _("Sync failed: %(error)s") % {"error": SyncStatus.get().last_error},
+            extra_tags="claim claim-limit",
+        )
+    return _back(request)
 
 
 def _annotate(issues, user):

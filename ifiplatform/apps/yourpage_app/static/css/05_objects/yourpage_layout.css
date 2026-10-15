@@ -40,6 +40,32 @@
   grid-column: 2;
 }
 
+.yourpage-bar__sync {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  margin: 0;
+}
+
+.yourpage-bar__sync-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: calc(0.3rem - 1px) calc(0.85rem - 1px);
+  border: 2px solid var(--color-cta);
+  border-radius: 999px;
+  background-color: var(--color-card-bg);
+  color: var(--color-cta);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.yourpage-bar__sync-btn:hover {
+  background-color: color-mix(in srgb, var(--color-cta) 12%, var(--color-card-bg));
+}
+
 .my-points {
   grid-column: 3;
   justify-self: end;
@@ -92,8 +118,10 @@
   }
 
   .yourpage-bar > .yourpage-nav,
-  .my-points {
+  .my-points,
+  .yourpage-bar__sync {
     grid-column: 1;
+    grid-row: auto;
     justify-self: center;
   }
 }

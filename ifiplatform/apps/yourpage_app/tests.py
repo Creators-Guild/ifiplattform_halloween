@@ -357,14 +357,25 @@ class PagesTests(TestCase):
         self.client.post(url)
         self.assertTrue(DrinkTicket.objects.filter(user=self.user).exists())
 
-    def test_sync_now_only_for_organisers(self):
+    def test_sync_now_for_helpers_and_organisers(self):
+        sync_url = reverse("yourpage_sync_now")
         self.client.login(username="ghostie", password="pw")
-        self.assertEqual(
-            self.client.post(reverse("yourpage_sync_now")).status_code, 403
-        )
-        self.client.login(username="boss", password="pw")
-        response = self.client.post(reverse("yourpage_sync_now"))
-        self.assertRedirects(response, reverse("yourpage_leaderboard"))
+        self.assertEqual(self.client.post(sync_url).status_code, 403)
+        self.assertNotContains(self.client.get(reverse("yourpage_issues")), sync_url)
+        for username in ["helper", "boss"]:
+            self.client.login(username=username, password="pw")
+            # the one button, in the tab bar on every Commits page
+            for name in ["yourpage_issues", "yourpage_leaderboard", "yourpage_main"]:
+                page = self.client.get(reverse(name))
+                self.assertContains(page, f'action="{sync_url}"', count=1)
+            response = self.client.post(
+                sync_url, HTTP_REFERER="http://testserver/en/commits/issues/"
+            )
+            self.assertRedirects(
+                response,
+                "http://testserver/en/commits/issues/",
+                fetch_redirect_response=False,
+            )
 
     def test_organiser_sees_missing_token_warning(self):
         self.client.login(username="boss", password="pw")

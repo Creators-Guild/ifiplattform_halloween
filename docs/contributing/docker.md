@@ -16,6 +16,13 @@ To get them in every container automatically, add them to your own VS Code setti
 ```
 Each extension's ID is shown as "Identifier" on its page in the Extensions view. Claude Code stays logged in when the container is rebuilt.
 
+## Keys and tokens (.env)
+The site runs without a `.env` file. You only need one for extra features, like the GitHub token that updates the event points. Copy the example and fill in what you need from its first part:
+```bash
+cp .env.example .env
+```
+Part 2 of the file ("Only without Docker") does nothing in the container, because `docker-compose.yml` already sets those settings. You can leave it or delete it. After changing `.env`, run `restart-server`.
+
 ## Without VS Code
 Run these from the repo root in any terminal:
 ```bash
