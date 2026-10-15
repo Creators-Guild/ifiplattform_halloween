@@ -10,6 +10,9 @@ GitHub token. Local only: it refuses to run unless DEBUG is on.
 --me takes your own GitHub username (the one linked on the Commits page):
 two open issues get assigned to you and two get solved by you.
 
+Every fake issue gets a helpers' solution: two hand-written ones (SOLUTIONS),
+and a generic placeholder for the rest (fake_solution).
+
 Fake issues are numbered from 900 and fake users are called fake_<name>
 (they can't log in). A real GitHub sync replaces the fake issues and credits
 with the real ones, since it rebuilds both from GitHub."""
@@ -94,6 +97,16 @@ SOLUTIONS = {
         "+body {\n+  cursor: url(../images/halloween/pumpkin.svg), auto;\n+}",
     ),
 }
+
+
+def fake_solution(issue):
+    """(note, diff) for a fake issue without a hand-written solution."""
+    return (
+        f'Fake solution for #{issue.number} "{issue.title}".\n'
+        "Start in the template or CSS file the issue names, make the change, "
+        "and check it on the page.",
+        f"- <!-- TODO: #{issue.number} -->\n+ <!-- done: {issue.title} -->",
+    )
 
 
 class Command(BaseCommand):
@@ -189,9 +202,10 @@ class Command(BaseCommand):
 
         for login in DRINK_HANDED_OUT:
             DrinkTicket.objects.create(user=users[login])
-        for index, (note, diff) in SOLUTIONS.items():
+        for index, issue in enumerate(issues):
+            note, diff = SOLUTIONS.get(index) or fake_solution(issue)
             EventSolution.objects.create(
-                issue_number=issues[index].number, note=note, diff=diff
+                issue_number=issue.number, note=note, diff=diff
             )
 
     def _seed_extra(self, count):
@@ -201,7 +215,7 @@ class Command(BaseCommand):
         for i in range(min(count, MAX_EXTRA)):
             size, points = sizes[i % len(sizes)]
             number = EXTRA_FIRST_NUMBER + i
-            EventIssue.objects.create(
+            issue = EventIssue.objects.create(
                 number=number,
                 title=f"Extra spooky task {i + 1}",
                 url=f"{repo_url}/{number}",
@@ -210,3 +224,5 @@ class Command(BaseCommand):
                 size=size,
                 points=points,
             )
+            note, diff = fake_solution(issue)
+            EventSolution.objects.create(issue_number=number, note=note, diff=diff)

@@ -150,6 +150,11 @@
   font-weight: 600;
 }
 
+.issue-card__solution--missing {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
 .issue-chip {
   display: inline-flex;
   align-items: center;

@@ -110,18 +110,26 @@ def sync_now_view(request):
     return redirect("yourpage_leaderboard")
 
 
-def _annotate(issues, show_logins):
-    """Set done_by and assigned_to on each issue, as the public may see
+def _annotate(issues, for_helper):
+    """Set done_by and assigned_to on each issue, as the visitor may see
     them: a site username where the GitHub username is linked to one;
-    otherwise the GitHub username for helpers and organisers, and "" (just
-    "done"/"assigned") for everyone else. done_by is None when unsolved."""
+    otherwise the GitHub username for helpers and organisers (for_helper,
+    i.e. can_see_solutions), and "" (just "done"/"assigned") for everyone
+    else. done_by is None when unsolved. Also show_solution (the card gets
+    a solution button: helpers only, on every issue) and has_solution
+    (whether that button finds a solution or says it's missing)."""
     linked_users = {
         link.github_login: link.user.get_username()
         for link in GitHubLink.objects.select_related("user")
     }
+    solution_numbers = (
+        set(EventSolution.objects.values_list("issue_number", flat=True))
+        if for_helper
+        else set()
+    )
 
     def shown(login):
-        return linked_users.get(login) or (login if show_logins else "")
+        return linked_users.get(login) or (login if for_helper else "")
 
     for issue in issues:
         credit = getattr(issue, "credit", None)
@@ -129,6 +137,8 @@ def _annotate(issues, show_logins):
         names = [shown(login) for login in issue.assignees]
         issue.assigned_to = ", ".join(name for name in names if name)
         issue.is_assigned = bool(names)
+        issue.show_solution = for_helper
+        issue.has_solution = issue.number in solution_numbers
     return issues
 
 
@@ -142,15 +152,7 @@ def issues_view(request):
     if difficulties:
         issues = issues.filter(size__in=difficulties)
 
-    show_solutions = can_see_solutions(request.user)
-    solution_numbers = (
-        set(EventSolution.objects.values_list("issue_number", flat=True))
-        if show_solutions
-        else set()
-    )
-    issues = _annotate(list(issues), show_solutions)
-    for issue in issues:
-        issue.has_solution = issue.number in solution_numbers
+    issues = _annotate(list(issues), can_see_solutions(request.user))
 
     # Sub-issues are listed under their parent; a parent filtered out still
     # shows its matching children as their own group. Easiest first

@@ -19,5 +19,5 @@
 </div>
 <div class="issue-card__foot">
     {% include "core/issue_status.html" %}
-    {% if issue.has_solution %}<a class="issue-card__solution" href="{% url 'yourpage_issue_detail' issue.number %}#solution" data-issue-link>🔑 {% trans "Solution" %}</a>{% endif %}
+    {% if issue.show_solution %}<a class="issue-card__solution{% if not issue.has_solution %} issue-card__solution--missing{% endif %}" href="{% url 'yourpage_issue_detail' issue.number %}#solution" data-issue-link>{% if issue.has_solution %}🔑 {% trans "Solution" %}{% else %}{% trans "Solution missing" %}{% endif %}</a>{% endif %}
 </div>

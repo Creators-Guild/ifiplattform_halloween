@@ -404,11 +404,13 @@ py manage.py seed_fake_points [--clear]
 
 Local only (refuses unless `DEBUG=True`). Fills the points system with 25
 fake issues (numbered from 900, with sub-issues), six fake people
-(`fake_...`, who can't log in), points, a handed-out drink ticket and two
-solutions, so the My commits page, leaderboard and issue list can be styled
+(`fake_...`, who can't log in), points, a handed-out drink ticket and a
+fake helpers' solution for every issue (two written out, the rest
+placeholders), so the My commits page, leaderboard and issue list can be styled
 without a GitHub token. `--me <your GitHub username>` assigns two open
 issues to you and credits two to you, to fill your own My commits page. `--extra 60`
-adds 60 more open issues (numbered from 1000), to see the issue list's
+adds 60 more open issues (numbered from 1000, each with a placeholder
+solution), to see the issue list's
 pages fill up. `--clear` removes it again. A real
 `sync_github_points` replaces the fake issues and credits.
 

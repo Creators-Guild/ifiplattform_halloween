@@ -52,6 +52,11 @@ data-issue-panel).
                 {% if solution.note %}{{ solution.note|linebreaks }}{% endif %}
                 {% if solution.diff %}<pre class="issue-panel__diff"><code>{{ solution.diff }}</code></pre>{% endif %}
             </section>
+        {% elif issue.show_solution %}
+            <section id="solution" class="issue-panel__solution issue-panel__solution--missing">
+                <h2 class="issue-panel__heading">🔑 {% trans "Solution (helpers only)" %}</h2>
+                <p>{% trans "Solution missing" %}</p>
+            </section>
         {% endif %}
 
         <p class="issue-panel__actions">

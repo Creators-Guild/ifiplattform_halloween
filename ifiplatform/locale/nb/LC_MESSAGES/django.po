@@ -2623,3 +2623,6 @@ msgstr "via PR #%(n)s"
 
 msgid "Link your GitHub"
 msgstr "Koble til GitHub"
+
+msgid "Solution missing"
+msgstr "Løsning mangler"

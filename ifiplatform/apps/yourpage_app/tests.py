@@ -479,7 +479,10 @@ class PagesTests(TestCase):
 
     def test_pills_toggle_their_value(self):
         response = self.client.get(reverse("yourpage_issues"), {"difficulty": "candy"})
-        pills = {text: (url, active) for text, url, active, _c in response.context["difficulty_pills"]}
+        pills = {
+            text: (url, active)
+            for text, url, active, _c in response.context["difficulty_pills"]
+        }
         candy_url, candy_active = pills["🍬 candy (easy)"]
         pumpkin_url, pumpkin_active = pills["🎃 pumpkin (hard)"]
         self.assertTrue(candy_active)
@@ -580,6 +583,21 @@ class PagesTests(TestCase):
         self.assertContains(response, "data-issue-panel")
         self.assertNotContains(response, "someone")
 
+    def test_helpers_always_get_a_solution_button(self):
+        make_credit(1, "someone")
+        EventSolution.objects.create(issue_number=1, note="Edit footer.css", diff="")
+        self.open_issue(2, "🍬 candy")
+        board = reverse("yourpage_issues")
+        missing = reverse("yourpage_issue_detail", args=[2])
+        self.client.login(username="ghostie", password="pw")
+        self.assertNotContains(self.client.get(board), "Solution")
+        self.assertNotContains(self.client.get(missing), "Solution missing")
+        self.client.login(username="helper", password="pw")
+        response = self.client.get(board)
+        self.assertContains(response, "🔑 Solution")
+        self.assertContains(response, "Solution missing")
+        self.assertContains(self.client.get(missing), "Solution missing")
+
     @override_settings(OPEN_SIGNUP=True)
     def test_deleting_the_account_deletes_link_and_ticket(self):
         self.link(self.user, "spooky")
@@ -629,7 +647,12 @@ class SeedFakePointsTests(TestCase):
         )
         self.assertTrue(Credit.objects.exists())
         self.assertTrue(User.objects.filter(username__startswith="fake_").exists())
+        self.assertEqual(
+            set(EventSolution.objects.values_list("issue_number", flat=True)),
+            set(EventIssue.objects.values_list("number", flat=True)),
+        )
         call_command("seed_fake_points", "--clear", stdout=io.StringIO())
+        self.assertFalse(EventSolution.objects.exists())
         self.assertFalse(EventIssue.objects.filter(number__gte=900).exists())
         self.assertFalse(User.objects.filter(username__startswith="fake_").exists())
 

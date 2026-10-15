@@ -78,7 +78,8 @@ INSTALLED_APPS = [
     "wagtail.contrib.sitemaps",
     "wagtail.embeds",
     "wagtail.sites",
-    "wagtail.users",
+    # Wagtail's users app with email and names optional (account_app/wagtail_users.py)
+    "account_app.apps.OptionalNamesUsersAppConfig",
     "wagtail.snippets",
     "wagtail.documents",
     "wagtail.images",

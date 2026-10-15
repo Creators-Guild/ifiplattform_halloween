@@ -102,6 +102,11 @@
   border-radius: 14px;
 }
 
+.issue-panel__solution--missing {
+  border-style: dashed;
+  color: var(--color-text-muted);
+}
+
 .issue-panel__diff {
   overflow-x: auto;
   padding: 0.75rem 1rem;

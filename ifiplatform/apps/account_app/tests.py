@@ -530,3 +530,45 @@ class SignupTests(TestCase):
         user = User.objects.get(username="newbie")
         self.assertEqual((user.email, user.first_name, user.last_name), ("", "", ""))
         self.assertEqual(len(mail.outbox), 0)
+
+
+class AdminUserFormsTests(TestCase):
+    """Open sign-up accounts have no email or name, so the admin's user forms
+    (account_app/wagtail_users.py) must not require them."""
+
+    def setUp(self):
+        self.admin = get_user_model().objects.create_superuser(
+            username="boss", email="boss@example.com", password="pw"
+        )
+        self.client.login(username="boss", password="pw")
+
+    def test_edit_user_without_email_or_name(self):
+        user = get_user_model().objects.create_user(username="ghostie", password="pw")
+        response = self.client.post(
+            reverse("wagtailusers_users:edit", args=[user.pk]),
+            {
+                "username": "ghostie2",
+                "email": "",
+                "first_name": "",
+                "last_name": "",
+                "is_active": "on",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        user.refresh_from_db()
+        self.assertEqual(user.username, "ghostie2")
+
+    def test_create_user_without_email_or_name(self):
+        response = self.client.post(
+            reverse("wagtailusers_users:add"),
+            {
+                "username": "pumpkin",
+                "email": "",
+                "first_name": "",
+                "last_name": "",
+                "password1": "a-Long-pass-123",
+                "password2": "a-Long-pass-123",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(get_user_model().objects.filter(username="pumpkin").exists())

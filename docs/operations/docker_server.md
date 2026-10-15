@@ -226,8 +226,9 @@ If GitHub is down, the site keeps the points it already has.
   leaderboard they see warnings, **Sync now**, and a **Handed out**
   button for everyone who has earned a drink ticket
   (`DRINK_TICKET_POINTS` in `settings.py`, 5 points).
-- **Helpers** see the solution for each issue on the issue pages, and the
-  GitHub usernames of contributors who haven't linked an account yet. To
+- **Helpers** get a solution button on every issue card. It opens the
+  issue with its solution, or says "Solution missing" if none was loaded
+  for that issue. They also see the GitHub usernames of contributors who haven't linked an account yet. To
   make someone a helper: they sign up on the site, then in `/admin/` →
   Users → their user → Groups, add **Helpers** and save.
 
