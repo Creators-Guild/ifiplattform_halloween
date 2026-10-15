@@ -74,11 +74,25 @@ def lock_for(logins):
     ).update(expires_at=None)
 
 
+def is_claimable(issue):
+    """Open and worth points: the kind of issue that can be claimed at all."""
+    return issue.state != "CLOSED" and bool(issue.points)
+
+
+def is_free(issue, claimed):
+    """Claimable, and nobody holds it, on the site (`claimed`) or on GitHub.
+    The one place that decides it, for the Claim button and the pickers."""
+    return is_claimable(issue) and not claimed and not issue.assignees
+
+
 def free_issues():
-    """Open issues worth points that nobody holds, on the site or on GitHub."""
-    claimed = Claim.objects.values("issue_number")
-    issues = EventIssue.objects.exclude(state="CLOSED").filter(points__gt=0)
-    return [i for i in issues.exclude(number__in=claimed) if not i.assignees]
+    """Every free issue."""
+    claimed = set(Claim.objects.values_list("issue_number", flat=True))
+    return [
+        i
+        for i in EventIssue.objects.exclude(state="CLOSED").filter(points__gt=0)
+        if is_free(i, i.number in claimed)
+    ]
 
 
 def claim(user, issue):
@@ -89,9 +103,9 @@ def claim(user, issue):
     link = GitHubLink.objects.filter(user=user).first()
     if not link:
         return None, "unlinked"
-    if issue.state == "CLOSED" or not issue.points:
+    if not is_claimable(issue):
         return None, "not_claimable"
-    if issue.assignees or Claim.objects.filter(issue_number=issue.number).exists():
+    if not is_free(issue, Claim.objects.filter(issue_number=issue.number).exists()):
         return None, "taken"
     try:
         with transaction.atomic():
@@ -144,23 +158,32 @@ def is_open(claim_):
     )
 
 
+def _set_expiry(claim_, expires_at):
+    """Save a new end time. False when the claim was released in the
+    meantime (by a helper, or by release_expired() in someone's page view)."""
+    claim_.expires_at = expires_at
+    return Claim.objects.filter(pk=claim_.pk).update(expires_at=expires_at) == 1
+
+
 def keep(claim_, issue):
-    """The claimer's "Keep": the full default time again, from now."""
-    claim_.expires_at = timezone.now() + timedelta(minutes=default_minutes(issue))
-    claim_.save(update_fields=["expires_at"])
+    """The claimer's "Keep": the full default time again, from now. False
+    when the claim is gone."""
+    return _set_expiry(
+        claim_, timezone.now() + timedelta(minutes=default_minutes(issue))
+    )
 
 
 def adjust(claim_, issue, action):
-    """A helper's change to one claim's time."""
+    """A helper's change to one claim's time. False when the claim is gone."""
     now = timezone.now()
     if action in EXTRA_MINUTES:
         start = max(claim_.expires_at or now, now)
-        claim_.expires_at = start + timedelta(minutes=EXTRA_MINUTES[action])
+        expires_at = start + timedelta(minutes=EXTRA_MINUTES[action])
     elif action == "unlimited":
-        claim_.expires_at = None
+        expires_at = None
     else:
-        claim_.expires_at = now + timedelta(minutes=default_minutes(issue))
-    claim_.save(update_fields=["expires_at"])
+        expires_at = now + timedelta(minutes=default_minutes(issue))
+    return _set_expiry(claim_, expires_at)
 
 
 def minutes_left(claim_):

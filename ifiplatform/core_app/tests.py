@@ -146,6 +146,13 @@ class SiteCrawlTests(TransactionTestCase):
     commits and its on_commit callbacks (Wagtail's page_slug_changed, ...)
     fire the way they do on a real database."""
 
+    # Reload what migrations created (Wagtail's root page and collection) at
+    # the start of the test: a TransactionTestCase that ran earlier (such as
+    # commits_app's ConcurrencyTests) emptied every table when it finished.
+    # That one must set serialized_rollback too, or the content types
+    # Django re-creates after emptying clash with this reload.
+    serialized_rollback = True
+
     HREF_RE = re.compile(r'href="([^"]*)"')
     EXCLUDED_PREFIXES = ("/static/", "/media/", "/admin/", "/wagtail-admin/")
     # Safety net against a runaway crawl (e.g. a link cycle), not a real

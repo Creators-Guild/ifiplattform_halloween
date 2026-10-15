@@ -147,6 +147,22 @@ def apply(raw_issues, open_pr_logins=None):
         number: raw for number, raw in sized.items() if number not in parent_numbers
     }
 
+    with transaction.atomic():
+        # One sync at a time: a second one (Sync now, or two workers at
+        # once) waits here, then rewrites everything again on its own.
+        SyncStatus.get()
+        status = SyncStatus.objects.select_for_update().get(pk=1)
+        _write(kept, leaves)
+        if open_pr_logins is not None:
+            status.open_pr_logins = list(open_pr_logins)
+            status.save(update_fields=["open_pr_logins"])
+            lock_for(open_pr_logins)
+    return len(kept)
+
+
+def _write(kept, leaves):
+    """Replace EventIssue and Credit with the kept issues. Runs inside
+    apply()'s transaction and lock."""
     # The claimer's GitHub username per claimed issue; a claimer who has
     # since unlinked is skipped, and the old rules apply.
     claimed_by = {
@@ -166,91 +182,70 @@ def apply(raw_issues, open_pr_logins=None):
 
     overrides = dict(CreditOverride.objects.values_list("issue_number", "github_login"))
 
-    with transaction.atomic():
-        EventIssue.objects.exclude(number__in=kept).delete()
-        Credit.objects.all().delete()
-        for number, raw in kept.items():
-            labels = _labels(raw)
-            size, points = next(
-                (SIZE_LABELS[label] for label in labels if label in SIZE_LABELS),
-                ("", 0),
+    EventIssue.objects.exclude(number__in=kept).delete()
+    Credit.objects.all().delete()
+    for number, raw in kept.items():
+        labels = _labels(raw)
+        size, points = next(
+            (SIZE_LABELS[label] for label in labels if label in SIZE_LABELS),
+            ("", 0),
+        )
+        is_leaf = number in leaves
+        merged = _merged_prs(raw) if is_leaf else []
+        issue, _ = EventIssue.objects.update_or_create(
+            number=number,
+            defaults={
+                "title": raw["title"],
+                "url": raw["url"],
+                "state": raw["state"],
+                "category": next(
+                    (label for label in labels if label in CATEGORY_LABELS), ""
+                ),
+                "size": size if is_leaf else "",
+                "points": points if is_leaf else 0,
+                "parent_number": (raw.get("parent") or {}).get("number"),
+                "assignees": [a["login"].lower() for a in raw["assignees"]["nodes"]],
+                "needs_look": number not in claimed_by
+                and any(pr["number"] in greedy_prs for pr in merged),
+            },
+        )
+        credit = (
+            _credit(
+                raw, merged, greedy_prs, overrides.get(number), claimed_by.get(number)
             )
-            is_leaf = number in leaves
-            merged = _merged_prs(raw) if is_leaf else []
-            issue, _ = EventIssue.objects.update_or_create(
-                number=number,
-                defaults={
-                    "title": raw["title"],
-                    "url": raw["url"],
-                    "state": raw["state"],
-                    "category": next(
-                        (label for label in labels if label in CATEGORY_LABELS), ""
-                    ),
-                    "size": size if is_leaf else "",
-                    "points": points if is_leaf else 0,
-                    "parent_number": (raw.get("parent") or {}).get("number"),
-                    "assignees": [
-                        a["login"].lower() for a in raw["assignees"]["nodes"]
-                    ],
-                    "needs_look": number not in claimed_by
-                    and any(pr["number"] in greedy_prs for pr in merged),
-                },
+            if is_leaf
+            else None
+        )
+        if credit:
+            login, pr_number, credited_at = credit
+            Credit.objects.create(
+                issue=issue,
+                github_login=login,
+                pr_number=pr_number,
+                credited_at=credited_at,
             )
-            if is_leaf:
-                _credit(
-                    issue,
-                    raw,
-                    merged,
-                    greedy_prs,
-                    overrides.get(number),
-                    claimed_by.get(number),
-                )
-        if open_pr_logins is not None:
-            status = SyncStatus.get()
-            status.open_pr_logins = list(open_pr_logins)
-            status.save(update_fields=["open_pr_logins"])
-            lock_for(open_pr_logins)
-    return len(kept)
 
 
-def _credit(issue, raw, merged, greedy_prs, override_login, claim_login):
-    closed_at = _parse_time(raw.get("closedAt"))
+def _credit(raw, merged, greedy_prs, override_login, claim_login):
+    """(github_login, pr_number, credited_at) for a leaf issue, by the rules
+    in the module docstring, or None when nobody earns it (yet)."""
+    closed_at = _parse_time(raw.get("closedAt")) or timezone.now()
     if override_login:
-        Credit.objects.create(
-            issue=issue,
-            github_login=override_login,
-            credited_at=closed_at or timezone.now(),
-        )
-        return
+        return override_login, None, closed_at
     if raw["state"] != "CLOSED" or raw.get("stateReason") != "COMPLETED":
-        return
+        return None
+    first = min(merged, key=lambda pr: pr["mergedAt"], default=None)
     if claim_login:
-        first = min(merged, key=lambda pr: pr["mergedAt"]) if merged else None
-        Credit.objects.create(
-            issue=issue,
-            github_login=claim_login,
-            pr_number=first["number"] if first else None,
-            credited_at=closed_at or timezone.now(),
-        )
-        return
-    if merged:
+        return claim_login, first["number"] if first else None, closed_at
+    if first:
         if any(pr["number"] in greedy_prs for pr in merged):
-            return
-        pr = min(merged, key=lambda pr: pr["mergedAt"])
-        Credit.objects.create(
-            issue=issue,
-            github_login=pr["author"]["login"].lower(),
-            pr_number=pr["number"],
-            credited_at=_parse_time(pr["mergedAt"]),
-        )
-        return
+            return None
+        login = first["author"]["login"].lower()
+        return login, first["number"], _parse_time(first["mergedAt"])
     assignees = raw["assignees"]["nodes"]
     if assignees:
-        Credit.objects.create(
-            issue=issue,
-            github_login=assignees[0]["login"].lower(),
-            credited_at=closed_at or timezone.now(),
-        )
+        return assignees[0]["login"].lower(), None, closed_at
+    return None
 
 
 def sync():
@@ -258,9 +253,12 @@ def sync():
     a failure keeps the old data and is logged. Returns True on success."""
     status = SyncStatus.get()
     status.last_attempt_at = timezone.now()
+    # Only the fields each outcome sets: saving all of them would write
+    # this old copy's last_success_at and open_pr_logins over those of a
+    # sync that finished in the meantime.
     if not settings.GITHUB_READ_TOKEN:
         status.last_error = "GITHUB_READ_TOKEN is not set."
-        status.save()
+        status.save(update_fields=["last_attempt_at", "last_error"])
         return False
     try:
         count = apply(*fetch())
@@ -269,11 +267,10 @@ def sync():
         # keep working whatever GitHub (or its data) does.
         logger.warning("GitHub points sync failed: %s", exc)
         status.last_error = str(exc)[:2000]
-        status.save()
+        status.save(update_fields=["last_attempt_at", "last_error"])
         return False
     status.last_success_at = status.last_attempt_at
     status.last_error = ""
-    # Only these: apply() saved open_pr_logins on its own copy of the row.
     status.save(update_fields=["last_attempt_at", "last_success_at", "last_error"])
     logger.info("GitHub points sync: %s event issue(s)", count)
     return True

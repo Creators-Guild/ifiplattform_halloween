@@ -1,8 +1,11 @@
 # pylint: disable=C0114,C0115,C0116
 import io
 import json
+import threading
+import unittest
 from unittest import mock
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from datetime import timedelta
 
@@ -10,11 +13,13 @@ from django.contrib.auth.models import Group
 from django.contrib.messages import get_messages
 from django.core.cache import cache
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.db import IntegrityError, connection
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone, translation
 
 from commits_app import claims, github_sync
+from commits_app.views.common import annotate
 from commits_app.models import (
     Claim,
     Credit,
@@ -867,6 +872,64 @@ class ClaimTests(TestCase):
         self.post(self.helper, "commits_claim_time", 1, action="reset")
         self.assertEqual(claims.minutes_left(Claim.objects.get(issue_number=1)), 60)
 
+    def test_keep_and_helper_time_after_the_claim_is_gone(self):
+        # Released between loading the claim and saving the new time (by a
+        # helper, or by release_expired() in someone else's page view).
+        self.issue(1)
+        Claim.objects.create(
+            issue_number=1,
+            user=self.kari,
+            expires_at=timezone.now() + timedelta(minutes=5),
+        )
+
+        def released_first(original):
+            def wrapper(claim_, *args):
+                Claim.objects.filter(pk=claim_.pk).delete()
+                return original(claim_, *args)
+
+            return wrapper
+
+        with mock.patch.object(claims, "keep", released_first(claims.keep)):
+            response, msgs = self.post(self.kari, "commits_keep", 1)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("isn't claimed any more", str(msgs[-1]))
+
+        Claim.objects.create(issue_number=1, user=self.kari)
+        with mock.patch.object(claims, "adjust", released_first(claims.adjust)):
+            response, msgs = self.post(
+                self.helper, "commits_claim_time", 1, action="plus15"
+            )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("isn't claimed any more", str(msgs[-1]))
+
+    def test_keep_doesnt_revive_a_claim_that_ran_out(self):
+        self.issue(1)
+        Claim.objects.create(
+            issue_number=1,
+            user=self.kari,
+            expires_at=timezone.now() - timedelta(minutes=1),
+        )
+        _response, msgs = self.post(self.kari, "commits_keep", 1)
+        self.assertFalse(Claim.objects.exists())
+        self.assertIn("isn't claimed any more", str(msgs[-1]))
+
+    def test_one_free_rule_for_the_button_and_the_pickers(self):
+        self.issue(1)
+        self.issue(2, state="CLOSED")
+        self.issue(3, assignees=["someone"])
+        self.issue(4)
+        Claim.objects.create(issue_number=4, user=self.ola)
+        EventIssue.objects.create(  # a parent: 0 points itself
+            number=5,
+            title="Parent",
+            url="https://github.com/o/r/issues/5",
+            state="OPEN",
+        )
+        issues = annotate(list(EventIssue.objects.all()), self.kari)
+        free = {i.number for i in claims.free_issues()}
+        self.assertEqual(free, {1})
+        self.assertEqual({i.number for i in issues if i.can_claim}, free)
+
     def test_release_rules(self):
         self.issue(1)
         self.issue(2, state="CLOSED")
@@ -912,6 +975,12 @@ class ClaimTests(TestCase):
         Claim.objects.create(issue_number=2, user=self.ola)
         response = self.client.get(reverse("commits_lucky"), {"skip": 1})
         self.assertIn(reverse("commits_issue_detail", args=[1]), response.url)
+
+    def test_try_another_ignores_a_bad_skip(self):
+        self.issue(1)
+        self.client.force_login(self.kari)
+        response = self.client.get(reverse("commits_lucky"), {"skip": "²"})
+        self.assertEqual(response.status_code, 302)
 
     def test_give_me_an_issue_when_nothing_is_free(self):
         self.issue(1, assignees=["someone"])
@@ -1035,3 +1104,121 @@ class ClaimTests(TestCase):
         self.assertEqual(
             list(Claim.objects.values_list("issue_number", flat=True)), [2]
         )
+
+    def test_failed_sync_keeps_what_a_finished_sync_saved(self):
+        # Another sync finishes while this one waits on GitHub; this one then
+        # fails, and must not write its old copy of the row back.
+        later = timezone.now()
+
+        def other_sync_then_fail():
+            SyncStatus.objects.filter(pk=1).update(
+                last_success_at=later, open_pr_logins=["ola"]
+            )
+            raise github_sync.SyncError("down")
+
+        SyncStatus.get()
+        with override_settings(GITHUB_READ_TOKEN="t"), mock.patch.object(
+            github_sync, "fetch", side_effect=other_sync_then_fail
+        ):
+            self.assertFalse(github_sync.sync())
+        status = SyncStatus.get()
+        self.assertEqual(status.last_success_at, later)
+        self.assertEqual(status.open_pr_logins, ["ola"])
+        self.assertEqual(status.last_error, "down")
+
+    def test_linking_a_username_someone_just_took(self):
+        # Both passed the form's check; the unique column stops the second.
+        self.client.force_login(self.loner)
+        with mock.patch.object(
+            GitHubLink.objects, "update_or_create", side_effect=IntegrityError
+        ):
+            response = self.client.post(
+                reverse("commits_main"), {"github_login": "newname"}
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "already linked to another account")
+
+
+@unittest.skipUnless(connection.vendor == "postgresql", "needs real row locks")
+class ConcurrencyTests(TransactionTestCase):
+    """Many requests at the same moment, each thread with its own database
+    connection, as with several Gunicorn workers.
+
+    A TransactionTestCase empties every table when each test ends, also
+    what migrations created (Wagtail's root page and collection), which
+    core_app's SiteCrawlTests runs after this needs; it reloads that with
+    its own serialized_rollback. serialized_rollback here doesn't put
+    anything back after these tests (it reloads at the *start* of a test).
+    It's needed because it also stops Django re-creating content types
+    after emptying the tables: re-created ones get new ids, and the crawl
+    test's reload then clashes with them."""
+
+    serialized_rollback = True
+
+    def run_at_once(self, calls):
+        """Run the calls in threads, released together; their results."""
+        start = threading.Barrier(len(calls))
+        results = [None] * len(calls)
+
+        def run(index, call):
+            try:
+                start.wait()
+                results[index] = call()
+            finally:
+                connection.close()
+
+        threads = [
+            threading.Thread(target=run, args=(i, call)) for i, call in enumerate(calls)
+        ]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        return results
+
+    def linked(self, name):
+        user = User.objects.create_user(username=name, password="pw")
+        GitHubLink.objects.create(user=user, github_login=name)
+        return user
+
+    def issue(self, number):
+        return EventIssue.objects.create(
+            number=number,
+            title=f"Issue {number}",
+            url=f"https://github.com/o/r/issues/{number}",
+            state="OPEN",
+            size="candy",
+            points=1,
+        )
+
+    def test_twenty_people_claim_one_issue(self):
+        issue = self.issue(1)
+        users = [self.linked(f"p{n}") for n in range(20)]
+        results = self.run_at_once(
+            [lambda user=user: claims.claim(user, issue)[1] for user in users]
+        )
+        self.assertEqual(results.count("ok"), 1)
+        self.assertEqual(results.count("taken"), 19)
+        self.assertEqual(Claim.objects.count(), 1)
+
+    def test_one_person_claims_five_issues_at_once(self):
+        issues = [self.issue(n) for n in range(1, 6)]
+        kari = self.linked("kari")
+        results = self.run_at_once(
+            [lambda issue=issue: claims.claim(kari, issue)[1] for issue in issues]
+        )
+        self.assertEqual(results.count("ok"), settings.CLAIM_LIMIT)
+        self.assertEqual(results.count("limit"), 5 - settings.CLAIM_LIMIT)
+        self.assertEqual(Claim.objects.count(), settings.CLAIM_LIMIT)
+
+    def test_four_syncs_at_once(self):
+        issues = [
+            raw_issue(n, prs=[(100 + n, f"dev{n}", "2026-10-19T18:00:00Z")])
+            for n in range(1, 101)
+        ]
+        results = self.run_at_once(
+            [lambda: github_sync.apply(issues, ["dev1"]) for _ in range(4)]
+        )
+        self.assertEqual(results, [100] * 4)
+        self.assertEqual(Credit.objects.count(), 100)
+        self.assertEqual(SyncStatus.get().open_pr_logins, ["dev1"])

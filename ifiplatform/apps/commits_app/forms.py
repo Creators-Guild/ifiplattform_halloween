@@ -2,6 +2,7 @@
 
 from django import forms
 from django.core.validators import RegexValidator
+from django.db import IntegrityError
 from django.utils.translation import gettext_lazy as _
 
 from .models import GitHubLink
@@ -11,6 +12,8 @@ github_login_validator = RegexValidator(
     r"^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$",
     _("That isn't a valid GitHub username."),
 )
+
+TAKEN = _("That GitHub username is already linked to another account.")
 
 
 class GitHubLinkForm(forms.Form):
@@ -34,16 +37,21 @@ class GitHubLinkForm(forms.Form):
             .exists()
         )
         if login and taken:
-            raise forms.ValidationError(
-                _("That GitHub username is already linked to another account.")
-            )
+            raise forms.ValidationError(TAKEN)
         return login
 
     def save(self):
+        """False when someone linked the same username between the check in
+        clean_github_login and now (the unique column catches it)."""
         login = self.cleaned_data["github_login"]
-        if login:
+        if not login:
+            GitHubLink.objects.filter(user=self.user).delete()
+            return True
+        try:
             GitHubLink.objects.update_or_create(
                 user=self.user, defaults={"github_login": login}
             )
-        else:
-            GitHubLink.objects.filter(user=self.user).delete()
+        except IntegrityError:
+            self.add_error("github_login", TAKEN)
+            return False
+        return True

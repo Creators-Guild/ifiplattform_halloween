@@ -142,6 +142,7 @@
   padding: 0.45rem 1.1rem;
   border-radius: 999px;
   color: var(--color-text);
+  font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
