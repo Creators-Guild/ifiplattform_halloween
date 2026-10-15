@@ -125,6 +125,7 @@
   border: none;
   border-radius: 20px;
   background: transparent;
+  color: var(--color-text);
   overscroll-behavior: contain;
 }
 
