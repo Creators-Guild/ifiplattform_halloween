@@ -71,6 +71,8 @@ below.
 - [how_this_project_works.md](contributing/how_this_project_works.md):
   for beginners: Django in plain words, the folders, and where to change
   what
+- [get_the_code.md](contributing/get_the_code.md): the first step:
+  contributors fork, collaborators clone the main repo
 - [setup_with_docker.md](contributing/setup_with_docker.md): first-time
   setup with Docker (recommended)
 - [docker_explained.md](contributing/docker_explained.md): for beginners:

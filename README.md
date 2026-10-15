@@ -38,13 +38,16 @@ Note: the site is bilingual (Norwegian Bokmål + English). Pages are written in 
 Django + Wagtail (Python, HTML and CSS, plus a little JavaScript), DeepL for Norwegian → English, and PostgreSQL. Full list: [docs/architecture/tech_stack.md](docs/architecture/tech_stack.md).
 
 ## Get started
-Pick one setup. Both end with the site running at http://localhost:8000.
+Two steps, and both end with the site running at http://localhost:8000.
 
+**1. Get the code:** [Get the code](docs/contributing/get_the_code.md). At the event you're a **contributor**, so you fork the repo.
+
+**2. Run the site.** Pick one:
 - 🐳 **[Setup with Docker](docs/contributing/setup_with_docker.md) (recommended).** One click installs everything: Python, the packages, a database and the Halloween starter content.
 - 🐍 **[Setup without Docker](docs/contributing/setup_without_docker.md).** Plain Python and SQLite, for laptops where Docker is too heavy or won't install.
 
 ## Next steps
-1. **Set up** with one of the guides above.
+1. **Set up** with the two steps above.
 2. **Make your first change:** follow [Make a change, step by step](CONTRIBUTING.md#2-make-a-change-step-by-step) in CONTRIBUTING.md.
 
 You don't have to read anything else first. The issues explain what to change and usually where, so you can start right away.

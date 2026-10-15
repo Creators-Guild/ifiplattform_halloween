@@ -1,6 +1,7 @@
 {
   "name": "IfiPlatform Halloween",
-  "dockerComposeFile": "../docker-compose.yml",
+  "initializeCommand": "docker compose -f docker-compose.yml build web",
+  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.devcontainer.yml"],
   "service": "web",
   "workspaceFolder": "/workspace",
   "remoteUser": "dev",

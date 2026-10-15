@@ -50,6 +50,8 @@ docker compose up -d --build
 Rebuilds the container. Only needed after `requirements.txt` or the Docker files change. In VS Code: Command Palette → `Dev Containers: Rebuild Container`.
 
 ## If something goes wrong
+- **"An error occurred setting up the container":** find the real error first. Click **More Actions…** in the popup, or open **View → Output** and pick **Dev Containers**, or run `docker compose build` in a terminal on your own computer, in the repo folder. The error is near the end.
+- **The error says `additional privileges requested`:** your copy of the repo is older than the fix for newer Docker versions. Get the latest code (`git fetch upstream` and rebase, or pull), then try again. Stuck on an old branch? On a Mac, run `launchctl setenv BUILDX_BAKE_ENTITLEMENTS_FS 0`, quit VS Code completely (Cmd+Q) and open it again.
 - **"Port 8000 is already in use":** another `runserver` is running on your computer. Stop it (Ctrl+C in its terminal) and try again.
 - **See what the container is doing:** `docker compose logs -f web`. Press Ctrl+C to stop watching.
 - **Restart the server:** run `restart-server` in the container terminal (or Command Palette → `Tasks: Run Task` → `Restart Django server`). The server restarts by itself when you save a file, but it only picks up some things when it starts: a new `templatetags` file ("is not a registered tag library"), or a new setting in `ifiplatform/.env` (settings that `docker-compose.yml` sets can't be changed in `.env` at all).

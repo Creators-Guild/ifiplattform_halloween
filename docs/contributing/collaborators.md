@@ -8,7 +8,7 @@ straight to it. Everything else (issues, pull requests, reviews) works the
 same as for everyone else in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 Not sure if you have write access? You probably don't. Use the normal
-[fork setup](setup_with_docker.md#2-fork-and-clone).
+[fork setup](get_the_code.md#contributor-fork-and-clone).
 
 ## What's different
 
@@ -23,19 +23,10 @@ Not sure if you have write access? You probably don't. Use the normal
 
 ## Set up
 
-Follow [Setup with Docker](setup_with_docker.md) or
-[Setup without Docker](setup_without_docker.md), but replace the
-fork-and-clone step with this:
-
-```bash
-git clone https://github.com/Creators-Guild/ifiplattform_halloween.git
-cd ifiplattform_halloween
-```
-
-Don't add an `upstream` remote. `origin` already is the main repo.
-
-**With GitHub Desktop:** choose **File → Clone repository** and pick
-`Creators-Guild/ifiplattform_halloween`. It doesn't ask about a fork.
+1. [Get the code as a collaborator](get_the_code.md#collaborator-clone):
+   clone the main repo, no fork.
+2. Run the site with [Docker](setup_with_docker.md) or
+   [without Docker](setup_without_docker.md), as everyone else does.
 
 ## Every command, with origin
 

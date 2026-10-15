@@ -18,12 +18,17 @@ site still runs without Docker until it moves over (see
 | --------------------------------- | ---------------------------------------------------------- |
 | `Dockerfile.dev`                  | Builds the Django container: Python 3.12, the packages from `requirements.txt`, and the `restart-server` command |
 | `docker-compose.yml`              | Runs two containers: `db` (PostgreSQL 16) and `web` (Django) |
-| `.devcontainer/devcontainer.json` | Lets VS Code open the `web` container ("Reopen in Container"). Shows the whole repo; new terminals start in `ifiplatform/`. Installs the editor extensions (see below) |
+| `.devcontainer/devcontainer.json` | Lets VS Code open the `web` container ("Reopen in Container"). Builds the image first (`initializeCommand`), shows the whole repo, starts new terminals in `ifiplatform/`, and installs the editor extensions (see below) |
+| `.devcontainer/docker-compose.devcontainer.yml` | Used only by VS Code, on top of `docker-compose.yml`. Hides `build`, so VS Code starts the already built image instead of building it (see below) |
 | `.vscode/settings.json`, `.vscode/extensions.json` | Editor settings and recommended extensions. Used both in the container and without Docker |
 | `.dockerignore`                   | Keeps the venv, local database, media and `.env` out of the build |
 
 ## What happens on start
 
+0. Before VS Code does anything, `initializeCommand` runs
+   `docker compose build web` on your own computer. It builds
+   `Dockerfile.dev` into the image `ifiplattform-halloween-web:dev`. After
+   the first time Docker's cache makes this take a second or two.
 1. `db` starts. `web` waits until the database answers (the healthcheck).
 2. `web` runs `migrate`, then `seed_halloween_data`, then `runserver` in
    a loop: whenever the server stops, it starts again after 2 seconds.
@@ -47,6 +52,19 @@ your own computer show up right away and `runserver` reloads.
 
 ## Why it's built this way
 
+- **VS Code doesn't build the image.** When the Dev Containers extension
+  builds a Compose service, it adds its own Dockerfile from a temporary
+  folder outside the project. Docker Compose 5.x builds with "bake",
+  which refuses to read files outside the project, so the build stopped
+  at once with `additional privileges requested: pass --allow=fs.read=...`
+  (seen on a Mac with Docker Desktop 4.95 in October 2026). So
+  `initializeCommand` builds the image with a plain `docker compose build`,
+  which only reads files inside the project. The override
+  `.devcontainer/docker-compose.devcontainer.yml` then removes `build`
+  (`!reset`, which needs Compose 2.24 or newer), so the extension starts
+  that image instead. `pull_policy: never` stops Compose from looking for
+  the local image name on Docker Hub if the build failed. Outside VS Code,
+  `docker compose up --build` still builds as before.
 - **Commands stay the same.** Students work inside the container
   (VS Code's terminal, or `docker compose exec web bash`), so the
   README's `python manage.py ...` commands work unchanged. `py` is

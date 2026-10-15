@@ -20,6 +20,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    # The name `docker compose build` gives the image. VS Code starts this
+    # image instead of building it itself (see .devcontainer/).
+    image: ifiplattform-halloween-web:dev
     container_name: halloween-web
     depends_on:
       db:

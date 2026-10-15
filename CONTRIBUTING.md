@@ -8,14 +8,14 @@ Never contributed to an open source project before? This guide walks you through
 
 ## 1. Set up (once)
 
-Get the project running on your computer. Follow one of these:
+Two steps:
 
-- [Setup with Docker](docs/contributing/setup_with_docker.md) (recommended)
-- [Setup without Docker](docs/contributing/setup_without_docker.md)
+1. **Get the code.** [Get the code](docs/contributing/get_the_code.md) tells you whether you're a contributor (you fork) or a collaborator (you clone directly).
+2. **Run the site.** Follow one of these:
+   - [Setup with Docker](docs/contributing/setup_with_docker.md) (recommended)
+   - [Setup without Docker](docs/contributing/setup_without_docker.md)
 
 **Not used to Git in the terminal?** Install [GitHub Desktop](https://desktop.github.com/). It does branches, commits, pushes and pull requests with buttons.
-
-**Have write access to the repo?** Then you're a collaborator and don't need a fork. See [For collaborators](docs/contributing/collaborators.md).
 
 ## 2. Make a change, step by step
 

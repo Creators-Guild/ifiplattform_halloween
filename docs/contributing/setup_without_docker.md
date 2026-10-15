@@ -8,6 +8,9 @@ recommended setup is [Setup with Docker](setup_with_docker.md).
 Here you install Python packages yourself and use SQLite, a database that
 is just one file on your computer. The site looks the same as in Docker.
 
+**Before you start:** [get the code](get_the_code.md). You need the
+`ifiplattform_halloween` folder on your computer.
+
 ## Requirements
 - Python 3.12 or newer (tested on 3.12, 3.13 and 3.14)
 - [Visual Studio Code](https://code.visualstudio.com/) (recommended)
@@ -17,11 +20,9 @@ is just one file on your computer. The site looks the same as in Docker.
 (the "repo root"). Inside it is a folder called `ifiplatform`, where
 `manage.py` and the Django code live. Each step says which folder to run it in.
 
-## 1. Fork and clone
-Follow [Fork and clone](setup_with_docker.md#2-fork-and-clone) in the Docker
-guide (it's the same without Docker), then open the `ifiplattform_halloween`
-folder in VS Code. If VS Code offers to "Reopen in Container", say no: that's
-the Docker setup.
+## 1. Open the project in VS Code
+Open the `ifiplattform_halloween` folder in VS Code. If VS Code offers to
+"Reopen in Container", say no: that's the Docker setup.
 
 ## 2. Make a virtual environment
 A virtual environment (venv) is a private box for this project's Python

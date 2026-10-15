@@ -1,0 +1,14 @@
+# Only used by VS Code (devcontainer.json), on top of ../docker-compose.yml.
+#
+# Hides `build` from the Dev Containers extension, so it starts the image
+# that initializeCommand already built instead of building it itself. When
+# the extension builds, it adds its own Dockerfile from a temp folder outside
+# the project, and newer Docker Compose (5.x, "bake") refuses to read it:
+# "additional privileges requested: pass --allow=fs.read=...".
+# `!reset` needs Docker Compose 2.24 or newer.
+services:
+  web:
+    build: !reset null
+    # Never look for this local image on Docker Hub. If initializeCommand
+    # failed, starting should fail too, not fetch someone else's image.
+    pull_policy: never
