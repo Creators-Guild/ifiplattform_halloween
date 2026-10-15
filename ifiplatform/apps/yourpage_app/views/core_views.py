@@ -135,12 +135,12 @@ def _annotate(issues, show_logins):
 def issues_view(request):
     maybe_sync()
     issues = EventIssue.objects.select_related("credit")
-    category = request.GET.get("category", "")
-    difficulty = request.GET.get("difficulty", "")
-    if category:
-        issues = issues.filter(category=category)
-    if difficulty:
-        issues = issues.filter(size=difficulty)
+    categories = _picked(request, "category")
+    difficulties = _picked(request, "difficulty")
+    if categories:
+        issues = issues.filter(category__in=categories)
+    if difficulties:
+        issues = issues.filter(size__in=difficulties)
 
     show_solutions = can_see_solutions(request.user)
     solution_numbers = (
@@ -155,19 +155,20 @@ def issues_view(request):
     # Sub-issues are listed under their parent; a parent filtered out still
     # shows its matching children as their own group. Easiest first
     # everywhere, a parent (0 points itself) counting as its easiest
-    # sub-issue. The grouping follows the filters: group by whichever of
-    # category/difficulty is still "All" -- the visitor only chooses when
-    # both are, and nothing is grouped when both are picked.
-    if category and difficulty:
-        group_by = ""
-    elif category:
-        group_by = "difficulty"
-    elif difficulty:
-        group_by = "category"
-    else:
+    # sub-issue. The grouping follows the filters: only a filter that still
+    # spans several values ("All", or more than one picked) is worth
+    # grouping by. The visitor chooses when both do; nothing is grouped
+    # when each filter is down to one value.
+    can_group = {
+        "category": len(categories) != 1,
+        "difficulty": len(difficulties) != 1,
+    }
+    if all(can_group.values()):
         group_by = (
             "difficulty" if request.GET.get("group") == "difficulty" else "category"
         )
+    else:
+        group_by = next((key for key, ok in can_group.items() if ok), "")
     issues = sorted(issues, key=lambda i: (i.points, i.number))
     shown = {issue.number for issue in issues}
     children = {}
@@ -206,10 +207,10 @@ def issues_view(request):
                     request,
                     "group",
                     [("category", _("Category")), ("difficulty", _("Difficulty"))],
-                    all_option=False,
+                    multi=False,
                     current=group_by,
                 )
-                if not (category or difficulty)
+                if all(can_group.values())
                 else []
             ),
             "status": SyncStatus.get(),
@@ -249,23 +250,37 @@ def _difficulty_heading(group):
     return texts.get(points, _("No size"))
 
 
-def _pills(request, param, choices, all_option=True, current=None):
+def _picked(request, param):
+    """The values picked in a multi-select filter, once each, in URL order."""
+    return list(dict.fromkeys(v for v in request.GET.getlist(param) if v))
+
+
+def _pills(request, param, choices, multi=True, current=None):
     """[(text, url, active, colour)] for one row of filter buttons -- colour
     is the category's card colour (CATEGORY_SLUGS), if any. Each link keeps
-    the other filters and changes only `param`."""
-    current = request.GET.get(param, "") if current is None else current
-    if all_option:
+    the other filters and changes only `param`. A multi-select row starts
+    with "All", which clears it, and each pill toggles its own value in or
+    out; the Group by row (multi=False) picks exactly one value."""
+    picked = _picked(request, param) if multi else [current]
+    if multi:
         choices = [("", _("All")), *choices]
     pills = []
     for value, text in choices:
+        if not value:
+            values, active = [], not picked
+        elif not multi:
+            values, active = [value], value == current
+        elif value in picked:
+            values, active = [v for v in picked if v != value], True
+        else:
+            values, active = [*picked, value], False
         query = request.GET.copy()
-        query.pop(param, None)
-        if value:
-            query[param] = value
-        if param != "group":
-            query.pop("group", None)  # grouping only applies with both on "All"
+        if values:
+            query.setlist(param, values)
+        else:
+            query.pop(param, None)
         url = f"{request.path}?{query.urlencode()}" if query else request.path
-        pills.append((text, url, value == current, CATEGORY_SLUGS.get(value, "")))
+        pills.append((text, url, active, CATEGORY_SLUGS.get(value, "")))
     return pills
 
 

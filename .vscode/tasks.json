@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Restart Django server",
+      "detail": "Runs restart-server in the container (Dockerfile.dev).",
+      "type": "shell",
+      "command": "restart-server",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

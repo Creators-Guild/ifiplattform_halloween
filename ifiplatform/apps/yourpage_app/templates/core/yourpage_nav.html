@@ -1,4 +1,5 @@
-{% load i18n %}
+{% load i18n yourpage_tags %}
+<div class="yourpage-bar">
 {% with current=request.resolver_match.url_name %}
 <nav class="yourpage-nav" aria-label="{% trans 'Event points' %}">
     <a class="yourpage-nav__link{% if current == 'yourpage_main' %} yourpage-nav__link--active{% endif %}" href="{% url 'yourpage_main' %}"{% if current == 'yourpage_main' %} aria-current="page"{% endif %}>{% trans "My commits" %}</a>
@@ -6,3 +7,5 @@
     <a class="yourpage-nav__link{% if current == 'yourpage_issues' or current == 'yourpage_issue_detail' %} yourpage-nav__link--active{% endif %}" href="{% url 'yourpage_issues' %}"{% if current == 'yourpage_issues' %} aria-current="page"{% endif %}>{% trans "Issues" %}</a>
 </nav>
 {% endwith %}
+{% my_points %}
+</div>

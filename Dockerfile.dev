@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -6,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gettext git \
+    && apt-get install -y --no-install-recommends gettext git procps \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /tmp/requirements.txt
@@ -14,6 +15,22 @@ RUN pip install -r /tmp/requirements.txt
 
 # Lets the docs' Windows-style `py manage.py ...` work inside the container too.
 RUN ln -s /usr/local/bin/python /usr/local/bin/py
+
+# `restart-server` in the container terminal. docker-compose.yml runs
+# runserver in a loop that starts it again whenever it stops, so while it
+# runs this only has to stop it (procps, installed above, gives pkill). The
+# pattern matches the python processes only, not the loop's own `sh -c`
+# command line, which also contains "manage.py runserver". If no server is
+# running (start-up failed), it starts one in this terminal instead.
+COPY --chmod=755 <<'SCRIPT' /usr/local/bin/restart-server
+#!/bin/sh
+if pkill -f '^(/usr/local/bin/)?python[0-9.]* manage.py runserver'; then
+    echo "Restarting the server. Reload the page in a few seconds."
+else
+    echo "No server was running, so starting one here. Stop it with Ctrl+C."
+    cd /workspace/ifiplatform && python manage.py migrate && exec python manage.py runserver 0.0.0.0:8000
+fi
+SCRIPT
 
 # A normal user instead of root, so files made in the container (like new
 # migrations) aren't owned by root on Linux computers. VS Code changes its

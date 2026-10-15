@@ -1,4 +1,5 @@
-main.page-content:has(> .yourpage) {
+html,
+body {
   background-color: var(--color-ink);
 }
 
@@ -13,6 +14,10 @@ main.page-content:has(> .yourpage) {
   --color-shadow: rgba(0, 0, 0, 0.5);
   --color-shadow-strong: rgba(0, 0, 0, 0.8);
   color: var(--color-text);
+}
+
+.yourpage-bar {
+  background-color: color-mix(in srgb, var(--color-ink) 88%, transparent);
 }
 
 :where(.yourpage) a:where(:not([class])) {

@@ -1,0 +1,41 @@
+:root {
+  --sky-edge: #03050d;
+  --sky-mid: #0a1538;
+  --sky-light: #1c3272;
+  --moon: #f3efd6;
+}
+
+html {
+  background-color: var(--sky-edge);
+}
+
+/* transparent, or body's own background would paint over the sky layers */
+body {
+  background: transparent;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body::before {
+  background: radial-gradient(ellipse at 50% 0%, var(--sky-light), var(--sky-mid) 45%, var(--sky-edge) 85%);
+}
+
+body::after {
+  background: url("../../../images/yourpage/halloween_forest.svg") center / cover no-repeat;
+}
+
+.yourpage__header {
+  padding-top: 17rem;
+  background: radial-gradient(circle at 50% 8.5rem, var(--moon) 0 4rem, color-mix(in srgb, var(--moon) 12%, transparent) 4.1rem 6.4rem, transparent 6.5rem) no-repeat;
+}
+
+.yourpage-bar {
+  background-color: color-mix(in srgb, var(--sky-edge) 80%, transparent);
+}

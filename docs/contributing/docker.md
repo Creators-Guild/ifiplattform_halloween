@@ -1,6 +1,6 @@
 # Working with the Docker setup
 
-Last updated: 2026-10-11
+Last updated: 2026-10-15
 
 Day-to-day use of the Docker setup: extensions, running it without VS Code,
 stopping and resetting, and fixing problems. To start it the first time, see
@@ -44,7 +44,8 @@ Rebuilds the container. Only needed after `requirements.txt` or the Docker files
 ## If something goes wrong
 - **"Port 8000 is already in use":** another `runserver` is running on your computer. Stop it (Ctrl+C in its terminal) and try again.
 - **See what the container is doing:** `docker compose logs -f web`. Press Ctrl+C to stop watching.
-- **The site stopped or won't load after a code error:** the error is in the log (`docker compose logs web`). Fix it, then start the server again in the container terminal with `python manage.py runserver 0.0.0.0:8000`. If the error came from a migration, run `python manage.py migrate` first. The container keeps running while the server is stopped, so the terminal still works. Next time the container starts, the server starts by itself again.
+- **Restart the server:** run `restart-server` in the container terminal (or Command Palette → `Tasks: Run Task` → `Restart Django server`). The server restarts by itself when you save a file, but it only picks up some things when it starts: a new `templatetags` file ("is not a registered tag library"), or a new setting in `ifiplatform/.env` (settings that `docker-compose.yml` sets can't be changed in `.env` at all).
+- **The site stopped or won't load after a code error:** the error is in the log (`docker compose logs web`). Fix it and the server comes back by itself within a few seconds; if it doesn't, run `restart-server`. If start-up failed (for example a broken migration), `restart-server` runs `migrate` and starts the server in your terminal. The container keeps running while the server is stopped, so the terminal still works. If `restart-server` isn't found, your container is older than this command: run `Dev Containers: Rebuild Container`.
 - **`ModuleNotFoundError` after pulling or switching branches:** someone added a package to `requirements.txt`, and your container doesn't have it yet. Run `Dev Containers: Rebuild Container` from the Command Palette (without VS Code: `docker compose up -d --build`).
 - **Docker Desktop won't start (Windows):** it needs WSL2 and virtualization. Run `wsl --install` in PowerShell as administrator and restart. If Docker still complains, turn on virtualization in your computer's BIOS/UEFI settings (called "Intel VT-x", "AMD-V" or "SVM"). Docker Desktop's error message usually says which one is missing.
 - **Everything is slow (Windows):** projects cloned to a Windows drive like `C:\` are slow in Docker. It's much faster to clone inside WSL: open the Ubuntu terminal, clone the repo there, run `code .` in the repo folder, then click "Reopen in Container".

@@ -233,6 +233,29 @@ class PagesTests(TestCase):
     def link(self, user, login):
         GitHubLink.objects.create(user=user, github_login=login)
 
+    def test_points_chip_on_every_commits_page(self):
+        make_credit(1, "spooky")
+        make_credit(2, "spooky", "🎃 pumpkin")
+        pages = [
+            reverse("yourpage_main"),
+            reverse("yourpage_leaderboard"),
+            reverse("yourpage_issues"),
+            reverse("yourpage_issue_detail", args=[1]),
+        ]
+        for url in pages[1:]:
+            self.assertNotContains(self.client.get(url), "my-points")
+        self.client.login(username="ghostie", password="pw")
+        self.assertContains(self.client.get(pages[2]), "Link your GitHub")
+        self.link(self.user, "spooky")
+        for url in pages:
+            response = self.client.get(url)
+            self.assertContains(response, "@spooky")
+            # 4 points passes DRINK_TICKET_POINTS=3, so the chip shows the drink
+            self.assertContains(response, "my-points--ready")
+            self.assertContains(
+                response, '<span class="my-points__pts">4 points 🍹</span>', html=True
+            )
+
     def test_public_pages_work_logged_out(self):
         make_credit(1, "someone")
         for name in ["yourpage_leaderboard", "yourpage_issues"]:
@@ -419,6 +442,52 @@ class PagesTests(TestCase):
         response = self.client.get(reverse("yourpage_issues"), {"difficulty": "candy"})
         urls = [pill[1] for pill in response.context["category_pills"]]
         self.assertTrue(all("difficulty=candy" in url for url in urls))
+
+    def test_several_categories_and_difficulties_can_be_picked(self):
+        self.open_issue(1, "🍬 candy", "🦇 silly feature")
+        self.open_issue(2, "🎃 pumpkin", "🎨 restyle")
+        self.open_issue(3, "🍫 chocolate", "🧪 python")
+        _response, groups = self.board(category=["🎨 restyle", "🦇 silly feature"])
+        self.assertEqual(sorted(groups["open_groups"]), [1, 2])
+        _response, groups = self.board(difficulty=["candy", "pumpkin"])
+        self.assertEqual(sorted(groups["open_groups"]), [1, 2])
+
+    def test_grouping_with_several_picked(self):
+        self.open_issue(1, "🍬 candy", "🦇 silly feature")
+        self.open_issue(2, "🎃 pumpkin", "🎨 restyle")
+        self.open_issue(3, "🍬 candy", "🎨 restyle")
+        # one category, two difficulties: grouped by difficulty, no choice
+        response = self.client.get(
+            reverse("yourpage_issues"),
+            {"category": "🎨 restyle", "difficulty": ["candy", "pumpkin"]},
+        )
+        titles = [title for title, _groups in response.context["open_sections"]]
+        self.assertEqual(titles, ["🍬 candy (easy)", "🎃 pumpkin (hard)"])
+        self.assertEqual(response.context["group_pills"], [])
+        # several of both: the visitor chooses again
+        response = self.client.get(
+            reverse("yourpage_issues"),
+            {
+                "category": ["🎨 restyle", "🦇 silly feature"],
+                "difficulty": ["candy", "pumpkin"],
+                "group": "difficulty",
+            },
+        )
+        self.assertTrue(response.context["group_pills"])
+        titles = [title for title, _groups in response.context["open_sections"]]
+        self.assertEqual(titles, ["🍬 candy (easy)", "🎃 pumpkin (hard)"])
+
+    def test_pills_toggle_their_value(self):
+        response = self.client.get(reverse("yourpage_issues"), {"difficulty": "candy"})
+        pills = {text: (url, active) for text, url, active, _c in response.context["difficulty_pills"]}
+        candy_url, candy_active = pills["🍬 candy (easy)"]
+        pumpkin_url, pumpkin_active = pills["🎃 pumpkin (hard)"]
+        self.assertTrue(candy_active)
+        self.assertFalse(pumpkin_active)
+        self.assertNotIn("difficulty=candy", candy_url)
+        self.assertIn("difficulty=candy", pumpkin_url)
+        self.assertIn("difficulty=pumpkin", pumpkin_url)
+        self.assertFalse(pills["All"][1])
 
     def test_issue_board_can_sort_by_difficulty(self):
         self.open_issue(1, "🍬 candy", "🦇 silly feature")

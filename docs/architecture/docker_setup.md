@@ -1,6 +1,6 @@
 # Docker setup
 
-Last updated: 2026-10-14
+Last updated: 2026-10-15
 
 How the local Docker setup is built and why. To start it, see the Quick
 start in the main [README.md](../../README.md#quick-start). For day-to-day
@@ -16,7 +16,7 @@ site still runs without Docker until it moves over (see
 
 | File                              | What it does                                               |
 | --------------------------------- | ---------------------------------------------------------- |
-| `Dockerfile.dev`                  | Builds the Django container: Python 3.12 and the packages from `requirements.txt` |
+| `Dockerfile.dev`                  | Builds the Django container: Python 3.12, the packages from `requirements.txt`, and the `restart-server` command |
 | `docker-compose.yml`              | Runs two containers: `db` (PostgreSQL 16) and `web` (Django) |
 | `.devcontainer/devcontainer.json` | Lets VS Code open the `web` container ("Reopen in Container"). Shows the whole repo; new terminals start in `ifiplatform/`. Installs the editor extensions (see below) |
 | `.vscode/settings.json`, `.vscode/extensions.json` | Editor settings and recommended extensions. Used both in the container and without Docker |
@@ -25,16 +25,22 @@ site still runs without Docker until it moves over (see
 ## What happens on start
 
 1. `db` starts. `web` waits until the database answers (the healthcheck).
-2. `web` runs `migrate`, then `seed_halloween_data`, then `runserver`.
+2. `web` runs `migrate`, then `seed_halloween_data`, then `runserver` in
+   a loop: whenever the server stops, it starts again after 2 seconds.
    `seed_halloween_data` only seeds an empty database, so it's safe to
    run on every start. It creates no users: make your own login with
    `createsuperuser`.
 3. The site is served at `localhost:8000`.
-4. If any of these steps fails or the server stops, the container keeps
-   running (`sleep infinity`). Without that, a broken migration or a typo
-   in `settings.py` would stop the container on every start, and VS Code
-   couldn't reopen it to fix the error. The student fixes the error and
-   runs `runserver` again in the terminal.
+4. If `migrate` or the seeding fails, the container keeps running
+   (`sleep infinity`). Without that, a broken migration would stop the
+   container on every start, and VS Code couldn't reopen it to fix the
+   error. The student fixes the error and runs `restart-server`.
+5. `restart-server` (a small script in `Dockerfile.dev`) stops the
+   running server, and the loop starts a fresh one. A fresh process is
+   needed for things `runserver`'s own reload misses, like a new
+   `templatetags` file. It matches only the Python processes, not the
+   loop's `sh -c` line, which also contains "manage.py runserver". With
+   no server running, it runs `migrate` and starts one in the terminal.
 
 The repo is shared into the container at `/workspace`, so file edits on
 your own computer show up right away and `runserver` reloads.

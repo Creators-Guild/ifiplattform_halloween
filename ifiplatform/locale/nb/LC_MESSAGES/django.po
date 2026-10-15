@@ -2620,3 +2620,6 @@ msgstr "Del av"
 #, python-format
 msgid "via PR #%(n)s"
 msgstr "via PR #%(n)s"
+
+msgid "Link your GitHub"
+msgstr "Koble til GitHub"
