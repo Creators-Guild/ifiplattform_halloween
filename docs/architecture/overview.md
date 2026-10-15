@@ -43,7 +43,7 @@ in `ifiplatform/ifiplatform_project/`. `core_app` sits directly in
 | `ifi_home_app` | Wagtail + Django | `/` (everything not claimed below) | the page types below, `MenuGroup`, `Menu`, `HeaderMessage`, `HomeBoardMessage`, `ArticleStyle`, `ArticleBlockStyle`, `PeoplySyncLog` | in use |
 | `account_app` | plain Django | `/account/` | `Profile` | in use |
 | `study_app` | plain Django | `/study/` | `Deck`, `Card` | under development |
-| `yourpage_app` | plain Django | `/commits/` | `EventIssue`, `Credit`, `GitHubLink`, `DrinkTicket`, `EventSolution` | in use (Halloween event) |
+| `commits_app` | plain Django | `/commits/` | `EventIssue`, `Credit`, `GitHubLink`, `DrinkTicket`, `EventSolution` | in use (Halloween event) |
 
 - **`core_app`** holds things every app needs: the "deploy coming" banner,
   the sitemap, static file storage, the "under development" placeholder
@@ -59,7 +59,7 @@ in `ifiplatform/ifiplatform_project/`. `core_app` sits directly in
   once, the terms are switched off, and a short event privacy notice
   replaces the privacy policy. See
   [docker_server.md](../operations/docker_server.md#open-sign-up-mock-site-only).
-- **`yourpage_app`** is the event points system on the Halloween mock
+- **`commits_app`** is the event points system on the Halloween mock
   site: the My issues page, the leaderboard and the issue list. It reads issues and
   merged PRs from GitHub. See
   [docker_server.md](../operations/docker_server.md#points-leaderboard-and-helper-solutions).
@@ -98,7 +98,7 @@ page below it.
 - A fixed URL in the app's `urls.py`, and a view function that builds the
   page.
 - Examples: the home page, all of `account_app`, `study_app` and
-  `yourpage_app`, and the small JSON endpoints under `/api/`.
+  `commits_app`, and the small JSON endpoints under `/api/`.
 
 ### Snippets
 

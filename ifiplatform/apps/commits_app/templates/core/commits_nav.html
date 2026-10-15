@@ -1,0 +1,19 @@
+{% load i18n commits_tags %}
+{% is_helper as helper %}
+<div class="commits-bar">
+{% if helper %}
+<form class="commits-bar__sync" method="post" action="{% url 'commits_sync_now' %}">
+    {% csrf_token %}
+    <button type="submit" class="commits-bar__sync-btn">{% trans "Sync now" %}</button>
+</form>
+{% endif %}
+{% with current=request.resolver_match.url_name %}
+<nav class="commits-nav" aria-label="{% trans 'Event points' %}">
+    <a class="commits-nav__link{% if current == 'commits_main' %} commits-nav__link--active{% endif %}" href="{% url 'commits_main' %}"{% if current == 'commits_main' %} aria-current="page"{% endif %}>{% trans "My issues" %}</a>
+    <a class="commits-nav__link{% if current == 'commits_leaderboard' %} commits-nav__link--active{% endif %}" href="{% url 'commits_leaderboard' %}"{% if current == 'commits_leaderboard' %} aria-current="page"{% endif %}>{% trans "Leaderboard" %}</a>
+    <a class="commits-nav__link{% if current == 'commits_issues' or current == 'commits_issue_detail' %} commits-nav__link--active{% endif %}" href="{% url 'commits_issues' %}"{% if current == 'commits_issues' %} aria-current="page"{% endif %}>{% trans "Issues" %}</a>
+</nav>
+{% endwith %}
+{% my_points %}
+</div>
+{% include "core/messages.html" %}

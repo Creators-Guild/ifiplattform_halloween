@@ -37,6 +37,8 @@ fi
 
 docker compose build
 docker compose up -d db
+# Before migrate: moves old yourpage_app tables to commits_app (does nothing once done).
+docker compose run --rm -T web python manage.py rename_yourpage_app
 docker compose run --rm -T web python manage.py migrate --noinput
 
 SEED_COMMAND=$(env_value SEED_COMMAND)

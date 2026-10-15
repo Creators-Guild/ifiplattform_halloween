@@ -1,0 +1,102 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Leaderboard" %}{% endblock %}
+
+{% block app_css %}
+    {% include "css_links/commits.html" %}
+{% endblock app_css %}
+
+{% block extra_head %}
+    <meta http-equiv="refresh" content="30">
+{% endblock extra_head %}
+
+{% block content %}
+<div class="commits commits--board">
+    {% include "core/commits_nav.html" %}
+    <header class="commits__header">
+        <h1>{% trans "Leaderboard" %}</h1>
+        {% include "core/synced_chip.html" %}
+    </header>
+
+    {% if is_organiser %}
+        <details class="commits__organiser"{% if token_missing or status.last_error or needs_look %} open{% endif %}>
+            <summary>{% trans "Organiser tools" %}</summary>
+            {% if token_missing %}
+                <p class="error">{% trans "No GitHub token is set, so the points won't update. See docs/operations/docker_server.md." %}</p>
+            {% endif %}
+            {% if status.last_error %}
+                <p class="error">{% trans "Last sync failed:" %} {{ status.last_error }}</p>
+            {% endif %}
+            {% if needs_look %}
+                <p>{% trans "Needs a look (a PR closed more than one issue; settle with a credit override in /admin/):" %}
+                    {% for issue in needs_look %}<a href="{{ issue.url }}" target="_blank" rel="noopener">#{{ issue.number }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+                </p>
+            {% endif %}
+        </details>
+    {% endif %}
+
+    {% if rows %}
+        <ol class="podium">
+            {% for row in rows|slice:":3" %}
+                <li class="podium__place podium__place--{{ forloop.counter }}">
+                    <span class="podium__medal" aria-hidden="true">{% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}</span>
+                    <span class="podium__name">{{ row.user.get_username }}</span>
+                    <span class="podium__points">{% blocktrans count points=row.points %}{{ points }} point{% plural %}{{ points }} points{% endblocktrans %}</span>
+                    <span class="podium__issues">{{ row.issues|length }} {% trans "Issues" %}</span>
+                    {% include "core/drink_cell.html" %}
+                </li>
+            {% endfor %}
+        </ol>
+
+        {% if rows|length > 3 %}
+            <div class="points-table__scroll">
+                <table class="points-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">{% trans "Name" %}</th>
+                            <th scope="col">{% trans "Points" %}</th>
+                            <th scope="col">{% trans "Issues" %}</th>
+                            <th scope="col">🍹</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                            {% if forloop.counter > 3 %}
+                                <tr>
+                                    <td class="points-table__rank">{{ forloop.counter }}</td>
+                                    <td class="points-table__name">{{ row.user.get_username }}</td>
+                                    <td>
+                                        <div class="points-table__points">
+                                            <span class="points-table__bar" style="--pct: {% widthratio row.points rows.0.points 100 %}%"></span>
+                                            <span class="points-table__value">{{ row.points }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ row.issues|length }}</td>
+                                    <td>{% include "core/drink_cell.html" %}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="commits__empty">{% trans "No points yet. Solve an issue and be the first!" %}</p>
+    {% endif %}
+
+    {% if unlinked %}
+        <p class="commits__hint">
+            {% blocktrans count counter=unlinked|length %}{{ counter }} contributor hasn't linked their account yet.{% plural %}{{ counter }} contributors haven't linked their account yet.{% endblocktrans %}
+            <a href="{% url 'commits_main' %}">{% trans "Link yours on the My issues page." %}</a>
+        </p>
+        {% if show_unlinked_names %}
+            <p class="commits__hint">
+                {% trans "Not linked yet (only helpers see this):" %}
+                {% for score in unlinked %}{{ score.github_login }} ({{ score.points }}){% if not forloop.last %}, {% endif %}{% endfor %}
+            </p>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

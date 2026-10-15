@@ -1,6 +1,6 @@
 # Frontend architecture
 
-Last updated: 2026-09-29
+Last updated: 2026-10-15
 
 The sitewide rules for how HTML templates and CSS are organized, loaded
 and written. The global `templates/` folder and each `static/css/` folder
@@ -31,7 +31,7 @@ global_base.html                global shell, every page on the site
 │   ├── home/home_index.html
 │   ├── events/*.html
 │   └── info_articles/pages/*.html
-├── account_app, study_app and yourpage_app pages   (extend global_base directly)
+├── account_app, study_app and commits_app pages   (extend global_base directly)
 └── under_development.html
 ```
 

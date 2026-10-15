@@ -1,0 +1,187 @@
+.commits--board {
+  max-width: 64rem;
+  font-size: clamp(1rem, 0.85rem + 0.5vw, 1.25rem);
+}
+
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: 1rem;
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.podium__place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 1.25rem 0.75rem;
+  border-radius: 18px 18px 8px 8px;
+  background-color: var(--color-card-bg);
+  box-shadow: 0 2px 8px var(--color-shadow);
+  text-align: center;
+}
+
+.podium__place--1 {
+  order: 2;
+  min-height: 15rem;
+  justify-content: center;
+  border-top: 6px solid var(--color-pastel-yellow);
+}
+
+.podium__place--2 {
+  order: 1;
+  min-height: 12rem;
+  justify-content: center;
+  border-top: 6px solid color-mix(in srgb, var(--color-slate) 35%, var(--color-white));
+}
+
+.podium__place--3 {
+  order: 3;
+  min-height: 10rem;
+  justify-content: center;
+  border-top: 6px solid var(--color-pastel-orange);
+}
+
+.podium__medal {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.podium__place--1 .podium__medal {
+  font-size: 3rem;
+}
+
+.podium__name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 1.2em;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.podium__points {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.podium__issues {
+  color: var(--color-text-muted);
+  font-size: 0.85em;
+  text-transform: lowercase;
+}
+
+@media (max-width: 40rem) {
+  .podium {
+    grid-template-columns: 1fr;
+  }
+
+  .podium__place {
+    order: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    min-height: 0;
+    border-top: none;
+    border-left: 6px solid var(--color-pastel-yellow);
+    border-radius: 14px;
+    text-align: left;
+  }
+
+  .podium__place--2 { border-left-color: color-mix(in srgb, var(--color-slate) 35%, var(--color-white)); }
+  .podium__place--3 { border-left-color: var(--color-pastel-orange); }
+
+  .podium__medal,
+  .podium__place--1 .podium__medal {
+    font-size: 1.75rem;
+  }
+
+  .podium__name {
+    flex: 1;
+  }
+}
+
+.points-table__scroll {
+  overflow-x: auto;
+}
+
+.points-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.4rem;
+}
+
+.points-table th {
+  padding: 0 0.75rem;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.points-table td {
+  padding: 0.6rem 0.75rem;
+  background-color: var(--color-card-bg);
+  vertical-align: middle;
+}
+
+.points-table td:first-child {
+  border-radius: 12px 0 0 12px;
+}
+
+.points-table td:last-child {
+  border-radius: 0 12px 12px 0;
+}
+
+.points-table td form {
+  margin: 0;
+}
+
+.points-table__rank {
+  width: 3rem;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.points-table__name {
+  font-weight: 700;
+}
+
+.points-table__points {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 10rem;
+}
+
+.points-table__bar {
+  flex: 1;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: linear-gradient(var(--color-accent), var(--color-accent)) no-repeat left / var(--pct, 0%) 100%,
+    color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.points-table__value {
+  min-width: 2ch;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.drink-badge {
+  font-size: 1.2em;
+}
+
+.drink-badge--given {
+  color: var(--color-success);
+  font-weight: 800;
+}

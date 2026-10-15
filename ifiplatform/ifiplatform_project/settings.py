@@ -23,7 +23,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # This project's own Django apps (ifi_home_app, study_app, account_app,
-# yourpage_app) live grouped under apps/ for easier navigation -- apps/
+# commits_app) live grouped under apps/ for easier navigation -- apps/
 # itself is a plain directory, not a Python package (no __init__.py), so
 # putting it on sys.path keeps every app importable by its bare name
 # (`ifi_home_app.models`, not `apps.ifi_home_app.models`). This is the only
@@ -70,7 +70,7 @@ INSTALLED_APPS = [
     "ifi_home_app.apps.IfiHomeAppConfig",
     "study_app.apps.StudyAppConfig",
     "account_app.apps.AccountAppConfig",
-    "yourpage_app.apps.YourPageAppConfig",
+    "commits_app.apps.CommitsAppConfig",
     "django.contrib.postgres",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
@@ -272,19 +272,19 @@ LOCALE_PATHS = [
 # views/urls -- see core_app.under_development.
 APPS_UNDER_DEVELOPMENT = {
     "study_app": True,
-    "yourpage_app": False,
+    "commits_app": False,
 }
 
-# The event points system in yourpage_app (Halloween mock site). The sync
+# The event points system in commits_app (Halloween mock site). The sync
 # reads issues and merged PRs from GITHUB_EVENT_REPO with a read-only token;
-# without one it does nothing -- see yourpage_app/github_sync.py.
+# without one it does nothing -- see commits_app/github_sync.py.
 GITHUB_READ_TOKEN = os.environ.get("GITHUB_READ_TOKEN", "")  # check .env
 GITHUB_EVENT_REPO = os.environ.get(
     "GITHUB_EVENT_REPO", "Creators-Guild/ifiplattform_halloween"
 )
 # Points needed for the one drink ticket per participant.
 DRINK_TICKET_POINTS = 5
-# Claiming issues on the Commits pages (yourpage_app/claims.py): how many open
+# Claiming issues on the Commits pages (commits_app/claims.py): how many open
 # issues one person may hold, and minutes before an idle claim is freed, per
 # size. Helpers can change a single claim's time from the issue's pop-up.
 CLAIM_LIMIT = 2

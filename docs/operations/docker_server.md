@@ -183,7 +183,7 @@ page they press **Claim** on a free card. Or they press **🎲 Give me an
 issue**: it opens a random free issue of the difficulty and category they
 picked, in the same pop-up as a clicked card, where they can **Claim** it
 or press **Try another**. Nothing is claimed until they press Claim. The
-rules are in `ifiplatform/apps/yourpage_app/claims.py`.
+rules are in `ifiplatform/apps/commits_app/claims.py`.
 
 - You need a linked GitHub username (on My issues) to claim.
 - An issue is free when it's open, worth points, not claimed, and not
@@ -203,7 +203,7 @@ rules are in `ifiplatform/apps/yourpage_app/claims.py`.
 Helpers, in an issue's pop-up, see who holds the claim and can give
 **+15 min**, **+30 min**, **No time limit** or **Reset**, and
 **Force release** it (also with a pull request open). Organisers can also
-release claims in `/admin/` → Yourpage_App → Claims ("Release selected
+release claims in `/admin/` → Commits → Claims ("Release selected
 claims"). Claims on closed issues can't be released: they decide the
 points.
 
@@ -221,7 +221,7 @@ The site reads the event repo on GitHub. Nobody reports anything by hand.
 
 - An issue counts if it has a size label: `🍬 candy` (1 point),
   `🍫 chocolate` (2) or `🎃 pumpkin` (3). The names are in `SIZE_LABELS`
-  in `ifiplatform/apps/yourpage_app/labels.py`.
+  in `ifiplatform/apps/commits_app/labels.py`.
 - When a **claimed** issue is closed as completed, the person who claimed
   it gets the points, however it was closed. Nobody needs to write
   "Closes #12".
@@ -233,7 +233,7 @@ The site reads the event repo on GitHub. Nobody reports anything by hand.
   them. The leaderboard shows those issues to organisers under "Needs a
   look".
 - To fix credit by hand (the wrong person got it), add a **credit
-  override** in `/admin/` → Yourpage_App →
+  override** in `/admin/` → Commits →
   Credit overrides: the issue number and the right GitHub username. It
   wins over everything else and survives later syncs.
 

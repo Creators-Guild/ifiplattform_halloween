@@ -1,0 +1,54 @@
+{% extends "global_base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Issues" %}{% endblock %}
+
+{% block app_css %}
+    {% include "css_links/commits.html" %}
+{% endblock app_css %}
+
+{% block extra_head %}
+    <script src="{% static 'js/issue_carousel.js' %}" defer></script>
+    <script src="{% static 'js/issue_modal.js' %}" defer></script>
+{% endblock extra_head %}
+
+{% block content %}
+<div class="commits">
+    {% include "core/commits_nav.html" %}
+    <header class="commits__header">
+        <h1>{% trans "Issues" %}</h1>
+        {% include "core/synced_chip.html" %}
+    </header>
+
+    {% include "core/lucky_panel.html" %}
+
+    <div class="issue-filters">
+        {% trans "Category" as row_label %}
+        {% include "core/filter_pills.html" with label=row_label pills=category_pills %}
+        {% trans "Difficulty" as row_label %}
+        {% include "core/filter_pills.html" with label=row_label pills=difficulty_pills %}
+        {% if group_pills %}
+            {% trans "Group by" as row_label %}
+            {% include "core/filter_pills.html" with label=row_label pills=group_pills %}
+        {% endif %}
+    </div>
+
+    <section class="commits__open">
+        <h2>{% trans "Open issues" %}</h2>
+        {% if open_sections %}
+            {% include "core/issue_sections.html" with sections=open_sections %}
+        {% else %}
+            <p class="commits__empty">{% trans "No open issues here right now." %}</p>
+        {% endif %}
+    </section>
+
+    {% if closed_sections %}
+        <details class="commits__closed" open>
+            <summary><h2>{% trans "Done and closed" %}</h2></summary>
+            {% include "core/issue_sections.html" with sections=closed_sections %}
+        </details>
+    {% endif %}
+
+    {% include "core/issue_modal.html" %}
+</div>
+{% endblock %}

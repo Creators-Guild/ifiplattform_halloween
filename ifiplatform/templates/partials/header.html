@@ -29,8 +29,8 @@
             </span>
             <span class="nav_link-label">{% trans "Study" %}</span>
         </a>
-        <a href="{% url 'yourpage_main' %}"
-            class="nav_link {% if request.resolver_match.url_name == 'yourpage_main' %}active{% endif %}"
+        <a href="{% url 'commits_main' %}"
+            class="nav_link {% if request.resolver_match.url_name == 'commits_main' %}active{% endif %}"
             aria-label="{% trans "Commits" %}">
             <span class="nav_link-icon nav_link-icon--page" aria-hidden="true">
                 <svg viewBox="0 0 24 24" focusable="false"><path d="M6 2h8l5 5v15H6V2zm7 1.5V8h4.5L13 3.5zM8 12.5h8v1.5H8v-1.5zm0 4h8V18H8v-1.5z" fill="currentColor"/></svg>

@@ -46,7 +46,7 @@ urlpatterns += i18n_patterns(
     ),  # admin ctrl to articles using wagtail dependancy
     path("study/", include("study_app.urls")),
     path("account/", include("account_app.urls")),
-    path("commits/", include("yourpage_app.urls")),
+    path("commits/", include("commits_app.urls")),
     # Catch-all: matches every path, so keep it last. New apps go above.
     path("", include("ifi_home_app.urls")),
 )

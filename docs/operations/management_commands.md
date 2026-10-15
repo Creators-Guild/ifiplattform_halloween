@@ -381,7 +381,22 @@ cron, or your platform's own scheduled-job feature). Nothing runs it for
 you automatically. Safe to re-run. `--dry-run` lists matching accounts
 without deleting them.
 
-## yourpage_app
+## commits_app
+
+### rename_yourpage_app
+
+```bash
+py manage.py rename_yourpage_app
+```
+
+This app used to be called `yourpage_app`. The command renames that app's
+tables, migration records and content types in the database to
+`commits_app`. Run it before `migrate`: if `migrate` runs first, it makes
+new, empty tables next to the old ones, and the command stops with an
+error that tells you how to fix it. Both deploy scripts and the local
+Docker setup run it before every `migrate`. Once everything has been
+renamed it does nothing, so it is safe to run again. It will be removed
+once every database has been renamed.
 
 ### sync_github_points
 
@@ -411,7 +426,7 @@ GitHub assignments to fake people, so the My issues page, leaderboard
 and issue list can be styled without a GitHub token. `--me <your GitHub
 username>` gives you two claims (one with 10 minutes left, so Keep and
 Release can be tried) and credits two issues to you, to fill your own My
-commits page. The claims need that username linked on the site first; the
+issues page. The claims need that username linked on the site first; the
 command warns if it isn't. `--extra 60`
 adds 60 more open issues (numbered from 1000, each with a placeholder
 solution), to see the issue list's

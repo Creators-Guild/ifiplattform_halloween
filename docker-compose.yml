@@ -49,7 +49,8 @@ services:
     # container running if a start step fails, so the VS Code terminal
     # still works for fixing the error.
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "python manage.py rename_yourpage_app &&
+             python manage.py migrate &&
              python manage.py seed_halloween_data &&
              while true; do
              python manage.py runserver 0.0.0.0:8000;

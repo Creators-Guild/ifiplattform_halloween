@@ -1,0 +1,98 @@
+{% load i18n %}
+{% comment %}
+One issue, enlarged. Shown on the issue's own page, and copied from there
+into the pop-up on the issue lists by issue_modal.js (it looks for
+data-issue-panel).
+{% endcomment %}
+<article class="issue-panel{% if issue.category_slug %} issue-card--{{ issue.category_slug }}{% endif %}{% if issue.state == 'CLOSED' %} issue-panel--closed{% endif %}" data-issue-panel>
+    <div class="issue-panel__band">
+        <span class="issue-card__category">{{ issue.category }}</span>
+        {% if issue.points %}{% include "core/difficulty_badge.html" %}{% endif %}
+    </div>
+
+    <div class="issue-panel__content">
+        {% if lucky_query %}
+            <p class="lucky-bar">🎲 {% trans "A random free issue for you." %}</p>
+        {% endif %}
+        <span class="issue-card__number">#{{ issue.number }}</span>
+        <h1 class="issue-panel__title" id="issue-panel-title">{{ issue.title }}</h1>
+        <div class="issue-panel__status">{% include "core/issue_status.html" %}</div>
+
+        {% if issue.show_solution and issue.claim and issue.state != "CLOSED" %}
+            <div class="claim-helper">
+                <p class="claim-helper__text">
+                    {% blocktrans with name=issue.claimed_by ago=issue.claim.claimed_at|timesince %}Helper: {{ name }} claimed this {{ ago }} ago.{% endblocktrans %}
+                    {% if issue.minutes_left is None %}{% trans "No time limit." %}{% else %}{% blocktrans with minutes=issue.minutes_left %}{{ minutes }} min left.{% endblocktrans %}{% endif %}
+                    {% blocktrans with minutes=issue.claim_default %}Default: {{ minutes }} min.{% endblocktrans %}
+                </p>
+                <form class="claim-helper__buttons" method="post" action="{% url 'commits_claim_time' issue.number %}">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="plus15" class="claim-btn claim-btn--ghost">{% trans "+15 min" %}</button>
+                    <button type="submit" name="action" value="plus30" class="claim-btn claim-btn--ghost">{% trans "+30 min" %}</button>
+                    <button type="submit" name="action" value="unlimited" class="claim-btn claim-btn--ghost">{% trans "No time limit" %}</button>
+                    <button type="submit" name="action" value="reset" class="claim-btn claim-btn--ghost">{% trans "Reset" %}</button>
+                </form>
+                <details class="claim-helper__release">
+                    <summary class="claim-btn claim-btn--warn">{% trans "Force release" %}</summary>
+                    <form method="post" action="{% url 'commits_release' issue.number %}">
+                        {% csrf_token %}
+                        <p>{% blocktrans with number=issue.number name=issue.claimed_by %}Release #{{ number }} from {{ name }} now? It's free to claim again right away.{% endblocktrans %}</p>
+                        <button type="submit" class="claim-btn claim-btn--warn-solid">{% trans "Yes, release" %}</button>
+                    </form>
+                </details>
+            </div>
+        {% endif %}
+
+        <dl class="issue-panel__facts">
+            {% if issue.size_label %}
+                <div><dt>{% trans "Difficulty" %}</dt><dd>{{ issue.difficulty_text }} · {{ issue.points }} p</dd></div>
+            {% endif %}
+            {% if issue.category %}
+                <div><dt>{% trans "Category" %}</dt><dd>{{ issue.category }}</dd></div>
+            {% endif %}
+            {% if credit %}
+                <div>
+                    <dt>{% trans "Done by" %}</dt>
+                    <dd>
+                        {% if issue.done_by %}{{ issue.done_by }} · {% endif %}
+                        {% if pr_url %}<a href="{{ pr_url }}" target="_blank" rel="noopener">{% blocktrans with n=credit.pr_number %}via PR #{{ n }}{% endblocktrans %} ↗</a> · {% endif %}
+                        <time datetime="{{ credit.credited_at|date:'c' }}">{{ credit.credited_at|date:"j M H:i" }}</time>
+                    </dd>
+                </div>
+            {% endif %}
+            {% if parent %}
+                <div><dt>{% trans "Part of" %}</dt><dd><a href="{% url 'commits_issue_detail' parent.number %}" data-issue-link>#{{ parent.number }} {{ parent.title }}</a></dd></div>
+            {% endif %}
+        </dl>
+
+        {% if sub_issues %}
+            <h2 class="issue-panel__heading">{% trans "Sub-issues" %}</h2>
+            <ul class="issue-panel__subs">
+                {% for issue in sub_issues %}
+                    <li class="issue-card issue-card--mini{% if issue.category_slug %} issue-card--{{ issue.category_slug }}{% endif %}{% if issue.state == 'CLOSED' %} issue-card--closed{% endif %}">{% include "core/issue_row.html" with mini=True %}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if solution %}
+            <section id="solution" class="issue-panel__solution">
+                <h2 class="issue-panel__heading">🔑 {% trans "Solution (helpers only)" %}</h2>
+                {% if solution.note %}{{ solution.note|linebreaks }}{% endif %}
+                {% if solution.diff %}<pre class="issue-panel__diff"><code>{{ solution.diff }}</code></pre>{% endif %}
+            </section>
+        {% elif issue.show_solution %}
+            <section id="solution" class="issue-panel__solution issue-panel__solution--missing">
+                <h2 class="issue-panel__heading">🔑 {% trans "Solution (helpers only)" %}</h2>
+                <p>{% trans "Solution missing" %}</p>
+            </section>
+        {% endif %}
+
+        <div class="issue-panel__actions">
+            <div class="issue-panel__claim">
+                {% include "core/claim_controls.html" %}
+                {% if lucky_query %}<a class="claim-btn claim-btn--ghost" href="{% url 'commits_lucky' %}?{{ lucky_query }}" data-issue-link>🎲 {% trans "Try another" %}</a>{% endif %}
+            </div>
+            <a class="claim-btn claim-btn--ghost" href="{{ issue.url }}" target="_blank" rel="noopener">{% trans "Open the issue on GitHub" %} ↗</a>
+        </div>
+    </div>
+</article>

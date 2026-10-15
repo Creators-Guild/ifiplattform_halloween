@@ -2077,60 +2077,60 @@ msgstr "Dette er hovedmenyen for studiespill"
 msgid "Study"
 msgstr "Studie"
 
-#: .\apps\yourpage_app\templates\core\yourpage_main.html:5
-#: .\apps\yourpage_app\urls.py:10 .\templates\partials\top_header.html:37
+#: .\apps\commits_app\templates\core\commits_main.html:5
+#: .\apps\commits_app\urls.py:10 .\templates\partials\top_header.html:37
 #: .\templates\partials\top_header.html:41
 msgid "Commits"
 msgstr "Commits"
 
-#: .\apps\yourpage_app\templates\core\yourpage_main.html:10
+#: .\apps\commits_app\templates\core\commits_main.html:10
 msgid "Welcome to the Your Page"
 msgstr "Velkommen til din side"
 
-#: .\apps\yourpage_app\templates\core\yourpage_main.html:11
+#: .\apps\commits_app\templates\core\commits_main.html:11
 msgid "This is the placeholder for Your Page. This is an upcoming feature..."
 msgstr "Dette er plassholderen for Din Side. Dette er en kommende funksjon..."
 
-#: .\apps\yourpage_app\templates\core\yourpage_main.html:12
+#: .\apps\commits_app\templates\core\commits_main.html:12
 msgid "Current user: "
 msgstr "Nåværende bruker: "
 
-#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:3
+#: .\apps\commits_app\templates\partials\personal_workflow_settings.html:3
 msgid "Personlize Your Studywork"
 msgstr "Personliggjør Studiearbeidet Ditt"
 
-#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:4
+#: .\apps\commits_app\templates\partials\personal_workflow_settings.html:4
 msgid ""
 "Ifi Study support mutiple study workflows consisting of multiple study "
 "models."
 msgstr ""
 "Ifi Studie støtter flere studieflyter bestående av flere studiemodeller."
 
-#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:7
+#: .\apps\commits_app\templates\partials\personal_workflow_settings.html:7
 msgid "Customize your active subjects and studytags?"
 msgstr "Tilpass dine aktive fag og studietagger?"
 
-#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:8
+#: .\apps\commits_app\templates\partials\personal_workflow_settings.html:8
 msgid "ex. IN1000, python, classes"
 msgstr "f.eks. IN1000, python, klasser"
 
-#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:11
+#: .\apps\commits_app\templates\partials\personal_workflow_settings.html:11
 msgid "Customize your preferred study models?"
 msgstr "Tilpass dine foretrukne studiemodeller?"
 
-#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:12
+#: .\apps\commits_app\templates\partials\personal_workflow_settings.html:12
 msgid "ex. proritise videos over text, no flashcards etc."
 msgstr "f.eks. prioriter videoer over tekst, ingen flashkort osv."
 
-#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:15
+#: .\apps\commits_app\templates\partials\personal_workflow_settings.html:15
 msgid "Customize your spaced repetitions?"
 msgstr "Tilpass din intervallrepetisjon?"
 
-#: .\apps\yourpage_app\templates\partials\personal_workflow_settings.html:16
+#: .\apps\commits_app\templates\partials\personal_workflow_settings.html:16
 msgid "ex. IN1000 every wednsday, more IN1000 in week: 22, 23, 24"
 msgstr "f.eks. IN1000 hver onsdag, mer IN1000 i uke: 22, 23, 24"
 
-#: .\apps\yourpage_app\templates\partials\your_subjects.html:3
+#: .\apps\commits_app\templates\partials\your_subjects.html:3
 msgid "Your Active Subjects"
 msgstr "Dine Aktive Fag"
 
@@ -2323,7 +2323,7 @@ msgstr "Maskinoversett nå"
 msgid "Open translation editor"
 msgstr "Åpne oversettelsesredigering"
 
-#: Halloween event (yourpage_app, event privacy notice)
+#: Halloween event (commits_app, event privacy notice)
 msgid "Privacy notice"
 msgstr "Personvernerklæring"
 

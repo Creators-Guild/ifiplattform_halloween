@@ -1,0 +1,4 @@
+{% load i18n %}
+{% if status.last_success_at %}
+    <p class="commits__synced">{% trans "Last synced from GitHub:" %} <time>{{ status.last_success_at|time:"H:i" }}</time></p>
+{% endif %}

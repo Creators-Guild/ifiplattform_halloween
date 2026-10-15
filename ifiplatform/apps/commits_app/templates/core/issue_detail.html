@@ -1,0 +1,16 @@
+{% extends "global_base.html" %}
+{% load i18n %}
+
+{% block title %}#{{ issue.number }} {{ issue.title }}{% endblock %}
+
+{% block app_css %}
+    {% include "css_links/commits.html" %}
+{% endblock app_css %}
+
+{% block content %}
+<div class="commits commits--narrow">
+    {% include "core/commits_nav.html" %}
+    <a class="commits__back" href="{% url 'commits_issues' %}">‹ {% trans "All issues" %}</a>
+    {% include "core/issue_panel.html" %}
+</div>
+{% endblock %}

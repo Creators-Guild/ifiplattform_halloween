@@ -1,6 +1,6 @@
 # Tech stack
 
-Last updated: 2026-10-13
+Last updated: 2026-10-15
 
 What IfiPlatform is built with, and why each piece is there. For how the
 production server runs all of this, see
@@ -63,7 +63,7 @@ The Django project lives in `ifiplatform/`. Settings and root URLs are in
 | `ifi_home_app`  | `ifiplatform/apps/`          | Homepage, articles, categories, events, student unions, translation tooling |
 | `account_app`   | `ifiplatform/apps/`          | Sign-up, login, email verification, editor terms                |
 | `study_app`     | `ifiplatform/apps/`          | Study resources (under development)                             |
-| `yourpage_app`  | `ifiplatform/apps/`          | Personal user page (under development)                          |
+| `commits_app`   | `ifiplatform/apps/`          | Event points: My issues, leaderboard, issue list, claims        |
 
 Sections still under development show a placeholder page instead of their
 real views. This is controlled by `APPS_UNDER_DEVELOPMENT` in `settings.py`.

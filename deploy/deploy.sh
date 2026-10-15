@@ -40,6 +40,8 @@ cd ifiplatform
 # Some migrations are forward-only; their way back is this backup. If the
 # backup fails, set -e stops the deploy before anything is migrated.
 bash ../deploy/backup/backup_db.sh
+# Before migrate: moves old yourpage_app tables to commits_app (does nothing once done).
+python manage.py rename_yourpage_app
 python manage.py migrate
 python manage.py collectstatic --noinput --clear
 
