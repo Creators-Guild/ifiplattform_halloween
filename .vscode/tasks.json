@@ -3,9 +3,9 @@
   "tasks": [
     {
       "label": "Restart Django server",
-      "detail": "Runs restart-server in the container (Dockerfile.dev).",
+      "detail": "Runs ifi restart-server in the container (tools/ifi/).",
       "type": "shell",
-      "command": "restart-server",
+      "command": "ifi restart-server",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",

@@ -16,34 +16,28 @@ RUN pip install -r /tmp/requirements.txt
 # Lets the docs' Windows-style `py manage.py ...` work inside the container too.
 RUN ln -s /usr/local/bin/python /usr/local/bin/py
 
-# `restart-server` in the container terminal. docker-compose.yml runs
-# runserver in a loop that starts it again whenever it stops, so while it
-# runs this only has to stop it (procps, installed above, gives pkill). The
-# pattern matches the python processes only, not the loop's own `sh -c`
-# command line, which also contains "manage.py runserver". If no server is
-# running (start-up failed), it starts one in this terminal instead.
-COPY --chmod=755 <<'SCRIPT' /usr/local/bin/restart-server
-#!/bin/sh
-if pkill -f '^(/usr/local/bin/)?python[0-9.]* manage.py runserver'; then
-    echo "Restarting the server. Reload the page in a few seconds."
-else
-    echo "No server was running, so starting one here. Stop it with Ctrl+C."
-    cd /workspace/ifiplatform && python manage.py migrate && exec python manage.py runserver 0.0.0.0:8000
-fi
-SCRIPT
+# `ifi` in the container terminal: our own commands (tools/ifi/). The link
+# points into the shared repo folder, so editing them needs no rebuild.
+# procps, installed above, gives `ifi restart-server` its pkill.
+RUN ln -s /workspace/tools/ifi/ifi /usr/local/bin/ifi
 
 # A normal user instead of root, so files made in the container (like new
 # migrations) aren't owned by root on Linux computers. VS Code changes its
 # UID to match yours. The .claude folder is created here so its Docker
 # volume belongs to this user. safe.directory stops Git refusing the repo
 # when the shared folder shows up as owned by someone else (Windows).
+# autoSetupRemote lets a plain `git push` work on a new branch.
 # The shell is bash, not Debian's default sh: sh has no Tab completion or
 # arrow-key history. The .bashrc copied from /etc/skel loads bash-completion
-# (installed above), so git commands and branch names complete too.
+# (installed above), so git commands and branch names complete too. The
+# last line it gets loads tools/ifi/shell-setup.sh: Tab completion for
+# `ifi` and the "ifi help" hint.
 RUN useradd --create-home --shell /bin/bash --uid 1000 dev \
     && mkdir /home/dev/.claude \
     && chown dev:dev /home/dev/.claude \
-    && git config --system --add safe.directory /workspace
+    && git config --system --add safe.directory /workspace \
+    && git config --system push.autoSetupRemote true \
+    && echo '[ -f /workspace/tools/ifi/shell-setup.sh ] && . /workspace/tools/ifi/shell-setup.sh' >> /home/dev/.bashrc
 USER dev
 
 WORKDIR /workspace/ifiplatform

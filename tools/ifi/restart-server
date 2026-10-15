@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# ifi restart-server. docker-compose.yml runs runserver in a loop that starts
+# it again whenever it stops, so while it runs this only has to stop it
+# (procps, installed in Dockerfile.dev, gives pkill). The pattern matches the
+# python processes only, not the loop's own `sh -c` command line, which also
+# contains "manage.py runserver". If no server is running (start-up failed),
+# it starts one in this terminal instead.
+if pkill -f '^(/usr/local/bin/)?python[0-9.]* manage.py runserver'; then
+    echo "Restarting the server. Reload the page in a few seconds."
+else
+    echo "No server was running, so starting one here. Stop it with Ctrl+C."
+    cd /workspace/ifiplatform && python manage.py migrate && exec python manage.py runserver 0.0.0.0:8000
+fi

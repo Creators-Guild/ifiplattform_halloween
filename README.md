@@ -48,7 +48,16 @@ Two steps, and both end with the site running at http://localhost:8000.
 
 ## Next steps
 1. **Set up** with the two steps above.
-2. **Make your first change:** follow [Make a change, step by step](CONTRIBUTING.md#2-make-a-change-step-by-step) in CONTRIBUTING.md.
+2. **Make your first change.** With Docker, run these in the VS Code terminal:
+   ```bash
+   ifi fix-issue 42        # a branch for issue #42, made from the newest code
+   # ...make your change, check it at http://localhost:8000...
+   ifi test                # the quick tests
+   git add .
+   git commit -m "Short description of what you changed"
+   ifi pull-request        # pushes, and gives you the pull request link
+   ```
+   `ifi` commands are this project's own shortcuts, not part of Git. Each one prints the commands it runs. Rather do it all with Git, or not using Docker? Follow [Make a change, step by step](CONTRIBUTING.md#2-make-a-change-step-by-step) in CONTRIBUTING.md.
 
 You don't have to read anything else first. The issues explain what to change and usually where, so you can start right away.
 
@@ -64,10 +73,12 @@ With Docker, run these in the VS Code terminal (it's inside the container). With
 
 | What | Command |
 | --- | --- |
-| Run the quick tests | `python manage.py test --exclude-tag=slow` |
-| After changing a model | `python manage.py makemigrations` then `python manage.py migrate` |
+| Run the quick tests | `python manage.py test --exclude-tag=slow`, or `ifi test` with Docker |
+| After changing a model | `python manage.py makemigrations` then `python manage.py migrate`, or `ifi migrate` with Docker |
 | Edit pages and articles | http://localhost:8000/wagtail-admin (sign up first at http://localhost:8000/account/signin) |
 | Users and raw database tables | http://localhost:8000/admin (needs `python manage.py createsuperuser`) |
+
+Forgot a command? Type `ifi help` in the container terminal.
 
 More, including translations: [docs/contributing/everyday_commands.md](docs/contributing/everyday_commands.md). Docker day to day (restart or rebuild, fixing problems): [docs/contributing/docker_guide.md](docs/contributing/docker_guide.md).
 

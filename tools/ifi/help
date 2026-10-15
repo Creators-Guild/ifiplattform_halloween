@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# ifi help [topic]: quick cheat sheets. The pages are the text files in pages/.
+set -euo pipefail
+
+pages="$(dirname "$(readlink -f "$0")")/pages"
+topics=(git docker django ifi)
+
+show() {
+    if [[ -f "$pages/$1.txt" ]]; then
+        echo
+        cat "$pages/$1.txt"
+    else
+        echo "No help page called '$1'. Pick one of: ${topics[*]}" >&2
+        exit 1
+    fi
+}
+
+if [[ $# -gt 0 ]]; then
+    show "$1"
+    exit
+fi
+
+cat "$pages/menu.txt"
+read -r -p "> " choice || exit 0
+case "$choice" in
+    "") exit 0 ;;
+    [1-4]) show "${topics[choice - 1]}" ;;
+    *) show "$choice" ;;
+esac

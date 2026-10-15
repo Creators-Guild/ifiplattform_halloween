@@ -94,7 +94,7 @@ flowchart TD
 | Command | Where to run it |
 | --- | --- |
 | `python manage.py ...` | **Inside**: the VS Code terminal, when the project is open in the container |
-| `restart-server` | **Inside** |
+| `ifi ...` (`ifi help`, `ifi restart-server`, ...) | **Inside** |
 | `git ...` or GitHub Desktop | Either. Both see the same folder |
 | `docker compose ...` | **Outside**: a terminal on your own computer, in the repo folder |
 
@@ -108,10 +108,10 @@ that fixes your problem.
 
 | | What it does | When | You lose |
 | --- | --- | --- | --- |
-| **Restart the server**<br>`restart-server` in the container terminal | Starts Django again. The container keeps running | A new `templatetags` file, a changed `.env`, or the site stopped after an error | Nothing |
+| **Restart the server**<br>`ifi restart-server` in the container terminal | Starts Django again. The container keeps running | A new `templatetags` file, a changed `.env`, or the site stopped after an error | Nothing |
 | **Close and reopen**<br>close the VS Code window, then **Reopen in Container** | Closing stops the containers. Reopening starts them again | End of the day, after restarting your computer | Nothing |
-| **Rebuild**<br>Command Palette → `Dev Containers: Rebuild Container` | Builds the image again and makes a new `web` container | `requirements.txt` or the Docker files changed, `ModuleNotFoundError`, or the docs say "your container is older than…" | Extensions and packages you installed by hand inside the container |
-| **Reset**<br>`docker compose down -v` outside the container, then reopen | Deletes the containers **and the database** | You want a fresh site with new starter content | Everything you made on your local site (pages, logins), and your Claude Code login if you use it |
+| **Rebuild**<br>Command Palette → `Dev Containers: Rebuild Container` (`ifi rebuild-docker` shows the steps) | Builds the image again and makes a new `web` container | `requirements.txt` or the Docker files changed, `ModuleNotFoundError`, or the docs say "your container is older than…" | Extensions and packages you installed by hand inside the container |
+| **Reset**<br>`ifi reset-server` in the container terminal, or `docker compose down -v` outside it and then reopen | Deletes **the database** and fills it again with the starter content. `docker compose down -v` also deletes the containers | You want a fresh site with new starter content | Everything you made on your local site (pages, logins). `docker compose down -v` also deletes your Claude Code login |
 
 **Your code is always safe.** It lives on your own computer, not in the
 container, so none of these touch your files or your Git branches.
@@ -147,7 +147,7 @@ The site runs without a `.env` file, because `docker-compose.yml` sets everythin
 ```bash
 cp .env.example .env
 ```
-Part 2 of the file ("Only without Docker") does nothing in the container, because `docker-compose.yml` already sets those settings. You can leave it or delete it. After changing `.env`, run `restart-server`.
+Part 2 of the file ("Only without Docker") does nothing in the container, because `docker-compose.yml` already sets those settings. You can leave it or delete it. After changing `.env`, run `ifi restart-server`.
 
 ### Without VS Code
 Run these from the repo root in any terminal:
@@ -172,14 +172,14 @@ The Docker database is also reachable from your own computer at `localhost:5433`
 - **Docker Desktop won't start (Windows):** it needs WSL2 and virtualization. Run `wsl --install` in PowerShell as administrator and restart. If Docker still complains, turn on virtualization in your computer's BIOS/UEFI settings (called "Intel VT-x", "AMD-V" or "SVM"). Docker Desktop's error message usually says which one is missing.
 
 **The site doesn't work**
-- **The site stopped or won't load after a code error:** the error is in the log (`docker compose logs web`, or follow it live with `docker compose logs -f web`). Fix it and the server comes back by itself within a few seconds; if it doesn't, run `restart-server`. If start-up failed (for example a broken migration), `restart-server` runs `migrate` and starts the server in your terminal. The container keeps running while the server is stopped, so the terminal still works.
-- **A change doesn't show up:** some things are only read when the server starts: a new `templatetags` file ("is not a registered tag library"), or a new setting in `.env`. Run `restart-server`. Settings that `docker-compose.yml` sets can't be changed in `.env` at all.
+- **The site stopped or won't load after a code error:** the error is in the log (`docker compose logs web`, or follow it live with `docker compose logs -f web`). Fix it and the server comes back by itself within a few seconds; if it doesn't, run `ifi restart-server`. If start-up failed (for example a broken migration), `ifi restart-server` runs `migrate` and starts the server in your terminal. The container keeps running while the server is stopped, so the terminal still works.
+- **A change doesn't show up:** some things are only read when the server starts: a new `templatetags` file ("is not a registered tag library"), or a new setting in `.env`. Run `ifi restart-server`. Settings that `docker-compose.yml` sets can't be changed in `.env` at all.
 - **`ModuleNotFoundError` after pulling or switching branches:** someone added a package to `requirements.txt`, and your container doesn't have it yet. [Rebuild](#restart-reopen-rebuild-or-reset).
 - **My pages and logins on my local site are gone:** the database was reset, with `docker compose down -v`. The next start gives you a fresh database with new starter content. See [Restart, reopen, rebuild or reset?](#restart-reopen-rebuild-or-reset)
 
 **The terminal or editor is odd**
 - **Tab doesn't complete, or the arrow keys print `^[[A`:** your container is older than the fix that gives the terminal bash instead of sh. [Rebuild](#restart-reopen-rebuild-or-reset). Your database is kept.
-- **`restart-server` isn't found:** your container is older than this command. [Rebuild](#restart-reopen-rebuild-or-reset).
+- **`ifi` isn't found:** your container is older than this command. [Rebuild](#restart-reopen-rebuild-or-reset).
 
 **It's slow, or Docker won't work at all**
 - **Everything is slow (Windows):** projects cloned to a Windows drive like `C:\` are slow in Docker. Clone inside WSL instead, see [Get the code](get_the_code.md).

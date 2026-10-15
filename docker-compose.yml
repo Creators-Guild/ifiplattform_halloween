@@ -47,8 +47,8 @@ services:
       - .:/workspace
       - claude-config:/home/dev/.claude
     init: true
-    # The loop starts runserver again whenever it stops, so `restart-server`
-    # (Dockerfile.dev) only has to stop it. sleep infinity keeps the
+    # The loop starts runserver again whenever it stops, so `ifi restart-server`
+    # (tools/ifi/) only has to stop it. sleep infinity keeps the
     # container running if a start step fails, so the VS Code terminal
     # still works for fixing the error.
     command: >
@@ -60,7 +60,7 @@ services:
              echo 'The server stopped. Starting it again in 2 seconds.';
              sleep 2;
              done;
-             echo 'Start-up failed. Fix the error above, then run: restart-server';
+             echo 'Start-up failed. Fix the error above, then run: ifi restart-server';
              sleep infinity"
 
 volumes:

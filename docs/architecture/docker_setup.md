@@ -16,11 +16,12 @@ site still runs without Docker until it moves over (see
 
 | File                              | What it does                                               |
 | --------------------------------- | ---------------------------------------------------------- |
-| `Dockerfile.dev`                  | Builds the Django container: Python 3.12, the packages from `requirements.txt`, and the `restart-server` command |
+| `Dockerfile.dev`                  | Builds the Django container: Python 3.12, the packages from `requirements.txt`, and the `ifi` command (a link to `tools/ifi/ifi`) |
 | `docker-compose.yml`              | Runs two containers: `db` (PostgreSQL 16) and `web` (Django) |
 | `.devcontainer/devcontainer.json` | Lets VS Code open the `web` container ("Reopen in Container"). Builds the image first (`initializeCommand`), shows the whole repo, starts new terminals in `ifiplatform/`, and installs the editor extensions (see below) |
 | `.devcontainer/docker-compose.devcontainer.yml` | Used only by VS Code, on top of `docker-compose.yml`. Hides `build`, so VS Code starts the already built image instead of building it (see below) |
 | `.vscode/settings.json`, `.vscode/extensions.json` | Editor settings and recommended extensions. Used both in the container and without Docker |
+| `tools/ifi/`                      | Our own `ifi` commands: `fix-issue`, `pull-request`, `test`, `migrate`, `restart-server`, `reset-server`, `rebuild-docker` and `help`. Shared into the container with the rest of the repo, so editing them needs no rebuild. `shell-setup.sh` adds Tab completion, loaded from the dev user's `.bashrc` |
 | `.dockerignore`                   | Keeps the venv, local database, media and `.env` out of the build |
 
 ## What happens on start
@@ -39,8 +40,8 @@ site still runs without Docker until it moves over (see
 4. If `migrate` or the seeding fails, the container keeps running
    (`sleep infinity`). Without that, a broken migration would stop the
    container on every start, and VS Code couldn't reopen it to fix the
-   error. The student fixes the error and runs `restart-server`.
-5. `restart-server` (a small script in `Dockerfile.dev`) stops the
+   error. The student fixes the error and runs `ifi restart-server`.
+5. `ifi restart-server` (a small script in `tools/ifi/`) stops the
    running server, and the loop starts a fresh one. A fresh process is
    needed for things `runserver`'s own reload misses, like a new
    `templatetags` file. It matches only the Python processes, not the

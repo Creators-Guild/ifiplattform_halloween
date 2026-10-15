@@ -1,0 +1,11 @@
+python manage.py test --exclude-tag=slow       quick tests
+python manage.py test                          all tests
+python manage.py makemigrations                after changing a model
+python manage.py migrate                       apply migrations
+python manage.py createsuperuser               make an admin login
+python manage.py makemessages -l nb -l en      collect text to translate
+python manage.py compilemessages               use the new translations
+
+http://localhost:8000                          the site
+http://localhost:8000/wagtail-admin            edit pages
+http://localhost:8000/admin                    users and raw tables

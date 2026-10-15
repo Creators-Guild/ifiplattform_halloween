@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# ifi pull-request: pushes the current branch to your fork and prints a link
+# that opens GitHub's "Open a pull request" page. The description is the PR
+# template with "Closes #<nr>" filled in, so merging closes the issue. A
+# link's description replaces the template, which is why all of it is sent.
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+branch="$(git branch --show-current)"
+[[ -n "$branch" ]] || die "You're not on a branch. Start one with: ifi fix-issue <nr>"
+[[ "$branch" != main ]] || die "You're on main. Make a branch for your issue first: ifi fix-issue <nr>"
+
+if [[ -n "$(git status --porcelain)" ]]; then
+    git status --short
+    die "" "These changes aren't committed yet. Commit them first:" \
+        "  git add ." \
+        "  git commit -m \"Short description of what you changed\""
+fi
+
+find_base
+git fetch --quiet "$base"
+if [[ "$(git rev-list --count "$base/main..HEAD")" -eq 0 ]]; then
+    die "$branch has no commits yet, so there's nothing to send. Commit your change first:" \
+        "  git add ." \
+        "  git commit -m \"Short description of what you changed\""
+fi
+
+nr="$(git config "branch.$branch.ifi-issue" || true)"
+while [[ ! "$nr" =~ ^[0-9]+$ ]]; do
+    read -r -p "Which issue number does this fix? " nr || die ""
+    nr="${nr#\#}"
+done
+git config "branch.$branch.ifi-issue" "$nr"
+
+run git push --quiet -u origin HEAD
+
+if [[ "$base" == origin ]]; then
+    head="$branch"
+else
+    head="$(repo_of origin)"
+    head="${head%%/*}:$branch"
+fi
+
+url="$(python3 - "$MAIN_REPO" "$head" "$nr" "$(git rev-parse --show-toplevel)/.github/pull_request_template.md" <<'PY'
+import re, sys
+from pathlib import Path
+from urllib.parse import quote
+
+repo, head, nr, template = sys.argv[1:5]
+path = Path(template)
+body = path.read_text(encoding="utf-8") if path.exists() else ""
+body, found = re.subn(r"(?m)^Closes #[ \t]*$", f"Closes #{nr}", body)
+if not found:
+    body = f"{body.rstrip()}\n\nCloses #{nr}\n".lstrip()
+print(
+    f"https://github.com/{repo}/compare/main...{quote(head, safe='/:')}"
+    f"?expand=1&body={quote(body, safe='')}"
+)
+PY
+)"
+
+cat <<EOF
+
+Pushed. Open this link (Ctrl+click, or Cmd+click on a Mac) to make the pull request:
+
+$url
+
+Fill in the description, and leave the "Closes #$nr" line in: it closes the
+issue when your pull request is merged.
+EOF
