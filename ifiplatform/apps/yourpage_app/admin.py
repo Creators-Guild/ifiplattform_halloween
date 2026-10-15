@@ -1,7 +1,8 @@
 # pylint: disable=C0114,C0115,C0116
-from django.contrib import admin
+from django.contrib import admin, messages
 
 from .models import (
+    Claim,
     Credit,
     CreditOverride,
     DrinkTicket,
@@ -50,3 +51,26 @@ class EventSolutionAdmin(admin.ModelAdmin):
 @admin.register(SyncStatus)
 class SyncStatusAdmin(admin.ModelAdmin):
     list_display = ["last_attempt_at", "last_success_at", "last_error"]
+
+
+@admin.register(Claim)
+class ClaimAdmin(admin.ModelAdmin):
+    list_display = ["issue_number", "user", "claimed_at", "expires_at"]
+    search_fields = ["user__username", "issue_number"]
+    actions = ["release"]
+
+    @admin.action(description="Release selected claims (open issues only)")
+    def release(self, request, queryset):
+        """A closed issue's claim decides its points (github_sync.py), so
+        those are skipped; change who gets them with a credit override."""
+        open_numbers = EventIssue.objects.exclude(state="CLOSED").values("number")
+        released, _ = queryset.filter(issue_number__in=open_numbers).delete()
+        skipped = queryset.count()
+        self.message_user(request, f"Released {released} claim(s).", messages.SUCCESS)
+        if skipped:
+            self.message_user(
+                request,
+                f"Kept {skipped} claim(s) on closed issues: they decide the points. "
+                "Use a credit override instead.",
+                messages.WARNING,
+            )

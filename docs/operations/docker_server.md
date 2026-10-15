@@ -165,7 +165,7 @@ secrets.
 The mock site counts points for the event. Three public pages, all under
 `/commits/`:
 
-- **My commits** (`/commits/`, needs a login): a participant enters their
+- **My issues** (`/commits/`, needs a login): a participant enters their
   GitHub username once and sees their points and drink-ticket progress.
   The site menu still calls the whole section "Commits".
 - **Leaderboard** (`/commits/leaderboard/`): reloads itself every 30
@@ -173,7 +173,47 @@ The mock site counts points for the event. Three public pages, all under
 - **Issues** (`/commits/issues/`): every event issue, free or done.
   Clicking an issue opens it in a pop-up with more details (who solved it,
   the PR, the issue it is part of). Each issue also has its own page,
-  `/commits/issues/<number>/`, for sharing a link.
+  `/commits/issues/<number>/`, for sharing a link. Participants claim
+  issues here (see "Claiming issues" below).
+
+### Claiming issues
+
+Participants don't comment on GitHub or wait for a helper. On the Issues
+page they press **Claim** on a free card. Or they press **🎲 Give me an
+issue**: it opens a random free issue of the difficulty and category they
+picked, in the same pop-up as a clicked card, where they can **Claim** it
+or press **Try another**. Nothing is claimed until they press Claim. The
+rules are in `ifiplatform/apps/yourpage_app/claims.py`.
+
+- You need a linked GitHub username (on My issues) to claim.
+- An issue is free when it's open, worth points, not claimed, and not
+  assigned on GitHub. Only one person can win a claim, even if two press
+  at the same moment; the other is offered a similar free issue.
+- Each person can hold 2 open issues (`CLAIM_LIMIT` in `settings.py`),
+  counting both their claims and issues assigned to them on GitHub.
+- A claim runs out if nothing happens: 30 minutes for 🍬, 60 for 🍫, 90
+  for 🎃 (`CLAIM_MINUTES`). The claimer can press **Keep** for the full
+  time again. Once the sync sees an open pull request by the claimer,
+  their claims have no time limit.
+- Everyone sees their issues in their own shuffled order, free ones
+  first, so not everyone goes for the same first card.
+- A newly claimed issue is outlined with a **new** badge on My issues
+  until the participant opens it for the first time.
+
+Helpers, in an issue's pop-up, see who holds the claim and can give
+**+15 min**, **+30 min**, **No time limit** or **Reset**, and
+**Force release** it (also with a pull request open). Organisers can also
+release claims in `/admin/` → Yourpage_App → Claims ("Release selected
+claims"). Claims on closed issues can't be released: they decide the
+points.
+
+Two things helpers should do:
+
+- **Close the issue when you merge** its pull request, unless the PR said
+  "Closes #12" (then GitHub closes it). The points arrive when the issue
+  closes, and until then the claim counts toward the participant's limit.
+- **Force-release before you assign someone else on GitHub.** A claim
+  wins over a GitHub assignee for the points.
 
 ### Where the points come from
 
@@ -182,14 +222,18 @@ The site reads the event repo on GitHub. Nobody reports anything by hand.
 - An issue counts if it has a size label: `🍬 candy` (1 point),
   `🍫 chocolate` (2) or `🎃 pumpkin` (3). The names are in `SIZE_LABELS`
   in `ifiplatform/apps/yourpage_app/labels.py`.
-- When a merged PR closes the issue ("Closes #12" in the PR), its author
-  gets the points. An issue closed without a PR, such as a content issue,
-  gives the points to the first person **assigned** to it, so assign
-  them before you close it.
-- A PR that closes more than one event issue earns none of them. The
-  leaderboard shows those issues to organisers under "Needs a look".
-- To fix credit by hand (someone forgot "Closes #12", or the wrong person
-  got it), add a **credit override** in `/admin/` → Yourpage_App →
+- When a **claimed** issue is closed as completed, the person who claimed
+  it gets the points, however it was closed. Nobody needs to write
+  "Closes #12".
+- For an issue nobody claimed: when a merged PR closes it ("Closes #12" in
+  the PR), its author gets the points. An issue closed without a PR, such
+  as a content issue, gives the points to the first person **assigned**
+  to it, so assign them before you close it.
+- A PR that closes more than one unclaimed event issue earns none of
+  them. The leaderboard shows those issues to organisers under "Needs a
+  look".
+- To fix credit by hand (the wrong person got it), add a **credit
+  override** in `/admin/` → Yourpage_App →
   Credit overrides: the issue number and the right GitHub username. It
   wins over everything else and survives later syncs.
 

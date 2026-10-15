@@ -2590,11 +2590,11 @@ msgstr "Forrige side"
 msgid "Next page"
 msgstr "Neste side"
 
-msgid "My commits"
-msgstr "Mine commits"
+msgid "My issues"
+msgstr "Mine oppgaver"
 
-msgid "Link yours on the My commits page."
-msgstr "Koble til din på Mine commits-siden."
+msgid "Link yours on the My issues page."
+msgstr "Koble til din på Mine oppgaver-siden."
 
 msgid "Organiser tools"
 msgstr "Arrangørverktøy"
@@ -2626,3 +2626,172 @@ msgstr "Koble til GitHub"
 
 msgid "Solution missing"
 msgstr "Løsning mangler"
+
+msgid "no time limit"
+msgstr "ingen tidsgrense"
+
+msgid "Keep"
+msgstr "Behold"
+
+msgid "Release"
+msgstr "Frigjør"
+
+msgid "Claim"
+msgstr "Ta"
+
+#, python-format
+msgid "Helper: %(name)s claimed this %(ago)s ago."
+msgstr "Hjelper: %(name)s tok denne for %(ago)s siden."
+
+msgid "No time limit."
+msgstr "Ingen tidsgrense."
+
+#, python-format
+msgid "Default: %(minutes)s min."
+msgstr "Standard: %(minutes)s min."
+
+msgid "+15 min"
+msgstr "+15 min"
+
+msgid "+30 min"
+msgstr "+30 min"
+
+msgid "No time limit"
+msgstr "Ingen tidsgrense"
+
+msgid "Reset"
+msgstr "Tilbakestill"
+
+msgid "Force release"
+msgstr "Tving frigjøring"
+
+#, python-format
+msgid "Release #%(number)s from %(name)s now? It's free to claim again right away."
+msgstr "Frigjøre #%(number)s fra %(name)s nå? Da kan andre ta den med en gang."
+
+msgid "Yes, release"
+msgstr "Ja, frigjør"
+
+msgid "yours"
+msgstr "din"
+
+msgid "Can't choose? We'll pick a free one and claim it for you."
+msgstr "Klarer du ikke å velge? Vi plukker en ledig oppgave og tar den for deg."
+
+msgid "Any"
+msgstr "Alle"
+
+#, python-format
+msgid "Claim #%(number)s"
+msgstr "Ta #%(number)s"
+
+msgid "Nothing claimed yet. Claim a free issue on the Issues page, or let Give me an issue pick one."
+msgstr "Du har ikke tatt noen oppgaver ennå. Ta en ledig oppgave på Oppgaver-siden, eller la «Gi meg en oppgave» velge for deg."
+
+#, python-format
+msgid "#%(number)s is yours! %(title)s. When the issue is closed, the points come to you automatically."
+msgstr "#%(number)s er din! %(title)s. Når oppgaven lukkes, får du poengene automatisk."
+
+msgid "Someone already has this one."
+msgstr "Noen har allerede denne."
+
+#, python-format
+msgid "How about #%(number)s %(title)s?"
+msgstr "Hva med #%(number)s %(title)s?"
+
+#, python-format
+msgid "You already have %(count)s issues (%(numbers)s). Finish or release one to claim another. Pull request merged? Ask a helper to close the issue."
+msgstr "Du har allerede %(count)s oppgaver (%(numbers)s). Fullfør eller frigjør en for å ta en ny. Er pull requesten flettet inn? Be en hjelper lukke oppgaven."
+
+msgid "No free issues match. Try any difficulty or category."
+msgstr "Ingen ledige oppgaver passer. Prøv alle vanskelighetsgrader eller kategorier."
+
+#, python-format
+msgid "#%(number)s can't be claimed."
+msgstr "#%(number)s kan ikke tas."
+
+#, python-format
+msgid "#%(number)s isn't claimed any more."
+msgstr "#%(number)s er ikke tatt lenger."
+
+#, python-format
+msgid "#%(number)s is closed, so its claim stays: it decides who gets the points. To change that, add a credit override in /admin/."
+msgstr "#%(number)s er lukket, så den blir stående som tatt: det avgjør hvem som får poengene. For å endre det, legg til en credit override i /admin/."
+
+#, python-format
+msgid "You released #%(number)s."
+msgstr "Du frigjorde #%(number)s."
+
+#, python-format
+msgid "Released #%(number)s from %(name)s. It's free to claim again."
+msgstr "Frigjorde #%(number)s fra %(name)s. Den er ledig igjen."
+
+#, python-format
+msgid "#%(number)s is yours for %(minutes)s more minutes."
+msgstr "#%(number)s er din i %(minutes)s minutter til."
+
+#, python-format
+msgid "#%(number)s now has no time limit."
+msgstr "#%(number)s har nå ingen tidsgrense."
+
+#, python-format
+msgid "#%(number)s now has %(minutes)s minutes left."
+msgstr "#%(number)s har nå %(minutes)s minutter igjen."
+
+#, python-format
+msgid "Just taken by %(name)s."
+msgstr "%(name)s tok den akkurat."
+
+#, python-format
+msgid "claimed by %(name)s"
+msgstr "tatt av %(name)s"
+
+#, python-format
+msgid "%(minutes)s min left"
+msgstr "%(minutes)s min igjen"
+
+#, python-format
+msgid "%(minutes)s min left."
+msgstr "%(minutes)s min igjen."
+
+msgid "Give me an issue"
+msgstr "Gi meg en oppgave"
+
+msgid "Any category"
+msgstr "Alle kategorier"
+
+msgid "Link your GitHub username on My issues to claim issues."
+msgstr "Koble til GitHub-brukernavnet ditt på Mine oppgaver for å ta oppgaver."
+
+msgid "See my issues"
+msgstr "Se mine oppgaver"
+
+msgid "Your issues"
+msgstr "Dine oppgaver"
+
+msgid "assigned to you on GitHub · a helper can unassign you there"
+msgstr "tildelt deg på GitHub · en hjelper kan fjerne deg der"
+
+#, python-format
+msgid ""
+"You already have %(count)s issues (%(numbers)s). Finish or release one to "
+"get a new one."
+msgstr ""
+"Du har allerede %(count)s oppgaver (%(numbers)s). Fullfør eller frigjør en "
+"for å få en ny."
+
+msgid ""
+"Can't choose? We'll show you a random free one, and you decide whether to "
+"claim it."
+msgstr ""
+"Klarer du ikke å velge? Vi viser deg en tilfeldig ledig oppgave, så "
+"bestemmer du om du vil ta den."
+
+msgid "A random free issue for you."
+msgstr "En tilfeldig ledig oppgave til deg."
+
+msgid "Try another"
+msgstr "Prøv en annen"
+
+msgid "new"
+msgstr "ny"

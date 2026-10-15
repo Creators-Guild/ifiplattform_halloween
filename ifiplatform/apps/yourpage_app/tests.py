@@ -4,15 +4,19 @@ import json
 from unittest import mock
 
 from django.contrib.auth import get_user_model
+from datetime import timedelta
+
 from django.contrib.auth.models import Group
+from django.contrib.messages import get_messages
 from django.core.cache import cache
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils import translation
+from django.utils import timezone, translation
 
-from yourpage_app import github_sync
+from yourpage_app import claims, github_sync
 from yourpage_app.models import (
+    Claim,
     Credit,
     CreditOverride,
     DrinkTicket,
@@ -530,7 +534,7 @@ class PagesTests(TestCase):
         assigned = [i.number for i, _subs in response.context["assigned_groups"]]
         closed = [i.number for i, _subs in response.context["closed_groups"]]
         self.assertEqual((assigned, closed), ([1], [3]))
-        self.assertContains(response, "Your assigned issues")
+        self.assertContains(response, "Your issues")
         self.assertContains(response, "Your closed issues")
 
     def test_closed_issues_go_below(self):
@@ -636,15 +640,20 @@ class LoadSolutionsTests(TestCase):
 class SeedFakePointsTests(TestCase):
     @override_settings(DEBUG=True)
     def test_seeds_and_clears(self):
+        me = User.objects.create_user(username="me_user", password="pw")
+        GitHubLink.objects.create(user=me, github_login="me")
         call_command(
             "seed_fake_points", "--me", "Me", "--extra", "5", stdout=io.StringIO()
         )
         self.assertEqual(EventIssue.objects.filter(number__gte=1000).count(), 5)
         self.assertTrue(EventIssue.objects.filter(number__gte=900).exists())
         self.assertEqual(Credit.objects.filter(github_login="me").count(), 2)
-        self.assertTrue(
+        # --me gets claims (Keep and Release work), not GitHub assignments
+        self.assertEqual(Claim.objects.filter(user=me).count(), 2)
+        self.assertFalse(
             any("me" in i.assignees for i in EventIssue.objects.filter(state="OPEN"))
         )
+        self.assertEqual(Claim.objects.exclude(user=me).count(), 2)
         self.assertTrue(Credit.objects.exists())
         self.assertTrue(User.objects.filter(username__startswith="fake_").exists())
         self.assertEqual(
@@ -653,6 +662,7 @@ class SeedFakePointsTests(TestCase):
         )
         call_command("seed_fake_points", "--clear", stdout=io.StringIO())
         self.assertFalse(EventSolution.objects.exists())
+        self.assertFalse(Claim.objects.exists())
         self.assertFalse(EventIssue.objects.filter(number__gte=900).exists())
         self.assertFalse(User.objects.filter(username__startswith="fake_").exists())
 
@@ -661,3 +671,356 @@ class SeedFakePointsTests(TestCase):
         with self.assertRaises(Exception):
             call_command("seed_fake_points", stdout=io.StringIO())
         self.assertFalse(EventIssue.objects.exists())
+
+
+SIZE_POINTS = {name: points for name, points in github_sync.SIZE_LABELS.values()}
+
+
+@override_settings(
+    GITHUB_READ_TOKEN="",
+    CLAIM_LIMIT=2,
+    CLAIM_MINUTES={"candy": 30, "chocolate": 60, "pumpkin": 90},
+)
+class ClaimTests(TestCase):
+    """Claiming issues on the site (claims.py, the claim views, and the sync's
+    credit for claimers)."""
+
+    def setUp(self):
+        self.enterContext(translation.override("en"))
+        self.kari = self.linked("kari")
+        self.ola = self.linked("ola")
+        self.loner = User.objects.create_user(username="loner", password="pw")
+        self.helper = User.objects.create_user(username="helpy", password="pw")
+        group, _ = Group.objects.get_or_create(name="Helpers")
+        self.helper.groups.add(group)
+
+    def linked(self, name):
+        user = User.objects.create_user(username=name, password="pw")
+        GitHubLink.objects.create(user=user, github_login=name)
+        return user
+
+    def issue(self, number, size="candy", category="🎨 restyle", **fields):
+        return EventIssue.objects.create(
+            number=number,
+            title=f"Issue {number}",
+            url=f"https://github.com/o/r/issues/{number}",
+            state=fields.pop("state", "OPEN"),
+            size=size,
+            points=SIZE_POINTS[size],
+            category=category,
+            **fields,
+        )
+
+    def post(self, user, name, *args, **data):
+        self.client.force_login(user)
+        response = self.client.post(
+            reverse(name, args=args), data, HTTP_REFERER="http://testserver/x/"
+        )
+        return response, list(get_messages(response.wsgi_request))
+
+    def test_claim_and_someone_faster_gets_an_alternative(self):
+        self.issue(1)
+        self.issue(2)
+        response, _msgs = self.post(self.kari, "yourpage_claim", 1)
+        self.assertRedirects(
+            response, "http://testserver/x/", fetch_redirect_response=False
+        )
+        claim = Claim.objects.get(issue_number=1)
+        self.assertEqual(claim.user, self.kari)
+        self.assertAlmostEqual(
+            (claim.expires_at - timezone.now()).total_seconds(), 30 * 60, delta=5
+        )
+        response = self.client.get(reverse("yourpage_issues"))
+        self.assertContains(response, "#1 is yours!")
+        self.assertContains(response, "See my issues")
+        _response, msgs = self.post(self.ola, "yourpage_claim", 1)
+        self.assertEqual(Claim.objects.get(issue_number=1).user, self.kari)
+        self.assertIn("Just taken by kari", str(msgs[-1]))
+        self.assertIn("claim-offer-2", msgs[-1].tags)
+
+    def test_github_assigned_issue_is_taken(self):
+        self.issue(1, assignees=["someone"])
+        _response, msgs = self.post(self.kari, "yourpage_claim", 1)
+        self.assertFalse(Claim.objects.exists())
+        self.assertIn("claim-taken", msgs[-1].tags)
+
+    def test_limit_and_unlinked(self):
+        for number in (1, 2, 3):
+            self.issue(number)
+        self.post(self.kari, "yourpage_claim", 1)
+        self.post(self.kari, "yourpage_claim", 2)
+        _response, msgs = self.post(self.kari, "yourpage_claim", 3)
+        self.assertFalse(Claim.objects.filter(issue_number=3).exists())
+        self.assertIn("#1, #2", str(msgs[-1]))
+        _response, msgs = self.post(self.loner, "yourpage_claim", 3)
+        self.assertFalse(Claim.objects.filter(issue_number=3).exists())
+        self.assertIn("Link your GitHub", str(msgs[-1]))
+
+    def test_github_assignments_count_toward_the_limit(self):
+        self.issue(1, assignees=["kari"])
+        self.issue(2)
+        self.issue(3)
+        self.post(self.kari, "yourpage_claim", 2)
+        _response, msgs = self.post(self.kari, "yourpage_claim", 3)
+        self.assertFalse(Claim.objects.filter(issue_number=3).exists())
+        self.assertIn("#1, #2", str(msgs[-1]))
+
+    def test_github_assigned_card_explains_missing_buttons(self):
+        self.issue(1, assignees=["kari"])
+        self.client.force_login(self.kari)
+        response = self.client.get(reverse("yourpage_main"))
+        self.assertContains(response, "assigned to you on GitHub")
+        self.assertNotContains(response, reverse("yourpage_release", args=[1]))
+
+    def test_give_me_an_issue_is_greyed_out_at_the_limit(self):
+        self.issue(1, assignees=["kari"])
+        self.issue(2)
+        self.issue(3)
+        self.client.force_login(self.kari)
+        response = self.client.get(reverse("yourpage_issues"))
+        self.assertNotContains(response, 'aria-describedby="lucky-limit"')
+        Claim.objects.create(issue_number=2, user=self.kari)
+        response = self.client.get(reverse("yourpage_issues"))
+        self.assertContains(response, 'disabled aria-describedby="lucky-limit"')
+        self.assertContains(response, "You already have 2 issues (#1, #2)")
+
+    def test_new_claim_is_highlighted_until_opened(self):
+        self.issue(1)
+        self.post(self.kari, "yourpage_claim", 1)
+        main = reverse("yourpage_main")
+        detail = reverse("yourpage_issue_detail", args=[1])
+        self.assertContains(self.client.get(main), "issue-card--new")
+        # someone else looking doesn't count
+        self.client.force_login(self.ola)
+        self.client.get(detail)
+        self.client.force_login(self.kari)
+        self.assertContains(self.client.get(main), "issue-card--new")
+        self.client.get(detail)
+        self.assertIsNotNone(Claim.objects.get(issue_number=1).seen_at)
+        self.assertNotContains(self.client.get(main), "issue-card--new")
+
+    def test_closed_claims_dont_count_toward_the_limit(self):
+        self.issue(1, state="CLOSED")
+        self.issue(2, state="CLOSED")
+        self.issue(3)
+        for number in (1, 2):
+            Claim.objects.create(issue_number=number, user=self.kari)
+        self.post(self.kari, "yourpage_claim", 3)
+        self.assertTrue(Claim.objects.filter(issue_number=3).exists())
+
+    def test_logged_out_cant_claim(self):
+        self.issue(1)
+        response = self.client.post(reverse("yourpage_claim", args=[1]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Claim.objects.exists())
+
+    def test_time_depends_on_size_and_expired_claims_are_freed(self):
+        now = timezone.now()
+        self.issue(1, size="pumpkin")
+        self.issue(2)
+        self.issue(3)
+        self.issue(4, state="CLOSED")
+        self.post(self.kari, "yourpage_claim", 1)
+        self.assertAlmostEqual(
+            (Claim.objects.get(issue_number=1).expires_at - now).total_seconds(),
+            90 * 60,
+            delta=5,
+        )
+        past = now - timedelta(minutes=1)
+        Claim.objects.create(issue_number=2, user=self.ola, expires_at=past)
+        Claim.objects.create(issue_number=3, user=self.ola, expires_at=None)
+        Claim.objects.create(issue_number=4, user=self.ola, expires_at=past)
+        claims.release_expired()
+        self.assertEqual(
+            sorted(Claim.objects.values_list("issue_number", flat=True)), [1, 3, 4]
+        )
+
+    def test_keep_and_helper_time(self):
+        self.issue(1, size="chocolate")
+        Claim.objects.create(
+            issue_number=1,
+            user=self.kari,
+            expires_at=timezone.now() + timedelta(minutes=5),
+        )
+        self.post(self.kari, "yourpage_keep", 1)
+        left = claims.minutes_left(Claim.objects.get(issue_number=1))
+        self.assertEqual(left, 60)
+        response, _msgs = self.post(self.ola, "yourpage_claim_time", 1, action="plus15")
+        self.assertEqual(response.status_code, 403)
+        response, _msgs = self.post(self.ola, "yourpage_keep", 1)
+        self.assertEqual(response.status_code, 403)
+        self.post(self.helper, "yourpage_claim_time", 1, action="plus15")
+        self.assertEqual(claims.minutes_left(Claim.objects.get(issue_number=1)), 75)
+        self.post(self.helper, "yourpage_claim_time", 1, action="unlimited")
+        self.assertIsNone(Claim.objects.get(issue_number=1).expires_at)
+        self.post(self.helper, "yourpage_claim_time", 1, action="reset")
+        self.assertEqual(claims.minutes_left(Claim.objects.get(issue_number=1)), 60)
+
+    def test_release_rules(self):
+        self.issue(1)
+        self.issue(2, state="CLOSED")
+        Claim.objects.create(issue_number=1, user=self.kari, expires_at=None)
+        Claim.objects.create(issue_number=2, user=self.kari, expires_at=None)
+        response, _msgs = self.post(self.ola, "yourpage_release", 1)
+        self.assertEqual(response.status_code, 403)
+        _response, msgs = self.post(self.helper, "yourpage_release", 1)
+        self.assertFalse(Claim.objects.filter(issue_number=1).exists())
+        self.assertIn("Released #1 from kari", str(msgs[-1]))
+        _response, msgs = self.post(self.helper, "yourpage_release", 2)
+        self.assertTrue(Claim.objects.filter(issue_number=2).exists())
+        self.assertIn("is closed", str(msgs[-1]))
+        Claim.objects.create(issue_number=1, user=self.kari)
+        self.post(self.kari, "yourpage_release", 1)
+        self.assertFalse(Claim.objects.filter(issue_number=1).exists())
+
+    def test_give_me_an_issue_shows_one_without_claiming(self):
+        self.issue(1)
+        self.issue(2, size="pumpkin", category="🧪 python")
+        self.client.force_login(self.kari)
+        response = self.client.get(reverse("yourpage_lucky"), {"size": "pumpkin"})
+        detail = reverse("yourpage_issue_detail", args=[2])
+        self.assertRedirects(
+            response,
+            f"{detail}?lucky=1&size=pumpkin&category=",
+            fetch_redirect_response=False,
+        )
+        self.assertFalse(Claim.objects.exists())
+        page = self.client.get(response.url)
+        self.assertContains(page, "Try another")
+        self.assertContains(page, "skip=2")
+        self.assertContains(page, reverse("yourpage_claim", args=[2]))
+
+    def test_try_another_skips_the_one_just_shown(self):
+        self.issue(1)
+        self.issue(2)
+        self.client.force_login(self.kari)
+        for _ in range(5):
+            response = self.client.get(reverse("yourpage_lucky"), {"skip": 1})
+            self.assertIn(reverse("yourpage_issue_detail", args=[2]), response.url)
+        # the only free one is shown again rather than nothing
+        Claim.objects.create(issue_number=2, user=self.ola)
+        response = self.client.get(reverse("yourpage_lucky"), {"skip": 1})
+        self.assertIn(reverse("yourpage_issue_detail", args=[1]), response.url)
+
+    def test_give_me_an_issue_when_nothing_is_free(self):
+        self.issue(1, assignees=["someone"])
+        self.client.force_login(self.kari)
+        response = self.client.get(reverse("yourpage_lucky"), {"size": "pumpkin"})
+        self.assertRedirects(
+            response, reverse("yourpage_issues"), fetch_redirect_response=False
+        )
+        msgs = list(get_messages(response.wsgi_request))
+        self.assertIn("No free issues match", str(msgs[-1]))
+
+    def test_own_shuffled_order_with_free_first(self):
+        for number in range(1, 13):
+            self.issue(number, assignees=["someone"] if number == 1 else [])
+
+        def order(user):
+            self.client.force_login(user)
+            response = self.client.get(reverse("yourpage_issues"))
+            return [i.number for i, _subs in response.context["open_sections"][0][1]]
+
+        kari_order = order(self.kari)
+        self.assertEqual(kari_order, order(self.kari))
+        self.assertNotEqual(kari_order, order(self.ola))
+        self.assertEqual(kari_order[-1], 1)
+
+    def test_buttons_on_the_cards(self):
+        self.issue(1)
+        self.issue(2)
+        Claim.objects.create(issue_number=2, user=self.kari)
+        self.client.force_login(self.ola)
+        response = self.client.get(reverse("yourpage_issues"))
+        self.assertContains(response, reverse("yourpage_claim", args=[1]))
+        self.assertContains(response, "claimed by kari")
+        self.assertNotContains(response, reverse("yourpage_claim", args=[2]))
+        self.client.force_login(self.kari)
+        response = self.client.get(reverse("yourpage_main"))
+        self.assertContains(response, reverse("yourpage_release", args=[2]))
+        self.client.force_login(self.helper)
+        response = self.client.get(reverse("yourpage_issue_detail", args=[2]))
+        self.assertContains(response, "Force release")
+        self.assertContains(response, reverse("yourpage_claim_time", args=[2]))
+
+    def test_sync_credits_the_claimer(self):
+        Claim.objects.create(issue_number=5, user=self.kari)
+        Claim.objects.create(issue_number=6, user=self.ola)
+        Claim.objects.create(issue_number=8, user=self.loner)  # unlinked: old rules
+        CreditOverride.objects.create(issue_number=6, github_login="boss")
+        at = "2026-10-19T18:00:00Z"
+        github_sync.apply(
+            [
+                raw_issue(5, prs=[(70, "someone", at)]),
+                raw_issue(6),
+                raw_issue(7, prs=[(71, "author", at)]),
+                raw_issue(8, assignees=["assignee"]),
+                raw_issue(9, prs=[(72, "greedy", at)]),
+                raw_issue(10, prs=[(72, "greedy", at)]),
+            ]
+        )
+        credits = dict(Credit.objects.values_list("issue__number", "github_login"))
+        self.assertEqual(credits[5], "kari")
+        self.assertEqual(Credit.objects.get(issue__number=5).pr_number, 70)
+        self.assertEqual(credits[6], "boss")
+        self.assertEqual(credits[7], "author")
+        self.assertEqual(credits[8], "assignee")
+        self.assertNotIn(9, credits)
+        Claim.objects.create(issue_number=9, user=self.kari)
+        github_sync.apply(
+            [
+                raw_issue(9, prs=[(72, "greedy", at)]),
+                raw_issue(10, prs=[(72, "greedy", at)]),
+            ]
+        )
+        credits = dict(Credit.objects.values_list("issue__number", "github_login"))
+        self.assertEqual(credits, {9: "kari", 10: "greedy"})
+
+    def test_open_pr_locks_the_claim_for_good(self):
+        raw = raw_issue(7, state="OPEN")
+        github_sync.apply([raw])
+        Claim.objects.create(issue_number=7, user=self.kari, expires_at=timezone.now())
+        github_sync.apply([raw], open_pr_logins=["kari"])
+        self.assertEqual(SyncStatus.get().open_pr_logins, ["kari"])
+        self.assertIsNone(Claim.objects.get(issue_number=7).expires_at)
+        github_sync.apply([raw], open_pr_logins=[])
+        self.assertIsNone(Claim.objects.get(issue_number=7).expires_at)
+
+    def test_sync_reads_open_prs(self):
+        body = {
+            "data": {
+                "repository": {
+                    "issues": {
+                        "pageInfo": {"hasNextPage": False, "endCursor": None},
+                        "nodes": [],
+                    },
+                    "pullRequests": {
+                        "nodes": [{"author": {"login": "Kari"}}, {"author": None}]
+                    },
+                }
+            }
+        }
+        with override_settings(GITHUB_READ_TOKEN="t"), mock.patch(
+            "urllib.request.urlopen",
+            return_value=io.BytesIO(json.dumps(body).encode()),
+        ):
+            self.assertTrue(github_sync.sync())
+        self.assertEqual(SyncStatus.get().open_pr_logins, ["kari"])
+
+    def test_admin_release_skips_closed(self):
+        self.issue(1)
+        self.issue(2, state="CLOSED")
+        Claim.objects.create(issue_number=1, user=self.kari)
+        Claim.objects.create(issue_number=2, user=self.kari)
+        boss = User.objects.create_superuser("boss2", "b@example.com", "pw")
+        self.client.force_login(boss)
+        self.client.post(
+            reverse("admin:yourpage_app_claim_changelist"),
+            {
+                "action": "release",
+                "_selected_action": list(Claim.objects.values_list("pk", flat=True)),
+            },
+        )
+        self.assertEqual(
+            list(Claim.objects.values_list("issue_number", flat=True)), [2]
+        )

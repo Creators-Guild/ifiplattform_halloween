@@ -20,6 +20,8 @@
         {% include "core/synced_chip.html" %}
     </header>
 
+    {% include "core/lucky_panel.html" %}
+
     <div class="issue-filters">
         {% trans "Category" as row_label %}
         {% include "core/filter_pills.html" with label=row_label pills=category_pills %}

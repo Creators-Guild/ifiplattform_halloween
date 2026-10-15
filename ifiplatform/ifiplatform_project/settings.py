@@ -284,6 +284,11 @@ GITHUB_EVENT_REPO = os.environ.get(
 )
 # Points needed for the one drink ticket per participant.
 DRINK_TICKET_POINTS = 5
+# Claiming issues on the Commits pages (yourpage_app/claims.py): how many open
+# issues one person may hold, and minutes before an idle claim is freed, per
+# size. Helpers can change a single claim's time from the issue's pop-up.
+CLAIM_LIMIT = 2
+CLAIM_MINUTES = {"candy": 30, "chocolate": 60, "pumpkin": 90}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/

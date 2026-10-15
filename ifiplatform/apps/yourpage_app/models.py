@@ -90,6 +90,12 @@ class SyncStatus(models.Model):
     last_attempt_at = models.DateTimeField(null=True, blank=True)
     last_success_at = models.DateTimeField(null=True, blank=True)
     last_error = models.TextField(blank=True)
+    open_pr_logins = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="GitHub usernames (lowercased) with an open PR in the event repo "
+        "at the last sync. Their claims get no time limit (claims.py).",
+    )
 
     class Meta:
         verbose_name_plural = "sync status"
@@ -147,3 +153,32 @@ class EventSolution(models.Model):
 
     def __str__(self):
         return f"Solution for #{self.issue_number}"
+
+
+class Claim(models.Model):
+    """A participant's claim on an open issue, made on the Commits pages
+    instead of a GitHub assignment (rules in claims.py). Keyed by number, like
+    EventSolution, so it survives the sync. The unique number is what makes
+    two people clicking at once safe: only one insert wins. Kept after the
+    issue closes, because the sync credits the claimer (github_sync.py)."""
+
+    issue_number = models.PositiveIntegerField(unique=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="claims"
+    )
+    claimed_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(
+        null=True, blank=True, help_text="Empty means no time limit."
+    )
+    seen_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the claimer first opened the issue. Until then its card "
+        "is highlighted on My issues.",
+    )
+
+    class Meta:
+        ordering = ["claimed_at"]
+
+    def __str__(self):
+        return f"#{self.issue_number} claimed by {self.user}"

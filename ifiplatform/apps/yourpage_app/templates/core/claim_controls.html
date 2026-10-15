@@ -1,0 +1,23 @@
+{% load i18n %}
+{% comment %}
+Claim / Keep / Release for one open issue, on a card's footer and in the
+pop-up. The views send people back to the page they were on (claims.py has
+the rules).
+{% endcomment %}
+{% if issue.state != "CLOSED" %}
+    {% if issue.is_mine %}
+        <span class="claim-controls">
+            <span class="claim-timer">{% if issue.minutes_left is None %}{% trans "no time limit" %}{% else %}{% blocktrans with minutes=issue.minutes_left %}{{ minutes }} min left{% endblocktrans %}{% endif %}</span>
+            {% if issue.minutes_left is not None %}
+                <form method="post" action="{% url 'yourpage_keep' issue.number %}">{% csrf_token %}<button type="submit" class="claim-btn claim-btn--ghost">{% trans "Keep" %}</button></form>
+            {% endif %}
+            <form method="post" action="{% url 'yourpage_release' issue.number %}">{% csrf_token %}<button type="submit" class="claim-btn claim-btn--ghost">{% trans "Release" %}</button></form>
+        </span>
+    {% elif issue.assigned_to_me %}
+        <span class="claim-controls"><span class="claim-timer">{% trans "assigned to you on GitHub · a helper can unassign you there" %}</span></span>
+    {% elif issue.can_claim %}
+        <span class="claim-controls">
+            <form method="post" action="{% url 'yourpage_claim' issue.number %}">{% csrf_token %}<button type="submit" class="claim-btn">{% trans "Claim" %}</button></form>
+        </span>
+    {% endif %}
+{% endif %}

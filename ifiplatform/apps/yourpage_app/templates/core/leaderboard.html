@@ -93,7 +93,7 @@
     {% if unlinked %}
         <p class="yourpage__hint">
             {% blocktrans count counter=unlinked|length %}{{ counter }} contributor hasn't linked their account yet.{% plural %}{{ counter }} contributors haven't linked their account yet.{% endblocktrans %}
-            <a href="{% url 'yourpage_main' %}">{% trans "Link yours on the My commits page." %}</a>
+            <a href="{% url 'yourpage_main' %}">{% trans "Link yours on the My issues page." %}</a>
         </p>
         {% if show_unlinked_names %}
             <p class="yourpage__hint">

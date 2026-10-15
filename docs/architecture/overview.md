@@ -60,7 +60,7 @@ in `ifiplatform/ifiplatform_project/`. `core_app` sits directly in
   replaces the privacy policy. See
   [docker_server.md](../operations/docker_server.md#open-sign-up-mock-site-only).
 - **`yourpage_app`** is the event points system on the Halloween mock
-  site: the My commits page, the leaderboard and the issue list. It reads issues and
+  site: the My issues page, the leaderboard and the issue list. It reads issues and
   merged PRs from GitHub. See
   [docker_server.md](../operations/docker_server.md#points-leaderboard-and-helper-solutions).
 - **`study_app`** shows a placeholder page for now. This is switched by

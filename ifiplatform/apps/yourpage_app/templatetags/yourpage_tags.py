@@ -22,3 +22,13 @@ def my_points(context):
         "link": link,
         "score": score_for(link.github_login) if link else None,
     }
+
+
+@register.filter
+def claim_offer(message):
+    """The issue number from a "claim-offer-<n>" message tag, or "": the
+    similar free issue offered when someone was faster (core/messages.html)."""
+    for tag in (message.extra_tags or "").split():
+        if tag.startswith("claim-offer-"):
+            return tag.removeprefix("claim-offer-")
+    return ""

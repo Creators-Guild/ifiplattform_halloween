@@ -32,6 +32,12 @@
   filter: saturate(0.4);
 }
 
+.issue-panel--closed .issue-panel__title {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
 .issue-panel__content {
   padding: 1.25rem 1.5rem 1.5rem;
 }
@@ -118,8 +124,25 @@
 
 .issue-panel__actions {
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin: 1.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 12%, transparent);
+}
+
+.issue-panel__claim {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.issue-panel__actions .claim-btn {
+  padding: 0.4rem 1rem;
+  font-size: 0.95rem;
 }
 
 .issue-modal {

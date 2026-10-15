@@ -7,11 +7,15 @@ GitHub token. Local only: it refuses to run unless DEBUG is on.
     python manage.py seed_fake_points --extra 60      # ...plus 60 open issues
     python manage.py seed_fake_points --clear         # remove it again
 
---me takes your own GitHub username (the one linked on the Commits page):
-two open issues get assigned to you and two get solved by you.
+--me takes your own GitHub username (the one linked on My issues): two
+open issues get claimed by you (so Keep and Release work, one of them with
+10 minutes left) and two get solved by you. The claims need the username to
+be linked on the site first; the command says so if it isn't.
 
 Every fake issue gets a helpers' solution: two hand-written ones (SOLUTIONS),
-and a generic placeholder for the rest (fake_solution).
+and a generic placeholder for the rest (fake_solution). Two free open issues
+get claimed by fake people (one fresh, one about to run out), and two are
+assigned to fake people on GitHub, to show that state too.
 
 Fake issues are numbered from 900 and fake users are called fake_<name>
 (they can't log in). A real GitHub sync replaces the fake issues and credits
@@ -25,8 +29,10 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
+from yourpage_app.claims import default_minutes
 from yourpage_app.labels import CATEGORY_LABELS, SIZE_LABELS
 from yourpage_app.models import (
+    Claim,
     Credit,
     DrinkTicket,
     EventIssue,
@@ -80,9 +86,10 @@ PEOPLE = {
 UNLINKED = {"lurkinglantern": [14], "mysterymoth": [15]}
 NEEDS_LOOK = [19]  # fake "one PR closed several issues"
 DRINK_HANDED_OUT = ["pumpkinqueen"]
-# Open issues and who they're assigned to; ME is replaced by --me.
-ME = object()
-ASSIGNED = {20: [ME], 21: [ME], 22: ["bytebat"], 23: ["nightowl", "lurkinglantern"]}
+# Open issues assigned on GitHub (to fake people), and the open issues
+# claimed on the site by --me.
+ASSIGNED = {22: ["bytebat"], 23: ["nightowl", "lurkinglantern"]}
+ME_CLAIMED = [20, 21]
 ME_SOLVED = [14, 15]  # credited to --me instead of UNLINKED
 SOLUTIONS = {
     0: (
@@ -127,8 +134,10 @@ class Command(BaseCommand):
             if options["clear"]:
                 self.stdout.write(self.style.SUCCESS("Fake points data removed."))
                 return
-            self._seed(options["me"].strip().lower())
+            me = options["me"].strip().lower()
+            self._seed(me)
             self._seed_extra(options["extra"])
+            self._seed_claims(me)
         self.stdout.write(
             self.style.SUCCESS(
                 f"Added {len(ISSUES)} fake issues and {len(PEOPLE)} fake people. "
@@ -142,6 +151,9 @@ class Command(BaseCommand):
         EventSolution.objects.filter(
             issue_number__gte=FIRST_NUMBER, issue_number__lt=last
         ).delete()
+        Claim.objects.filter(
+            issue_number__gte=FIRST_NUMBER, issue_number__lt=last
+        ).delete()
         get_user_model().objects.filter(username__startswith=FAKE_PREFIX).delete()
 
     def _seed(self, me):
@@ -153,14 +165,7 @@ class Command(BaseCommand):
         solved = {
             i for titles in [*PEOPLE.values(), *unlinked.values()] for i in titles
         }
-        assigned = {
-            i: [
-                me if login is ME else login
-                for login in logins
-                if me or login is not ME
-            ]
-            for i, logins in ASSIGNED.items()
-        }
+        assigned = ASSIGNED
 
         issues = []
         for i, (title, category, size_label, parent) in enumerate(ISSUES):
@@ -206,6 +211,59 @@ class Command(BaseCommand):
             note, diff = SOLUTIONS.get(index) or fake_solution(issue)
             EventSolution.objects.create(
                 issue_number=issue.number, note=note, diff=diff
+            )
+
+    def _seed_claims(self, me):
+        """A fresh claim and one about to run out, by fake people, and with
+        --me two for you (ME_CLAIMED), if your username is linked here. Runs
+        after the extra issues exist, so there are free ones to claim."""
+        issues = {
+            i.number: i for i in EventIssue.objects.filter(number__gte=FIRST_NUMBER)
+        }
+        fake_users = list(
+            get_user_model().objects.filter(
+                username__startswith=FAKE_PREFIX, github_link__isnull=False
+            )
+        )
+        now = timezone.now()
+        me_link = GitHubLink.objects.filter(github_login=me).first() if me else None
+        if me and not me_link:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"{me} isn't linked to a site account, so you got no claims. "
+                    "Link it on My issues and run this again."
+                )
+            )
+        owners = []
+        if me_link:
+            owners = [
+                (issues[FIRST_NUMBER + ME_CLAIMED[0]], me_link.user, None),
+                (
+                    issues[FIRST_NUMBER + ME_CLAIMED[1]],
+                    me_link.user,
+                    timedelta(minutes=10),
+                ),
+            ]
+        mine = {issue.number for issue, _user, _left in owners}
+        free = [
+            i
+            for _number, i in sorted(issues.items())
+            if i.state == "OPEN"
+            and i.points
+            and not i.assignees
+            and i.number not in mine
+        ]
+        # one about to run out, one with the full time
+        time_left = [timedelta(minutes=3), None]
+        owners += [
+            (issue, user, left)
+            for issue, user, left in zip(free, fake_users, time_left)
+        ]
+        for issue, user, left in owners:
+            Claim.objects.create(
+                issue_number=issue.number,
+                user=user,
+                expires_at=now + (left or timedelta(minutes=default_minutes(issue))),
             )
 
     def _seed_extra(self, count):

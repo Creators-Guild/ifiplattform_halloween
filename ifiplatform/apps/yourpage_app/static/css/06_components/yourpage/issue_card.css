@@ -195,6 +195,8 @@
 
 .issue-card--closed .issue-card__title {
   color: var(--color-text-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
 }
 
 .issue-card__subs {

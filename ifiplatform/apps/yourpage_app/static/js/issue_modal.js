@@ -28,8 +28,26 @@ if (modal) {
     }
     event.preventDefault();
     if (!modal.open) opener = link;
+    // Opening a new claim marks it seen (the issue page does that on the
+    // server); drop the highlight now rather than on the next reload.
+    link.closest(".issue-card--new")?.classList.remove("issue-card--new");
     show(new URL(link.href)).catch(() => {
       window.location.href = link.href;
+    });
+  });
+
+  // "Give me an issue" (core/lucky_panel.html) is a GET form that lands on a
+  // random free issue's page, so it opens in the pop-up the same way. When
+  // nothing matches, the page has no panel: load it for its message.
+  document.addEventListener("submit", (event) => {
+    const form = event.target.closest("form[data-issue-lucky]");
+    if (!form) return;
+    event.preventDefault();
+    const url = new URL(form.action, window.location.href);
+    url.search = new URLSearchParams(new FormData(form)).toString();
+    if (!modal.open) opener = event.submitter || form;
+    show(url).catch(() => {
+      window.location.href = url.href;
     });
   });
 

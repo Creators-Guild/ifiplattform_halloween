@@ -24,4 +24,19 @@ else:
             core_views.issue_detail_view,
             name="yourpage_issue_detail",
         ),
+        path("issues/lucky/", core_views.lucky_view, name="yourpage_lucky"),
+        path(
+            "issues/<int:number>/claim/", core_views.claim_view, name="yourpage_claim"
+        ),
+        path(
+            "issues/<int:number>/release/",
+            core_views.release_view,
+            name="yourpage_release",
+        ),
+        path("issues/<int:number>/keep/", core_views.keep_view, name="yourpage_keep"),
+        path(
+            "issues/<int:number>/time/",
+            core_views.claim_time_view,
+            name="yourpage_claim_time",
+        ),
     ]

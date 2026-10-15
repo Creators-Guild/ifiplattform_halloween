@@ -3,6 +3,10 @@
     <span class="issue-chip issue-chip--done">{% if issue.done_by %}{% blocktrans with name=issue.done_by %}done by {{ name }}{% endblocktrans %}{% else %}{% trans "done" %}{% endif %}</span>
 {% elif issue.state == "CLOSED" %}
     <span class="issue-chip issue-chip--done">{% trans "closed" %}</span>
+{% elif issue.is_mine %}
+    <span class="issue-chip issue-chip--mine">{% trans "yours" %}</span>
+{% elif issue.claim %}
+    <span class="issue-chip issue-chip--taken">{% blocktrans with name=issue.claimed_by %}claimed by {{ name }}{% endblocktrans %}</span>
 {% elif issue.is_assigned %}
     <span class="issue-chip issue-chip--assigned">{% if issue.assigned_to %}{% blocktrans with name=issue.assigned_to %}assigned to {{ name }}{% endblocktrans %}{% else %}{% trans "assigned" %}{% endif %}</span>
 {% elif issue.points %}

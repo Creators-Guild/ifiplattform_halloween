@@ -1,0 +1,30 @@
+{% load i18n %}
+{% if can_claim %}
+    <form class="lucky" method="get" action="{% url 'yourpage_lucky' %}" data-issue-lucky>
+        <h2 class="lucky__title">🎲 {% trans "Give me an issue" %}</h2>
+        <p class="lucky__hint">{% trans "Can't choose? We'll show you a random free one, and you decide whether to claim it." %}</p>
+        <fieldset class="lucky__row">
+            <legend class="lucky__label">{% trans "Difficulty" %}</legend>
+            <label class="lucky__pill"><input type="radio" name="size" value="" checked> {% trans "Any" %}</label>
+            {% for value, text in lucky_sizes %}
+                <label class="lucky__pill"><input type="radio" name="size" value="{{ value }}"> {{ text }}</label>
+            {% endfor %}
+        </fieldset>
+        {% if at_limit %}
+            <p class="lucky__limit" id="lucky-limit">
+                {% blocktrans with count=claim_limit numbers=held_numbers %}You already have {{ count }} issues ({{ numbers }}). Finish or release one to get a new one.{% endblocktrans %}
+                <a href="{% url 'yourpage_main' %}">{% trans "See my issues" %}</a>
+            </p>
+        {% endif %}
+        <div class="lucky__row">
+            <label class="lucky__label" for="lucky-category">{% trans "Category" %}</label>
+            <select id="lucky-category" name="category" class="lucky__select">
+                <option value="">{% trans "Any category" %}</option>
+                {% for category in lucky_categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}
+            </select>
+            <button type="submit" class="btn lucky__go"{% if at_limit %} disabled aria-describedby="lucky-limit"{% endif %}>🎲 {% trans "Give me an issue" %}</button>
+        </div>
+    </form>
+{% elif user.is_authenticated %}
+    <p class="lucky lucky--hint"><a href="{% url 'yourpage_main' %}">{% trans "Link your GitHub username on My issues to claim issues." %}</a></p>
+{% endif %}

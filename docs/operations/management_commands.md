@@ -406,9 +406,13 @@ Local only (refuses unless `DEBUG=True`). Fills the points system with 25
 fake issues (numbered from 900, with sub-issues), six fake people
 (`fake_...`, who can't log in), points, a handed-out drink ticket and a
 fake helpers' solution for every issue (two written out, the rest
-placeholders), so the My commits page, leaderboard and issue list can be styled
-without a GitHub token. `--me <your GitHub username>` assigns two open
-issues to you and credits two to you, to fill your own My commits page. `--extra 60`
+placeholders), two claims by fake people (one about to run out) and two
+GitHub assignments to fake people, so the My issues page, leaderboard
+and issue list can be styled without a GitHub token. `--me <your GitHub
+username>` gives you two claims (one with 10 minutes left, so Keep and
+Release can be tried) and credits two issues to you, to fill your own My
+commits page. The claims need that username linked on the site first; the
+command warns if it isn't. `--extra 60`
 adds 60 more open issues (numbered from 1000, each with a placeholder
 solution), to see the issue list's
 pages fill up. `--clear` removes it again. A real

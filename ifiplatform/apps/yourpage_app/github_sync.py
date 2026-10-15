@@ -8,10 +8,17 @@ numbers, and GitHub usernames (`login`, never any other profile field).
 
 Credit rules, for an issue with a size label and no sub-issues:
 1. A CreditOverride, if an organiser made one.
-2. Otherwise, if the issue is closed as completed: the author of the
+2. Otherwise, if the issue is closed as completed and someone claimed it on
+   the site (claims.py): the claimer, whoever closed it and however. No
+   "Closes #N" needed.
+3. Otherwise, if the issue is closed as completed: the author of the
    earliest merged PR that closes it, else its first assignee.
-A merged PR that closes more than one event issue earns none of them; those
-issues get needs_look, and an organiser settles them with a CreditOverride.
+A merged PR that closes more than one unclaimed event issue earns none of
+them; those issues get needs_look, and an organiser settles them with a
+CreditOverride.
+
+The sync also records who has an open PR in the repo (the first 100, plenty
+for an event) and takes the time limit off their claims (claims.lock_for).
 """
 
 import json
@@ -25,8 +32,9 @@ from django.core.cache import cache
 from django.db import transaction
 from django.utils import timezone
 
+from .claims import lock_for
 from .labels import CATEGORY_LABELS, SIZE_LABELS
-from .models import Credit, CreditOverride, EventIssue, SyncStatus
+from .models import Claim, Credit, CreditOverride, EventIssue, SyncStatus
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +58,7 @@ query($owner: String!, $name: String!, $cursor: String) {
         }
       }
     }
+    pullRequests(states: OPEN, first: 100) { nodes { author { login } } }
   }
 }
 """
@@ -79,18 +88,23 @@ def _post(variables):
     repository = (body.get("data") or {}).get("repository")
     if repository is None:
         raise SyncError(f"Repository {settings.GITHUB_EVENT_REPO} not found")
-    return repository["issues"]
+    return repository
 
 
-def fetch_issues():
-    """Every issue in the event repo, as GitHub's raw dicts."""
+def fetch():
+    """(every issue in the event repo as GitHub's raw dicts, the lowercased
+    logins of everyone with an open PR)."""
     owner, name = settings.GITHUB_EVENT_REPO.split("/", 1)
-    issues, cursor = [], None
+    issues, cursor, open_pr_logins = [], None, set()
     while True:
-        page = _post({"owner": owner, "name": name, "cursor": cursor})
+        repository = _post({"owner": owner, "name": name, "cursor": cursor})
+        page = repository["issues"]
         issues += page["nodes"]
+        for pr in (repository.get("pullRequests") or {}).get("nodes", []):
+            if pr.get("author"):
+                open_pr_logins.add(pr["author"]["login"].lower())
         if not page["pageInfo"]["hasNextPage"]:
-            return issues
+            return issues, sorted(open_pr_logins)
         cursor = page["pageInfo"]["endCursor"]
 
 
@@ -110,8 +124,9 @@ def _merged_prs(raw):
     ]
 
 
-def apply(raw_issues):
-    """Rewrite EventIssue and Credit from GitHub's issue dicts. Separate from
+def apply(raw_issues, open_pr_logins=None):
+    """Rewrite EventIssue and Credit from GitHub's issue dicts, and (when
+    given) record open_pr_logins and lock their claims. Separate from
     fetching so tests can feed it data directly."""
     sized = {
         raw["number"]: raw
@@ -132,9 +147,19 @@ def apply(raw_issues):
         number: raw for number, raw in sized.items() if number not in parent_numbers
     }
 
-    # Which event issues each merged PR closes, for the abuse guard.
+    # The claimer's GitHub username per claimed issue; a claimer who has
+    # since unlinked is skipped, and the old rules apply.
+    claimed_by = {
+        claim.issue_number: claim.user.github_link.github_login
+        for claim in Claim.objects.select_related("user__github_link")
+        if hasattr(claim.user, "github_link")
+    }
+
+    # Which unclaimed event issues each merged PR closes, for the abuse guard.
     closes = {}
     for number, raw in leaves.items():
+        if number in claimed_by:
+            continue
         for pr in _merged_prs(raw):
             closes.setdefault(pr["number"], set()).add(number)
     greedy_prs = {pr for pr, numbers in closes.items() if len(numbers) > 1}
@@ -167,15 +192,28 @@ def apply(raw_issues):
                     "assignees": [
                         a["login"].lower() for a in raw["assignees"]["nodes"]
                     ],
-                    "needs_look": any(pr["number"] in greedy_prs for pr in merged),
+                    "needs_look": number not in claimed_by
+                    and any(pr["number"] in greedy_prs for pr in merged),
                 },
             )
             if is_leaf:
-                _credit(issue, raw, merged, greedy_prs, overrides.get(number))
+                _credit(
+                    issue,
+                    raw,
+                    merged,
+                    greedy_prs,
+                    overrides.get(number),
+                    claimed_by.get(number),
+                )
+        if open_pr_logins is not None:
+            status = SyncStatus.get()
+            status.open_pr_logins = list(open_pr_logins)
+            status.save(update_fields=["open_pr_logins"])
+            lock_for(open_pr_logins)
     return len(kept)
 
 
-def _credit(issue, raw, merged, greedy_prs, override_login):
+def _credit(issue, raw, merged, greedy_prs, override_login, claim_login):
     closed_at = _parse_time(raw.get("closedAt"))
     if override_login:
         Credit.objects.create(
@@ -185,6 +223,15 @@ def _credit(issue, raw, merged, greedy_prs, override_login):
         )
         return
     if raw["state"] != "CLOSED" or raw.get("stateReason") != "COMPLETED":
+        return
+    if claim_login:
+        first = min(merged, key=lambda pr: pr["mergedAt"]) if merged else None
+        Credit.objects.create(
+            issue=issue,
+            github_login=claim_login,
+            pr_number=first["number"] if first else None,
+            credited_at=closed_at or timezone.now(),
+        )
         return
     if merged:
         if any(pr["number"] in greedy_prs for pr in merged):
@@ -216,7 +263,7 @@ def sync():
         status.save()
         return False
     try:
-        count = apply(fetch_issues())
+        count = apply(*fetch())
     except Exception as exc:  # pylint: disable=broad-exception-caught
         # Broad on purpose: the lazy sync runs inside page views, which must
         # keep working whatever GitHub (or its data) does.
@@ -226,7 +273,8 @@ def sync():
         return False
     status.last_success_at = status.last_attempt_at
     status.last_error = ""
-    status.save()
+    # Only these: apply() saved open_pr_logins on its own copy of the row.
+    status.save(update_fields=["last_attempt_at", "last_success_at", "last_error"])
     logger.info("GitHub points sync: %s event issue(s)", count)
     return True
 

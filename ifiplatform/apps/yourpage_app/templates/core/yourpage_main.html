@@ -1,7 +1,7 @@
 {% extends "global_base.html" %}
 {% load i18n static %}
 
-{% block title %}{% trans "My commits" %}{% endblock %}
+{% block title %}{% trans "My issues" %}{% endblock %}
 
 {% block app_css %}
     {% include "css_links/yourpage.html" %}
@@ -15,7 +15,7 @@
 <div class="yourpage">
     {% include "core/yourpage_nav.html" %}
     <header class="yourpage__header">
-        <h1>{% trans "My commits" %}</h1>
+        <h1>{% trans "My issues" %}</h1>
     </header>
 
     {% if link %}
@@ -60,11 +60,11 @@
 
         <div class="yourpage__columns">
             <section class="yourpage__section">
-                <h2>{% trans "Your assigned issues" %}</h2>
+                <h2>{% trans "Your issues" %}</h2>
                 {% if assigned_groups %}
-                    {% include "core/issue_groups.html" with groups=assigned_groups %}
+                    {% include "core/issue_groups.html" with groups=assigned_groups highlight_new=True %}
                 {% else %}
-                    <p class="yourpage__empty">{% trans "Nothing assigned to you right now. Pick a free issue and comment on it on GitHub to get it assigned." %}</p>
+                    <p class="yourpage__empty">{% trans "Nothing claimed yet. Claim a free issue on the Issues page, or let Give me an issue pick one." %}</p>
                 {% endif %}
             </section>
 
