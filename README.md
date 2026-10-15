@@ -13,7 +13,11 @@ This is the repo for **Commit for Candy**, the event where IfiPlattform goes ope
 
 ## How the event works
 - **Everyone is welcome**, whatever your skill level. You don't need to have used Git, Django or open source before.
-- **Pick an issue.** The [Issues tab](https://github.com/Creators-Guild/ifiplattform_halloween/issues) is filled with things to change and restyle for Halloween, from a single colour to whole pages. Comment on one to claim it.
+- **Link your GitHub username.** Sign up on the mock site at https://halloween.ifiplattform.no, open **My issues** (https://halloween.ifiplattform.no/commits/) and add your GitHub username. You need it to claim issues and get points.
+- **Claim an issue on the site.** The [Issues page](https://halloween.ifiplattform.no/commits/issues/) lists things to change and restyle for Halloween, from a single colour to whole pages. Press **Claim** on a free one, or **🎲 Give me an issue** to get a random one. Don't comment on GitHub to claim: only claims on the site count.
+- **Collect points.** Each issue has a size: 🍬 candy = 1 point, 🍫 chocolate = 2, 🎃 pumpkin = 3. Start with a 🍬. You get the points when your issue is closed, and they show on the [Leaderboard](https://halloween.ifiplattform.no/commits/leaderboard/).
+  - You can hold 2 issues at a time.
+  - A claim runs out after 30 minutes (🍬), 60 (🍫) or 90 (🎃) unless you press **Keep**. Once you open a pull request, your claim no longer runs out.
 - **Make the change** on your own computer (see [Get started](#get-started) below), then open a pull request.
 - **See it live.** When your pull request is merged, the mock site at https://halloween.ifiplattform.no updates by itself within a few minutes.
 - **Edit content on the mock site.** Sign up there with just a username and password, and you can write and publish pages right away. Don't use your real name or a password you use anywhere else: this is a test site.
@@ -74,7 +78,7 @@ All docs, sorted by topic: [docs/README.md](docs/README.md).
   - Features: [articles](docs/architecture/ifi_home_app/articles.md), [events](docs/architecture/ifi_home_app/events.md), [unions and tools](docs/architecture/ifi_home_app/unions_and_tools.md), [menus](docs/architecture/ifi_home_app/menus.md)
   - [management_commands.md](docs/operations/management_commands.md): this project's own `manage.py` commands
 - **Design:** [Figma files](docs/design/figma_links.md) and the [feature concept map](docs/architecture/eraser_links.md)
-- **Looking for something to fix?** Besides issues labeled `good first issue`, [to_fix.md](docs/to_fix.md) lists known bugs that don't have an issue yet.
+- **Looking for something to fix?** At the event, start with a 🍬 candy issue on the [Issues page](https://halloween.ifiplattform.no/commits/issues/). Besides those, [to_fix.md](docs/to_fix.md) lists known bugs that don't have an issue yet.
 - **Production (maintainers):** [prod_server.md](docs/operations/prod_server.md)
 - **Picking up an AI-drafted doc to finish by hand?** See [docs/claude_references/readme.md](docs/claude_references/readme.md). Those are starting points, not final docs.
 

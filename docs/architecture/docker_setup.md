@@ -76,6 +76,11 @@ your own computer show up right away and `runserver` reloads.
   every file with LF, even on Windows. Without it, Git on Windows turns
   files into CRLF, and Git inside the Linux container then sees every file
   as changed (and shell scripts break).
+- **The terminal is bash, with completion.** Debian's default shell for a
+  new user is sh (dash), which has no Tab completion or arrow-key history,
+  so `Dockerfile.dev` creates the `dev` user with `--shell /bin/bash` and
+  installs `bash-completion`. `devcontainer.json` also sets bash as VS
+  Code's default terminal.
 - **Editor tools come with the container.** The Python, Black, Pylint,
   Django template and Markdown Mermaid extensions are installed automatically. Pylint uses the
   pylint-django plugin and the project's settings module, so the editor

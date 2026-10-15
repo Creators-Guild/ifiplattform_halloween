@@ -14,6 +14,8 @@ Closes #
 
 ## Checklist
 
+<!-- Tick what applies to your change, and skip the rest. -->
+
 - [ ] I ran `python manage.py test --exclude-tag=slow` and it passed
 - [ ] I checked the change in the browser, in both Norwegian and English if it shows text
 - [ ] If I changed a model, I added the migration (`python manage.py makemigrations`)

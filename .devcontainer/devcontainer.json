@@ -16,7 +16,8 @@
       ],
       "settings": {
         "python.defaultInterpreterPath": "/usr/local/bin/python",
-        "terminal.integrated.cwd": "/workspace/ifiplatform"
+        "terminal.integrated.cwd": "/workspace/ifiplatform",
+        "terminal.integrated.defaultProfile.linux": "bash"
       }
     }
   }

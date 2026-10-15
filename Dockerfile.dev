@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gettext git procps \
+    && apt-get install -y --no-install-recommends bash-completion gettext git procps \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /tmp/requirements.txt
@@ -37,7 +37,10 @@ SCRIPT
 # UID to match yours. The .claude folder is created here so its Docker
 # volume belongs to this user. safe.directory stops Git refusing the repo
 # when the shared folder shows up as owned by someone else (Windows).
-RUN useradd --create-home --uid 1000 dev \
+# The shell is bash, not Debian's default sh: sh has no Tab completion or
+# arrow-key history. The .bashrc copied from /etc/skel loads bash-completion
+# (installed above), so git commands and branch names complete too.
+RUN useradd --create-home --shell /bin/bash --uid 1000 dev \
     && mkdir /home/dev/.claude \
     && chown dev:dev /home/dev/.claude \
     && git config --system --add safe.directory /workspace
