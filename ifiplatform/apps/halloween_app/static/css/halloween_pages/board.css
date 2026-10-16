@@ -1,0 +1,52 @@
+.board-intro {
+    margin: 0 0 1.5rem;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 1.8rem 1.4rem;
+    padding: 2rem 1.5rem;
+    border-radius: 8px;
+    background-color: #a8743f;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.12) 1px, transparent 1.5px);
+    background-size: 7px 7px;
+    box-shadow: inset 0 0 0 10px #6b4423;
+}
+
+.note {
+    position: relative;
+    padding: 1.4rem 1rem 1rem;
+    background: #fdf6e3;
+    color: #1f1f1f;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+    transform: rotate(var(--tilt, 0deg));
+}
+
+.note::before {
+    content: "";
+    position: absolute;
+    top: 0.4rem;
+    left: 50%;
+    width: 0.8rem;
+    height: 0.8rem;
+    margin-left: -0.4rem;
+    border-radius: 50%;
+    background: #c0261d;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
+}
+
+.note__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+}
+
+.note__text p {
+    margin: 0 0 0.5rem;
+}
+
+.note__signature {
+    margin: 0.6rem 0 0;
+    font-style: italic;
+    text-align: right;
+}

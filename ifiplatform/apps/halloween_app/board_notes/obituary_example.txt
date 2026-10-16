@@ -1,0 +1,3 @@
+Here lies printf debugging
+Born 1972, died the day someone showed us the debugger. Missed by nobody, except at 3 a.m.
+— The DevOps team

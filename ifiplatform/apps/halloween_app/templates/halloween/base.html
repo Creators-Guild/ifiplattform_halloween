@@ -1,0 +1,25 @@
+{% extends "home_base.html" %}
+{% load i18n static %}
+{% comment %}
+Base for every Halloween corner page. A page sets hc_title and hc_content,
+and links its own stylesheet and script in hc_css / hc_js.
+{% endcomment %}
+
+{% block title %}{% block hc_title %}{% endblock %} · {% trans "Halloween corner" %}{% endblock %}
+
+{% block sidemenu %}
+    {% include "partials/sidemenu/sidemenu.html" %}
+{% endblock sidemenu %}
+
+{% block section_css %}
+    <link rel="stylesheet" href="{% static 'css/halloween_pages/base.css' %}">
+    {% block hc_css %}{% endblock %}
+{% endblock section_css %}
+
+{% block maincontent %}
+    <div class="hc-page">
+        <p class="hc-page__back"><a href="{% url 'halloween_hub' %}">← {% trans "Halloween corner" %}</a></p>
+        {% block hc_content %}{% endblock %}
+    </div>
+    {% block hc_js %}{% endblock %}
+{% endblock maincontent %}

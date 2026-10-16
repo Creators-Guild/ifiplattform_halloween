@@ -32,8 +32,8 @@
 
         <div class="stat-tiles">
             <div class="stat-tile">
-                <span class="stat-tile__value">{{ score.points }}</span>
-                <span class="stat-tile__label">{% trans "Points" %}</span>
+                <span class="stat-tile__value">{{ score.points }} 🏆</span>
+                <span class="stat-tile__label">{% trans "Points (for the top 3)" %}</span>
             </div>
             <div class="stat-tile">
                 <span class="stat-tile__value">{{ closed_groups|length }}</span>
@@ -52,8 +52,8 @@
             {% else %}
                 <div class="stat-tile stat-tile--drink">
                     <span class="stat-tile__label">{% trans "Drink ticket" %} 🍹</span>
-                    <progress class="stat-tile__progress" value="{{ score.points }}" max="{{ drink_points }}">{{ score.points }}/{{ drink_points }}</progress>
-                    <span class="stat-tile__text">{{ score.points }}/{{ drink_points }} 🍹</span>
+                    <progress class="stat-tile__progress" value="{{ score.coins }}" max="{{ drink_coins }}">{{ score.coins }}/{{ drink_coins }}</progress>
+                    <span class="stat-tile__text">{{ score.coins }}/{{ drink_coins }} 🪙</span>
                 </div>
             {% endif %}
         </div>

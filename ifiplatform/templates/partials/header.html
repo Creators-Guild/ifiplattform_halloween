@@ -37,13 +37,16 @@
             </span>
             <span class="nav_link-label">{% trans "Commits" %}</span>
         </a>
+        <a href="{% url 'halloween_hub' %}"
+            class="nav_link {% if '/halloween/' in request.path %}active{% endif %}"
+            aria-label="{% trans "Halloween corner" %}">
+            <span class="nav_link-icon" aria-hidden="true">🎃</span>
+            <span class="nav_link-label">{% trans "Halloween" %}</span>
+        </a>
         {% if request.user.is_authenticated %}
             <div class="dropdown-menu profile-dropdown">
                 <button type="button" class="link profile-trigger" aria-label="{% trans 'Account' %}">
-                    <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <circle cx="12" cy="8" r="4" fill="currentColor"/>
-                        <path d="M4 20c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5" fill="currentColor"/>
-                    </svg>
+                    {% include "partials/icons/account_icon.html" %}
                 </button>
                 <div class="drop-content profile-drop-content">
                     <div class="profile-drop-header">

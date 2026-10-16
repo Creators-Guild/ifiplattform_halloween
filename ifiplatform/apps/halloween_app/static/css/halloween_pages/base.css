@@ -1,0 +1,41 @@
+.hc-page {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+}
+
+.hc-page__back {
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+}
+
+.hc-page h1 {
+    margin: 0 0 1rem;
+}
+
+.hc-hub {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: 1rem;
+}
+
+.hc-hub__card a {
+    display: grid;
+    gap: 0.3rem;
+    padding: 1rem;
+    border: 2px solid currentColor;
+    border-radius: 6px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.hc-hub__emoji {
+    font-size: 2rem;
+}
+
+.hc-hub__title {
+    font-weight: 700;
+}

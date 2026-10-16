@@ -6,9 +6,15 @@ name: Files check
 #
 # Extra files are only a warning, not a failure: adding something on top is
 # allowed, it's for fun. The warning lists them so a helper can take a look
-# (GitHub itself says if they cause a merge conflict). It only fails when
-# there's no "Closes #N", since then merging wouldn't close the issue and
-# nobody would get the points.
+# (GitHub itself says if they cause a merge conflict). It fails when there's
+# no "Closes #N", since then merging wouldn't close the issue and nobody would
+# get the points.
+#
+# It also fails for changes made in the browser on github.com: setting up the
+# project locally is part of the event. Those commits have GitHub's
+# "web-flow" as committer, and the web editor names branches "patch-1" and
+# so on, while `ifi fix-issue` always makes "<type>/<few-words>". The helper
+# then helps them set up instead of merging.
 #
 # Uses only the GitHub API and never checks out the PR's code.
 on:
@@ -29,6 +35,17 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
+
+            const commits = await github.paginate(github.rest.pulls.listCommits, {
+              ...context.repo, pull_number: pr.number, per_page: 100,
+            });
+            // Merge commits from GitHub's "Update branch" button are web-flow too, so skip merges.
+            const inBrowser = commits.some((c) => c.parents.length === 1 && c.committer && c.committer.login === 'web-flow')
+              || /^patch-\d+$/.test(pr.head.ref);
+            if (inBrowser) {
+              core.setFailed('Made in the browser: please set up the project and do it locally (ifi fix-issue <issue number>). Ask a helper if you get stuck.');
+            }
+
             const linked = (pr.body || '').match(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/i);
             if (!linked) {
               core.setFailed('No "Closes #<issue number>" in the PR description, so there is no file list to check against.');

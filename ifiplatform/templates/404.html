@@ -1,0 +1,16 @@
+{% extends "home_base.html" %}
+{% load i18n %}
+{% comment %}
+The "page not found" page. With DEBUG on, Django shows its own debug page
+instead: see this one at /halloween/404-preview/.
+{% endcomment %}
+
+{% block title %}{% trans "Page not found" %}{% endblock %}
+
+{% block maincontent %}
+    <div class="page-404">
+        <h1>{% trans "Page not found" %}</h1>
+        <p>{% trans "This page doesn't exist." %}</p>
+        <p><a href="{% url 'ifi_home' %}">{% trans "Back to the home page" %}</a></p>
+    </div>
+{% endblock maincontent %}

@@ -67,7 +67,7 @@ def main_view(request):
             "score": score,
             "assigned_groups": [(issue, []) for issue in mine],
             "closed_groups": [(issue, []) for issue in score.issues] if score else [],
-            "drink_points": settings.DRINK_TICKET_POINTS,
+            "drink_coins": settings.DRINK_TICKET_COINS,
             "drink_given": DrinkTicket.objects.filter(user=request.user).exists(),
         },
     )
@@ -77,6 +77,10 @@ def leaderboard_view(request):
     maybe_sync()
     claims.release_expired()
     linked, unlinked = leaderboard()
+    # The podium is the contest: only people with points can stand on it.
+    # Everyone else, coins only included, is listed below with their rank.
+    podium = [row for row in linked if row.points][:3]
+    table = [(rank, row) for rank, row in enumerate(linked, start=1) if row not in podium]
     organiser = is_organiser(request.user)
     status = SyncStatus.get()
     return render(
@@ -84,10 +88,12 @@ def leaderboard_view(request):
         "core/leaderboard.html",
         {
             "rows": linked,
+            "podium": podium,
+            "table": table,
             "unlinked": unlinked,
             "show_unlinked_names": can_see_solutions(request.user),
             "is_organiser": organiser,
-            "drink_points": settings.DRINK_TICKET_POINTS,
+            "drink_coins": settings.DRINK_TICKET_COINS,
             "status": status,
             "token_missing": organiser and not settings.GITHUB_READ_TOKEN,
             "needs_look": (
