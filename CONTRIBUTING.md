@@ -63,7 +63,7 @@ Do this for every change. There are two ways to do the Git parts. Pick the one y
    Asked to log in, or "Please tell me who you are"? See [Log in to GitHub](docs/contributing/get_the_code.md#log-in-to-github-once).
 
 7. **Open a pull request.**
-   Click **Compare & pull request** on GitHub, fill in the template, and add `Closes #<issue number>`.
+   Click **Compare & pull request** on GitHub, say what you changed, and add `Closes #<issue number>`.
 
 8. **Answer review comments.**
    To update your pull request, commit and push to the same branch again.

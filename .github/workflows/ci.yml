@@ -1,9 +1,14 @@
 name: CI
 
 # Tests (on PostgreSQL). Lint (Black and pylint) is off in this repo, see
-# the lint job. Runs on every PR to main,
-# when started by hand from the Actions tab ("Run workflow", any branch), and
-# from deploy.yml before a deploy.
+# the lint job. Runs on every PR to main, when started by hand from the
+# Actions tab ("Run workflow", any branch), and from deploy.yml before a
+# deploy.
+#
+# EVENT: for Commit for Candy, CI runs only the quick tests (no slow site
+# crawler or seeding tests, see the "slow" tag), in parallel, on Python 3.12
+# only, so beginners' PRs and deploys don't wait ~5 minutes. To undo, restore
+# the matrix list and the test command (both marked EVENT below).
 on:
   pull_request:
     branches: [main]
@@ -50,7 +55,8 @@ jobs:
       DB_PORT: "5432"
     strategy:
       matrix:
-        python-version: ["3.12", "3.13", "3.14"]  # every version Django 6 supports
+        # EVENT: was ["3.12", "3.13", "3.14"], every version Django 6 supports.
+        python-version: ["3.12"]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -58,7 +64,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - run: pip install -r requirements.txt
-      - run: python ifiplatform/manage.py test
+      # EVENT: was `python ifiplatform/manage.py test` (all tests).
+      - run: python ifiplatform/manage.py test --exclude-tag=slow --parallel
 
   # Black and pylint are off in this event repo, so formatting or a low lint
   # score never blocks a beginner's PR. The real IfiPlatform repo still runs

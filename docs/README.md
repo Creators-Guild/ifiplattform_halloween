@@ -1,6 +1,6 @@
 # docs/
 
-Last updated: 2026-10-15
+Last updated: 2026-10-16
 
 Project documentation beyond the main [README.md](../README.md). Each
 folder holds one kind of document. When you add a new doc, put it in the
@@ -164,8 +164,6 @@ nobody can recover without them.
   `claude_references/writing_guidelines.md`.
 - [ ] Finished version of the AI draft `claude_references/community_goals.md`,
   either in the main README's "About" section or as its own doc.
-- [x] `.github/pull_request_template.md`: what changed, why, linked
-  issue, how it was tested. There are issue templates but no PR template.
 
 ### Developer guides
 
