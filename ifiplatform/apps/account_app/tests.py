@@ -415,6 +415,7 @@ class EditorTermsGateMiddlewareTests(TestCase):
             self.assertNotEqual(response.url, reverse("account_settings"))
 
 
+@override_settings(OPEN_SIGNUP=False)
 class CleanupUnverifiedAccountsTests(TestCase):
     def _make_unverified(self, username, days_old):
         user = User.objects.create_user(
@@ -448,6 +449,12 @@ class CleanupUnverifiedAccountsTests(TestCase):
     def test_dry_run_deletes_nothing(self):
         user = self._make_unverified("dry_run_unverified", 10)
         call_command("cleanup_unverified_accounts", "--dry-run")
+        self.assertTrue(User.objects.filter(pk=user.pk).exists())
+
+    @override_settings(OPEN_SIGNUP=True)
+    def test_open_signup_deletes_nothing(self):
+        user = self._make_unverified("deactivated_on_mock_site", 30)
+        call_command("cleanup_unverified_accounts")
         self.assertTrue(User.objects.filter(pk=user.pk).exists())
 
 

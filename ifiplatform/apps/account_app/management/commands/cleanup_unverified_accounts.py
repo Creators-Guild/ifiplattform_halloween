@@ -15,6 +15,12 @@ or a platform's own scheduled-job feature), not something wired up here.
 
 Safe to re-run: matching accounts are simply gone after the first run, so a
 second run just finds nothing left to delete.
+
+Does nothing with settings.OPEN_SIGNUP (the Halloween mock site). There,
+signup makes active accounts with no email, so an inactive account was
+deactivated on purpose (by an admin), not left unverified. It can't be
+verified, and it may have authored pages, so the plain delete above
+isn't safe for it.
 """
 
 from django.conf import settings
@@ -37,6 +43,13 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        if settings.OPEN_SIGNUP:
+            self.stdout.write(
+                "OPEN_SIGNUP is on: inactive accounts here were deactivated, "
+                "not left unverified. Nothing deleted."
+            )
+            return
+
         cutoff = timezone.now() - timezone.timedelta(
             days=settings.UNVERIFIED_ACCOUNT_RETENTION_DAYS
         )

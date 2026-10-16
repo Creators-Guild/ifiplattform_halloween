@@ -381,6 +381,11 @@ cron, or your platform's own scheduled-job feature). Nothing runs it for
 you automatically. Safe to re-run. `--dry-run` lists matching accounts
 without deleting them.
 
+With `OPEN_SIGNUP=True` (the Halloween mock site) it deletes nothing.
+Signup there makes active accounts without an email, so an inactive
+account was deactivated by an admin. It can't be verified, and it may
+have written pages.
+
 ## commits_app
 
 ### rename_yourpage_app
