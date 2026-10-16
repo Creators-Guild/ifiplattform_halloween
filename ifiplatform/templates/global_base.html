@@ -21,6 +21,11 @@
     {% block app_css %}{% endblock app_css %}
     {% block section_css %}{% endblock section_css %}
     {% block page_css %}{% endblock page_css %}
+    {% comment %}
+    Commit for Candy: one file per event issue, loaded last so it wins
+    over the CSS above. Participants fill in the empty files.
+    {% endcomment %}
+    {% include "css_links/halloween.html" %}
     {% block extra_head %}{% endblock extra_head %}
 
 </head>
@@ -28,6 +33,7 @@
     {% include "partials/deploy_notice.html" %}
     {% include "partials/beta_notice.html" %}
     {% wagtailuserbar %}
+    {% include "partials/halloween_decor.html" %}
     <div class="page-layout">
         <div class= "topheader-content">
             {% include "partials/select_language.html" %}

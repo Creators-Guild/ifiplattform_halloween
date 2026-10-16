@@ -131,6 +131,7 @@ production are listed in
 | Workflow                 | When it runs                                | What it does                                                     |
 | ------------------------ | ------------------------------------------- | ---------------------------------------------------------------- |
 | `ci.yml`                 | Every PR to `main`, by hand, before deploys | Runs the quick tests (`--exclude-tag=slow`, in parallel) on Python 3.12 against PostgreSQL 16, cut down for the event (see the EVENT notes in the file). The `lint` job is a placeholder that always passes: Black and pylint are turned off in this repo |
+| `files_check.yml`        | Every PR to `main` (opened, pushed, edited) | Event issues: fails if the PR changes files that its `Closes #N` issue doesn't list under "Files to change", so helpers can merge without reading the diff |
 | `automerge.yml`          | After CI passes on a PR                     | Merges the PR automatically if it has the `automerge` label      |
 | `deploy.yml`             | Nightly at 01:00 UTC, or by hand            | Deploys `main` to production (see [prod_server.md](../operations/prod_server.md#deploy-flow)) |
 | `trello_sync.yml`        | Issue opened, edited or closed              | Mirrors GitHub issues as Trello cards                            |
