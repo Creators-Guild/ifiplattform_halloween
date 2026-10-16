@@ -1,10 +1,14 @@
 name: Files check
 
-# For the Commit for Candy issues: checks that a PR only changes the files its
-# issue lists under "### Files to change", so helpers can merge it without
-# reading the diff. The issue is the one in the PR's "Closes #N". A red check
-# lists the extra files; files the issue lists but the PR doesn't touch are
-# only shown, since some issues let you leave one out.
+# For the Commit for Candy issues: shows whether a PR only changes the files
+# its issue lists under "### Files to change", so helpers can merge it without
+# reading the diff. The issue is the one in the PR's "Closes #N".
+#
+# Extra files are only a warning, not a failure: adding something on top is
+# allowed, it's for fun. The warning lists them so a helper can take a look
+# (GitHub itself says if they cause a merge conflict). It only fails when
+# there's no "Closes #N", since then merging wouldn't close the issue and
+# nobody would get the points.
 #
 # Uses only the GitHub API and never checks out the PR's code.
 on:
@@ -50,7 +54,7 @@ jobs:
 
             const rows = [
               [{ data: 'File', header: true }, { data: '', header: true }],
-              ...changed.map((f) => [f, extra.includes(f) ? '❌ not in the issue' : '✅']),
+              ...changed.map((f) => [f, extra.includes(f) ? '⚠️ extra, not in the issue' : '✅']),
               ...untouched.map((f) => [f, '➖ listed, not changed']),
             ];
             await core.summary
@@ -59,7 +63,7 @@ jobs:
               .write();
 
             if (extra.length) {
-              core.setFailed(`Changes files that issue #${number} doesn't list: ${extra.join(', ')}`);
+              core.warning(`Also changes files that issue #${number} doesn't list: ${extra.join(', ')}. Fine if it's on purpose; have a quick look.`);
             } else {
               core.info(`Only files from issue #${number}. Safe to merge as far as files go.`);
             }
