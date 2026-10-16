@@ -39,6 +39,7 @@ Django + Wagtail (Python, HTML and CSS, plus a little JavaScript), DeepL for Nor
 
 ## Get started
 Two steps, and both end with the site running at http://localhost:8000.
+(Recommended to set up with docker and VSC. Download Docker, VSC and add the extension Dev Containers. More info in the setup with docker below.)
 
 **1. Get the code:** [Get the code](docs/contributing/get_the_code.md). At the event you're a **contributor**, so you fork the repo.
 
