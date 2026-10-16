@@ -1,6 +1,6 @@
 # Everyday commands
 
-Last updated: 2026-10-15
+Last updated: 2026-10-16
 
 These work the same in both setups. With Docker, run them in the container's terminal.
 
@@ -30,7 +30,7 @@ python manage.py test
 ```
 To test just one app, name it, e.g. `python manage.py test ifi_home_app`.
 
-CI runs the full test suite on every PR (`.github/workflows/ci.yml`) across Python 3.12–3.14. CI uses PostgreSQL, like production and the Docker setup. Without Docker your tests run on SQLite instead, so now and then a test can pass for you and fail in CI.
+CI runs the quick tests on every PR and before every deploy (`.github/workflows/ci.yml`), on Python 3.12. During the event the slow tests are left out to keep pull requests fast, so run `python manage.py test` yourself if you change something big. CI uses PostgreSQL, like production and the Docker setup. Without Docker your tests run on SQLite instead, so now and then a test can pass for you and fail in CI.
 ## Translations
 If you change translatable text (`{% trans %}` / `_(...)`):
 Update the `.po` files with the new/changed strings:

@@ -1,6 +1,6 @@
 # Tech stack
 
-Last updated: 2026-10-15
+Last updated: 2026-10-16
 
 What IfiPlatform is built with, and why each piece is there. For how the
 production server runs all of this, see
@@ -11,7 +11,7 @@ local copy running, see the main [README.md](../../README.md).
 
 | Layer              | Technology                                           |
 | ------------------ | ---------------------------------------------------- |
-| Language           | Python (CI tests 3.12, 3.13 and 3.14)                |
+| Language           | Python (CI tests 3.12 during the event)              |
 | Web framework      | Django 6.0                                           |
 | CMS / admin        | Wagtail 7.4                                          |
 | Translation        | Own English overlay + DeepL machine translation      |
@@ -130,7 +130,7 @@ production are listed in
 
 | Workflow                 | When it runs                                | What it does                                                     |
 | ------------------------ | ------------------------------------------- | ---------------------------------------------------------------- |
-| `ci.yml`                 | Every PR to `main`, by hand, before deploys | Runs the test suite on Python 3.12–3.14 against PostgreSQL 16, The `lint` job is a placeholder that always passes: Black and pylint are turned off in this repo |
+| `ci.yml`                 | Every PR to `main`, by hand, before deploys | Runs the quick tests (`--exclude-tag=slow`, in parallel) on Python 3.12 against PostgreSQL 16, cut down for the event (see the EVENT notes in the file). The `lint` job is a placeholder that always passes: Black and pylint are turned off in this repo |
 | `automerge.yml`          | After CI passes on a PR                     | Merges the PR automatically if it has the `automerge` label      |
 | `deploy.yml`             | Nightly at 01:00 UTC, or by hand            | Deploys `main` to production (see [prod_server.md](../operations/prod_server.md#deploy-flow)) |
 | `trello_sync.yml`        | Issue opened, edited or closed              | Mirrors GitHub issues as Trello cards                            |
