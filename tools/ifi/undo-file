@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# ifi undo-file <file>: takes a file out of your pull request. A file that is
+# in the main repo goes back to how it is there; a file you added leaves Git
+# but stays on your computer, and Git ignores it there from now on
+# (.git/info/exclude), so a later `git add .` doesn't bring it back. Then it
+# commits and pushes, so the pull request updates by itself. For the files
+# the Files check calls extra by accident.
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+[[ $# -gt 0 ]] || die "Which file? For example: ifi undo-file ifiplatform/locale/nb/LC_MESSAGES/django.po"
+
+branch="$(git branch --show-current)"
+[[ -n "$branch" ]] || die "You're not on a branch. Go to your issue's branch first: ifi fix-issue <nr>"
+[[ "$branch" != main ]] || die "You're on main. Go to your issue's branch first: ifi fix-issue <nr>"
+
+if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
+    git status --short --untracked-files=no
+    die "" "These changes aren't committed yet. Commit them first:" \
+        "  git add ." \
+        "  git commit -m \"Short description of what you changed\""
+fi
+
+cd "$(git rev-parse --show-toplevel)"
+find_base
+git fetch --quiet "$base"
+
+for file in "$@"; do
+    if git cat-file -e "$base/main:$file" 2>/dev/null; then
+        run git checkout "$base/main" -- "$file"
+    elif git ls-files --error-unmatch -- "$file" >/dev/null 2>&1; then
+        run git rm --quiet --cached -- "$file"
+        printf '/%s\n' "$file" >>"$(git rev-parse --git-path info/exclude)"
+    else
+        die "Git doesn't know $file. Copy the name exactly as the Files check shows it."
+    fi
+done
+
+if git diff --cached --quiet; then
+    echo "Nothing to undo: $* is already the same as in the main repo."
+    exit 0
+fi
+
+run git commit --quiet -m "Undo changes to $*"
+run git push --quiet origin HEAD
+echo
+echo "Done. Your pull request no longer changes $*."

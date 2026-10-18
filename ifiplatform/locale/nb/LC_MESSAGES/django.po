@@ -2802,3 +2802,65 @@ msgstr "Synkronisert fra GitHub."
 #, python-format
 msgid "Sync failed: %(error)s"
 msgstr "Synkroniseringen feilet: %(error)s"
+
+# Helper solution box (core/issue_panel.html)
+msgid "Show the solution's code"
+msgstr "Vis koden i løsningen"
+
+msgid "One way to do it, not the only right answer. Their code can look different: other colours, sizes, wording or names, or extras from \"Make it yours\". Judge it by <strong>Correct</strong> and <strong>Check</strong> above, not by matching this code."
+msgstr "Én måte å gjøre det på, ikke det eneste riktige svaret. Koden deres kan se annerledes ut: andre farger, størrelser, ord eller navn, eller ekstra ting fra \"Make it yours\". Vurder den etter <strong>Correct</strong> og <strong>Check</strong> over, ikke etter om den ligner på denne koden."
+
+msgid "new file"
+msgstr "ny fil"
+
+msgid "starts empty"
+msgstr "tom fra start"
+
+msgid "deleted"
+msgstr "slettet"
+
+msgid "changed"
+msgstr "endret"
+
+#, python-format
+msgid "line %(number)s"
+msgstr "linje %(number)s"
+
+msgid "Checking the PR (same for every issue)"
+msgstr "Sjekke PR-en (likt for alle oppgaver)"
+
+msgid "Every PR gets an automatic <strong>Files check</strong> in its list of checks on GitHub. It compares the files the PR changes with the issue's \"Files to change\" list."
+msgstr "Hver PR får en automatisk <strong>Files check</strong> i listen over sjekker på GitHub. Den sammenligner filene PR-en endrer med listen \"Files to change\" i oppgaven."
+
+msgid "Passed"
+msgstr "Bestått"
+
+msgid "Only the listed files changed. Fine to merge."
+msgstr "Bare filene i listen er endret. Greit å merge."
+
+msgid "Warning"
+msgstr "Advarsel"
+
+msgid "Other files changed too; the check lists them. Extras added on purpose for fun are fine. Accidental ones (a <code>.po</code> translation file, a migration, <code>db.sqlite3</code>) should be removed first, see below."
+msgstr "Andre filer er også endret; sjekken lister dem. Ekstra ting lagt til med vilje for moro skyld er greit. Filer som kom med ved et uhell (en <code>.po</code>-oversettelsesfil, en migrering, <code>db.sqlite3</code>) bør fjernes først, se under."
+
+msgid "Made in the browser"
+msgstr "Laget i nettleseren"
+
+msgid "They edited the files on github.com instead of on their own computer. Don't merge: help them set up the project and redo it locally."
+msgstr "De endret filene på github.com i stedet for på sin egen datamaskin. Ikke merge: hjelp dem å sette opp prosjektet og gjøre det på nytt lokalt."
+
+msgid "No \"Closes #…\""
+msgstr "Mangler \"Closes #…\""
+
+msgid "The PR description needs <code>Closes #&lt;issue number&gt;</code>, or the issue won't close and nobody gets the coins."
+msgstr "Beskrivelsen av PR-en trenger <code>Closes #&lt;issue number&gt;</code>, ellers lukkes ikke oppgaven og ingen får myntene."
+
+msgid "Removing an accidental file"
+msgstr "Fjerne en fil som kom med ved et uhell"
+
+msgid "Ask them to type this in the project folder, with the file name from the check:"
+msgstr "Be dem skrive dette i prosjektmappen, med filnavnet fra sjekken:"
+
+msgid "Once per extra file. It undoes their change to that file and updates the PR by itself. If it doesn't work, ask an organiser."
+msgstr "Én gang per ekstra fil. Det angrer endringen deres i den filen og oppdaterer PR-en av seg selv. Hvis det ikke virker, spør en arrangør."

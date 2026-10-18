@@ -2,7 +2,7 @@
 
 Everything to edit, test and post the event issues. The plan and the
 decisions behind it are in [../event_issues_plan.md](../event_issues_plan.md):
-read its "Current state" first. Run all commands from this folder.
+read its "Current state" first. Run all commands from the repo root.
 
 ## What's here
 
@@ -24,10 +24,10 @@ ignored by git.
 ## After changing an issue or a solution
 
 ```bash
-python3 -I check_issue_files.py ../../..      # no shared files, paths as expected
-./build_pilot_repo.sh                          # all branches merge, file lists match
-(cd pilot_repo/ifiplatform && python manage.py test --exclude-tag=slow --parallel)
-python3 generate.py                            # final texts + helper solutions
+python3 -I docs/claude_plans/event_issues_tooling/check_issue_files.py .    # no shared files, paths as expected
+docs/claude_plans/event_issues_tooling/build_pilot_repo.sh                  # all branches merge, file lists match
+(cd docs/claude_plans/event_issues_tooling/pilot_repo/ifiplatform && python manage.py test --exclude-tag=slow --parallel)
+python3 docs/claude_plans/event_issues_tooling/generate.py                  # final texts + helper solutions
 ```
 
 A change to the scaffold (anything outside an issue's files) means
@@ -37,8 +37,8 @@ To test one solution on its own (the merge test only checks them all
 together), use a worktree, so `pilot_repo` can stay on `all-merged`:
 
 ```bash
-git -C pilot_repo worktree add /tmp/wt scaffold-base
-cp ../../../ifiplatform/.env /tmp/wt/ifiplatform/
+git -C docs/claude_plans/event_issues_tooling/pilot_repo worktree add /tmp/wt scaffold-base
+cp ifiplatform/.env /tmp/wt/ifiplatform/
 cd /tmp/wt && git checkout Q21 && (cd ifiplatform && python manage.py test --exclude-tag=slow)
 ```
 
@@ -48,10 +48,10 @@ script deletes `pilot_repo`, and the worktree with it.
 ## New screenshots for the review doc
 
 ```bash
-./make_shot_env.sh                             # once: about 250 MB, no root needed
-(cd pilot_repo/ifiplatform && python manage.py runserver 127.0.0.1:8011 --noreload) &
-source shot_env.sh && pwenv/bin/python shoot.py shots
-python3 build_review_doc.py ../                # writes ../event_issues_{candy,chocolate,pumpkin}.md
+docs/claude_plans/event_issues_tooling/make_shot_env.sh                     # once: about 250 MB, no root needed
+(cd docs/claude_plans/event_issues_tooling/pilot_repo/ifiplatform && python manage.py runserver 127.0.0.1:8011 --noreload) &
+source docs/claude_plans/event_issues_tooling/shot_env.sh && docs/claude_plans/event_issues_tooling/pwenv/bin/python docs/claude_plans/event_issues_tooling/shoot.py docs/claude_plans/event_issues_tooling/shots
+python3 docs/claude_plans/event_issues_tooling/build_review_doc.py docs/claude_plans   # writes docs/claude_plans/event_issues_{candy,chocolate,pumpkin}.md
 ```
 
 `shoot.py` has one recipe per issue: a page and a part of it to crop. A
@@ -69,10 +69,22 @@ Check first whether any of these issues already exist on GitHub, since the
 script would make them again.
 
 ```bash
-python3 create_issues.py --repo Creators-Guild/ifiplattform_halloween --dry-run
-python3 create_issues.py --repo Creators-Guild/ifiplattform_halloween
-docker compose exec -T web python manage.py load_event_solutions < out/solutions.json
+python3 docs/claude_plans/event_issues_tooling/create_issues.py --repo Creators-Guild/ifiplattform_halloween --dry-run
+python3 docs/claude_plans/event_issues_tooling/create_issues.py --repo Creators-Guild/ifiplattform_halloween
+docker compose exec -T web python manage.py load_event_solutions < docs/claude_plans/event_issues_tooling/out/solutions.json
 ```
+
+`out/` isn't in git, so that computer needs it too: copy this folder's
+`out/` over, or commit, pull and run `build_pilot_repo.sh` and
+`generate.py` there.
+
+Afterwards, keep `out/numbers.json` (ID -> issue number) somewhere safe:
+without it, a new run makes every issue again. To change posted issues, edit
+`issues/`, run `generate.py`, and run `create_issues.py` again: it updates
+every title and body, skips the sub-issues the sets already have, and
+writes a new `solutions.json` to load again. Labels and type are only set
+when an issue is created, removed issues aren't closed, and edits made on
+GitHub are overwritten.
 
 ## Conventions in the issue texts
 

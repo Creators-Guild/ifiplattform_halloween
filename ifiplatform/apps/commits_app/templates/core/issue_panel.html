@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n commits_tags %}
 {% comment %}
 One issue, enlarged. Shown on the issue's own page, and copied from there
 into the pop-up on the issue lists by issue_modal.js (it looks for
@@ -6,7 +6,7 @@ data-issue-panel).
 {% endcomment %}
 <article class="issue-panel{% if issue.category_slug %} issue-card--{{ issue.category_slug }}{% endif %}{% if issue.state == 'CLOSED' %} issue-panel--closed{% endif %}" data-issue-panel>
     <div class="issue-panel__band">
-        <span class="issue-card__category">{{ issue.category }}</span>
+        <span class="issue-card__categories">{% for name, slug in issue.categories %}<span class="issue-card__category{% if slug %} issue-card--{{ slug }}{% endif %}">{{ name }}</span>{% endfor %}</span>
         {% if issue.points %}{% include "core/difficulty_badge.html" %}{% endif %}
     </div>
 
@@ -47,8 +47,8 @@ data-issue-panel).
             {% if issue.size_label %}
                 <div><dt>{% trans "Difficulty" %}</dt><dd>{{ issue.difficulty_text }} · {% include "core/reward.html" %}</dd></div>
             {% endif %}
-            {% if issue.category %}
-                <div><dt>{% trans "Category" %}</dt><dd>{{ issue.category }}</dd></div>
+            {% if issue.categories %}
+                <div><dt>{% trans "Category" %}</dt><dd>{% for name, slug in issue.categories %}{{ name }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd></div>
             {% endif %}
             {% if credit %}
                 <div>
@@ -77,8 +77,45 @@ data-issue-panel).
         {% if solution %}
             <section id="solution" class="issue-panel__solution">
                 <h2 class="issue-panel__heading">🔑 {% trans "Solution (helpers only)" %}</h2>
-                {% if solution.note %}{{ solution.note|linebreaks }}{% endif %}
-                {% if solution.diff %}<pre class="issue-panel__diff"><code>{{ solution.diff }}</code></pre>{% endif %}
+                {% with note=solution.note|solution_note %}
+                    {% if note.files %}
+                        <div class="solution__files">{% for name in note.files %}<code>{{ name }}</code>{% endfor %}</div>
+                    {% endif %}
+                    {% if note.items %}
+                        <dl class="solution__facts">
+                            {% for label, kind, html in note.items %}
+                                <div class="solution__fact solution__fact--{{ kind }}"><dt>{{ label }}</dt><dd>{{ html }}</dd></div>
+                            {% endfor %}
+                        </dl>
+                    {% endif %}
+                    {% for html in note.other %}<p>{{ html }}</p>{% endfor %}
+                {% endwith %}
+                {% if solution.diff %}
+                    <details class="solution__fold">
+                        <summary>{% trans "Show the solution's code" %}</summary>
+                        <p class="solution__hint">{% blocktrans trimmed %}One way to do it, not the only right answer. Their code can look different: other colours, sizes, wording or names, or extras from "Make it yours". Judge it by <strong>Correct</strong> and <strong>Check</strong> above, not by matching this code.{% endblocktrans %}</p>
+                        {% for file in solution.diff|diff_files %}
+                            <div class="solution__file">
+                                <div class="solution__file-name">{{ file.path }} <span>{% if file.status == "new" %}{% trans "new file" %}{% elif file.status == "empty" %}{% trans "starts empty" %}{% elif file.status == "deleted" %}{% trans "deleted" %}{% else %}{% trans "changed" %}{% endif %}</span></div>
+                                <pre class="solution__code"><code>{% for kind, text in file.lines %}<span class="solution__line solution__line--{{ kind }}">{% if kind == "hunk" %}{% blocktrans with number=text %}line {{ number }}{% endblocktrans %}{% elif text %}{{ text }}{% else %} {% endif %}</span>{% endfor %}</code></pre>
+                            </div>
+                        {% endfor %}
+                    </details>
+                    <details class="solution__fold">
+                        <summary>{% trans "Checking the PR (same for every issue)" %}</summary>
+                        <p>{% blocktrans trimmed %}Every PR gets an automatic <strong>Files check</strong> in its list of checks on GitHub. It compares the files the PR changes with the issue's "Files to change" list.{% endblocktrans %}</p>
+                        <ul class="solution__checks">
+                            <li><span class="solution__check solution__check--ok">✅ {% trans "Passed" %}</span> {% trans "Only the listed files changed. Fine to merge." %}</li>
+                            <li><span class="solution__check solution__check--warn">⚠️ {% trans "Warning" %}</span> {% blocktrans trimmed %}Other files changed too; the check lists them. Extras added on purpose for fun are fine. Accidental ones (a <code>.po</code> translation file, a migration, <code>db.sqlite3</code>) should be removed first, see below.{% endblocktrans %}</li>
+                            <li><span class="solution__check solution__check--bad">❌ {% trans "Made in the browser" %}</span> {% trans "They edited the files on github.com instead of on their own computer. Don't merge: help them set up the project and redo it locally." %}</li>
+                            <li><span class="solution__check solution__check--bad">❌ {% trans 'No "Closes #…"' %}</span> {% blocktrans trimmed %}The PR description needs <code>Closes #&lt;issue number&gt;</code>, or the issue won't close and nobody gets the coins.{% endblocktrans %}</li>
+                        </ul>
+                        <p><strong>{% trans "Removing an accidental file" %}</strong></p>
+                        <p>{% trans "Ask them to type this in the project folder, with the file name from the check:" %}</p>
+                        <p><code>ifi undo-file &lt;file&gt;</code></p>
+                        <p>{% trans "Once per extra file. It undoes their change to that file and updates the PR by itself. If it doesn't work, ask an organiser." %}</p>
+                    </details>
+                {% endif %}
             </section>
         {% elif issue.show_solution %}
             <section id="solution" class="issue-panel__solution issue-panel__solution--missing">

@@ -19,6 +19,7 @@ from django.urls import reverse
 from django.utils import timezone, translation
 
 from commits_app import claims, github_sync
+from commits_app.templatetags import commits_tags
 from commits_app.views.common import annotate
 from commits_app.scoring import leaderboard, score_for
 from commits_app.models import (
@@ -566,6 +567,72 @@ class PagesTests(TestCase):
         self.assertEqual(groups["closed_groups"], [1])
         self.assertContains(response, "🎃 pumpkin (hard)")
 
+    def make_set(self):
+        """Set 10 (🖼️ art, no size, like the sync makes it) with a candy
+        restyle step and two candy art steps; issue 4 is on its own."""
+        EventIssue.objects.create(
+            number=10, title="Set", url="https://x", state="OPEN", category="🖼️ art"
+        )
+        self.open_issue(11, "🍬 candy", "🎨 restyle")
+        self.open_issue(12, "🍬 candy", "🖼️ art")
+        self.open_issue(13, "🍬 candy", "🖼️ art")
+        EventIssue.objects.filter(number__in=[11, 12, 13]).update(parent_number=10)
+        self.open_issue(4, "🎃 pumpkin", "🎨 restyle")
+
+    def open_groups(self, **params):
+        response = self.client.get(reverse("commits_issues"), params)
+        return [
+            (title, issue.number, [s.number for s in subs])
+            for title, groups in response.context["open_sections"]
+            for issue, subs in groups
+        ]
+
+    def test_set_shows_in_each_category_of_its_sub_issues(self):
+        self.make_set()
+        self.assertEqual(
+            self.open_groups(),
+            [
+                ("🎨 restyle", 10, [11]),
+                ("🎨 restyle", 4, []),
+                ("🖼️ art", 10, [12, 13]),
+            ],
+        )
+        self.assertEqual(
+            self.open_groups(group="difficulty"),
+            [("🍬 candy (easy)", 10, [11, 12, 13]), ("🎃 pumpkin (hard)", 4, [])],
+        )
+
+    def test_set_has_the_categories_of_its_sub_issues(self):
+        self.make_set()
+        response = self.client.get(reverse("commits_issues"))
+        cards = {
+            issue.number: issue.categories
+            for _title, groups in response.context["open_sections"]
+            for issue, _subs in groups
+        }
+        both = [("🎨 restyle", "restyle"), ("🖼️ art", "art")]
+        self.assertEqual(cards[10], both)
+        self.assertEqual(cards[4], [("🎨 restyle", "restyle")])
+        self.assertContains(
+            response,
+            '<span class="issue-card__category issue-card--restyle">🎨 restyle</span>'
+            '<span class="issue-card__category issue-card--art">🖼️ art</span>',
+        )
+        response = self.client.get(reverse("commits_issue_detail", args=[10]))
+        self.assertEqual(response.context["issue"].categories, both)
+
+    def test_filters_keep_a_set_with_its_matching_sub_issues(self):
+        self.make_set()
+        self.assertEqual(
+            self.open_groups(difficulty="candy"),
+            [("🎨 restyle", 10, [11]), ("🖼️ art", 10, [12, 13])],
+        )
+        self.assertEqual(
+            self.open_groups(category="🎨 restyle"),
+            [("🍬 candy (easy)", 10, [11]), ("🎃 pumpkin (hard)", 4, [])],
+        )
+        self.assertEqual(self.open_groups(difficulty="pumpkin", category="🖼️ art"), [])
+
     def test_issue_board_hides_unlinked_names_from_public(self):
         make_credit(1, "stranger")
         response = self.client.get(reverse("commits_issues"))
@@ -586,6 +653,20 @@ class PagesTests(TestCase):
             self.client.login(username=username, password="pw")
             self.assertContains(self.client.get(detail), "Edit footer.css")
             self.assertContains(self.client.get(reverse("commits_issues")), "Solution")
+
+    def test_solution_box_splits_note_and_code(self):
+        make_credit(1, "someone")
+        EventSolution.objects.create(
+            issue_number=1, note=SOLUTION_NOTE, diff=NEW_FILE_DIFF + CHANGED_FILE_DIFF
+        )
+        self.client.login(username="helper", password="pw")
+        response = self.client.get(reverse("commits_issue_detail", args=[1]))
+        self.assertContains(response, "<code>ifiplatform/static/css/nav_links.css</code>")
+        self.assertContains(response, "<dt>Common mistakes</dt>")
+        self.assertContains(response, "Show the solution's code")
+        self.assertContains(response, "ifi undo-file &lt;file&gt;")
+        self.assertNotContains(response, "the old PR paragraph")
+        self.assertNotContains(response, "diff --git")
 
     def test_issue_page_shows_parent_and_pr(self):
         self.open_issue(1, "🍬 candy", "🎨 restyle")
@@ -630,6 +711,90 @@ class PagesTests(TestCase):
         self.assertFalse(User.objects.filter(pk=self.user.pk).exists())
         self.assertFalse(GitHubLink.objects.exists())
         self.assertFalse(DrinkTicket.objects.exists())
+
+
+SOLUTION_NOTE = (
+    "Files: ifiplatform/static/css/nav_links.css\n\n"
+    "Correct: `.nav_link` purple, a glow on :hover. See http://localhost:8000/.\n\n"
+    "Check: hover the links.\n\n"
+    "Common mistakes: <b>box-shadow</b> instead of text-shadow.\n\n"
+    "The planted bug: none here.\n\n"
+    "Check the PR: the old PR paragraph."
+)
+
+NEW_FILE_DIFF = """diff --git a/ifiplatform/static/css/nav_links.css b/ifiplatform/static/css/nav_links.css
+new file mode 100644
+index 0000000..ffdffdf
+--- /dev/null
++++ b/ifiplatform/static/css/nav_links.css
+@@ -0,0 +1,3 @@
++.nav_link {
++
+++++ odd but fine
+"""
+
+CHANGED_FILE_DIFF = """diff --git a/ifiplatform/templates/header.html b/ifiplatform/templates/header.html
+index 1111111..2222222 100644
+--- a/ifiplatform/templates/header.html
++++ b/ifiplatform/templates/header.html
+@@ -12,3 +12,3 @@ <header>
+   <nav>
+-    <a class="nav-link">
++    <a class="nav_link">
+\\ No newline at end of file
+"""
+
+
+class SolutionFilterTests(unittest.TestCase):
+    def test_note_parts(self):
+        note = commits_tags.solution_note(SOLUTION_NOTE)
+        self.assertEqual(note["files"], ["ifiplatform/static/css/nav_links.css"])
+        self.assertEqual(
+            [(label, kind) for label, kind, _html in note["items"]],
+            [
+                ("Correct", "correct"),
+                ("Check", "check"),
+                ("Common mistakes", "mistakes"),
+                ("The planted bug", "other"),
+            ],
+        )
+        correct, mistakes = note["items"][0][2], note["items"][2][2]
+        self.assertIn("<code>.nav_link</code>", correct)
+        self.assertIn('<a href="http://localhost:8000/"', correct)
+        self.assertIn("&lt;b&gt;box-shadow&lt;/b&gt;", mistakes)
+        self.assertEqual(note["other"], [])
+
+    def test_unlabelled_note(self):
+        note = commits_tags.solution_note("The parent of the moon issues. Close it last.")
+        self.assertEqual(note["items"], [])
+        self.assertEqual(note["other"], ["The parent of the moon issues. Close it last."])
+
+    def test_diff_files(self):
+        new, changed = commits_tags.diff_files(NEW_FILE_DIFF + CHANGED_FILE_DIFF)
+        self.assertEqual(new["path"], "ifiplatform/static/css/nav_links.css")
+        self.assertEqual(new["status"], "new")
+        self.assertEqual(
+            new["lines"],
+            [("plain", ".nav_link {"), ("plain", ""), ("plain", "+++ odd but fine")],
+        )
+        self.assertEqual(changed["status"], "changed")
+        self.assertEqual(
+            changed["lines"],
+            [
+                ("hunk", "12"),
+                ("ctx", "   <nav>"),
+                ("del", '-    <a class="nav-link">'),
+                ("add", '+    <a class="nav_link">'),
+            ],
+        )
+
+    def test_empty_starter_file(self):
+        diff = NEW_FILE_DIFF.replace("new file mode 100644\n", "").replace(
+            "--- /dev/null", "--- a/ifiplatform/static/css/nav_links.css"
+        )
+        (file,) = commits_tags.diff_files(diff)
+        self.assertEqual(file["status"], "empty")
+        self.assertEqual(file["lines"][0], ("plain", ".nav_link {"))
 
 
 class LoadSolutionsTests(TestCase):

@@ -105,7 +105,7 @@ body {
   border-color: #c77dff;
 }
 
-.issue-panel__diff,
+.solution__file,
 .commits__diff {
   background-color: var(--color-ink);
   color: var(--color-bright);

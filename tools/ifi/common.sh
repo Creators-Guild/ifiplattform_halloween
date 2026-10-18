@@ -1,4 +1,4 @@
-# Shared by fix-issue and pull-request. Sourced, not run.
+# Shared by fix-issue, pull-request and undo-file. Sourced, not run.
 
 MAIN_REPO="Creators-Guild/ifiplattform_halloween"
 
