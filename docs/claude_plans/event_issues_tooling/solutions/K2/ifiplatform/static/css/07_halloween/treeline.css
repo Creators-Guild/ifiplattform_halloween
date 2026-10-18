@@ -1,0 +1,5 @@
+.treeline {
+    height: 15rem;
+    margin-top: 3rem;
+    background: url("../../images/halloween/trees.svg") center bottom / cover no-repeat;
+}

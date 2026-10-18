@@ -22,10 +22,15 @@
                     <h2 class="newsbar-heading newsbar-heading--news">{% trans "Latest News" %}</h2>
                     {% include "home/partials/home_newsbar.html" %}
                 </div>
+                {% include "home/partials/right_column/instagram.html" %}
             </div>
         </div>
-    <div class="eventsbox_container">
-        <h2>{% blocktrans %}Happening at Ifi{% endblocktrans %}</h2>
-        {% include "home/partials/eventsbox/eventsbox.html" %}
+    <div class="right-column">
+        {% include "home/partials/right_column/opening_hours.html" %}
+        <div class="eventsbox_container">
+            <h2>{% blocktrans %}Happening at Ifi{% endblocktrans %}</h2>
+            {% include "home/partials/eventsbox/eventsbox.html" %}
+        </div>
+        {% include "home/partials/right_column/output_magazine.html" %}
     </div>
 {% endblock maincontent %}

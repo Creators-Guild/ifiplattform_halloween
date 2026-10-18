@@ -1,0 +1,63 @@
+{% load i18n static wagtailcore_tags wagtailimages_tags %}
+{% comment %}
+list_style/fixed_ratio (both optional, only ever passed by the "Article
+Card" body block -- see article_models.py's ArticleBlockStyle.list_style/
+fixed_ratio) -- list_style renders this as a compact list row (title +
+meta, no image/intro) instead of a full card, see .articlecard--list in
+articlecard.css (the same layout that already applies automatically to the
+3rd+ card in a homepage/newsbar card grid on narrow screens, just available
+on purpose here regardless of screen size). fixed_ratio, when explicitly
+False (not just left unpassed -- every *other* caller of this partial,
+homepage/newsbar/category listings, never sets it at all, and must keep
+the image's normal locked-ratio look), drops the image's fixed 8:5 aspect
+ratio so an explicit card height (see the block-style panel's "Height")
+can size the image directly instead, via .articlecard--unlocked-ratio.
+
+The "Draft" badge below only ever has anything to show for CategoryPage/
+ArticleIndexPage's own listings (see their get_context() in article_
+models.py) -- those include draft articles in the queryset at all only
+for editors, so a non-editor visitor never receives a draft article here
+to render a badge for in the first place; not a permission check of its
+own.
+{% endcomment %}
+{% with category=article.category %}
+<a class="articlecard{% if category.category_section == "info_articles" %} articlecard--category{% endif %}{% if list_style %} articlecard--list{% endif %}{% if fixed_ratio == False %} articlecard--unlocked-ratio{% endif %}"
+   href="{% pageurl article %}"
+   {% if category.category_section == "info_articles" %}style="--accent-color: var(--color-{{ category.color }})"{% endif %}>
+    {% if article.hero_image %}
+        {% image article.hero_image fill-400x250 as article_thumb %}
+        <img src="{{ article_thumb.url }}" alt="{{ article.hero_image_alt }}">
+    {% else %}
+        <!-- simple placeholder if no image -->
+        <img src="{% static 'images/news/IfiBygg.jpg' %}" alt="">
+    {% endif %}
+    {% if not article.live %}<span class="articlecard-draft-badge">{% trans "Draft" %}</span>{% endif %}
+    <h3>{{ article.title }}</h3>
+    {% if article.display_author_name or article.published_date %}
+        <div class="articlecard-meta">
+            {% if article.display_author_name %}
+                <span>{% trans "by" %} {{ article.display_author_name }}</span>
+            {% endif %}
+            {% if article.published_date %}
+                <span>{{ article.published_date }}</span>
+            {% endif %}
+        </div>
+    {% endif %}
+    <p class="articlecard-intro">{{ article.intro|richtext|striptags|truncatechars:100 }}</p>
+    {% comment %}
+    Only ever shown/wired up inside a .newsbar-layout grid on narrow
+    screens (see newsbar_layout.css/article_list_toggle.js) -- lets a
+    visitor flip an individual card between the full and list_style looks
+    themselves, rather than every 3rd+ card being permanently collapsed.
+    Nested inside the card's own <a> (interactive-inside-interactive,
+    technically invalid nesting) rather than restructured as a sibling --
+    same tradeoff header.html's navbar trigger already accepts
+    elsewhere in this project (see dropdown_menu.js's own comment on it);
+    article_list_toggle.js's click handler stops the click from also
+    triggering the card's navigation.
+    {% endcomment %}
+    <button type="button" class="articlecard-toggle" aria-label="{% trans "Toggle card size" %}" aria-expanded="true">
+        <svg viewBox="0 0 16 9" aria-hidden="true" focusable="false"><path d="M0 0h16L8 9z" fill="currentColor"/></svg>
+    </button>
+</a>
+{% endwith %}

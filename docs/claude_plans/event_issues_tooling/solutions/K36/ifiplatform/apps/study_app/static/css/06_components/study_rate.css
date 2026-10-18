@@ -1,0 +1,32 @@
+.joke-tools {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.joke-rating {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.joke-rating__button {
+    padding: 0.3rem 0.8rem;
+    border: 2px solid #000;
+    border-radius: 999px;
+    background-color: #f2eff6;
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+.joke-rating__button:hover {
+    background-color: #e0d8ec;
+}
+
+.joke-rating__button--up[aria-pressed="true"] {
+    background-color: #8de9a8;
+}
+
+.joke-rating__button--down[aria-pressed="true"] {
+    background-color: #ff9f9f;
+}

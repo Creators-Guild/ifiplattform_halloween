@@ -1,0 +1,39 @@
+.event-type-badge--social {
+    color: #000;
+}
+
+.event-type-badge--deadline {
+    background-color: #c00000;
+}
+
+.event-type-badge--academic {
+    background-color: #7b0ed4;
+}
+
+.event-type-badge--company {
+    background-color: #b3007d;
+}
+
+.sidemenu-header .icon-text {
+    display: inline;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.sidemenu_container:is(:hover, :has(:focus-visible)) .icon-text,
+.sidemenu[open] .icon-text {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+}
+
+.topheader-content :focus-visible {
+    outline: 3px solid #ff7518;
+    outline-offset: 3px;
+}

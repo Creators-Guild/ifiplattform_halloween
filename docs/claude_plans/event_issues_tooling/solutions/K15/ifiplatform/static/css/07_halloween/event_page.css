@@ -1,0 +1,24 @@
+.event-page h1 {
+    color: #ff7518;
+}
+
+.event-page h1::before {
+    content: "👻 ";
+}
+
+.event-meta {
+    border: 2px solid #000000;
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+}
+
+.event-type-badge {
+    box-shadow: 0 0 8px rgba(255, 117, 24, 0.6);
+}
+
+.event-signup-link {
+    background: #ff7518;
+    color: #1f1f1f;
+    border-radius: 6px;
+    padding: 0.2rem 0.6rem;
+}

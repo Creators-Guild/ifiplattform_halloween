@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "study_app.apps.StudyAppConfig",
     "account_app.apps.AccountAppConfig",
     "commits_app.apps.CommitsAppConfig",
+    "halloween_app.apps.HalloweenAppConfig",
     "django.contrib.postgres",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
@@ -282,8 +283,8 @@ GITHUB_READ_TOKEN = os.environ.get("GITHUB_READ_TOKEN", "")  # check .env
 GITHUB_EVENT_REPO = os.environ.get(
     "GITHUB_EVENT_REPO", "Creators-Guild/ifiplattform_halloween"
 )
-# Points needed for the one drink ticket per participant.
-DRINK_TICKET_POINTS = 5
+# Coins needed for the one drink ticket per participant (commits_app/labels.py).
+DRINK_TICKET_COINS = 5
 # Claiming issues on the Commits pages (commits_app/claims.py): how many open
 # issues one person may hold, and minutes before an idle claim is freed, per
 # size. Helpers can change a single claim's time from the issue's pop-up.

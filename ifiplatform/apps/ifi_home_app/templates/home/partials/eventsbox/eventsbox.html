@@ -3,8 +3,8 @@
     {% for day in upcoming_event_days %}
         <section class="home-eventsbox-day">
             <h3 class="home-eventsbox-day-heading">
-                {% if day.time_tag == "today" %}{% trans "Today" %}
-                {% elif day.time_tag == "tomorrow" %}{% trans "Tomorrow" %}
+                {% if day.time_tag == "today" %}{% trans "Tomorrow" %}
+                {% elif day.time_tag == "tomorrow" %}{% trans "Today" %}
                 {% else %}{{ day.date|date:"l"|capfirst }}{% endif %}
                 &ndash; {{ day.date|date:"j. F" }}
             </h3>

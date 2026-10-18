@@ -1,6 +1,6 @@
 # home_layout.css — design rationale
 
-Last updated: 2026-09-24
+Last updated: 2026-10-18
 Covers: ifiplatform/apps/ifi_home_app/static/css/05_objects/home_layout.css, ifiplatform/apps/ifi_home_app/static/css/06_components/home/home_navbar_mobile.css
 
 Covers `ifi_home_app/static/css/05_objects/home_layout.css` (the homepage
@@ -17,6 +17,17 @@ same `.eventsbox_container` selector; the box's contents are covered in
 `minmax(0, …)` rather than plain `1fr` so the content column can shrink
 below its content's min-content width instead of pushing the events box
 off-screen (a plain `1fr` track has an `auto` minimum).
+
+**Halloween event (Commit for Candy):** `details` holds `.right-column`
+(`home_index.html`), not the events box itself. The column stacks the
+"Open now?" box, `.eventsbox_container` and the >OUTPUT box, and its
+layout lives in `static/css/07_halloween/scaffold.css`: one
+`minmax(0, 1fr)` column, a fixed width above 72rem, and the events box
+reset to `grid-area: auto; margin: 0; max-width: none` (otherwise its own
+`grid-area: details` rule from this file would try to place it in the outer
+grid). Below 72rem `.right-column` takes the `details` slot the same way the
+events box used to. The Instagram row sits inside `.suggestions-row`, under
+the news.
 
 ## Below 72rem: `#home-subcontent { display: contents }`
 

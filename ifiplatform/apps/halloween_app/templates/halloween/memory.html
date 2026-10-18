@@ -1,0 +1,14 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Memory pairs" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/memory.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>🃏 {% trans "Memory pairs" %}</h1>
+    <p class="memory-status">{% trans "Pairs found" %}: <output id="memory-found">0</output> · {% trans "Tries" %}: <output id="memory-tries">0</output></p>
+    <button type="button" id="memory-new">{% trans "New game" %}</button>
+    <div class="memory-board" id="memory-board"></div>
+{% endblock %}
+
+{% block hc_js %}<script src="{% static 'js/halloween_pages/memory.js' %}" defer></script>{% endblock %}

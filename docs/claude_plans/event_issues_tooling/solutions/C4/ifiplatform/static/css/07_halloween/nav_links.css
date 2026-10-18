@@ -1,0 +1,14 @@
+.nav_link {
+    color: #b44cff;
+    font-family: var(--font-spooky);
+    font-size: 1.3rem;
+}
+
+.nav_link:hover {
+    text-shadow: 0 0 10px rgba(180, 76, 255, 0.9);
+}
+
+.nav_link.active {
+    color: #d76bff;
+    text-shadow: 0 0 10px rgba(215, 107, 255, 0.8);
+}

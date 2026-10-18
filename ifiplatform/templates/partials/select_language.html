@@ -7,7 +7,7 @@
     <div class="select-language-buttons">
         <form action="{% url 'set_language' %}" method="post">
             {% csrf_token %}
-            <input type="hidden" name="next" value="{{ en_next }}">
+            <input type="hidden" name="next" value="/">
             <button type="submit" name="language" value="en"
                     class="lang-btn {% if LANGUAGE_CODE == 'en' %}active{% endif %}">
                 {% trans "English" %}

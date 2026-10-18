@@ -1,0 +1,40 @@
+diff --git a/ifiplatform/static/css/07_halloween/moon_craters.css b/ifiplatform/static/css/07_halloween/moon_craters.css
+index e69de29..c4d3044 100644
+--- a/ifiplatform/static/css/07_halloween/moon_craters.css
++++ b/ifiplatform/static/css/07_halloween/moon_craters.css
+@@ -0,0 +1,35 @@
++.moon::before,
++.moon::after {
++    content: "";
++    position: absolute;
++    border-radius: 50%;
++    background: #b4c8e6;
++}
++
++.moon::before {
++    width: 2rem;
++    height: 2rem;
++    top: 3rem;
++    left: 4rem;
++    box-shadow:
++        3rem 9rem 0 1rem #b4c8e6,
++        10rem 11.5rem 0 0.6rem #b4c8e6,
++        5rem 3rem 0 0.3rem #b4c8e6,
++        -0.5rem 6rem 0 0.4rem #b4c8e6,
++        7rem 14.5rem 0 0.2rem #b4c8e6,
++        13rem 6rem 0 0.3rem #b4c8e6,
++        2rem 4.5rem 0 -0.5rem #b4c8e6,
++        7.5rem 6.5rem 0 -0.45rem #b4c8e6,
++        12rem 9.5rem 0 -0.5rem #b4c8e6,
++        0.5rem 11.5rem 0 -0.45rem #b4c8e6,
++        6rem -1rem 0 -0.5rem #b4c8e6,
++        11.5rem 4.5rem 0 -0.45rem #b4c8e6,
++        4rem 13rem 0 -0.5rem #b4c8e6;
++}
++
++.moon::after {
++    width: 5rem;
++    height: 5rem;
++    top: 3.5rem;
++    left: 12rem;
++}

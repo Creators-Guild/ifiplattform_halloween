@@ -1,0 +1,23 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Fortune teller" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/fortune.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>🔮 {% trans "Fortune teller" %}</h1>
+    <form class="fortune-form" method="get">
+        <label for="fortune-name">{% trans "Your name" %}</label>
+        <input id="fortune-name" name="name" value="{{ name }}" required>
+        <button type="submit">{% trans "Look into the crystal ball" %}</button>
+    </form>
+    {% if name %}
+        <div class="fortune-result">
+            {% if fortune %}
+                <p class="fortune-result__text">{{ fortune }}</p>
+            {% else %}
+                <p class="fortune-result__text">{% trans "The crystal ball is still cloudy... (not built yet)" %}</p>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

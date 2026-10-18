@@ -1,0 +1,106 @@
+:root {
+    --font-spooky: "Grenze Gotisch", Georgia, serif;
+}
+
+body {
+    isolation: isolate;
+}
+
+.ghost {
+    position: fixed;
+    left: -6rem;
+    top: 55%;
+    font-size: 2.6rem;
+    pointer-events: none;
+}
+
+.bat-flock {
+    position: fixed;
+    top: 12rem;
+    right: 14rem;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.bat-flock span {
+    position: absolute;
+    font-size: 1.6rem;
+    opacity: 0;
+}
+
+.spider {
+    position: fixed;
+    top: 0;
+    left: 5.5rem;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.header-tagline {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-accent);
+    font: inherit;
+    cursor: pointer;
+}
+
+.right-column {
+    grid-area: details;
+    align-self: start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.2rem;
+    width: 21rem;
+    margin: 2rem;
+}
+
+.right-column .eventsbox_container {
+    grid-area: auto;
+    max-width: none;
+    margin: 0;
+}
+
+.side-box {
+    padding: 1rem;
+    background-color: var(--color-card-bg);
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+}
+
+.side-box h2 {
+    margin: 0 0 0.8rem;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.output-box img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.insta-box {
+    margin-top: 1.5rem;
+}
+
+.insta-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+    gap: 0.8rem;
+}
+
+.insta-tile img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+@media (max-width: 72rem) {
+    .right-column {
+        width: auto;
+        margin: 1rem 0;
+    }
+}

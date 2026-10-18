@@ -22,6 +22,7 @@
                 {% blocktrans with year=current_semester_year %}Fall semester {{ year }}{% endblocktrans %}
             {% endif %}
         </p>
+        {% include "events/partials/halloween_countdown.html" %}
         {% include "events/partials/peoply_sync_button.html" %}
         {% if page.intro %}<div class="event-page-intro">{{ page.intro|richtext }}</div>{% endif %}
 

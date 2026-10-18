@@ -45,7 +45,7 @@ data-issue-panel).
 
         <dl class="issue-panel__facts">
             {% if issue.size_label %}
-                <div><dt>{% trans "Difficulty" %}</dt><dd>{{ issue.difficulty_text }} · {{ issue.points }} p</dd></div>
+                <div><dt>{% trans "Difficulty" %}</dt><dd>{{ issue.difficulty_text }} · {% include "core/reward.html" %}</dd></div>
             {% endif %}
             {% if issue.category %}
                 <div><dt>{% trans "Category" %}</dt><dd>{{ issue.category }}</dd></div>

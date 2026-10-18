@@ -1,0 +1,21 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Whack-a-bat" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/whack_a_bat.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>🦇 {% trans "Whack-a-bat" %}</h1>
+    <p class="wab-status">
+        {% trans "Score" %}: <output id="wab-score">0</output> ·
+        {% trans "Time" %}: <output id="wab-time">30</output>
+    </p>
+    <button type="button" id="wab-start">{% trans "Start" %}</button>
+    <div class="wab-board" id="wab-board">
+        {% for hole in holes %}
+            <button type="button" class="wab-hole" data-hole="{{ hole }}" aria-label="{% trans 'Hole' %} {{ forloop.counter }}"></button>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block hc_js %}<script src="{% static 'js/halloween_pages/whack_a_bat.js' %}" defer></script>{% endblock %}
