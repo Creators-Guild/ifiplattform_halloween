@@ -7,14 +7,19 @@
 Steps:
 1. Makes sure the size and category labels exist (`gh label create --force`).
 2. Creates every issue with its title, labels and type, and a placeholder body.
-3. Now that every ID has a number, writes the real bodies: IDs like "P10a" or
-   "SET-moon" become "#12", and "{number}" becomes the issue's own number.
-4. Makes the sub-issues of each set (REST: POST .../issues/<parent>/sub_issues).
+3. Now that every ID has a number, writes the real titles and bodies: IDs
+   like "P10a" or "SET-moon" become "#12", and "{number}" becomes the issue's
+   own number.
+4. Makes the sub-issues of each set (REST: POST .../issues/<parent>/sub_issues),
+   skipping the ones a set already has.
 5. Writes out/numbers.json (ID -> number) and out/solutions.json, ready for
    `manage.py load_event_solutions < solutions.json`.
 
 Stops at the first error. Already created issues are remembered in
-out/numbers.json, so running it again continues instead of making copies."""
+out/numbers.json, so running it again continues instead of making copies.
+Running it again after changing issues/ updates every title and body; labels
+and type are only set when an issue is created. Keep numbers.json: without
+it, a new run makes every issue again."""
 
 import argparse
 import json
@@ -90,12 +95,21 @@ def main():
         path = OUT / "bodies_final" / f"{issue_id}.md"
         path.parent.mkdir(exist_ok=True)
         path.write_text(body)
-        run(["gh", "issue", "edit", str(numbers[issue_id]), "--repo", repo, "--body-file", str(path)], dry)
+        run(["gh", "issue", "edit", str(numbers[issue_id]), "--repo", repo,
+             "--title", issues[issue_id]["title"], "--body-file", str(path)], dry)
 
     print("4. Sub-issues")
+    existing = {}
     for issue_id, meta in issues.items():
         parent = meta.get("parent")
         if not parent:
+            continue
+        if parent not in existing:
+            # GitHub refuses a sub-issue the set already has, which would stop a second run here.
+            listed = run(["gh", "api", "--paginate", f"repos/{repo}/issues/{numbers[parent]}/sub_issues",
+                          "--jq", ".[].number"], dry, capture=True)
+            existing[parent] = set() if dry else {int(n) for n in listed.split()}
+        if numbers[issue_id] in existing[parent]:
             continue
         child_id = run(["gh", "api", f"repos/{repo}/issues/{numbers[issue_id]}", "--jq", ".id"], dry, capture=True)
         run(["gh", "api", f"repos/{repo}/issues/{numbers[parent]}/sub_issues", "-X", "POST", "-F", f"sub_issue_id={child_id}"], dry)

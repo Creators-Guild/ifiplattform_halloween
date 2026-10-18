@@ -74,6 +74,18 @@ python3 create_issues.py --repo Creators-Guild/ifiplattform_halloween
 docker compose exec -T web python manage.py load_event_solutions < out/solutions.json
 ```
 
+`out/` isn't in git, so that computer needs it too: copy this folder's
+`out/` over, or commit, pull and run `./build_pilot_repo.sh` and
+`python3 generate.py` there.
+
+Afterwards, keep `out/numbers.json` (ID -> issue number) somewhere safe:
+without it, a new run makes every issue again. To change posted issues, edit
+`issues/`, run `generate.py`, and run `create_issues.py` again: it updates
+every title and body, skips the sub-issues the sets already have, and
+writes a new `solutions.json` to load again. Labels and type are only set
+when an issue is created, removed issues aren't closed, and edits made on
+GitHub are overwritten.
+
 ## Conventions in the issue texts
 
 - Exact file paths under "### Files to change (only these)", one per bullet,
