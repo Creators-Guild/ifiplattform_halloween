@@ -1,6 +1,7 @@
-"""Writes docs/claude_plans/event_issues_pilot.md (every event issue for
-review, each with a screenshot) and copies the screenshots next to it. The
-file keeps its pilot name because the plan links to it."""
+"""Writes docs/claude_plans/event_issues_<size>.md, one review doc per
+difficulty (each issue with a screenshot), and copies the screenshots next
+to them. A set goes in the doc for its own size, which is also the size of
+all its sub-issues."""
 
 import shutil
 import sys
@@ -10,7 +11,7 @@ from generate import SIZE_LABEL, final_body, load
 
 HERE = Path(__file__).parent
 DOCS = Path(sys.argv[1])
-IMAGES = DOCS / "event_issues_pilot_images"
+IMAGES = DOCS / "event_issues_images"
 
 CAPTIONS = {
     "P2": "Mock-up: a screenshot can't show the mouse pointer, so the bat is drawn in where the pointer would be.",
@@ -67,34 +68,39 @@ def main():
     if IMAGES.exists():
         shutil.rmtree(IMAGES)
     IMAGES.mkdir(parents=True)
-    parts = [
-        "# Commit for Candy: event issues (for review)\n",
-        f"The {len(issues)} event issues ({sum(1 for i in issues if not i.startswith('SET-'))} to claim, "
-        f"{sum(1 for i in issues if i.startswith('SET-'))} sets) exactly as they will be posted on GitHub, "
-        "generated on 2026-10-18. Under each issue is a screenshot of what it looks like when it's done, "
-        "taken from the site with every issue done. Issues refer to each other by ID (P10a, SET-moon); "
-        "the creation script turns those into issue numbers. Delete this file and its image folder once "
-        "the issues are on GitHub.\n",
-    ]
-    for issue_id, meta in issues.items():
-        parts.append("---\n")
-        parts.append(f"# {issue_id}: {meta['title']}\n`{SIZE_LABEL[meta['size']]}` · `{meta['category']}` · {meta['type']}\n")
-        parts.append(final_body(meta))
-        shot = HERE / "shots" / f"{issue_id}.jpg"
-        if shot.exists():
-            shutil.copy(shot, IMAGES / shot.name)
-            caption = CAPTIONS.get(issue_id, "")
-            parts.append(
-                f"#### What it looks like when it's done\n![{issue_id} done](event_issues_pilot_images/{shot.name})\n"
-                + (f"\n*{caption}*\n" if caption else "")
-            )
-        extra = HERE / "shots" / f"{issue_id}-focus.jpg"
-        if extra.exists():
-            shutil.copy(extra, IMAGES / extra.name)
-            parts.append(f"![{issue_id} focus](event_issues_pilot_images/{extra.name})\n")
-    (DOCS / "event_issues_pilot.md").write_text("\n".join(parts))
-    print(f"wrote {DOCS / 'event_issues_pilot.md'} with {len(list(IMAGES.iterdir()))} images")
-
+    for size, label in SIZE_LABEL.items():
+        sized = {i: m for i, m in issues.items() if m["size"] == size}
+        sets = sum(1 for i in sized if i.startswith("SET-"))
+        parts = [
+            f"# Commit for Candy: {label} issues (for review)\n",
+            f"The {len(sized)} {label} event issues ({len(sized) - sets} to claim, {sets} sets) exactly as "
+            "they will be posted on GitHub, generated on 2026-10-18. The other sizes are in "
+            + " and ".join(f"[event_issues_{s}.md](event_issues_{s}.md)" for s in SIZE_LABEL if s != size)
+            + ". Under each issue is a screenshot of what it looks like when it's done, taken from the site "
+            "with every issue done. Issues refer to each other by ID (P10a, SET-moon); the creation script "
+            "turns those into issue numbers. Delete these files and their image folder once the issues are "
+            "on GitHub.\n",
+        ]
+        for issue_id, meta in sized.items():
+            parts.append("---\n")
+            parts.append(f"# {issue_id}: {meta['title']}\n`{label}` · `{meta['category']}` · {meta['type']}\n")
+            parts.append(final_body(meta))
+            shot = HERE / "shots" / f"{issue_id}.jpg"
+            if shot.exists():
+                shutil.copy(shot, IMAGES / shot.name)
+                caption = CAPTIONS.get(issue_id, "")
+                parts.append(
+                    f"#### What it looks like when it's done\n![{issue_id} done]({IMAGES.name}/{shot.name})\n"
+                    + (f"\n*{caption}*\n" if caption else "")
+                )
+            extra = HERE / "shots" / f"{issue_id}-focus.jpg"
+            if extra.exists():
+                shutil.copy(extra, IMAGES / extra.name)
+                parts.append(f"![{issue_id} focus]({IMAGES.name}/{extra.name})\n")
+        out = DOCS / f"event_issues_{size}.md"
+        out.write_text("\n".join(parts))
+        print(f"wrote {out} with {len(sized)} issues")
+    print(f"copied {len(list(IMAGES.iterdir()))} images to {IMAGES}")
 
 if __name__ == "__main__":
     main()

@@ -14,7 +14,7 @@ read its "Current state" first. Run all commands from this folder.
 | `generate.py` | Builds `out/bodies/<ID>.md` (final issue texts: reward, time, knowledge, set, text, how-to block) and `out/solutions_by_id.json` (notes + diffs from `pilot_repo`). |
 | `check_issue_files.py` | Fails if a file is listed by two issues, an "edit" file is missing, or a "new:" file already exists. |
 | `build_pilot_repo.sh` | Rebuilds `pilot_repo/`: the repo as it is now as `scaffold-base`, one branch per issue, and `all-merged` (the conflict test). Checks each branch changes exactly its listed files. |
-| `build_review_doc.py` | Writes `../event_issues_pilot.md` (all issues, despite the name) with a screenshot per issue. |
+| `build_review_doc.py` | Writes `../event_issues_<size>.md` (one doc per size: candy, chocolate, pumpkin) with a screenshot per issue. |
 | `make_shot_env.sh`, `fetch_debs.py`, `shoot.py` | Screenshots without root: headless Chromium plus its libraries and fonts, then one screenshot per issue from `pilot_repo` served on port 8011. |
 | `create_issues.py` | Posts the issues to GitHub with `gh` (labels, type, sub-issues, real numbers), and writes `out/solutions.json` for `load_event_solutions`. |
 
@@ -51,7 +51,7 @@ script deletes `pilot_repo`, and the worktree with it.
 ./make_shot_env.sh                             # once: about 250 MB, no root needed
 (cd pilot_repo/ifiplatform && python manage.py runserver 127.0.0.1:8011 --noreload) &
 source shot_env.sh && pwenv/bin/python shoot.py shots
-python3 build_review_doc.py ../                # writes ../event_issues_pilot.md
+python3 build_review_doc.py ../                # writes ../event_issues_{candy,chocolate,pumpkin}.md
 ```
 
 `shoot.py` has one recipe per issue: a page and a part of it to crop. A

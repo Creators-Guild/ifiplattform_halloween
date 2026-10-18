@@ -18,7 +18,9 @@ Delete this file once the event issues are on GitHub.
 
 **The pilot: 37 issues to claim (16 🍬, 11 🍫, 10 🎃) + 4 sets.** Every
 issue's full text, with a screenshot of the finished result, is in
-[event_issues_pilot.md](event_issues_pilot.md). All 37 solutions merge
+one doc per size: [🍬 candy](event_issues_candy.md),
+[🍫 chocolate](event_issues_chocolate.md) and
+[🎃 pumpkin](event_issues_pumpkin.md). All 37 solutions merge
 together without conflicts, each changes exactly its listed files, and the
 quick tests pass with all of them merged.
 
