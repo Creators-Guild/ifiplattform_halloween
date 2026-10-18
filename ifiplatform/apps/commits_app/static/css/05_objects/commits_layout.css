@@ -149,7 +149,7 @@
 }
 
 .commits-nav__link:hover {
-  background-color: color-mix(in srgb, var(--color-card-bg) 60%, transparent);
+  color: var(--color-turq);
 }
 
 .commits-nav__link--active,
