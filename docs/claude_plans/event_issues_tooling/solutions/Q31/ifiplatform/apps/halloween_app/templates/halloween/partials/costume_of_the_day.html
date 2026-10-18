@@ -1,0 +1,6 @@
+{% load i18n costume_tags %}
+{% costume_of_the_day as costume %}
+<aside class="hc-costume-of-the-day">
+    <p class="hc-costume-of-the-day__label">{% trans "Costume of the day" %}</p>
+    <p class="hc-costume-of-the-day__text"><span aria-hidden="true">{{ costume.0 }}</span> {{ costume.1 }}</p>
+</aside>

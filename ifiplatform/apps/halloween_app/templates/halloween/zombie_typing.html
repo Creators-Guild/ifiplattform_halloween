@@ -1,0 +1,22 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Zombie typing" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/zombie_typing.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>🧟 {% trans "Zombie typing" %}</h1>
+    <p class="zt-status">
+        {% trans "Score" %}: <output id="zt-score">0</output> ·
+        {% trans "Lives" %}: <output id="zt-lives">3</output>
+    </p>
+    <button type="button" id="zt-start">{% trans "Start" %}</button>
+    <div class="zt-field" id="zt-field"></div>
+    <label class="zt-typing">
+        <span>{% trans "Type a zombie's word" %}</span>
+        <input id="zt-input" autocomplete="off" spellcheck="false">
+    </label>
+    <p class="zt-message" id="zt-message" aria-live="polite"></p>
+{% endblock %}
+
+{% block hc_js %}<script src="{% static 'js/halloween_pages/zombie_typing.js' %}" defer></script>{% endblock %}

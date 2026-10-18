@@ -1,0 +1,29 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Halloween quiz" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/quiz.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>❓ {% trans "Halloween quiz" %}</h1>
+    {% if checked %}
+        <div class="quiz-result">
+            <p class="quiz-result__score">{{ points }}/{{ total }}</p>
+            {% if verdict %}<p class="quiz-result__verdict">{{ verdict }}</p>{% endif %}
+        </div>
+    {% endif %}
+    <form class="quiz-form" method="get">
+        {% for question in questions %}
+            <fieldset class="quiz-question">
+                <legend>{{ forloop.counter }}. {{ question.question }}</legend>
+                {% for option in question.options %}
+                    <label class="quiz-option">
+                        <input type="radio" name="{{ question.key }}" value="{{ option }}"{% if option == question.picked %} checked{% endif %}>
+                        {{ option }}
+                    </label>
+                {% endfor %}
+            </fieldset>
+        {% endfor %}
+        <button type="submit" name="check" value="1">{% trans "Check my answers" %}</button>
+    </form>
+{% endblock %}

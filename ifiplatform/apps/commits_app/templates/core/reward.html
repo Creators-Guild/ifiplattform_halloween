@@ -1,0 +1,1 @@
+{% load i18n %}<span class="reward" title="{% trans 'Coins count towards your drink ticket. Points decide the top 3.' %}">{{ issue.coins }} 🪙{% if issue.contest_points %} + {{ issue.contest_points }} 🏆{% endif %}</span>

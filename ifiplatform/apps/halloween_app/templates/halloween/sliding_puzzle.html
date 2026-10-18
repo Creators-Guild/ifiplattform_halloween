@@ -1,0 +1,15 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Moon puzzle" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/sliding_puzzle.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>🌕 {% trans "Moon puzzle" %}</h1>
+    <p class="sp-status">{% trans "Moves" %}: <output id="sp-moves">0</output></p>
+    <button type="button" id="sp-shuffle">{% trans "Shuffle" %}</button>
+    <div class="sp-board" id="sp-board"></div>
+    <p class="sp-message" id="sp-message" aria-live="polite"></p>
+{% endblock %}
+
+{% block hc_js %}<script src="{% static 'js/halloween_pages/sliding_puzzle.js' %}" defer></script>{% endblock %}

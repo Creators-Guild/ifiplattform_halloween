@@ -1,0 +1,18 @@
+{% load i18n opening_hours_tags %}
+{% get_opening_hours as places %}
+<section class="side-box hours-box">
+    <h2>{% trans "Open now?" %}</h2>
+    {% for place in places %}
+        <div class="hours-place">
+            <p class="hours-name">{{ place.name }}</p>
+            <p class="hours-today">
+                {% if place.today %}{% trans "Today" %} {{ place.today.0 }}&ndash;{{ place.today.1 }}{% else %}{% trans "Closed today" %}{% endif %}
+                {% if place.open %}
+                    <span class="hours-status hours-status--open">{% trans "Open" %}</span>
+                {% else %}
+                    <span class="hours-status hours-status--closed">{% trans "Closed" %}</span>
+                {% endif %}
+            </p>
+        </div>
+    {% endfor %}
+</section>

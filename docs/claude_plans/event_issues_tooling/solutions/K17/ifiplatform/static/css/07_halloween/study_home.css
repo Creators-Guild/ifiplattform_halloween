@@ -1,0 +1,29 @@
+.under-development {
+    background: #2a1d14;
+    color: #ffe9a8;
+    border-radius: 8px;
+    padding: 2rem 1.5rem;
+}
+
+.under-development h1 {
+    color: #ff7518;
+}
+
+.under-development-status {
+    color: #d9b77a;
+}
+
+.under-development-joke {
+    background: #f3e7c9;
+    color: #3b2412;
+    border-radius: 4px 18px 6px 14px;
+    padding: 1rem 1.2rem;
+}
+
+.under-development a {
+    color: #ffb15c;
+}
+
+.under-development a:hover {
+    text-shadow: 0 0 8px rgba(255, 177, 92, 0.9);
+}

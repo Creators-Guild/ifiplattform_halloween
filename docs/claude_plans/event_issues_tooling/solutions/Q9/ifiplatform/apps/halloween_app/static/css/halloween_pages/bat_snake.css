@@ -1,0 +1,31 @@
+.bs-board {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    width: min(30rem, 100%);
+    margin: 1rem 0;
+    border: 2px solid #000;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #15121c;
+}
+
+.bs-cell {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.bs-cell--snake {
+    background-color: #6b2fb3;
+}
+
+.bs-cell--candy {
+    background-color: transparent;
+}
+
+.bs-message {
+    font-size: 1.2rem;
+    font-weight: 700;
+}

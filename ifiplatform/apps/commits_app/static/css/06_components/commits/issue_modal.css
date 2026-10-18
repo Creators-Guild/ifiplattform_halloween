@@ -113,14 +113,158 @@
   color: var(--color-text-muted);
 }
 
-.issue-panel__diff {
-  overflow-x: auto;
-  padding: 0.75rem 1rem;
+.solution__files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1.1rem;
+}
+
+.solution__files code {
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  background-color: color-mix(in srgb, var(--color-text) 8%, transparent);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.solution__facts {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0 0 1.1rem;
+}
+
+.solution__fact {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.solution__fact dt {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.solution__fact dd {
+  margin: 0;
+  max-width: 65ch;
+}
+
+.solution__fact--correct dt { color: var(--color-turq); }
+.solution__fact--check dt { color: var(--color-yellow); }
+.solution__fact--mistakes dt { color: var(--color-pink); }
+
+.issue-panel__solution :is(dd, p, li) code {
+  color: var(--color-turq);
+  overflow-wrap: anywhere;
+}
+
+.issue-panel__solution :is(code, pre) {
+  font-family: inherit;
+}
+
+.solution__fold {
+  padding-top: 0.8rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+
+.solution__fold + .solution__fold {
+  margin-top: 0.8rem;
+}
+
+.solution__fold > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.solution__fold[open] > summary {
+  margin-bottom: 0.75rem;
+}
+
+.solution__fold p,
+.solution__checks {
+  max-width: 65ch;
+}
+
+.solution__hint {
+  padding: 0.55rem 0.8rem;
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--color-text) 8%, transparent);
+  font-size: 0.9rem;
+}
+
+.solution__file {
+  margin: 0 0 1rem;
+  overflow: hidden;
   border-radius: 10px;
   background-color: var(--color-bg-dark);
-  color: var(--color-on-accent);
-  font-size: 0.85rem;
 }
+
+.solution__file-name {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.solution__file-name span {
+  color: var(--color-text-muted);
+}
+
+.solution__code {
+  margin: 0;
+  padding: 0.6rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.solution__line {
+  display: block;
+  padding: 0 0.9rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.solution__line--add {
+  background-color: color-mix(in srgb, var(--color-turq) 10%, transparent);
+  color: color-mix(in srgb, var(--color-turq) 55%, var(--color-text));
+}
+
+.solution__line--del {
+  background-color: color-mix(in srgb, var(--color-pink) 12%, transparent);
+  color: color-mix(in srgb, var(--color-pink) 50%, var(--color-text));
+}
+
+.solution__line--ctx {
+  color: var(--color-text-muted);
+}
+
+.solution__line--hunk {
+  padding-block: 0.25rem;
+  color: var(--color-secondary);
+  font-size: 0.8rem;
+}
+
+.solution__checks {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.solution__check {
+  display: block;
+  font-weight: 700;
+}
+
+.solution__check--ok { color: var(--color-turq); }
+.solution__check--warn { color: var(--color-yellow); }
+.solution__check--bad { color: var(--color-pink); }
 
 .issue-panel__actions {
   display: flex;

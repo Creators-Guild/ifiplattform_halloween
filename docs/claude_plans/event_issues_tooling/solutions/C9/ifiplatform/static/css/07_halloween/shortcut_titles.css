@@ -1,0 +1,5 @@
+#home-shortcuts .shortcut-title {
+    font-family: var(--font-spooky);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}

@@ -1,0 +1,22 @@
+@keyframes shortcut-wiggle {
+    0%,
+    100% {
+        rotate: 0deg;
+    }
+    25% {
+        rotate: -2deg;
+    }
+    75% {
+        rotate: 2deg;
+    }
+}
+
+#home-shortcuts .shortcut-card:is(:hover, :has(:focus-visible)) {
+    animation: shortcut-wiggle 0.4s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #home-shortcuts .shortcut-card:is(:hover, :has(:focus-visible)) {
+        animation: none;
+    }
+}

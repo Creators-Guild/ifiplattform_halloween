@@ -1,0 +1,29 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Haunted notice board" %}{% endblock %}
+{% block hc_css %}
+    <link rel="stylesheet" href="{% static 'css/halloween_pages/board.css' %}">
+    <link rel="stylesheet" href="{% static 'css/halloween_pages/board_obituary.css' %}">
+    <link rel="stylesheet" href="{% static 'css/halloween_pages/board_warning.css' %}">
+    <link rel="stylesheet" href="{% static 'css/halloween_pages/board_rule.css' %}">
+    <link rel="stylesheet" href="{% static 'css/halloween_pages/board_missing.css' %}">
+{% endblock %}
+
+{% block hc_content %}
+    <h1>📌 {% trans "Haunted notice board" %}</h1>
+    <p class="board-intro">{% trans "Obituaries, warnings, rules and missing posters. Read at your own risk." %}</p>
+    <div class="board">
+        {% for note in notes %}
+            <article class="note note--{{ note.kind }}" style="--tilt: {{ note.tilt }}deg">
+                <h2 class="note__title">{{ note.title }}</h2>
+                {% if note.text %}<div class="note__text">{{ note.text|linebreaks }}</div>{% endif %}
+                {% if note.signature %}<p class="note__signature">— {{ note.signature }}</p>{% endif %}
+            </article>
+        {% empty %}
+            <p>{% trans "The board is empty. Too quiet..." %}</p>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block hc_js %}<script src="{% static 'js/halloween_pages/board_drag.js' %}" defer></script>{% endblock %}

@@ -1,0 +1,10 @@
+diff --git a/ifiplatform/static/css/07_halloween/shortcut_focus.css b/ifiplatform/static/css/07_halloween/shortcut_focus.css
+index e69de29..e006147 100644
+--- a/ifiplatform/static/css/07_halloween/shortcut_focus.css
++++ b/ifiplatform/static/css/07_halloween/shortcut_focus.css
+@@ -0,0 +1,5 @@
++#home-shortcuts a:focus-visible,
++#home-shortcuts .shortcut-toggle:focus-visible {
++    outline: 3px solid var(--color-accent);
++    outline-offset: 3px;
++}

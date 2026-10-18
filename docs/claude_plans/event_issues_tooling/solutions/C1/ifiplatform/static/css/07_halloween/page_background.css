@@ -1,0 +1,9 @@
+:root:has(#home-shortcuts),
+:root:has(#home-shortcuts) body {
+    background-color: #2b2b30;
+}
+
+:root:has(#home-shortcuts) .newsbar-heading,
+:root:has(#home-shortcuts) .home-navbar .link .drop-option {
+    color: #f2eff6;
+}

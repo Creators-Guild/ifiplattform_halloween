@@ -1,0 +1,41 @@
+.countdown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 2rem 0 1rem;
+}
+
+.countdown__part {
+    display: grid;
+    justify-items: center;
+    min-width: 7rem;
+    margin: 0;
+    padding: 1rem;
+    border: 2px solid #000;
+    border-radius: 6px;
+    background-color: #15121c;
+    color: #ff7518;
+}
+
+.countdown__number {
+    font-size: 3rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 18px rgba(255, 117, 24, 0.6);
+}
+
+.countdown__unit {
+    color: #f2eff6;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.countdown-date {
+    font-style: italic;
+}
+
+.countdown-today {
+    font-size: 3rem;
+    font-weight: 800;
+}

@@ -37,35 +37,37 @@
     {% endif %}
 
     {% if rows %}
+        {% if podium %}
         <ol class="podium">
-            {% for row in rows|slice:":3" %}
+            {% for row in podium %}
                 <li class="podium__place podium__place--{{ forloop.counter }}">
                     <span class="podium__medal" aria-hidden="true">{% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}</span>
                     <span class="podium__name">{{ row.user.get_username }}</span>
-                    <span class="podium__points">{% blocktrans count points=row.points %}{{ points }} point{% plural %}{{ points }} points{% endblocktrans %}</span>
+                    <span class="podium__points">{{ row.points }} 🏆 · {{ row.coins }} 🪙</span>
                     <span class="podium__issues">{{ row.issues|length }} {% trans "Issues" %}</span>
                     {% include "core/drink_cell.html" %}
                 </li>
             {% endfor %}
         </ol>
+        {% endif %}
 
-        {% if rows|length > 3 %}
+        {% if table %}
             <div class="points-table__scroll">
                 <table class="points-table">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">{% trans "Name" %}</th>
-                            <th scope="col">{% trans "Points" %}</th>
+                            <th scope="col">🏆 {% trans "Points" %}</th>
+                            <th scope="col">🪙 {% trans "Coins" %}</th>
                             <th scope="col">{% trans "Issues" %}</th>
                             <th scope="col">🍹</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for row in rows %}
-                            {% if forloop.counter > 3 %}
+                        {% for rank, row in table %}
                                 <tr>
-                                    <td class="points-table__rank">{{ forloop.counter }}</td>
+                                    <td class="points-table__rank">{{ rank }}</td>
                                     <td class="points-table__name">{{ row.user.get_username }}</td>
                                     <td>
                                         <div class="points-table__points">
@@ -73,10 +75,10 @@
                                             <span class="points-table__value">{{ row.points }}</span>
                                         </div>
                                     </td>
+                                    <td>{{ row.coins }}</td>
                                     <td>{{ row.issues|length }}</td>
                                     <td>{% include "core/drink_cell.html" %}</td>
                                 </tr>
-                            {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
@@ -94,7 +96,7 @@
         {% if show_unlinked_names %}
             <p class="commits__hint">
                 {% trans "Not linked yet (only helpers see this):" %}
-                {% for score in unlinked %}{{ score.github_login }} ({{ score.points }}){% if not forloop.last %}, {% endif %}{% endfor %}
+                {% for score in unlinked %}{{ score.github_login }} ({{ score.points }} 🏆 · {{ score.coins }} 🪙){% if not forloop.last %}, {% endif %}{% endfor %}
             </p>
         {% endif %}
     {% endif %}

@@ -1,0 +1,7 @@
+.moon__shadow {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 50%;
+    background: radial-gradient(ellipse 50% 50% at calc(50% + var(--moon-shadow, 100%)) 50%, rgba(18, 15, 26, 0.88) 98%, transparent 100%);
+}

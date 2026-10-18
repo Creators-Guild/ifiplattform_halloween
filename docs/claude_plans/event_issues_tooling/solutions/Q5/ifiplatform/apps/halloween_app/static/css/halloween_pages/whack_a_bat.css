@@ -1,0 +1,21 @@
+.wab-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 24rem;
+    margin-top: 1.5rem;
+}
+
+.wab-hole {
+    aspect-ratio: 1;
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 60%, #000 55%, #3a2a1a 70%);
+    font-size: 2.6rem;
+    cursor: pointer;
+}
+
+.wab-hole:focus-visible {
+    outline: 3px solid #ff7518;
+    outline-offset: 3px;
+}

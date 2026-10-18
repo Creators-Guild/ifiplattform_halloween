@@ -4,7 +4,7 @@
      data-index="{{ index }}"
      data-duration="{{ msg.display_seconds }}">
     <h2>{{ msg.title }}</h2>
-    <p class="messageboard-date">{{ msg.date|date:"d/m/Y" }}</p>
+    <p class="messageboard-date">{{ msg.date|date:"m/d/Y" }}</p>
 
     <div class="messageboard-body-wrap">
         <div class="messageboard-body">{{ msg.body|richtext }}</div>

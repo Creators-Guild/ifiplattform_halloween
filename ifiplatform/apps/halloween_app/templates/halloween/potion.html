@@ -1,0 +1,24 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Potion mixer" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/potion.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>🧪 {% trans "Potion mixer" %}</h1>
+    <form class="potion-form" method="get">
+        <fieldset>
+            <legend>{% trans "Pick your ingredients" %}</legend>
+            {% for key, label in ingredients %}
+                <label class="potion-form__ingredient">
+                    <input type="checkbox" name="ingredient" value="{{ key }}"{% if key in picked %} checked{% endif %}>
+                    {{ label }}
+                </label>
+            {% endfor %}
+        </fieldset>
+        <button type="submit" name="brew" value="1">{% trans "Brew" %}</button>
+    </form>
+    {% if "brew" in request.GET %}
+        <p class="potion-result">{% if result %}{{ result }}{% else %}{% trans "The cauldron just bubbles... (not built yet)" %}{% endif %}</p>
+    {% endif %}
+{% endblock %}

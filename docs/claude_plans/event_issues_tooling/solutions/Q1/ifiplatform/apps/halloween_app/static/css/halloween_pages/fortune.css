@@ -1,0 +1,22 @@
+.fortune-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.fortune-result {
+    display: grid;
+    place-items: center;
+    width: 18rem;
+    max-width: 100%;
+    aspect-ratio: 1;
+    margin: 2rem auto;
+    padding: 2.5rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #e9d8ff, #6b2fb3 60%, #24093f);
+    box-shadow: 0 0 40px rgba(170, 67, 255, 0.6);
+    color: #fff5bc;
+    text-align: center;
+    font-style: italic;
+}

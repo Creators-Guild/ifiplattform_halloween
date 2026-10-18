@@ -1,0 +1,16 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Bat snake" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/bat_snake.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>🐍 {% trans "Bat snake" %}</h1>
+    <p class="bs-status">{% trans "Candy eaten" %}: <output id="bs-score">0</output></p>
+    <p>{% trans "Steer with the arrow keys." %}</p>
+    <button type="button" id="bs-start">{% trans "Start" %}</button>
+    <div class="bs-board" id="bs-board"></div>
+    <p class="bs-message" id="bs-message" aria-live="polite"></p>
+{% endblock %}
+
+{% block hc_js %}<script src="{% static 'js/halloween_pages/bat_snake.js' %}" defer></script>{% endblock %}

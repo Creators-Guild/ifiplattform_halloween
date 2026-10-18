@@ -3,7 +3,7 @@
     {% if link %}
         <a class="my-points{% if score.drink_earned %} my-points--ready{% endif %}" href="{% url 'commits_main' %}">
             <span class="my-points__login">@{{ link.github_login }}</span>
-            <span class="my-points__pts">{% blocktrans count points=score.points %}{{ points }} point{% plural %}{{ points }} points{% endblocktrans %}{% if score.drink_earned %} 🍹{% endif %}</span>
+            <span class="my-points__pts">{{ score.coins }} 🪙 · {{ score.points }} 🏆{% if score.drink_earned %} 🍹{% endif %}</span>
         </a>
     {% else %}
         <a class="my-points my-points--link" href="{% url 'commits_main' %}">{% trans "Link your GitHub" %} →</a>

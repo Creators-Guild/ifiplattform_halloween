@@ -23,7 +23,7 @@
 
         <div class="event-meta">
             <span>
-                {{ page.event_date }}{% if page.end_date %} &ndash; {{ page.end_date }}{% endif %}
+                {% now "l" %} {{ page.event_date }}{% if page.end_date %} &ndash; {{ page.end_date }}{% endif %}
                 {% if page.event_time %} {% trans "at" %} {{ page.event_time|time:"H:i" }}{% if page.event_end_time %}&ndash;{{ page.event_end_time|time:"H:i" }}{% endif %}{% endif %}
             </span>
             {% if page.location or page.location_map_links %}
@@ -58,6 +58,7 @@
         {% if page.signup_url and not page.is_archived %}
             <a class="event-signup-link" href="{{ page.signup_url }}" target="_blank" rel="noopener noreferrer">{% trans "Sign up" %}</a>
         {% endif %}
+        {% include "events/partials/add_to_calendar.html" %}
 
         {% if needs_translation %}
             <div class="article-meta">

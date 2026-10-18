@@ -1,0 +1,17 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Spooky name generator" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/spooky_name.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>🧛 {% trans "Spooky name generator" %}</h1>
+    <form class="spooky-form" method="get">
+        <label for="spooky-name">{% trans "Your name" %}</label>
+        <input id="spooky-name" name="name" value="{{ name }}" required>
+        <button type="submit">{% trans "Reveal" %}</button>
+    </form>
+    {% if name %}
+        <p class="spooky-result">{% if result %}{{ result }}{% else %}{% trans "Your spooky name is still hiding... (not built yet)" %}{% endif %}</p>
+    {% endif %}
+{% endblock %}

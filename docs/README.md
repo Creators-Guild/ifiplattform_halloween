@@ -1,6 +1,6 @@
 # docs/
 
-Last updated: 2026-10-16
+Last updated: 2026-10-18
 
 Project documentation beyond the main [README.md](../README.md). Each
 folder holds one kind of document. When you add a new doc, put it in the
@@ -78,6 +78,8 @@ below.
 - [docker_guide.md](contributing/docker_guide.md): everything after the
   first start: how Docker works here, restart or rebuild, everyday tasks,
   and fixing problems
+- [helpers.md](contributing/helpers.md): for helpers at Commit for
+  Candy: what to read, setup and merge checklists, and common problems
 - [collaborators.md](contributing/collaborators.md): for people with
   write access: cloning the main repo and using `origin` instead of
   `upstream`

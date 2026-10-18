@@ -19,7 +19,15 @@ This is the repo for **Commit for Candy**, the event where IfiPlattform goes ope
 - **Everyone is welcome**, whatever your skill level. You don't need to have used Git, Django or open source before.
 - **Link your GitHub username.** Sign up on the mock site at https://halloween.ifiplattform.no, open **My issues** (https://halloween.ifiplattform.no/commits/) and add your GitHub username. You need it to claim issues and get points.
 - **Claim an issue on the site.** The [Issues page](https://halloween.ifiplattform.no/commits/issues/) lists things to change and restyle for Halloween, from a single colour to whole pages. Press **Claim** on a free one, or **🎲 Give me an issue** to get a random one. Don't comment on GitHub to claim: only claims on the site count.
-- **Collect points.** Each issue has a size: 🍬 candy = 1 point, 🍫 chocolate = 2, 🎃 pumpkin = 3. Start with a 🍬. You get the points when your issue is closed, and they show on the [Leaderboard](https://halloween.ifiplattform.no/commits/leaderboard/).
+- **Collect coins for a drink, points for the top 3.** Each issue has a size:
+
+  | Size | 🪙 Coins | 🏆 Points |
+  | --- | --- | --- |
+  | 🍬 candy | 1 | 0 |
+  | 🍫 chocolate | 2 | 2 |
+  | 🎃 pumpkin | 3 | 3 |
+
+  5 🪙 gets you a drink ticket: everyone can get one. 🏆 points decide the top 3 on the [Leaderboard](https://halloween.ifiplattform.no/commits/leaderboard/), and they get extra drink tickets. Start with a 🍬. Once you have your drink, move up to 🍫 and 🎃 and leave the 🍬 for the beginners. You get your coins and points when your issue is closed.
   - You can hold 2 issues at a time.
   - A claim runs out after 30 minutes (🍬), 60 (🍫) or 90 (🎃) unless you press **Keep**. Once you open a pull request, your claim no longer runs out.
 - **Make the change** on your own computer (see [Get started](#get-started) below), then open a pull request.

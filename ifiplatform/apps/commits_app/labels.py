@@ -1,6 +1,13 @@
 """The label contract with the event issues on GitHub: which labels make an
-issue count, and for how many points. Rename here when the labels change --
-the sync (github_sync.py) and the pages both read it."""
+issue count, and what each size is worth. Rename here when the labels change --
+the sync (github_sync.py) and the pages both read it.
+
+Each size gives two things:
+- coins (the number in SIZE_LABELS, stored as EventIssue.points): count
+  towards the one drink ticket everyone can earn;
+- contest points (CONTEST_POINTS): decide the top 3 on the leaderboard. Only
+  the harder sizes give them, so nobody climbs the leaderboard with candy and
+  the easy issues stay free for beginners."""
 
 from django.utils.translation import gettext as _
 
@@ -9,6 +16,8 @@ SIZE_LABELS = {
     "🍫 chocolate": ("chocolate", 2),
     "🎃 pumpkin": ("pumpkin", 3),
 }
+CONTEST_POINTS = {"candy": 0, "chocolate": 2, "pumpkin": 3}
+
 CATEGORY_LABELS = [
     "🎨 restyle",
     "🦇 silly feature",
@@ -34,6 +43,11 @@ CATEGORY_SLUGS = {
     "👻 haunted bug": "haunted",
     "♿ a11y": "a11y",
 }
+
+
+def contest_points_for(size):
+    """ "pumpkin" -> 3: the leaderboard points a solved issue of this size gives."""
+    return CONTEST_POINTS.get(size, 0)
 
 
 def size_label(size):

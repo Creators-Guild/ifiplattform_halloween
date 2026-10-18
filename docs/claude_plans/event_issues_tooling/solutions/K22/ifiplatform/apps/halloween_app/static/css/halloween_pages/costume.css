@@ -1,0 +1,37 @@
+.costume-form button {
+    padding: 0.7rem 1.4rem;
+    border: 2px solid #000;
+    border-radius: 999px;
+    background-color: #ff7518;
+    color: #000;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.costume-form button:hover {
+    background-color: #ffb15c;
+}
+
+.costume-result {
+    max-width: 30rem;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border: 2px solid #000;
+    border-radius: 6px;
+    background-color: #2b1f3a;
+    color: #f2eff6;
+    text-align: center;
+}
+
+.costume-result__label {
+    margin: 0 0 0.4rem;
+    color: #cbaaff;
+    font-style: italic;
+}
+
+.costume-result__text {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}

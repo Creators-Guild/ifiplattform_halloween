@@ -1,6 +1,6 @@
 # Docker server
 
-Last updated: 2026-10-15
+Last updated: 2026-10-16
 
 How to set up and run a server with Docker. Today this runs the Halloween
 mock site. The real site (`ifiplattform.no`) still runs the old setup in
@@ -219,9 +219,13 @@ Two things helpers should do:
 
 The site reads the event repo on GitHub. Nobody reports anything by hand.
 
-- An issue counts if it has a size label: `🍬 candy` (1 point),
-  `🍫 chocolate` (2) or `🎃 pumpkin` (3). The names are in `SIZE_LABELS`
-  in `ifiplatform/apps/commits_app/labels.py`.
+- An issue counts if it has a size label: `🍬 candy`, `🍫 chocolate` or
+  `🎃 pumpkin`. Each size gives **coins** (1, 2, 3), which count towards
+  the drink ticket, and **contest points** (0, 2, 3), which decide the
+  leaderboard and its top 3. Candy gives no points on purpose, so nobody
+  climbs the leaderboard with the beginners' issues. The names and values
+  are in `SIZE_LABELS` and `CONTEST_POINTS` in
+  `ifiplatform/apps/commits_app/labels.py`.
 - When a **claimed** issue is closed as completed, the person who claimed
   it gets the points, however it was closed. Nobody needs to write
   "Closes #12".
@@ -270,7 +274,8 @@ If GitHub is down, the site keeps the points it already has.
 - **Organisers** are site users with "staff status" or superusers. On the
   leaderboard they see warnings and a **Handed out**
   button for everyone who has earned a drink ticket
-  (`DRINK_TICKET_POINTS` in `settings.py`, 5 points).
+  (`DRINK_TICKET_COINS` in `settings.py`, 5 coins). The podium shows
+  only people with points; everyone else is listed below it.
 - **Helpers** get a solution button on every issue card. It opens the
   issue with its solution, or says "Solution missing" if none was loaded
   for that issue. They also have **Sync now** in the tab bar, and see

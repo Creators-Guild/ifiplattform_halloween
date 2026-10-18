@@ -6,8 +6,8 @@ from django.shortcuts import redirect
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from commits_app import claims
-from commits_app.labels import CATEGORY_LABELS, SIZE_LABELS
-from commits_app.models import Claim, EventSolution, GitHubLink
+from commits_app.labels import CATEGORY_LABELS, CATEGORY_SLUGS, SIZE_LABELS
+from commits_app.models import Claim, EventIssue, EventSolution, GitHubLink
 from commits_app.permissions import can_see_solutions
 
 
@@ -21,6 +21,9 @@ def annotate(issues, user):
 
     show_solution (helpers get a solution button on every issue) and
     has_solution (whether it finds one or says it's missing).
+
+    categories: [(label, slug)] for the card's band. A set has those of its
+    sub-issues, in the usual category order; any other issue has its own.
 
     Claims (claims.py): claim, claimed_by, is_mine, assigned_to_me (on
     GitHub, which the site can't undo: the card says so), is_new (yours and
@@ -40,6 +43,12 @@ def annotate(issues, user):
         else set()
     )
     claim_of = {c.issue_number: c for c in Claim.objects.select_related("user")}
+    sub_categories = {}
+    for parent, category in EventIssue.objects.filter(
+        parent_number__in=[issue.number for issue in issues]
+    ).values_list("parent_number", "category"):
+        if category:
+            sub_categories.setdefault(parent, set()).add(category)
 
     def shown(login):
         return linked_users.get(login) or (login if for_helper else "")
@@ -52,6 +61,11 @@ def annotate(issues, user):
         issue.is_assigned = bool(names)
         issue.show_solution = for_helper
         issue.has_solution = issue.number in solution_numbers
+        own = {issue.category} if issue.category else set()
+        issue.categories = [
+            (name, CATEGORY_SLUGS.get(name, ""))
+            for name in sorted(sub_categories.get(issue.number) or own, key=_category_order)
+        ]
 
         claim = claim_of.get(issue.number)
         is_open = issue.state != "CLOSED"
@@ -68,6 +82,12 @@ def annotate(issues, user):
             or (claim is None and bool(names) and my_login not in issue.assignees)
         )
     return issues
+
+
+def _category_order(category):
+    if category in CATEGORY_LABELS:
+        return (CATEGORY_LABELS.index(category), category)
+    return (len(CATEGORY_LABELS), category)
 
 
 def back(request):

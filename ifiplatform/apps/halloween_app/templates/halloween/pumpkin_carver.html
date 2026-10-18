@@ -1,0 +1,26 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Pumpkin carver" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/pumpkin_carver.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>🔪 {% trans "Pumpkin carver" %}</h1>
+    <p>{% trans "Click the pumpkin to carve it. Then light the candle." %}</p>
+    <div class="carver-buttons">
+        <button type="button" id="carver-light">{% trans "Light the candle" %}</button>
+        <button type="button" id="carver-clear">{% trans "Start over" %}</button>
+    </div>
+    <div class="carver-pumpkin" id="carver-pumpkin"></div>
+    <h2>{% trans "Need ideas?" %}</h2>
+    <ul class="carver-ideas">
+        <li><img src="{% static 'images/halloween/faces/face1.svg' %}" alt="{% trans 'Pumpkin face 1' %}" width="120" height="120"></li>
+        <li><img src="{% static 'images/halloween/faces/face2.svg' %}" alt="{% trans 'Pumpkin face 2' %}" width="120" height="120"></li>
+        <li><img src="{% static 'images/halloween/faces/face3.svg' %}" alt="{% trans 'Pumpkin face 3' %}" width="120" height="120"></li>
+        <li><img src="{% static 'images/halloween/faces/face4.svg' %}" alt="{% trans 'Pumpkin face 4' %}" width="120" height="120"></li>
+        <li><img src="{% static 'images/halloween/faces/face5.svg' %}" alt="{% trans 'Pumpkin face 5' %}" width="120" height="120"></li>
+        <li><img src="{% static 'images/halloween/faces/face6.svg' %}" alt="{% trans 'Pumpkin face 6' %}" width="120" height="120"></li>
+    </ul>
+{% endblock %}
+
+{% block hc_js %}<script src="{% static 'js/halloween_pages/pumpkin_carver.js' %}" defer></script>{% endblock %}

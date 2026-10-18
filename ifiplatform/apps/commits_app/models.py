@@ -7,7 +7,7 @@ numbers, titles and labels."""
 from django.conf import settings
 from django.db import models
 
-from .labels import CATEGORY_SLUGS, difficulty_text, size_label
+from .labels import CATEGORY_SLUGS, contest_points_for, difficulty_text, size_label
 
 
 class EventIssue(models.Model):
@@ -20,6 +20,8 @@ class EventIssue(models.Model):
     state = models.CharField(max_length=10)  # "OPEN" / "CLOSED", as GitHub says
     category = models.CharField(max_length=100, blank=True)
     size = models.CharField(max_length=20, blank=True)
+    # The coins for the drink ticket (see labels.py). Named "points" because it
+    # predates the contest points; 0 for a parent issue and for unsized ones.
     points = models.PositiveSmallIntegerField(default=0)
     parent_number = models.PositiveIntegerField(null=True, blank=True)
     assignees = models.JSONField(
@@ -36,6 +38,15 @@ class EventIssue(models.Model):
 
     def __str__(self):
         return f"#{self.number} {self.title}"
+
+    @property
+    def coins(self):
+        return self.points
+
+    @property
+    def contest_points(self):
+        """The leaderboard points this issue gives; 0 for a parent issue."""
+        return contest_points_for(self.size) if self.points else 0
 
     @property
     def size_label(self):
