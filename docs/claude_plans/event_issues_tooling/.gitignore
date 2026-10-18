@@ -1,0 +1,8 @@
+# Generated or downloaded: rebuild them with the steps in README.md.
+pilot_repo/
+out/
+shots/
+pwenv/
+debs/
+shot_env.sh
+__pycache__/

@@ -1,14 +1,13 @@
 """URL configuration for study app."""
 
 from django.conf import settings
-from django.urls import path
-from django.utils.translation import gettext_lazy as _
-from core_app.under_development import under_development_urlpatterns
-from .jokes import STUDY_JOKES
+from django.urls import path, re_path
 from .views import flashcard_views
 from .views import multiplechoice_views
 from .views import mix_studyset_views
 from .views import core_views
+from .views import excuse_api
+from .views import joke_page
 
 study_urlpatterns = [
     path("", core_views.main_view, name="study_home"),
@@ -56,12 +55,11 @@ studygames_urlpatterns = [
 ]
 
 if settings.APPS_UNDER_DEVELOPMENT.get("study_app"):
-    urlpatterns = under_development_urlpatterns(
-        "study_home",
-        _("Study"),
-        template_name="core/study_under_development.html",
-        extra_context={"jokes": STUDY_JOKES},
-    )
+    # The joke page catches every path, so the excuse API comes first.
+    urlpatterns = [
+        path("api/excuse/", excuse_api.excuse_api_view, name="study_excuse_api"),
+        re_path(r"^.*$", joke_page.joke_page_view, name="study_home"),
+    ]
 else:
     urlpatterns = (
         study_urlpatterns

@@ -1,0 +1,56 @@
+.hc-page h1 {
+    color: #ff7518;
+    font-family: var(--font-spooky);
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+    font-weight: 700;
+    text-align: center;
+}
+
+.hc-hub {
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 1.2rem;
+}
+
+.hc-hub__card a {
+    height: 100%;
+    box-sizing: border-box;
+    background-color: #2b1f3a;
+    color: #f2eff6;
+    box-shadow: 0 4px 0 #000;
+    transition: translate 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hc-hub__card a:hover,
+.hc-hub__card a:focus-visible {
+    translate: 0 -4px;
+    box-shadow: 0 8px 0 #000;
+}
+
+.hc-hub__card a:focus-visible {
+    outline: 3px solid #ff7518;
+    outline-offset: 3px;
+}
+
+.hc-hub__card:first-child a {
+    background-color: #3a2a1a;
+}
+
+.hc-hub__emoji {
+    font-size: 2.6rem;
+}
+
+.hc-hub__title {
+    color: #ffb15c;
+    font-size: 1.15rem;
+}
+
+.hc-hub__text {
+    color: #d8d2e2;
+    font-size: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hc-hub__card a {
+        transition: none;
+    }
+}

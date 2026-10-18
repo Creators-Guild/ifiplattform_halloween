@@ -1,6 +1,6 @@
 # Site header — design rationale
 
-Last updated: 2026-09-22
+Last updated: 2026-10-18
 Covers: ifiplatform/apps/account_app/static/css/06_components/profile_dropdown.css, ifiplatform/static/css/06_components/header.css, ifiplatform/static/css/06_components/select_language.css
 
 Covers `templates/partials/header.html` and
@@ -55,6 +55,14 @@ box and squeeze the links). The h1 is `white-space: nowrap` because with a
 wrapped one word per line on narrow desktops. Mobile resets to
 `contain: none`: there the box is centred (`align-items: center`) and the
 contained message collapsed to zero width.
+
+## Halloween tagline
+
+During the Halloween event, `partials/header_tagline.html` adds a
+"Trick or Treat?" `<button class="header-tagline">` under the logo, inside
+`.ifiplatform-logo-box` (a column flexbox, so it stacks under the `<h1>`).
+`static/css/07_halloween/scaffold.css` strips the button's default look;
+event issues style it and make clicking it do something.
 
 ## Mobile (below 45rem)
 

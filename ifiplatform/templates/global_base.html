@@ -21,12 +21,14 @@
     {% block app_css %}{% endblock app_css %}
     {% block section_css %}{% endblock section_css %}
     {% block page_css %}{% endblock page_css %}
+    {% block extra_head %}{% endblock extra_head %}
     {% comment %}
     Commit for Candy: one file per event issue, loaded last so it wins
-    over the CSS above. Participants fill in the empty files.
+    over the CSS above. Participants fill in the empty files. After
+    extra_head on purpose: some pages (the account pages) load their own
+    stylesheets there.
     {% endcomment %}
     {% include "css_links/halloween.html" %}
-    {% block extra_head %}{% endblock extra_head %}
 
 </head>
 <body>
@@ -44,6 +46,7 @@
             {% block content %}{% endblock %}
         </main>
         <div class="bottombar-content">
+            <div class="treeline" aria-hidden="true"></div>
             {% include "partials/footer.html" %}
         </div>
     </div>

@@ -1,0 +1,29 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Halloween corner" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/hub.css' %}">{% endblock %}
+
+{% block hc_back %}{% endblock %}
+
+{% block hc_content %}
+    <h1><span aria-hidden="true">🎃</span> {% trans "Halloween corner" %}</h1>
+    <p><a href="#hc-pages-heading">{% trans "Skip to the pages" %}</a></p>
+    {% include "halloween/partials/mascot.html" %}
+    {% include "halloween/partials/costume_of_the_day.html" %}
+    {% include "halloween/partials/spooky_demo.html" %}
+    <nav aria-labelledby="hc-pages-heading">
+        <h2 id="hc-pages-heading">{% trans "All pages" %}</h2>
+        <ul class="hc-hub">
+            {% for slug, emoji, title, description in pages %}
+                <li class="hc-hub__card">
+                    <a href="{% url 'halloween_'|add:slug %}" aria-label="{{ title }}" aria-describedby="hc-hub-text-{{ slug }}">
+                        <span class="hc-hub__emoji" aria-hidden="true">{{ emoji }}</span>
+                        <span class="hc-hub__title">{{ title }}</span>
+                        <span class="hc-hub__text" id="hc-hub-text-{{ slug }}">{{ description }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
+{% endblock %}

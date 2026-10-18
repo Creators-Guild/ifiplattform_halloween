@@ -1,0 +1,15 @@
+.output-box {
+    background-color: #b4b4b8;
+    border: 2px solid #000;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.output-box img {
+    border-radius: 3px;
+}
+
+.output-caption {
+    margin: 0.6rem 0 0;
+    font-size: 0.85rem;
+}

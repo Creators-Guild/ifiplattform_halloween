@@ -1,0 +1,11 @@
+.articlecard-meta,
+.messageboard-date,
+.home-eventsbox-time,
+.home-eventsbox-subcount,
+.home-eventsbox-subevents summary {
+    color: #2e2e33;
+}
+
+.home-eventsbox-view-all {
+    color: #0b4f52;
+}

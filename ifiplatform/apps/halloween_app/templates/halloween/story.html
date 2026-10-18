@@ -1,0 +1,25 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Haunted story" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/story.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>📖 {% trans "Haunted story" %}</h1>
+    <form class="story-form" method="get">
+        {% for key, label, value in fields %}
+            <label class="story-form__field">
+                <span>{{ label }}</span>
+                <input name="{{ key }}" value="{{ value }}">
+            </label>
+        {% endfor %}
+        <button type="submit" name="tell" value="1">{% trans "Tell me the story" %}</button>
+    </form>
+    {% if story %}
+        <article class="story">
+            {% for paragraph in story %}<p>{{ paragraph }}</p>{% endfor %}
+        </article>
+    {% elif told %}
+        <p class="story-missing">{% trans "The story is still missing some pages... Fill in every blank." %}</p>
+    {% endif %}
+{% endblock %}

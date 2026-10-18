@@ -1,0 +1,20 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Graveyard" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/graveyard.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>🪦 {% trans "Graveyard of retired features" %}</h1>
+    <p>{% trans "Here lie the features this site used to have." %}</p>
+    <ul class="graveyard">
+        {% for grave in graves %}
+            <li class="grave">
+                <p class="grave__rip">R.I.P.</p>
+                <h2 class="grave__name">{{ grave.name }}</h2>
+                <p class="grave__dates">{{ grave.born }} &ndash; {{ grave.died }}</p>
+                <p class="grave__epitaph">{{ grave.epitaph }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

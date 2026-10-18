@@ -1,0 +1,5 @@
+@media (prefers-reduced-motion: reduce) {
+    .ghost {
+        animation: none;
+    }
+}

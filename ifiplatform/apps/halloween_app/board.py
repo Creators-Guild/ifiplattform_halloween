@@ -1,15 +1,19 @@
 """Loads the notes on the haunted notice board from board_notes/. Each note is
 one .txt file, so every event issue adds its own file and two notes never
 clash. The file name starts with the note's kind (obituary_03.txt), line 1
-is the title, the rest is the text, and a last line starting with "— " is
-the signature. See board_notes/README.md."""
+is the title, the rest is the text, and a last line starting with a dash
+("-- ", "- " or "— ") is the signature. See board_notes/README.md."""
 
+import re
 import zlib
 from dataclasses import dataclass
 from pathlib import Path
 
 NOTES_DIR = Path(__file__).parent / "board_notes"
 KINDS = ("obituary", "warning", "rule", "missing")
+# Two normal dashes are what most people type; the long dash is what it
+# shows as on the board.
+SIGNATURE = re.compile(r"^(--|-|—)\s+")
 
 
 @dataclass
@@ -27,8 +31,8 @@ def _read(path):
         return None
     body = lines[1:]
     signature = ""
-    if body and body[-1].startswith("— "):
-        signature = body.pop()[2:].strip()
+    if body and SIGNATURE.match(body[-1]):
+        signature = SIGNATURE.sub("", body.pop()).strip()
     return Note(
         kind=path.stem.split("_")[0],
         title=lines[0].strip(),

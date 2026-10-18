@@ -1,6 +1,6 @@
 # Homepage events box — design rationale
 
-Last updated: 2026-10-13
+Last updated: 2026-10-18
 Covers: ifiplatform/apps/ifi_home_app/static/css/06_components/home/home_eventsbox.css, ifiplatform/apps/ifi_home_app/static/css/06_components/home/home_eventsbox_event.css
 
 Covers the homepage "This month at Ifi" box:
@@ -12,6 +12,10 @@ row, included per event), styled by
 `05_objects/home_layout.css` (see `home_layout.md`), including
 `align-self: start` so the box is as tall as its content instead of stretching
 to the column beside it.
+During the Halloween event the box sits inside `.right-column` (see
+`home_layout.md`), which resets its outer placement. Its Today/Tomorrow
+headings in `eventsbox.html` are swapped on purpose: a planted bug for an
+event issue (C31).
 
 It's a compact list, not the `newsbar_layout.css` card grid, because it sits in
 a narrow column.

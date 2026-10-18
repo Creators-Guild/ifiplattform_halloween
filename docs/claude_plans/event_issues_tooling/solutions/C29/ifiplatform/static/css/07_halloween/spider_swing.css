@@ -1,0 +1,13 @@
+@keyframes spider-swing {
+    from {
+        rotate: -6deg;
+    }
+    to {
+        rotate: 6deg;
+    }
+}
+
+.spider {
+    transform-origin: 50% 0;
+    animation: spider-swing 4s ease-in-out infinite alternate;
+}

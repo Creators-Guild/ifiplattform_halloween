@@ -1,0 +1,24 @@
+{% extends "halloween/base.html" %}
+{% load i18n static %}
+
+{% block hc_title %}{% trans "Countdown" %}{% endblock %}
+{% block hc_css %}<link rel="stylesheet" href="{% static 'css/halloween_pages/countdown.css' %}">{% endblock %}
+
+{% block hc_content %}
+    <h1>⏳ {% trans "Countdown to Halloween" %}</h1>
+    {% if is_today %}
+        <p class="countdown-today">{% trans "It's Halloween! 🎃" %}</p>
+    {% elif target %}
+        <div class="countdown" id="countdown" data-target="{{ target|date:'Y-m-d' }}">
+            <p class="countdown__part"><span class="countdown__number" id="countdown-days">0</span> <span class="countdown__unit">{% trans "days" %}</span></p>
+            <p class="countdown__part"><span class="countdown__number" id="countdown-hours">0</span> <span class="countdown__unit">{% trans "hours" %}</span></p>
+            <p class="countdown__part"><span class="countdown__number" id="countdown-minutes">0</span> <span class="countdown__unit">{% trans "minutes" %}</span></p>
+            <p class="countdown__part"><span class="countdown__number" id="countdown-seconds">0</span> <span class="countdown__unit">{% trans "seconds" %}</span></p>
+        </div>
+        <p class="countdown-date">{% blocktrans with date=target|date:"j F Y" %}Until {{ date }}{% endblocktrans %}</p>
+    {% else %}
+        <p>{% trans "The clock isn't ticking yet... (not built yet)" %}</p>
+    {% endif %}
+{% endblock %}
+
+{% block hc_js %}<script src="{% static 'js/halloween_pages/countdown.js' %}" defer></script>{% endblock %}

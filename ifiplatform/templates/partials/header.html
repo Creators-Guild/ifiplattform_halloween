@@ -7,6 +7,7 @@
                 {% trans "Ifi Platform Beta | Halloween" %}
             </a>
         </h1>
+        {% include "partials/header_tagline.html" %}
         {% get_header_message as header_message %}
         {% if header_message %}
             <div class="header-message" title="{{ header_message.text|striptags }}">{{ header_message.text|richtext }}</div>

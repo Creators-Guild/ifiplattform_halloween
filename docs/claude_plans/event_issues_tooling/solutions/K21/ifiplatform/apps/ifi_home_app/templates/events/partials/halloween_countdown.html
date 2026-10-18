@@ -1,0 +1,9 @@
+{% load i18n countdown_tags %}
+{% days_to_halloween as days %}
+<p class="halloween-countdown">
+    {% if days == 0 %}
+        🎃 {% trans "It's Halloween!" %}
+    {% else %}
+        🎃 {% blocktrans count days=days %}{{ days }} day to Halloween{% plural %}{{ days }} days to Halloween{% endblocktrans %}
+    {% endif %}
+</p>

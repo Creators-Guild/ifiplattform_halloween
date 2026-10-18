@@ -26,7 +26,7 @@ def under_development_urlpatterns(
     it, keeping ``url_name`` resolvable so {% url %} references elsewhere
     (e.g. in the navbar) still work. ``app_name`` is the human-readable label
     shown on the placeholder page (e.g. "Study"). An app can swap in its own
-    ``template_name`` and ``extra_context`` (study_app does, for its jokes)."""
+    ``template_name`` and ``extra_context``."""
     return [
         re_path(
             r"^.*$",
