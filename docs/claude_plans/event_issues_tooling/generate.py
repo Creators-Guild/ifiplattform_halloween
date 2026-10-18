@@ -80,17 +80,6 @@ def files_line(diff):
     return f"Files: {', '.join(names)}\n\n" if names else ""
 
 
-CHECK_PR = (
-    "\n\nCheck the PR: the 'Files check' warns when the PR changes more than "
-    "these files (extras on purpose are fine), and fails when the change was "
-    "made in the browser on github.com: then help them set up locally "
-    "instead of merging. Accidental extra files (a .po file, a migration, "
-    "db.sqlite3) should go: `git restore --source=upstream/main <file>` "
-    "(collaborators: origin/main), or `git rm --cached <file>` for a new "
-    "file, then commit and push again."
-)
-
-
 def main():
     issues = load()
     phase1 = {e["key"]: e for e in json.loads((HERE / "phase1_solutions_draft.json").read_text())}
@@ -107,7 +96,7 @@ def main():
         else:
             diff = diff_for(issue_id)
             note = NOTES.get(issue_id) or phase1[issue_id]["note"].split("\n\nCheck the PR:")[0].split("\n\n", 1)[1]
-            note = files_line(diff) + note + CHECK_PR
+            note = files_line(diff) + note
         solutions.append({"id": issue_id, "note": note, "diff": diff})
     (OUT / "all_issues.md").write_text("\n".join(review))
     (OUT / "solutions_by_id.json").write_text(json.dumps(solutions, ensure_ascii=False, indent=2) + "\n")
