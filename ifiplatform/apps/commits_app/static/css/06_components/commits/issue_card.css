@@ -35,6 +35,13 @@
   background-color: var(--issue-color);
 }
 
+.issue-card__categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  min-width: 0;
+}
+
 .issue-card__category {
   min-width: 0;
   overflow: hidden;
@@ -197,6 +204,10 @@
   color: var(--color-text-muted);
   text-decoration: line-through;
   text-decoration-thickness: 2px;
+}
+
+.issue-card--parent > .issue-card__body {
+  flex: none;
 }
 
 .issue-card__subs {

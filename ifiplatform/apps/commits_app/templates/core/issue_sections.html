@@ -1,16 +1,18 @@
-{% load i18n %}
+{% load i18n commits_tags %}
 {% for title, groups in sections %}
-    {% with first=groups.0.0 %}
-    <section class="issue-section{% if first.category_slug and title == first.category %} issue-card--{{ first.category_slug }}{% endif %}" data-carousel>
-        <div class="issue-section__head">
-            {% if title %}<h3 class="issue-section__title">{{ title }} <span class="issue-section__count">{{ groups|length }}</span></h3>{% endif %}
-            <div class="issue-carousel__controls" data-carousel-controls hidden>
-                <button type="button" class="issue-carousel__button" data-carousel-prev aria-label="{% trans 'Previous page' %}">‹</button>
-                <span class="issue-carousel__status" data-carousel-status aria-live="polite"></span>
-                <button type="button" class="issue-carousel__button" data-carousel-next aria-label="{% trans 'Next page' %}">›</button>
+    {% with slug=title|category_slug %}
+    <section class="issue-section{% if slug %} issue-card--{{ slug }}{% endif %}" data-carousel>
+        {% if title %}
+            <div class="issue-section__head">
+                <h3 class="issue-section__title">{{ title }} <span class="issue-section__count">{{ groups|length }}</span></h3>
             </div>
-        </div>
+        {% endif %}
         {% include "core/issue_groups.html" with carousel=True label=title %}
+        <div class="issue-carousel__controls" data-carousel-controls hidden>
+            <button type="button" class="issue-carousel__button" data-carousel-prev aria-label="{% trans 'Previous page' %}">‹</button>
+            <span class="issue-carousel__status" data-carousel-status aria-live="polite"></span>
+            <button type="button" class="issue-carousel__button" data-carousel-next aria-label="{% trans 'Next page' %}">›</button>
+        </div>
     </section>
     {% endwith %}
 {% endfor %}

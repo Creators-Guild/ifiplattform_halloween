@@ -2,6 +2,7 @@
 
 from django import template
 
+from ..labels import CATEGORY_SLUGS
 from ..models import GitHubLink
 from ..permissions import can_see_solutions
 from ..scoring import score_for
@@ -39,3 +40,10 @@ def claim_offer(message):
         if tag.startswith("claim-offer-"):
             return tag.removeprefix("claim-offer-")
     return ""
+
+
+@register.filter
+def category_slug(label):
+    """The colour slug for a category label, or "" for anything else (a
+    difficulty heading, say)."""
+    return CATEGORY_SLUGS.get(label, "")

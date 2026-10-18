@@ -3,6 +3,7 @@ difficulty, grouped into sections, with free issues first in each
 visitor's own shuffled order."""
 
 from django.conf import settings
+from django.db.models import Q
 from django.shortcuts import render
 from django.utils.translation import gettext as _
 
@@ -26,15 +27,28 @@ def issues_view(request):
     issues = EventIssue.objects.select_related("credit")
     categories = _picked(request, "category")
     difficulties = _picked(request, "difficulty")
+    # The filters pick sub-issues and single issues. A set has no size, and
+    # its own category can differ from its sub-issues', so it comes along
+    # with any sub-issue that matches instead.
+    matching = issues.exclude(
+        number__in=EventIssue.objects.exclude(parent_number=None).values(
+            "parent_number"
+        )
+    )
     if categories:
-        issues = issues.filter(category__in=categories)
+        matching = matching.filter(category__in=categories)
     if difficulties:
-        issues = issues.filter(size__in=difficulties)
+        matching = matching.filter(size__in=difficulties)
+    issues = issues.filter(
+        Q(pk__in=matching.values("pk"))
+        | Q(number__in=matching.values("parent_number"))
+    )
 
     issues = annotate(list(issues), request.user)
 
-    # Sub-issues are listed under their parent; a parent filtered out still
-    # shows its matching children as their own group. Easiest first
+    # Sub-issues are listed under their parent, and only the ones that match
+    # the filters. Grouped by category, a set with sub-issues in several
+    # categories shows in each, with that category's sub-issues. Easiest first
     # everywhere, a parent (0 points itself) counting as its easiest
     # sub-issue. The grouping follows the filters: only a filter that still
     # spans several values ("All", or more than one picked) is worth
@@ -56,11 +70,18 @@ def issues_view(request):
     for issue in issues:
         if issue.parent_number in shown:
             children.setdefault(issue.parent_number, []).append(issue)
-    groups = [
-        (issue, children.get(issue.number, []))
-        for issue in issues
-        if issue.parent_number not in shown
-    ]
+    groups = []
+    for issue in issues:
+        if issue.parent_number in shown:
+            continue
+        subs = children.get(issue.number, [])
+        if group_by == "category" and subs:
+            by_category = {}
+            for sub in subs:
+                by_category.setdefault(sub.category, []).append(sub)
+            groups += [(issue, same) for same in by_category.values()]
+        else:
+            groups.append((issue, subs))
     groups.sort(key=_difficulty_key)
     if group_by == "category":
         groups.sort(key=_category_key)  # stable: easiest first within a category
@@ -141,7 +162,7 @@ def _difficulty_key(group):
 
 def _group_category(group):
     issue, sub_issues = group
-    return issue.category or next((s.category for s in sub_issues), "")
+    return next((s.category for s in sub_issues), "") or issue.category
 
 
 def _category_key(group):

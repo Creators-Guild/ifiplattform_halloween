@@ -566,6 +566,72 @@ class PagesTests(TestCase):
         self.assertEqual(groups["closed_groups"], [1])
         self.assertContains(response, "🎃 pumpkin (hard)")
 
+    def make_set(self):
+        """Set 10 (🖼️ art, no size, like the sync makes it) with a candy
+        restyle step and two candy art steps; issue 4 is on its own."""
+        EventIssue.objects.create(
+            number=10, title="Set", url="https://x", state="OPEN", category="🖼️ art"
+        )
+        self.open_issue(11, "🍬 candy", "🎨 restyle")
+        self.open_issue(12, "🍬 candy", "🖼️ art")
+        self.open_issue(13, "🍬 candy", "🖼️ art")
+        EventIssue.objects.filter(number__in=[11, 12, 13]).update(parent_number=10)
+        self.open_issue(4, "🎃 pumpkin", "🎨 restyle")
+
+    def open_groups(self, **params):
+        response = self.client.get(reverse("commits_issues"), params)
+        return [
+            (title, issue.number, [s.number for s in subs])
+            for title, groups in response.context["open_sections"]
+            for issue, subs in groups
+        ]
+
+    def test_set_shows_in_each_category_of_its_sub_issues(self):
+        self.make_set()
+        self.assertEqual(
+            self.open_groups(),
+            [
+                ("🎨 restyle", 10, [11]),
+                ("🎨 restyle", 4, []),
+                ("🖼️ art", 10, [12, 13]),
+            ],
+        )
+        self.assertEqual(
+            self.open_groups(group="difficulty"),
+            [("🍬 candy (easy)", 10, [11, 12, 13]), ("🎃 pumpkin (hard)", 4, [])],
+        )
+
+    def test_set_has_the_categories_of_its_sub_issues(self):
+        self.make_set()
+        response = self.client.get(reverse("commits_issues"))
+        cards = {
+            issue.number: issue.categories
+            for _title, groups in response.context["open_sections"]
+            for issue, _subs in groups
+        }
+        both = [("🎨 restyle", "restyle"), ("🖼️ art", "art")]
+        self.assertEqual(cards[10], both)
+        self.assertEqual(cards[4], [("🎨 restyle", "restyle")])
+        self.assertContains(
+            response,
+            '<span class="issue-card__category issue-card--restyle">🎨 restyle</span>'
+            '<span class="issue-card__category issue-card--art">🖼️ art</span>',
+        )
+        response = self.client.get(reverse("commits_issue_detail", args=[10]))
+        self.assertEqual(response.context["issue"].categories, both)
+
+    def test_filters_keep_a_set_with_its_matching_sub_issues(self):
+        self.make_set()
+        self.assertEqual(
+            self.open_groups(difficulty="candy"),
+            [("🎨 restyle", 10, [11]), ("🖼️ art", 10, [12, 13])],
+        )
+        self.assertEqual(
+            self.open_groups(category="🎨 restyle"),
+            [("🍬 candy (easy)", 10, [11]), ("🎃 pumpkin (hard)", 4, [])],
+        )
+        self.assertEqual(self.open_groups(difficulty="pumpkin", category="🖼️ art"), [])
+
     def test_issue_board_hides_unlinked_names_from_public(self):
         make_credit(1, "stranger")
         response = self.client.get(reverse("commits_issues"))

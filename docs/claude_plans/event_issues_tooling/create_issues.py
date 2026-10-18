@@ -1,8 +1,8 @@
 """Creates the event issues on GitHub from out/ (made by generate.py), with the
 `gh` CLI. Run it on a computer where `gh auth login` is done:
 
-    python3 create_issues.py --repo Creators-Guild/ifiplattform_halloween --dry-run
-    python3 create_issues.py --repo Creators-Guild/ifiplattform_halloween
+    python3 docs/claude_plans/event_issues_tooling/create_issues.py --repo Creators-Guild/ifiplattform_halloween --dry-run
+    python3 docs/claude_plans/event_issues_tooling/create_issues.py --repo Creators-Guild/ifiplattform_halloween
 
 Steps:
 1. Makes sure the size and category labels exist (`gh label create --force`).
