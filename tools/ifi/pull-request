@@ -12,16 +12,14 @@ branch="$(git branch --show-current)"
 if [[ -n "$(git status --porcelain)" ]]; then
     git status --short
     die "" "These changes aren't committed yet. Commit them first:" \
-        "  git add ." \
-        "  git commit -m \"Short description of what you changed\""
+        "  ifi save \"Short description of what you changed\""
 fi
 
 find_base
-git fetch --quiet "$base"
+fetch_base
 if [[ "$(git rev-list --count "$base/main..HEAD")" -eq 0 ]]; then
     die "$branch has no commits yet, so there's nothing to send. Commit your change first:" \
-        "  git add ." \
-        "  git commit -m \"Short description of what you changed\""
+        "  ifi save \"Short description of what you changed\""
 fi
 
 nr="$(git config "branch.$branch.ifi-issue" || true)"
@@ -31,7 +29,7 @@ while [[ ! "$nr" =~ ^[0-9]+$ ]]; do
 done
 git config "branch.$branch.ifi-issue" "$nr"
 
-run git push --quiet -u origin HEAD
+git_or_explain origin push --quiet -u origin HEAD
 
 if [[ "$base" == origin ]]; then
     head="$branch"

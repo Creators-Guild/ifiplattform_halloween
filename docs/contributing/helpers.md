@@ -112,7 +112,8 @@ it runs.
 | Command | What it does |
 | --- | --- |
 | `ifi fix-issue <nr>` | Makes a branch for issue `<nr>` from the newest code. Run it again to go back to that branch. |
-| `ifi pull-request` | Pushes the branch and gives the pull request link, with `Closes #<nr>` already filled in |
+| `ifi save "message"` | Saves (commits) every change in the whole repo, also from a subfolder. Asks for name and email the first time |
+| `ifi pull-request` | Pushes the branch and gives the pull request link, with `Closes #<nr>` already filled in. If the push fails, it says why: not logged in, wrong account, cloned the main repo instead of a fork, or an SSH address |
 | `ifi undo-file <file>` | Takes a file out of the pull request (it commits and pushes for you) |
 | `ifi undo-file --extra` | Takes out every file the issue doesn't list, in one go. Their version is kept on a `-backup` branch |
 | `ifi test` | The quick tests. Run before a pull request. `ifi test --long` runs all of them. |
@@ -128,8 +129,7 @@ The usual flow for a participant:
 ifi fix-issue 42
 # ...make the change, check it at http://localhost:8000...
 ifi test
-git add .
-git commit -m "Short description of what you changed"
+ifi save "Short description of what you changed"
 ifi pull-request
 ```
 

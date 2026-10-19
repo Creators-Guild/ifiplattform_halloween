@@ -22,13 +22,12 @@ branch="$(git branch --show-current)"
 if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
     git status --short --untracked-files=no
     die "" "These changes aren't committed yet. Commit them first:" \
-        "  git add -A" \
-        "  git commit -m \"Short description of what you changed\""
+        "  ifi save \"Short description of what you changed\""
 fi
 
 cd "$(git rev-parse --show-toplevel)"
 find_base
-git fetch --quiet "$base"
+fetch_base
 
 if [[ "$1" == --extra ]]; then
     nr="$(git config "branch.$branch.ifi-issue" || true)"
@@ -119,7 +118,7 @@ if git diff --cached --quiet; then
 fi
 
 run git commit --quiet -m "$message"
-run git push --quiet origin HEAD
+git_or_explain origin push --quiet origin HEAD
 cat <<EOF
 
 Done. Your pull request no longer changes:

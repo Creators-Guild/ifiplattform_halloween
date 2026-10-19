@@ -18,8 +18,7 @@ dirty="$(git status --porcelain)"
 if [[ -n "$dirty" && -n "$current" && "$current" != main ]]; then
     die "You have changes on $current that aren't committed yet." \
         "Commit them first, then run this again:" \
-        "  git add ." \
-        "  git commit -m \"Short description of what you changed\""
+        "  ifi save \"Short description of what you changed\""
 fi
 
 existing="$(git config --get-regexp '^branch\..*\.ifi-issue$' 2>/dev/null |
@@ -94,7 +93,7 @@ if git show-ref --verify --quiet "refs/heads/$name"; then
 fi
 
 find_base
-run git fetch "$base"
+fetch_base
 run git switch -c "$name" --no-track "$base/main"
 git config "branch.$name.ifi-issue" "$nr"
 
@@ -104,7 +103,6 @@ echo "Made branch $name for issue #$nr."
 cat <<EOF
 
 Now make your change. When it works:
-  git add .
-  git commit -m "Short description of what you changed"
+  ifi save "Short description of what you changed"
   ifi pull-request
 EOF
