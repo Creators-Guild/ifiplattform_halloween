@@ -1,8 +1,0 @@
-.spooky-result {
-    margin: 2rem 0;
-    font-size: clamp(2rem, 6vw, 3.5rem);
-    font-weight: 700;
-    color: #c0261d;
-    text-shadow: 0 0 12px rgba(192, 38, 29, 0.6), 2px 2px 0 #000;
-    letter-spacing: 0.05em;
-}

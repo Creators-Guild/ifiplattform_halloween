@@ -1,3 +1,0 @@
-Rule 13: commit before you leave the room
-Things move at night. Uncommitted work is never seen again.
--- The night guard

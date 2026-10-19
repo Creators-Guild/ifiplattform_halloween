@@ -1,8 +1,0 @@
-diff --git a/ifiplatform/static/css/07_halloween/header_bar.css b/ifiplatform/static/css/07_halloween/header_bar.css
-index e69de29..be451f1 100644
---- a/ifiplatform/static/css/07_halloween/header_bar.css
-+++ b/ifiplatform/static/css/07_halloween/header_bar.css
-@@ -0,0 +1,3 @@
-+.header-bar {
-+    background: #000000;
-+}
