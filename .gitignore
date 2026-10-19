@@ -22,3 +22,4 @@ docs/claude_plans/event_issues_tooling/pwenv/
 docs/claude_plans/event_issues_tooling/debs/
 docs/claude_plans/event_issues_tooling/shot_env.sh
 docs/claude_plans/event_issues_tooling/__pycache__/
+*.DS_Store
