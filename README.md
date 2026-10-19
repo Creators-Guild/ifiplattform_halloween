@@ -69,6 +69,7 @@ Two steps, and both end with the site running at http://localhost:8000.
    ifi test                # the quick tests
    ifi save "Short description of what you changed"   # git add + commit, for the whole repo
    ifi pull-request        # pushes, and gives you the pull request link
+   ifi update              # later: bring your branch up to date with the newest main
    ```
    `ifi` commands are this project's own shortcuts, not part of Git. Each one prints the commands it runs. Rather do it all with Git, or not using Docker? Follow [Make a change, step by step](CONTRIBUTING.md#2-make-a-change-step-by-step) in CONTRIBUTING.md.
 

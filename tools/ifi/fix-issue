@@ -27,8 +27,15 @@ if [[ -n "$existing" ]] && git show-ref --verify --quiet "refs/heads/$existing";
     if [[ "$existing" == "$current" ]]; then
         echo "You're already on $existing, the branch for issue #$nr."
     else
-        run git switch "$existing"
+        switch_or_explain "$existing"
         echo "Back on $existing, the branch for issue #$nr."
+    fi
+    find_base
+    if GIT_TERMINAL_PROMPT=0 git fetch --quiet "$base" 2>/dev/null; then
+        behind="$(git rev-list --count "HEAD..$base/main")"
+        if [[ "$behind" -gt 0 ]]; then
+            echo "main has $behind new commit(s) since you started this branch. Bring them in with: ifi update"
+        fi
     fi
     exit 0
 fi
@@ -94,7 +101,7 @@ fi
 
 find_base
 fetch_base
-run git switch -c "$name" --no-track "$base/main"
+switch_or_explain -c "$name" --no-track "$base/main"
 git config "branch.$name.ifi-issue" "$nr"
 
 echo

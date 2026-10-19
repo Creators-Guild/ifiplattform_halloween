@@ -29,7 +29,20 @@ while [[ ! "$nr" =~ ^[0-9]+$ ]]; do
 done
 git config "branch.$branch.ifi-issue" "$nr"
 
-git_or_explain origin push --quiet -u origin HEAD
+# After `ifi update` the branch has new commits in place of the old ones,
+# so GitHub refuses a normal push. Replace the branch on GitHub only if it
+# still has nothing but what was there before the update (a lease on that
+# exact commit), so nobody else's work is ever overwritten.
+before="$(git config "branch.$branch.ifi-before-update" || true)"
+remote_tip=""
+[[ -n "$before" ]] && remote_tip="$(GIT_TERMINAL_PROMPT=0 git ls-remote origin "refs/heads/$branch" 2>/dev/null | cut -f1 || true)"
+if [[ -n "$remote_tip" ]] && ! git merge-base --is-ancestor "$remote_tip" HEAD 2>/dev/null &&
+    git merge-base --is-ancestor "$remote_tip" "$before" 2>/dev/null; then
+    git_or_explain origin push --quiet -u --force-with-lease="refs/heads/$branch:$remote_tip" origin HEAD
+else
+    git_or_explain origin push --quiet -u origin HEAD
+fi
+git config --unset "branch.$branch.ifi-before-update" || true
 
 if [[ "$base" == origin ]]; then
     head="$branch"

@@ -10,7 +10,7 @@ shift || true
 
 case "$cmd" in
     help | -h | --help) exec "$here/help" "$@" ;;
-    fix-issue | save | status | pull-request | undo-file | test | migrate | restart-server | reset-server | rebuild-docker) exec "$here/$cmd" "$@" ;;
+    fix-issue | save | status | update | pull-request | undo-file | test | migrate | restart-server | reset-server | rebuild-docker) exec "$here/$cmd" "$@" ;;
     *)
         echo "ifi: no command called '$cmd'. Type: ifi help" >&2
         exit 1

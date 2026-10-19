@@ -1,6 +1,8 @@
 ifi status                 check your setup: what's OK, what to fix
 ifi fix-issue <nr>         make a branch for issue <nr>, or go back to it
 ifi save "message"         save all your changes (git add + commit, whole repo)
+ifi update                 bring your branch up to date with the newest main
+ifi update --abort         undo an update that hit a conflict
 ifi pull-request           push your branch and get the pull request link
 ifi undo-file <file>       take a file out of your pull request
 ifi undo-file --extra      take out every file the issue doesn't list

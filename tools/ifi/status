@@ -160,8 +160,7 @@ if [[ -n "$base" && -n "$branch" && "$branch" != main ]]; then
             clash="$(comm -12 <(git diff --name-only "$fork_point" "$base/main" | sort) \
                 <(git diff --name-only "$fork_point" HEAD | sort) | tr '\n' ' ')"
             warn "main has $behind new commit(s) since your branch started. Update before your pull request:" \
-                "git fetch $base && git rebase $base/main" \
-                "then ifi pull-request (it pushes the updated branch)."
+                "ifi update"
             [[ -n "$clash" ]] && warn "You'll likely get a conflict in: $clash" \
                 "Those files changed both on your branch and on main."
         fi

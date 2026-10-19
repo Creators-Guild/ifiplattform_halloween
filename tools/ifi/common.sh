@@ -121,7 +121,8 @@ explain_git_error() {
     if [[ "$kind" == behind ]]; then
         die "Your branch on GitHub has commits that aren't on your computer" \
             "(for example from GitHub's Update branch button). Get them first, then try again:" \
-            "  git pull --rebase origin $(git branch --show-current)"
+            "  git pull --rebase origin $(git branch --show-current)" \
+            "Conflict? Fix the files the same way as for ifi update, then: git add -A && git rebase --continue"
     fi
 
     die "Git couldn't reach GitHub. The message above says why. Ask a helper if it's unclear."
@@ -138,6 +139,28 @@ git_or_explain() {
     fi
     [[ -n "$err" ]] && printf '%s\n' "$err"
     return 0
+}
+
+# git switch, with a plain explanation when unsaved changes are in the way.
+switch_or_explain() {
+    local err
+    printf '+ git switch %s\n' "$*"
+    if ! err="$(git switch "$@" 2>&1)"; then
+        printf '%s\n\n' "$err" >&2
+        if grep -q "would be overwritten" <<<"$err"; then
+            echo "Your unsaved changes are in files that are different on the branch you're going to," >&2
+            echo "so Git won't switch (it would lose them)." >&2
+            if [[ "$(git branch --show-current)" != main ]]; then
+                echo "Either save them on this branch first:" >&2
+                echo "  ifi save \"Short description of what you changed\"" >&2
+                echo "or put them aside, switch, and take them back:" >&2
+            else
+                echo "Put them aside, switch, and take them back:" >&2
+            fi
+            die "  git stash        then run the same ifi command again, then:  git stash pop"
+        fi
+        die "Git couldn't switch branch. The message above says why. Ask a helper if it's unclear."
+    fi
 }
 
 # Sets $base: the remote that holds the main repo. Collaborators cloned it
