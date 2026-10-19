@@ -41,7 +41,7 @@ if [[ "$1" == --extra ]]; then
     # anything else = GitHub couldn't be reached. IFI_GITHUB_API lets tests
     # use a fake server.
     status=0
-    allowed="$(python3 - "$nr" "${IFI_GITHUB_API:-https://api.github.com}" "$MAIN_REPO" <<'PY' 2>/dev/null
+    allowed="$("$PY" - "$nr" "${IFI_GITHUB_API:-https://api.github.com}" "$MAIN_REPO" <<'PY' 2>/dev/null
 import json, re, sys, urllib.request
 
 nr, api, repo = sys.argv[1:4]

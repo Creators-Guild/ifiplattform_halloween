@@ -2,6 +2,56 @@
 
 MAIN_REPO="Creators-Guild/ifiplattform_halloween"
 
+# The scripts also run without Docker: on a Mac (bash 3.2, so no ${x,,} or
+# mapfile), and in Git Bash on Windows (often `python` but no `python3`).
+
+# Lower case, for comparing GitHub names (they ignore case).
+lower() {
+    printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+# A Python for the small helper snippets: python3, or python where that's
+# all there is (Windows' python3 is often a stub that only opens the Store).
+if python3 -c '' >/dev/null 2>&1; then
+    PY=python3
+else
+    PY=python
+fi
+
+# True inside the Docker dev container.
+in_container() {
+    [[ -f /.dockerenv || "${USE_POSTGRES:-}" == True ]]
+}
+
+# Runs a command with a time limit where `timeout` exists (not on a Mac).
+with_timeout() {
+    if command -v timeout >/dev/null 2>&1; then
+        timeout "$@"
+    else
+        shift
+        "$@"
+    fi
+}
+
+# Sets $DJANGO_PY: the Python that has Django. In the container that's
+# python; without Docker it's the project's venv, found by itself, so you
+# don't have to activate it.
+find_django_python() {
+    local top
+    top="$(git rev-parse --show-toplevel)"
+    DJANGO_PY=python
+    in_container && return
+    local candidate
+    for candidate in venv/bin/python .venv/bin/python venv/Scripts/python.exe .venv/Scripts/python.exe; do
+        if [[ -x "$top/$candidate" ]]; then
+            DJANGO_PY="$top/$candidate"
+            return
+        fi
+    done
+    "$DJANGO_PY" -c 'import django' >/dev/null 2>&1 ||
+        die "Can't find a Python with Django. Make the venv first: docs/contributing/setup_without_docker.md"
+}
+
 # Prints a command, then runs it, so people see the real Git behind ifi.
 run() {
     printf '+ %s\n' "$*"
@@ -95,7 +145,7 @@ explain_git_error() {
     if [[ "$kind" == denied ]]; then
         local user
         user="$(denied_user "$err")"
-        if [[ "${repo,,}" == "${MAIN_REPO,,}" && "$remote" == origin ]]; then
+        if [[ "$(lower "$repo")" == "$(lower "$MAIN_REPO")" && "$remote" == origin ]]; then
             die "You cloned the main repo, but only collaborators can push to it." \
                 "Push to your own fork instead:" \
                 "  1. Fork the repo on GitHub (the Fork button on github.com/$MAIN_REPO)" \
@@ -169,7 +219,7 @@ switch_or_explain() {
 find_base() {
     local origin_repo
     origin_repo="$(repo_of origin)"
-    if [[ "${origin_repo,,}" == "${MAIN_REPO,,}" ]]; then
+    if [[ "$(lower "$origin_repo")" == "$(lower "$MAIN_REPO")" ]]; then
         base=origin
     else
         if ! git remote get-url upstream >/dev/null 2>&1; then

@@ -21,7 +21,8 @@ site still runs without Docker until it moves over (see
 | `.devcontainer/devcontainer.json` | Lets VS Code open the `web` container ("Reopen in Container"). Builds the image first (`initializeCommand`), shows the whole repo, starts new terminals in `ifiplatform/`, and installs the editor extensions (see below) |
 | `.devcontainer/docker-compose.devcontainer.yml` | Used only by VS Code, on top of `docker-compose.yml`. Hides `build`, so VS Code starts the already built image instead of building it (see below) |
 | `.vscode/settings.json`, `.vscode/extensions.json` | Editor settings and recommended extensions. Used both in the container and without Docker |
-| `tools/ifi/`                      | Our own `ifi` commands: `fix-issue`, `pull-request`, `test`, `migrate`, `restart-server`, `reset-server`, `rebuild-docker` and `help`. Shared into the container with the rest of the repo, so editing them needs no rebuild. `shell-setup.sh` adds Tab completion, loaded from the dev user's `.bashrc` |
+| `tools/ifi/`                      | Our own `ifi` commands (`ifi help` lists them). Shared into the container with the rest of the repo, so editing them needs no rebuild. `shell-setup.sh` adds Tab completion and the `(container)` prompt, loaded from the dev user's `.bashrc`. The scripts also run without Docker (bash 3.2 on a Mac, Git Bash on Windows) |
+| `ifi`, `ifi.cmd` (repo root)      | Launchers for terminals outside the container (`.cmd` for PowerShell, via Git Bash). Commands that need the site's Python go into the running container; Git commands stay on your computer, where the GitHub login is |
 | `.dockerignore`                   | Keeps the venv, local database, media and `.env` out of the build |
 
 ## What happens on start

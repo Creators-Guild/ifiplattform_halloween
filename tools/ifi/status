@@ -33,7 +33,7 @@ ok "In the project: $(pwd)"
 
 # 2. In the container?
 in_container=false
-if [[ -f /.dockerenv || "${USE_POSTGRES:-}" == True ]]; then
+if in_container; then
     in_container=true
     ok "Inside the Docker container."
 else
@@ -62,13 +62,13 @@ elif [[ "$origin_url" =~ ^(git@|ssh://) ]]; then
         "git remote set-url origin https://github.com/$origin_repo.git"
 elif [[ "$origin_url" != https://github.com/* ]]; then
     warn "origin isn't a GitHub address: $origin_url"
-elif [[ "${origin_repo,,}" == "${MAIN_REPO,,}" ]]; then
+elif [[ "$(lower "$origin_repo")" == "$(lower "$MAIN_REPO")" ]]; then
     collaborator=true
     ok "origin is the main repo ($MAIN_REPO): you push straight to it, as a collaborator."
 else
     ok "origin is your fork: $origin_repo"
 fi
-[[ "${origin_repo,,}" == "${MAIN_REPO,,}" ]] && collaborator=true
+[[ "$(lower "$origin_repo")" == "$(lower "$MAIN_REPO")" ]] && collaborator=true
 
 # 5. upstream: the main repo, for contributors.
 upstream_url="$(git remote get-url upstream 2>/dev/null || true)"
@@ -80,7 +80,7 @@ if $collaborator; then
 elif [[ -z "$upstream_url" ]]; then
     bad "No 'upstream' remote: Git can't get everyone else's changes." \
         "git remote add upstream https://github.com/$MAIN_REPO.git"
-elif [[ "${upstream_repo,,}" != "${MAIN_REPO,,}" && "$upstream_url" == *github.com* ]]; then
+elif [[ "$(lower "$upstream_repo")" != "$(lower "$MAIN_REPO")" && "$upstream_url" == *github.com* ]]; then
     bad "upstream points to $upstream_repo, not the main repo." \
         "git remote set-url upstream https://github.com/$MAIN_REPO.git"
 else
@@ -96,7 +96,7 @@ fi
 # 6. Logged in, as an account that may push to origin? A dry-run push: GitHub
 # checks the login, but nothing is sent.
 if [[ -n "$origin_url" ]]; then
-    err="$(GIT_TERMINAL_PROMPT=0 timeout 15 git push --dry-run --quiet origin HEAD:refs/heads/ifi-status-login-check 2>&1)"
+    err="$(GIT_TERMINAL_PROMPT=0 with_timeout 15 git push --dry-run --quiet origin HEAD:refs/heads/ifi-status-login-check 2>&1)"
     status=$?
     if [[ $status -eq 0 ]]; then
         ok "Logged in to GitHub, and allowed to push to origin."
@@ -151,7 +151,7 @@ fi
 
 # 9. Behind the newest main? 9b. Saved but not on GitHub yet?
 if [[ -n "$base" && -n "$branch" && "$branch" != main ]]; then
-    if GIT_TERMINAL_PROMPT=0 timeout 20 git fetch --quiet "$base" 2>/dev/null; then
+    if GIT_TERMINAL_PROMPT=0 with_timeout 20 git fetch --quiet "$base" 2>/dev/null; then
         behind="$(git rev-list --count "HEAD..$base/main")"
         if [[ "$behind" -eq 0 ]]; then
             ok "Up to date with the newest main."
@@ -169,7 +169,7 @@ if [[ -n "$base" && -n "$branch" && "$branch" != main ]]; then
     fi
 
     if git rev-parse --verify --quiet "@{u}" >/dev/null; then
-        GIT_TERMINAL_PROMPT=0 timeout 20 git fetch --quiet origin "$branch" 2>/dev/null
+        GIT_TERMINAL_PROMPT=0 with_timeout 20 git fetch --quiet origin "$branch" 2>/dev/null
         ahead="$(git rev-list --count "@{u}..HEAD")"
     else
         ahead="$(git rev-list --count "$base/main..HEAD" 2>/dev/null || echo 0)"
@@ -183,7 +183,7 @@ fi
 
 # 10. Is the site running?
 # Any HTTP answer, even an error page, means the server is running.
-if python3 - 2>/dev/null <<'PY'; then
+if "$PY" - 2>/dev/null <<'PY'; then
 import urllib.error, urllib.request
 try:
     urllib.request.urlopen("http://localhost:8000/", timeout=3)

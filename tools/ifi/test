@@ -10,5 +10,7 @@ if [[ "${1:-}" == --long || "${1:-}" == -l ]]; then
     shift
 fi
 
+find_django_python
 cd "$(git rev-parse --show-toplevel)/ifiplatform"
-run python manage.py test "${args[@]}" "$@"
+# ${args[@]+...}: an empty array counts as unset under set -u in bash 3.2 (a Mac).
+run "$DJANGO_PY" manage.py test ${args[@]+"${args[@]}"} "$@"

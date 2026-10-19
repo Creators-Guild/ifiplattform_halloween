@@ -1,6 +1,6 @@
 # Setup without Docker (Python + SQLite)
 
-Last updated: 2026-10-15
+Last updated: 2026-10-20
 
 Only use this if Docker is too heavy for your laptop or won't install. The
 recommended setup is [Setup with Docker](setup_with_docker.md).
@@ -136,6 +136,18 @@ python manage.py createsuperuser
 
 Your tests run on SQLite, while CI uses PostgreSQL. Now and then a test can
 pass for you and fail in CI. That's not your fault: ask a helper.
+
+## Optional: the `ifi` commands
+The project's own shortcuts (`ifi status`, `ifi save`, `ifi pull-request`,
+`ifi test`, ...) work without Docker too. They're bash scripts, so on
+Windows use the **Git Bash** terminal (it comes with Git for Windows; in VS
+Code pick it with the **+** arrow in the terminal panel). In the repo root:
+```bash
+./ifi install
+```
+Open a new terminal, and `ifi help` lists them. They find your venv by
+themselves. In PowerShell, run them from the repo root as `.\ifi status`
+instead (that still needs Git Bash installed).
 
 ## Next
 - New to Django? Read [How this project works](how_this_project_works.md).

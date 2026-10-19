@@ -158,7 +158,11 @@ Builds and starts everything in the background. The site is ready at http://loca
 ```bash
 docker compose exec web bash
 ```
-Opens a terminal inside the container. From there, every `python manage.py ...` command works as normal. Type `exit` to leave.
+Opens a terminal inside the container. From there, every `python manage.py ...` command and `ifi` work as normal. Type `exit` to leave.
+
+**`ifi` from your own terminal.** You can also stay outside the container: use the launcher in the repo root, `./ifi status` (Mac, Linux, Git Bash) or `.\ifi status` (Windows PowerShell; it needs Git Bash, which comes with Git for Windows). `ifi test`, `migrate`, `restart-server` and `reset-server` then run inside the container by themselves. Git commands (`save`, `pull-request`, ...) run on your own computer, where your GitHub login is: inside a container started this way there's no GitHub login. `./ifi install` makes `ifi` work from any folder (Mac, Linux, Git Bash).
+
+To stop everything: `docker compose down` (your database is kept).
 
 ### Looking at the database
 The Docker database is also reachable from your own computer at `localhost:5433`, for example from a database tool (user `ifiplatform_user`, password `devpassword`).
@@ -180,7 +184,7 @@ The Docker database is also reachable from your own computer at `localhost:5433`
 
 **The terminal or editor is odd**
 - **Tab doesn't complete, or the arrow keys print `^[[A`:** your container is older than the fix that gives the terminal bash instead of sh. [Rebuild](#restart-reopen-rebuild-or-reset). Your database is kept.
-- **`ifi` isn't found:** first check that you're inside the container. `ifi` only exists there, not in PowerShell, Command Prompt or a terminal on your Mac. Use VS Code's terminal after Reopen in Container (bottom left says "Dev Container"), or, if you started the site with `docker compose up`, run `docker compose exec web bash` first. Inside the container and still not found? Your container is older than this command. [Rebuild](#restart-reopen-rebuild-or-reset).
+- **`ifi` isn't found:** first check that you're inside the container: its prompt starts with **(container)**. Without it you're on your own computer, for example because you opened a subfolder with File → Open Folder (open the repo's top folder and Reopen in Container), or used a terminal outside VS Code. There, use the launcher in the repo root: `./ifi` (`.\ifi` in PowerShell), see [Without VS Code](#without-vs-code). Inside the container and still not found? Your container is older than this command. [Rebuild](#restart-reopen-rebuild-or-reset).
 
 **It's slow, or Docker won't work at all**
 - **Everything is slow (Windows):** projects cloned to a Windows drive like `C:\` are slow in Docker. Clone inside WSL instead, see [Get the code](get_the_code.md).

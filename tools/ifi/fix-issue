@@ -43,7 +43,7 @@ fi
 # "Gjør kortene oransje!" -> "gjor-kortene-oransje": the first 4 words,
 # ASCII only, at most 40 characters.
 slugify() {
-    python3 - "$1" <<'PY'
+    "$PY" - "$1" <<'PY'
 import re, sys, unicodedata
 
 text = sys.argv[1].lower()
@@ -58,7 +58,7 @@ PY
 # has none. Prints nothing when GitHub can't be reached (no network, or the
 # 60-calls-an-hour limit for a room sharing one IP). IFI_GITHUB_API lets
 # the tests use a fake server.
-lookup="$(python3 - "$nr" "${IFI_GITHUB_API:-https://api.github.com}" "$MAIN_REPO" <<'PY' 2>/dev/null || true
+lookup="$("$PY" - "$nr" "${IFI_GITHUB_API:-https://api.github.com}" "$MAIN_REPO" <<'PY' 2>/dev/null || true
 import json, sys, urllib.request
 
 nr, api, repo = sys.argv[1:4]
@@ -87,7 +87,7 @@ else
 fi
 while [[ ! "$kind" =~ ^(bug|feature|task)$ ]]; do
     read -r -p "What is the issue's Type? (bug/feature/task) " kind || die ""
-    kind="${kind,,}"
+    kind="$(lower "$kind")"
 done
 while [[ -z "$slug" ]]; do
     read -r -p "A few words about it, like 'orange event cards': " words || die ""

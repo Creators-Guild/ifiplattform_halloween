@@ -1,16 +1,27 @@
-# Sourced by the dev container's ~/.bashrc (Dockerfile.dev): Tab completion
-# for ifi, and a hint in every new terminal.
+# Sourced by the dev container's ~/.bashrc (Dockerfile.dev), and without
+# Docker by the line `ifi install` adds to ~/.bashrc: Tab completion for
+# ifi, a "(container)" mark in the container's prompt, and a hint in every
+# new terminal. Works in bash 3.2 too (a Mac), so no mapfile.
 
 _ifi_complete() {
-    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local cur="${COMP_WORDS[COMP_CWORD]}" words=""
     if [[ $COMP_CWORD -eq 1 ]]; then
-        mapfile -t COMPREPLY < <(compgen -W "help status fix-issue save update pull-request undo-file test migrate restart-server reset-server rebuild-docker" -- "$cur")
+        words="help status fix-issue save update pull-request undo-file cleanup test migrate restart-server reset-server rebuild-docker install"
     elif [[ $COMP_CWORD -eq 2 && "${COMP_WORDS[1]}" == help ]]; then
-        mapfile -t COMPREPLY < <(compgen -W "git docker django ifi" -- "$cur")
+        words="git docker django ifi"
     elif [[ $COMP_CWORD -eq 2 && "${COMP_WORDS[1]}" == undo-file ]]; then
-        mapfile -t COMPREPLY < <(compgen -W "--extra" -- "$cur")
+        words="--extra"
+    elif [[ $COMP_CWORD -eq 2 && "${COMP_WORDS[1]}" == update ]]; then
+        words="--abort"
     fi
+    COMPREPLY=($(compgen -W "$words" -- "$cur"))
 }
 complete -o default -F _ifi_complete ifi
+
+# Shows where a terminal runs: inside the container, ifi and the site's
+# Python are there; on your own computer, your GitHub login is.
+if [[ -f /.dockerenv ]]; then
+    PS1='\[\e[1;35m\](container)\[\e[0m\] \w \$ '
+fi
 
 echo "Stuck? Type: ifi status (what's wrong) or ifi help (cheat sheets)"

@@ -5,6 +5,18 @@
 # python processes only, not the loop's own `sh -c` command line, which also
 # contains "manage.py runserver". If no server is running (start-up failed),
 # it starts one in this terminal instead.
+#
+# Without Docker, runserver runs in a terminal of your own, which ifi can't
+# reach, so it says what to do instead.
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+if ! in_container; then
+    cat <<'TXT'
+Without Docker the server runs in its own terminal. Restart it there:
+  1. Press Ctrl+C in the terminal where it runs.
+  2. Start it again: python manage.py runserver   (in the ifiplatform folder)
+TXT
+    exit 0
+fi
 if pkill -f '^(/usr/local/bin/)?python[0-9.]* manage.py runserver'; then
     echo "Restarting the server. Reload the page in a few seconds."
 else

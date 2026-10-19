@@ -117,6 +117,7 @@ it runs.
 | `ifi update` | Brings the branch up to date with the newest main. On a conflict it explains the `<<<<<<<` markers; fix the files and run it again, or `ifi update --abort` |
 | `ifi pull-request` | Pushes the branch and gives the pull request link, with `Closes #<nr>` already filled in. If the push fails, it says why: not logged in, wrong account, cloned the main repo instead of a fork, or an SSH address |
 | `ifi undo-file <file>` | Takes a file out of the pull request (it commits and pushes for you) |
+| `ifi cleanup` | Deletes their branches that are already merged, on the laptop and the fork. Asks first |
 | `ifi undo-file --extra` | Takes out every file the issue doesn't list, in one go. Their version is kept on a `-backup` branch |
 | `ifi test` | The quick tests. Run before a pull request. `ifi test --long` runs all of them. |
 | `ifi restart-server` | Restarts the site, when a change doesn't show up or the site stopped |
@@ -148,13 +149,16 @@ Go through this for each pull request on GitHub.
   That's the real error.
 - [ ] **Files check** is green: only the files the issue lists were
   changed, so you don't need to read the code.
-  - 🟡 Warning: extra files were changed. Take a quick look.
-  - 🔴 No `Closes #<nr>`, or made in the browser on github.com: GitHub
-    blocks the merge. Add the line, or help them set up on their laptop
+  - 🔴 Extra files: the check stays red until a maintainer has looked.
+    Small and on-topic (a good idea is welcome)? Add the label
+    **files-reviewed**, and the check goes green. A separate idea? Ask
+    them to run `ifi undo-file --extra`. Their version stays on a
+    `-backup` branch, so it can become its own pull request. New commits
+    remove the label again, so look once more.
+  - 🔴 No `Closes #<nr>`: the check also leaves a comment telling them how
+    to add it, and deletes it once they have.
+  - 🔴 Made in the browser on github.com: help them set up on their laptop
     instead, that's part of the event.
-  - Extra files with a good idea? Small and on-topic: merge. A separate
-    idea: ask them to run `ifi undo-file --extra`. Their version stays
-    on a `-backup` branch, so they can make it its own pull request.
 - [ ] Click **Merge**, or add the `automerge` label so it merges by itself
   when CI is done.
 - [ ] The issue closes by itself. If you close one by hand, choose
@@ -196,7 +200,8 @@ A claim stops running out once its pull request is open.
 | "Port 8000 is already in use" | Another server is running. Stop it with <kbd>Ctrl</kbd>+<kbd>C</kbd> in its terminal. |
 | Docker Desktop won't start (Windows) | Run `wsl --install` in PowerShell as administrator, then restart |
 | Everything is slow (Windows) | The repo is on `C:\`. Clone it inside WSL instead. |
-| `ifi` not found, or `ModuleNotFoundError` | The container is old: [rebuild it](docker_guide.md#restart-reopen-rebuild-or-reset) |
+| `ifi` not found | Is the prompt starting with **(container)**? If not, they're outside the container: Reopen in Container, or use `./ifi` (`.\ifi` in PowerShell) from the repo folder. Inside and still not found: [rebuild](docker_guide.md#restart-reopen-rebuild-or-reset) |
+| `ModuleNotFoundError` | The container is old: [rebuild it](docker_guide.md#restart-reopen-rebuild-or-reset) |
 | A change doesn't show up | Refresh the browser, then `ifi restart-server` |
 | A merged change isn't on the mock site | The deploy failed. Check **Actions → Deploy** on GitHub, and tell an organiser |
 | CI is red on a pull request that only changed CSS | `main` itself may be broken. Check the newest run on `main` under **Actions**. If that's red too, it's not their fault |

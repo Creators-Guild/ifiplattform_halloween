@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# ifi install: makes `ifi` a command in your own terminal, for working
+# without Docker or with Docker outside VS Code. Adds two lines to
+# ~/.bashrc (and ~/.zshrc on a Mac): an alias to the launcher in the repo
+# root, and Tab completion. Safe to run again: it never adds them twice.
+# In the dev container ifi is already there.
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+if in_container; then
+    echo "Inside the container, ifi is already installed. Nothing to do."
+    exit 0
+fi
+
+top="$(git rev-parse --show-toplevel)"
+marker="# ifi: IfiPlattform's helper commands"
+added=false
+for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+    # zsh is the Mac's default shell; only touch .zshrc if it's in use.
+    if [[ "$rc" == */.zshrc && ! -f "$rc" && "$(basename "${SHELL:-}")" != zsh ]]; then
+        continue
+    fi
+    if [[ -f "$rc" ]] && grep -qF "$marker" "$rc"; then
+        if grep -qF "alias ifi='$top/ifi'" "$rc"; then
+            echo "Already in $rc."
+        else
+            echo "$rc has ifi for another project folder. Delete the lines after"
+            echo "\"$marker\" in it, then run ifi install again."
+        fi
+        continue
+    fi
+    {
+        echo
+        echo "$marker"
+        echo "alias ifi='$top/ifi'"
+        [[ "$rc" == */.bashrc ]] && echo "[ -f '$top/tools/ifi/shell-setup.sh' ] && . '$top/tools/ifi/shell-setup.sh'"
+    } >>"$rc"
+    echo "Added ifi to $rc."
+    added=true
+done
+
+if $added; then
+    cat <<EOF
+
+Open a new terminal (or run: source ~/.bashrc), then try: ifi status
+EOF
+fi
