@@ -1,6 +1,6 @@
 # Docker setup
 
-Last updated: 2026-10-15
+Last updated: 2026-10-20
 
 How the local Docker setup is built and why. To start it, see
 [contributing/setup_with_docker.md](../contributing/setup_with_docker.md). For day-to-day
@@ -27,7 +27,8 @@ site still runs without Docker until it moves over (see
 ## What happens on start
 
 0. Before VS Code does anything, `initializeCommand` runs
-   `docker compose build web` on your own computer. It builds
+   `docker build -f Dockerfile.dev -t ifiplattform-halloween-web:dev .` on
+   your own computer. It builds
    `Dockerfile.dev` into the image `ifiplattform-halloween-web:dev`. After
    the first time Docker's cache makes this take a second or two.
 1. `db` starts. `web` waits until the database answers (the healthcheck).
@@ -59,13 +60,20 @@ your own computer show up right away and `runserver` reloads.
   which refuses to read files outside the project, so the build stopped
   at once with `additional privileges requested: pass --allow=fs.read=...`
   (seen on a Mac with Docker Desktop 4.95 in October 2026). So
-  `initializeCommand` builds the image with a plain `docker compose build`,
-  which only reads files inside the project. The override
+  `initializeCommand` builds the image itself. It uses plain
+  `docker build`, not `docker compose build`, because Compose hands every
+  build to bake, and on Windows bake failed even on our own
+  `Dockerfile.dev` (`--allow=fs.read=Dockerfile.dev` or
+  `failed to execute bake`, Docker Desktop 4.95 and 4.96 at the October
+  2026 event). Plain `docker build` never uses bake. The image name must
+  match `image:` in `docker-compose.yml`. The override
   `.devcontainer/docker-compose.devcontainer.yml` then removes `build`
   (`!reset`, which needs Compose 2.24 or newer), so the extension starts
   that image instead. `pull_policy: never` stops Compose from looking for
   the local image name on Docker Hub if the build failed. Outside VS Code,
-  `docker compose up --build` still builds as before.
+  `docker compose up --build` still builds through Compose, so on Windows
+  it can hit the same bake error (see the
+  [Docker guide](../contributing/docker_guide.md#if-something-goes-wrong)).
 - **Commands stay the same.** Students work inside the container
   (VS Code's terminal, or `docker compose exec web bash`), so the
   README's `python manage.py ...` commands work unchanged. `py` is

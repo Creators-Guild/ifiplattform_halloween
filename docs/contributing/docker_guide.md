@@ -1,6 +1,6 @@
 # Docker guide
 
-Last updated: 2026-10-15
+Last updated: 2026-10-20
 
 Everything about the Docker setup after the first start: how it works, when
 to restart or rebuild, everyday tasks, and fixing problems. Starting for the
@@ -121,7 +121,7 @@ doesn't build the image from scratch here, because the image is built by our
 own build step. For a truly clean build, run this outside the container, in
 the repo folder, and then rebuild in VS Code:
 ```bash
-docker compose build --no-cache web
+docker build --no-cache -f Dockerfile.dev -t ifiplattform-halloween-web:dev .
 ```
 
 The same things from a terminal on your own computer, in the repo folder:
@@ -166,8 +166,9 @@ The Docker database is also reachable from your own computer at `localhost:5433`
 ## If something goes wrong
 
 **The container won't start**
-- **"An error occurred setting up the container":** find the real error first. Click **More Actions…** in the popup, or open **View → Output** and pick **Dev Containers**, or run `docker compose build` in a terminal on your own computer, in the repo folder. The error is near the end.
-- **The error says `additional privileges requested`:** your copy of the repo is older than the fix for newer Docker versions. Get the latest code (`git fetch upstream` and rebase, or pull), then try again. Stuck on an old branch? On a Mac, run `launchctl setenv BUILDX_BAKE_ENTITLEMENTS_FS 0`, quit VS Code completely (Cmd+Q) and open it again.
+- **"An error occurred setting up the container":** find the real error first. Click **More Actions…** in the popup, or open **View → Output** and pick **Dev Containers**, or run `docker build -f Dockerfile.dev -t ifiplattform-halloween-web:dev .` in a terminal on your own computer, in the repo folder. The error is near the end.
+- **The error says `additional privileges requested` or `failed to execute bake`:** your copy of the repo is older than the fix for newer Docker versions (common on Windows). Get the latest code (`git fetch upstream` and rebase, or pull), then try again. Stuck on an old branch? Build the image yourself in a terminal on your own computer, in the repo folder, then Reopen in Container: `docker build -f Dockerfile.dev -t ifiplattform-halloween-web:dev .` The same error with `docker compose up --build` outside VS Code has the same cure: run that `docker build` first, then `docker compose up -d`.
+- **The log says `Could not connect to WSL` or `Read-only file system` (Windows):** you can ignore those lines. VS Code tries something in Docker Desktop's own WSL, fails, and carries on. Look further down for the real error.
 - **"Port 8000 is already in use":** another `runserver` is running on your computer. Stop it (Ctrl+C in its terminal) and try again.
 - **Docker Desktop won't start (Windows):** it needs WSL2 and virtualization. Run `wsl --install` in PowerShell as administrator and restart. If Docker still complains, turn on virtualization in your computer's BIOS/UEFI settings (called "Intel VT-x", "AMD-V" or "SVM"). Docker Desktop's error message usually says which one is missing.
 
@@ -179,7 +180,7 @@ The Docker database is also reachable from your own computer at `localhost:5433`
 
 **The terminal or editor is odd**
 - **Tab doesn't complete, or the arrow keys print `^[[A`:** your container is older than the fix that gives the terminal bash instead of sh. [Rebuild](#restart-reopen-rebuild-or-reset). Your database is kept.
-- **`ifi` isn't found:** your container is older than this command. [Rebuild](#restart-reopen-rebuild-or-reset).
+- **`ifi` isn't found:** first check that you're inside the container. `ifi` only exists there, not in PowerShell, Command Prompt or a terminal on your Mac. Use VS Code's terminal after Reopen in Container (bottom left says "Dev Container"), or, if you started the site with `docker compose up`, run `docker compose exec web bash` first. Inside the container and still not found? Your container is older than this command. [Rebuild](#restart-reopen-rebuild-or-reset).
 
 **It's slow, or Docker won't work at all**
 - **Everything is slow (Windows):** projects cloned to a Windows drive like `C:\` are slow in Docker. Clone inside WSL instead, see [Get the code](get_the_code.md).
