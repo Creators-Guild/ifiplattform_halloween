@@ -1,6 +1,10 @@
 # Welcome to IfiPlattform Halloween 🎃
 
 This is the repo for **Commit for Candy**, the event where IfiPlattform goes open source. For one evening we host a mock copy of [IfiPlattform](https://github.com/Creators-Guild/IfiPlatform) and get it ready for Halloween, together. Our goal: merge every contribution... and maybe, just maybe, not crash the site. ☠️
+<div style="text-align: center;"><big><big>For setup, start here: <a href="#get-started">Get started</a></big></big></div>
+
+<br>
+
 
 📅 **19 October 2026 at 18:00**
 > 🎉Ifi Plattform blir Open Source🎉
@@ -47,7 +51,8 @@ Django + Wagtail (Python, HTML and CSS, plus a little JavaScript), DeepL for Nor
 
 ## Get started
 Two steps, and both end with the site running at http://localhost:8000.
-(Recommended to set up with docker and VSC. Download Docker, VSC and add the extension Dev Containers. More info in the setup with docker below.)
+
+**Recommended to set up with Docker Desktop and Visual Studio Code.** Download Docker, VSC and add the extension **Dev Containers**. More info in the setup with docker below.
 
 **1. Get the code:** [Get the code](docs/contributing/get_the_code.md). At the event you're a **contributor**, so you fork the repo.
 

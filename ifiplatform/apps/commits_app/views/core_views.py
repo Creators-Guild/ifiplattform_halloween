@@ -65,8 +65,10 @@ def main_view(request):
             "form": form,
             "link": link,
             "score": score,
-            "assigned_groups": [(issue, []) for issue in mine],
-            "closed_groups": [(issue, []) for issue in score.issues] if score else [],
+            "assigned_groups": [(issue, [], []) for issue in mine],
+            "closed_groups": (
+                [(issue, [], []) for issue in score.issues] if score else []
+            ),
             "drink_coins": settings.DRINK_TICKET_COINS,
             "drink_given": DrinkTicket.objects.filter(user=request.user).exists(),
         },

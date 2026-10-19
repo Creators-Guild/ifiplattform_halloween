@@ -2384,6 +2384,9 @@ msgstr "Åpne oppgaven på GitHub"
 msgid "Sub-issues"
 msgstr "Deloppgaver"
 
+msgid "Others in this set"
+msgstr "Resten av settet"
+
 msgid "Solution (helpers only)"
 msgstr "Løsning (bare for hjelpere)"
 
