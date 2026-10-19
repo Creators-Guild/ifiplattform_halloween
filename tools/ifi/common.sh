@@ -40,15 +40,39 @@ ensure_identity() {
     run git config --global user.email "$email"
 }
 
+# What kind of failure Git's message ($1) is: ssh, login, denied, notfound,
+# behind or other. Shared by explain_git_error and `ifi status`.
+git_error_kind() {
+    if grep -qiE "cannot run ssh|ssh: not found|Permission denied \(publickey\)|Host key verification failed" <<<"$1"; then
+        echo ssh
+    elif grep -qiE "could not read Username|Authentication failed|terminal prompts disabled|Invalid username or (password|token)" <<<"$1"; then
+        echo login
+    elif grep -qiE "Permission to .* denied to|returned error: 403|error: 403" <<<"$1"; then
+        echo denied
+    elif grep -qi "Repository not found" <<<"$1"; then
+        echo notfound
+    elif grep -qiE "non-fast-forward|fetch first|\[rejected\]" <<<"$1"; then
+        echo behind
+    else
+        echo other
+    fi
+}
+
+# The account name in "Permission to X denied to <account>", if any.
+denied_user() {
+    sed -nE 's/.*Permission to .* denied to ([^ .]+).*/\1/p' <<<"$1" | head -n 1
+}
+
 # Explains a failed fetch or push in plain words. $1 is the remote, $2 is
 # what Git printed. Always exits.
 explain_git_error() {
-    local remote="$1" err="$2" url repo
+    local remote="$1" err="$2" url repo kind
     url="$(git remote get-url "$remote" 2>/dev/null || true)"
     repo="$(repo_of "$remote")"
+    kind="$(git_error_kind "$err")"
     printf '%s\n\n' "$err" >&2
 
-    if grep -qiE "cannot run ssh|ssh: not found|Permission denied \(publickey\)|Host key verification failed" <<<"$err"; then
+    if [[ "$kind" == ssh ]]; then
         echo "'$remote' uses an SSH address ($url), and SSH doesn't work here." >&2
         echo "HTTPS works without any setup, because VS Code shares your GitHub login." >&2
         local answer=""
@@ -61,16 +85,16 @@ explain_git_error() {
             "  git remote set-url $remote https://github.com/$repo.git"
     fi
 
-    if grep -qiE "could not read Username|Authentication failed|terminal prompts disabled|Invalid username or (password|token)" <<<"$err"; then
+    if [[ "$kind" == login ]]; then
         die "You're not logged in to GitHub here." \
             "In VS Code: run 'git push' once in the VS Code terminal and click Allow in the" \
             "popup, then log in in the browser. Without VS Code: push from a terminal on" \
             "your own computer instead. More: docs/contributing/get_the_code.md#log-in-to-github-once"
     fi
 
-    if grep -qiE "Permission to .* denied to|returned error: 403|error: 403" <<<"$err"; then
+    if [[ "$kind" == denied ]]; then
         local user
-        user="$(sed -nE 's/.*Permission to .* denied to ([^ .]+).*/\1/p' <<<"$err" | head -n 1)"
+        user="$(denied_user "$err")"
         if [[ "${repo,,}" == "${MAIN_REPO,,}" && "$remote" == origin ]]; then
             die "You cloned the main repo, but only collaborators can push to it." \
                 "Push to your own fork instead:" \
@@ -88,13 +112,13 @@ explain_git_error() {
             "More: docs/contributing/get_the_code.md#log-in-to-github-once"
     fi
 
-    if grep -qi "Repository not found" <<<"$err"; then
+    if [[ "$kind" == notfound ]]; then
         die "GitHub can't find $url." \
             "Did you fork the repo yet? Is the username in the address right? See it with:" \
             "  git remote -v"
     fi
 
-    if grep -qiE "non-fast-forward|fetch first|\[rejected\]" <<<"$err"; then
+    if [[ "$kind" == behind ]]; then
         die "Your branch on GitHub has commits that aren't on your computer" \
             "(for example from GitHub's Update branch button). Get them first, then try again:" \
             "  git pull --rebase origin $(git branch --show-current)"

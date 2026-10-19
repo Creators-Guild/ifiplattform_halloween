@@ -112,6 +112,7 @@ it runs.
 | Command | What it does |
 | --- | --- |
 | `ifi fix-issue <nr>` | Makes a branch for issue `<nr>` from the newest code. Run it again to go back to that branch. |
+| `ifi status` | Checks the setup: name and email, origin/upstream, GitHub login, branch, unsaved changes, behind main, the site. Ask stuck people to run it and look at the ❌ lines |
 | `ifi save "message"` | Saves (commits) every change in the whole repo, also from a subfolder. Asks for name and email the first time |
 | `ifi pull-request` | Pushes the branch and gives the pull request link, with `Closes #<nr>` already filled in. If the push fails, it says why: not logged in, wrong account, cloned the main repo instead of a fork, or an SSH address |
 | `ifi undo-file <file>` | Takes a file out of the pull request (it commits and pushes for you) |
@@ -188,6 +189,7 @@ A claim stops running out once its pull request is open.
 
 | Problem | Fix |
 | --- | --- |
+| Someone is stuck and you don't know why | Ask them to run `ifi status` and fix the ❌ lines first |
 | The container won't start | Find the real error: **View → Output → Dev Containers**. [More](docker_guide.md#if-something-goes-wrong) |
 | "Port 8000 is already in use" | Another server is running. Stop it with <kbd>Ctrl</kbd>+<kbd>C</kbd> in its terminal. |
 | Docker Desktop won't start (Windows) | Run `wsl --install` in PowerShell as administrator, then restart |

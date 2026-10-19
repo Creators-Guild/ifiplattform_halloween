@@ -91,7 +91,7 @@ With Docker, run these in the VS Code terminal (it's inside the container). With
 | Edit pages and articles | http://localhost:8000/wagtail-admin (sign up first at http://localhost:8000/account/signin) |
 | Users and raw database tables | http://localhost:8000/admin (needs `python manage.py createsuperuser`) |
 
-Forgot a command? Type `ifi help` in the container terminal.
+Forgot a command? Type `ifi help` in the container terminal. Something not working? `ifi status` checks your setup and says what to fix.
 
 More, including translations: [docs/contributing/everyday_commands.md](docs/contributing/everyday_commands.md). Docker day to day (restart or rebuild, fixing problems): [docs/contributing/docker_guide.md](docs/contributing/docker_guide.md).
 
