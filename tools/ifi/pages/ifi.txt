@@ -1,6 +1,7 @@
 ifi fix-issue <nr>         make a branch for issue <nr>, or go back to it
 ifi pull-request           push your branch and get the pull request link
 ifi undo-file <file>       take a file out of your pull request
+ifi undo-file --extra      take out every file the issue doesn't list
 ifi test                   the quick tests (run before a pull request)
 ifi test --long            all tests, with the slow site crawler (or -l)
 ifi migrate                makemigrations + migrate, after changing a model

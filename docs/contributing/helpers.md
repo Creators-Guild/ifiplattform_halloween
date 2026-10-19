@@ -1,6 +1,6 @@
 # Helper guide for Commit for Candy
 
-Last updated: 2026-10-18
+Last updated: 2026-10-20
 
 Thanks for helping out! 🎃 This page gets you ready in about 30 minutes.
 You don't need to know the code. Every issue has a 🔑 solution that only
@@ -114,6 +114,7 @@ it runs.
 | `ifi fix-issue <nr>` | Makes a branch for issue `<nr>` from the newest code. Run it again to go back to that branch. |
 | `ifi pull-request` | Pushes the branch and gives the pull request link, with `Closes #<nr>` already filled in |
 | `ifi undo-file <file>` | Takes a file out of the pull request (it commits and pushes for you) |
+| `ifi undo-file --extra` | Takes out every file the issue doesn't list, in one go. Their version is kept on a `-backup` branch |
 | `ifi test` | The quick tests. Run before a pull request. `ifi test --long` runs all of them. |
 | `ifi restart-server` | Restarts the site, when a change doesn't show up or the site stopped |
 | `ifi migrate` | After changing a model (rare at the event) |
@@ -140,21 +141,35 @@ Go through this for each pull request on GitHub.
   workflows**, so the checks start.
 - [ ] The description has `Closes #<nr>`. No line means no points, so edit
   the description and add it.
-- [ ] **CI** is green (the tests pass).
+- [ ] **CI** is green (the tests pass). GitHub blocks the **Merge** button
+  until it is. If CI is red, open it and look for the first `FAIL:`.
+  That's the real error.
 - [ ] **Files check** is green: only the files the issue lists were
   changed, so you don't need to read the code.
   - 🟡 Warning: extra files were changed. Take a quick look.
-  - 🔴 Made in the browser on github.com: don't merge. Help them set up
-    on their laptop instead, that's part of the event.
+  - 🔴 No `Closes #<nr>`, or made in the browser on github.com: GitHub
+    blocks the merge. Add the line, or help them set up on their laptop
+    instead, that's part of the event.
+  - Extra files with a good idea? Small and on-topic: merge. A separate
+    idea: ask them to run `ifi undo-file --extra`. Their version stays
+    on a `-backup` branch, so they can make it its own pull request.
 - [ ] Click **Merge**, or add the `automerge` label so it merges by itself
   when CI is done.
 - [ ] The issue closes by itself. If you close one by hand, choose
   **Close as completed**, never "not planned", or nobody gets points.
+- [ ] A few minutes later, check that **Actions → Deploy** is green.
+  The site only updates when the deploy passes. A red deploy means
+  nothing new reaches the site until someone fixes it, so tell an
+  organiser.
 - [ ] Press **Sync now** on the site so the points show up on the
   [Leaderboard](https://halloween.ifiplattform.no/commits/leaderboard/).
 
 Don't merge if it's the wrong issue, the page looks broken, or GitHub
 shows a merge conflict. Tell them kindly what to fix.
+
+Organisers can **bypass** the block in an emergency. Don't use it to merge
+a red ✗: one broken merge makes every later pull request red too, and
+stops the site from updating.
 
 ## 🛠️ Your buttons on the site
 
@@ -179,7 +194,9 @@ A claim stops running out once its pull request is open.
 | Everything is slow (Windows) | The repo is on `C:\`. Clone it inside WSL instead. |
 | `ifi` not found, or `ModuleNotFoundError` | The container is old: [rebuild it](docker_guide.md#restart-reopen-rebuild-or-reset) |
 | A change doesn't show up | Refresh the browser, then `ifi restart-server` |
-| The wrong file is in the pull request | `ifi undo-file <file>` |
+| A merged change isn't on the mock site | The deploy failed. Check **Actions → Deploy** on GitHub, and tell an organiser |
+| CI is red on a pull request that only changed CSS | `main` itself may be broken. Check the newest run on `main` under **Actions**. If that's red too, it's not their fault |
+| The wrong file is in the pull request | `ifi undo-file <file>`, or `ifi undo-file --extra` for all files the issue doesn't list |
 | Can't claim an issue | Link the GitHub username on [My issues](https://halloween.ifiplattform.no/commits/) |
 | Docker won't work at all | [Setup without Docker](setup_without_docker.md) |
 

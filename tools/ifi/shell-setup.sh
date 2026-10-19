@@ -7,8 +7,10 @@ _ifi_complete() {
         mapfile -t COMPREPLY < <(compgen -W "help fix-issue pull-request undo-file test migrate restart-server reset-server rebuild-docker" -- "$cur")
     elif [[ $COMP_CWORD -eq 2 && "${COMP_WORDS[1]}" == help ]]; then
         mapfile -t COMPREPLY < <(compgen -W "git docker django ifi" -- "$cur")
+    elif [[ $COMP_CWORD -eq 2 && "${COMP_WORDS[1]}" == undo-file ]]; then
+        mapfile -t COMPREPLY < <(compgen -W "--extra" -- "$cur")
     fi
 }
-complete -F _ifi_complete ifi
+complete -o default -F _ifi_complete ifi
 
 echo "Stuck? Type: ifi help"
