@@ -32,7 +32,7 @@ def main_view(request):
         ArticlePage.objects.descendant_of(news_index_page)
         .live()
         .filter(show_on_homepage=True)
-        .order_by("-published_date")[:12]
+        .order_by("-published_date")[:8]
         if news_index_page
         else ArticlePage.objects.none()
     )
