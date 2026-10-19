@@ -392,7 +392,7 @@ class PagesTests(TestCase):
             name.replace("sections", "groups"): [
                 issue.number
                 for _title, groups in response.context[name]
-                for issue, _subs in groups
+                for issue, *_subs in groups
             ]
             for name in ["open_sections", "closed_sections"]
         }
@@ -546,8 +546,8 @@ class PagesTests(TestCase):
         make_credit(3, "spooky")
         self.client.login(username="ghostie", password="pw")
         response = self.client.get(reverse("commits_main"))
-        assigned = [i.number for i, _subs in response.context["assigned_groups"]]
-        closed = [i.number for i, _subs in response.context["closed_groups"]]
+        assigned = [i.number for i, *_subs in response.context["assigned_groups"]]
+        closed = [i.number for i, *_subs in response.context["closed_groups"]]
         self.assertEqual((assigned, closed), ([1], [3]))
         self.assertContains(response, "Your issues")
         self.assertContains(response, "Your closed issues")
@@ -582,9 +582,9 @@ class PagesTests(TestCase):
     def open_groups(self, **params):
         response = self.client.get(reverse("commits_issues"), params)
         return [
-            (title, issue.number, [s.number for s in subs])
+            (title, issue.number, [s.number for s in subs], [o.number for o in others])
             for title, groups in response.context["open_sections"]
-            for issue, subs in groups
+            for issue, subs, others in groups
         ]
 
     def test_set_shows_in_each_category_of_its_sub_issues(self):
@@ -592,14 +592,20 @@ class PagesTests(TestCase):
         self.assertEqual(
             self.open_groups(),
             [
-                ("🎨 restyle", 10, [11]),
-                ("🎨 restyle", 4, []),
-                ("🖼️ art", 10, [12, 13]),
+                ("🎨 restyle", 10, [11], [12, 13]),
+                ("🎨 restyle", 4, [], []),
+                ("🖼️ art", 10, [12, 13], [11]),
             ],
+        )
+        self.assertContains(
+            self.client.get(reverse("commits_issues")), "Others in this set"
         )
         self.assertEqual(
             self.open_groups(group="difficulty"),
-            [("🍬 candy (easy)", 10, [11, 12, 13]), ("🎃 pumpkin (hard)", 4, [])],
+            [
+                ("🍬 candy (easy)", 10, [11, 12, 13], []),
+                ("🎃 pumpkin (hard)", 4, [], []),
+            ],
         )
 
     def test_set_has_the_categories_of_its_sub_issues(self):
@@ -608,7 +614,7 @@ class PagesTests(TestCase):
         cards = {
             issue.number: issue.categories
             for _title, groups in response.context["open_sections"]
-            for issue, _subs in groups
+            for issue, _subs, _others in groups
         }
         both = [("🎨 restyle", "restyle"), ("🖼️ art", "art")]
         self.assertEqual(cards[10], both)
@@ -625,11 +631,11 @@ class PagesTests(TestCase):
         self.make_set()
         self.assertEqual(
             self.open_groups(difficulty="candy"),
-            [("🎨 restyle", 10, [11]), ("🖼️ art", 10, [12, 13])],
+            [("🎨 restyle", 10, [11], [12, 13]), ("🖼️ art", 10, [12, 13], [11])],
         )
         self.assertEqual(
             self.open_groups(category="🎨 restyle"),
-            [("🍬 candy (easy)", 10, [11]), ("🎃 pumpkin (hard)", 4, [])],
+            [("🍬 candy (easy)", 10, [11], []), ("🎃 pumpkin (hard)", 4, [], [])],
         )
         self.assertEqual(self.open_groups(difficulty="pumpkin", category="🖼️ art"), [])
 
@@ -1160,7 +1166,7 @@ class ClaimTests(TestCase):
         def order(user):
             self.client.force_login(user)
             response = self.client.get(reverse("commits_issues"))
-            return [i.number for i, _subs in response.context["open_sections"][0][1]]
+            return [i.number for i, *_subs in response.context["open_sections"][0][1]]
 
         kari_order = order(self.kari)
         self.assertEqual(kari_order, order(self.kari))

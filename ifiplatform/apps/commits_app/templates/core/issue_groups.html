@@ -1,10 +1,19 @@
+{% load i18n %}
 {% if carousel %}<ul class="issue-list issue-list--carousel" data-carousel-track tabindex="0"{% if label %} aria-label="{{ label }}"{% endif %}>{% else %}<ul class="issue-list">{% endif %}
-    {% for issue, sub_issues in groups %}
+    {% for issue, sub_issues, others in groups %}
         <li class="issue-card{% if issue.category_slug %} issue-card--{{ issue.category_slug }}{% endif %}{% if issue.state == 'CLOSED' %} issue-card--closed{% endif %}{% if issue.is_mine %} issue-card--mine{% elif issue.is_taken %} issue-card--taken{% endif %}{% if highlight_new and issue.is_new %} issue-card--new{% endif %}{% if sub_issues %} issue-card--parent{% endif %}">
             {% include "core/issue_row.html" %}
             {% if sub_issues %}
                 <ul class="issue-card__subs">
                     {% for issue in sub_issues %}
+                        <li class="issue-card issue-card--mini{% if issue.category_slug %} issue-card--{{ issue.category_slug }}{% endif %}{% if issue.state == 'CLOSED' %} issue-card--closed{% endif %}{% if issue.is_mine %} issue-card--mine{% elif issue.is_taken %} issue-card--taken{% endif %}">{% include "core/issue_row.html" with mini=True %}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if others %}
+                <p class="issue-card__others">{% trans "Others in this set" %}</p>
+                <ul class="issue-card__subs">
+                    {% for issue in others %}
                         <li class="issue-card issue-card--mini{% if issue.category_slug %} issue-card--{{ issue.category_slug }}{% endif %}{% if issue.state == 'CLOSED' %} issue-card--closed{% endif %}{% if issue.is_mine %} issue-card--mine{% elif issue.is_taken %} issue-card--taken{% endif %}">{% include "core/issue_row.html" with mini=True %}</li>
                     {% endfor %}
                 </ul>

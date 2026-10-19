@@ -48,7 +48,8 @@ def issues_view(request):
 
     # Sub-issues are listed under their parent, and only the ones that match
     # the filters. Grouped by category, a set with sub-issues in several
-    # categories shows in each, with that category's sub-issues. Easiest first
+    # categories shows in each, with that category's sub-issues first and
+    # the rest of the set after them as "others". Easiest first
     # everywhere, a parent (0 points itself) counting as its easiest
     # sub-issue. The grouping follows the filters: only a filter that still
     # spans several values ("All", or more than one picked) is worth
@@ -79,9 +80,12 @@ def issues_view(request):
             by_category = {}
             for sub in subs:
                 by_category.setdefault(sub.category, []).append(sub)
-            groups += [(issue, same) for same in by_category.values()]
+            groups += [
+                (issue, same, [s for s in subs if s not in same])
+                for same in by_category.values()
+            ]
         else:
-            groups.append((issue, subs))
+            groups.append((issue, subs, []))
     groups.sort(key=_difficulty_key)
     if group_by == "category":
         groups.sort(key=_category_key)  # stable: easiest first within a category
@@ -131,7 +135,7 @@ def issues_view(request):
 
 def _group_taken(group):
     """A parent counts as taken when all of its sub-issues are."""
-    issue, sub_issues = group
+    issue, sub_issues, _others = group
     if sub_issues and not issue.points:
         return all(s.is_taken for s in sub_issues)
     return issue.is_taken
@@ -156,12 +160,12 @@ def _free_first(groups, heading, user):
 
 
 def _difficulty_key(group):
-    issue, sub_issues = group
+    issue, sub_issues, _others = group
     return (min((s.points for s in sub_issues), default=issue.points), issue.number)
 
 
 def _group_category(group):
-    issue, sub_issues = group
+    issue, sub_issues, _others = group
     return next((s.category for s in sub_issues), "") or issue.category
 
 
