@@ -121,7 +121,7 @@ doesn't build the image from scratch here, because the image is built by our
 own build step. For a truly clean build, run this outside the container, in
 the repo folder, and then rebuild in VS Code:
 ```bash
-docker compose build --no-cache web
+docker build --no-cache -f Dockerfile.dev -t ifiplatform-web:dev .
 ```
 
 The same things from a terminal on your own computer, in the repo folder:
@@ -158,7 +158,11 @@ Builds and starts everything in the background. The site is ready at http://loca
 ```bash
 docker compose exec web bash
 ```
-Opens a terminal inside the container. From there, every `python manage.py ...` command works as normal. Type `exit` to leave.
+Opens a terminal inside the container. From there, every `python manage.py ...` command and `ifi` work as normal. Type `exit` to leave.
+
+**`ifi` from your own terminal.** You can also stay outside the container: use the launcher in the repo root, `./ifi status` (Mac, Linux, Git Bash) or `.\ifi status` (Windows PowerShell; it needs Git Bash, which comes with Git for Windows). `ifi test`, `migrate`, `restart-server` and `reset-server` then run inside the container by themselves. Git commands (`save`, `pull-request`, ...) run on your own computer, where your GitHub login is: inside a container started this way there's no GitHub login. `./ifi install` makes `ifi` work from any folder (Mac, Linux, Git Bash).
+
+To stop everything: `docker compose down` (your database is kept).
 
 ### Looking at the database
 The Docker database is also reachable from your own computer at `localhost:5433`, for example from a database tool (user `ifiplatform_user`, password `devpassword`).
@@ -166,8 +170,9 @@ The Docker database is also reachable from your own computer at `localhost:5433`
 ## If something goes wrong
 
 **The container won't start**
-- **"An error occurred setting up the container":** find the real error first. Click **More Actions…** in the popup, or open **View → Output** and pick **Dev Containers**, or run `docker compose build` in a terminal on your own computer, in the repo folder. The error is near the end.
-- **The error says `additional privileges requested`:** your copy of the repo is older than the fix for newer Docker versions. Get the latest code (`git fetch upstream` and rebase, or pull), then try again. Stuck on an old branch? On a Mac, run `launchctl setenv BUILDX_BAKE_ENTITLEMENTS_FS 0`, quit VS Code completely (Cmd+Q) and open it again.
+- **"An error occurred setting up the container":** find the real error first. Click **More Actions…** in the popup, or open **View → Output** and pick **Dev Containers**, or run `docker build -f Dockerfile.dev -t ifiplatform-web:dev .` in a terminal on your own computer, in the repo folder. The error is near the end.
+- **The error says `additional privileges requested` or `failed to execute bake`:** your copy of the repo is older than the fix for newer Docker versions (common on Windows). Get the latest code (`ifi update`, or `git fetch upstream` and rebase), then try again. Stuck on an old branch? Build the image yourself in a terminal on your own computer, in the repo folder, then Reopen in Container: `docker build -f Dockerfile.dev -t ifiplatform-web:dev .` The same error with `docker compose up --build` outside VS Code has the same cure: run that `docker build` first, then `docker compose up -d`.
+- **The log says `Could not connect to WSL`, `Read-only file system` or `No space left on device` right after "Installing VS Code Server" (Windows):** you can ignore those lines. VS Code tries something in Docker Desktop's own WSL, fails, and carries on. Look further down for the real error.
 - **"Port 8000 is already in use":** another `runserver` is running on your computer. Stop it (Ctrl+C in its terminal) and try again.
 - **Docker Desktop won't start (Windows):** it needs WSL2 and virtualization. Run `wsl --install` in PowerShell as administrator and restart. If Docker still complains, turn on virtualization in your computer's BIOS/UEFI settings (called "Intel VT-x", "AMD-V" or "SVM"). Docker Desktop's error message usually says which one is missing.
 
@@ -179,7 +184,8 @@ The Docker database is also reachable from your own computer at `localhost:5433`
 
 **The terminal or editor is odd**
 - **Tab doesn't complete, or the arrow keys print `^[[A`:** your container is older than the fix that gives the terminal bash instead of sh. [Rebuild](#restart-reopen-rebuild-or-reset). Your database is kept.
-- **`ifi` isn't found:** your container is older than this command. [Rebuild](#restart-reopen-rebuild-or-reset).
+- **`ifi` isn't found:** first check that you're inside the container: its prompt starts with **(container)**. Without it you're on your own computer, for example because you opened a subfolder with File → Open Folder (open the repo's top folder and Reopen in Container), or used a terminal outside VS Code. There, use the launcher in the repo root: `./ifi` (`.\ifi` in PowerShell), see [Without VS Code](#without-vs-code). Inside the container and still not found? Your container is older than this command. [Rebuild](#restart-reopen-rebuild-or-reset).
+- **Something else is wrong and you don't know what:** run `ifi status`. It checks your setup (Git name, remotes, GitHub login, branch, the site) and says how to fix each ❌.
 
 **It's slow, or Docker won't work at all**
 - **Everything is slow (Windows):** projects cloned to a Windows drive like `C:\` are slow in Docker. Clone inside WSL instead, see [Get the code](get_the_code.md).

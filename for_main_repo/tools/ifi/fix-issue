@@ -18,8 +18,7 @@ dirty="$(git status --porcelain)"
 if [[ -n "$dirty" && -n "$current" && "$current" != main ]]; then
     die "You have changes on $current that aren't committed yet." \
         "Commit them first, then run this again:" \
-        "  git add ." \
-        "  git commit -m \"Short description of what you changed\""
+        "  ifi save \"Short description of what you changed\""
 fi
 
 existing="$(git config --get-regexp '^branch\..*\.ifi-issue$' 2>/dev/null |
@@ -28,8 +27,15 @@ if [[ -n "$existing" ]] && git show-ref --verify --quiet "refs/heads/$existing";
     if [[ "$existing" == "$current" ]]; then
         echo "You're already on $existing, the branch for issue #$nr."
     else
-        run git switch "$existing"
+        switch_or_explain "$existing"
         echo "Back on $existing, the branch for issue #$nr."
+    fi
+    find_base
+    if GIT_TERMINAL_PROMPT=0 git fetch --quiet "$base" 2>/dev/null; then
+        behind="$(git rev-list --count "HEAD..$base/main")"
+        if [[ "$behind" -gt 0 ]]; then
+            echo "main has $behind new commit(s) since you started this branch. Bring them in with: ifi update"
+        fi
     fi
     exit 0
 fi
@@ -37,7 +43,7 @@ fi
 # "Gjør kortene oransje!" -> "gjor-kortene-oransje": the first 4 words,
 # ASCII only, at most 40 characters.
 slugify() {
-    python3 - "$1" <<'PY'
+    "$PY" - "$1" <<'PY'
 import re, sys, unicodedata
 
 text = sys.argv[1].lower()
@@ -52,7 +58,7 @@ PY
 # has none. Prints nothing when GitHub can't be reached (no network, or the
 # 60-calls-an-hour limit for a room sharing one IP). IFI_GITHUB_API lets
 # the tests use a fake server.
-lookup="$(python3 - "$nr" "${IFI_GITHUB_API:-https://api.github.com}" "$MAIN_REPO" <<'PY' 2>/dev/null || true
+lookup="$("$PY" - "$nr" "${IFI_GITHUB_API:-https://api.github.com}" "$MAIN_REPO" <<'PY' 2>/dev/null || true
 import json, sys, urllib.request
 
 nr, api, repo = sys.argv[1:4]
@@ -81,7 +87,7 @@ else
 fi
 while [[ ! "$kind" =~ ^(bug|feature|task)$ ]]; do
     read -r -p "What is the issue's Type? (bug/feature/task) " kind || die ""
-    kind="${kind,,}"
+    kind="$(lower "$kind")"
 done
 while [[ -z "$slug" ]]; do
     read -r -p "A few words about it, like 'orange event cards': " words || die ""
@@ -94,8 +100,8 @@ if git show-ref --verify --quiet "refs/heads/$name"; then
 fi
 
 find_base
-run git fetch "$base"
-run git switch -c "$name" --no-track "$base/main"
+fetch_base
+switch_or_explain -c "$name" --no-track "$base/main"
 git config "branch.$name.ifi-issue" "$nr"
 
 echo
@@ -104,7 +110,6 @@ echo "Made branch $name for issue #$nr."
 cat <<EOF
 
 Now make your change. When it works:
-  git add .
-  git commit -m "Short description of what you changed"
+  ifi save "Short description of what you changed"
   ifi pull-request
 EOF

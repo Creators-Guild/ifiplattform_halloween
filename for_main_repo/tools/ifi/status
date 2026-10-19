@@ -1,0 +1,206 @@
+#!/usr/bin/env bash
+# ifi status: checks the whole setup and lists what's OK (✅), worth knowing
+# (⚠️) or broken (❌), each with the command that fixes it. Changes nothing,
+# except that it fetches, like `git fetch`, to know how far behind you are.
+# When someone's stuck: "run ifi status and show me the ❌ lines".
+set -uo pipefail
+
+problems=0
+warnings=0
+ok() { printf '✅ %s\n' "$1"; }
+warn() {
+    printf '⚠️  %s\n' "$1"
+    shift
+    [[ $# -gt 0 ]] && printf '      %s\n' "$@"
+    warnings=$((warnings + 1))
+}
+bad() {
+    printf '❌ %s\n' "$1"
+    shift
+    [[ $# -gt 0 ]] && printf '      %s\n' "$@"
+    problems=$((problems + 1))
+}
+
+# 1. In the project?
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    bad "You're not in the project folder." "cd into the IfiPlatform folder (or open it in VS Code)."
+    exit 1
+fi
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+cd "$(git rev-parse --show-toplevel)"
+repo_name="${MAIN_REPO#*/}"
+ok "In the project: $(pwd)"
+
+# 2. In the container?
+in_container=false
+if in_container; then
+    in_container=true
+    ok "Inside the Docker container."
+else
+    warn "Not inside the Docker container." \
+        "Fine without Docker. With Docker, use VS Code's terminal after Reopen in Container."
+fi
+
+# 3. Name and email for commits.
+if [[ -n "$(git config user.name)" && -n "$(git config user.email)" ]]; then
+    ok "Git knows who you are: $(git config user.name) <$(git config user.email)>"
+else
+    bad "Git doesn't know your name and email yet, so you can't save." \
+        "ifi save asks for them, or: git config --global user.name \"Your Name\"" \
+        "                            git config --global user.email \"you@example.com\""
+fi
+
+# 4. origin: your fork, or the main repo for collaborators.
+origin_url="$(git remote get-url origin 2>/dev/null || true)"
+origin_repo="$(repo_of origin 2>/dev/null || true)"
+collaborator=false
+if [[ -z "$origin_url" ]]; then
+    bad "No 'origin' remote: Git doesn't know where to push." \
+        "Add your fork: git remote add origin https://github.com/<your-username>/$repo_name.git"
+elif [[ "$origin_url" =~ ^(git@|ssh://) ]]; then
+    warn "origin uses an SSH address ($origin_url). HTTPS works without setup:" \
+        "git remote set-url origin https://github.com/$origin_repo.git"
+elif [[ "$origin_url" != https://github.com/* ]]; then
+    warn "origin isn't a GitHub address: $origin_url"
+elif [[ "$(lower "$origin_repo")" == "$(lower "$MAIN_REPO")" ]]; then
+    collaborator=true
+    ok "origin is the main repo ($MAIN_REPO): you push straight to it, as a collaborator."
+else
+    ok "origin is your fork: $origin_repo"
+fi
+[[ "$(lower "$origin_repo")" == "$(lower "$MAIN_REPO")" ]] && collaborator=true
+
+# 5. upstream: the main repo, for contributors.
+upstream_url="$(git remote get-url upstream 2>/dev/null || true)"
+upstream_repo="$(repo_of upstream 2>/dev/null || true)"
+base=""
+if $collaborator; then
+    base=origin
+    ok "upstream isn't needed: origin already is the main repo."
+elif [[ -z "$upstream_url" ]]; then
+    bad "No 'upstream' remote: Git can't get everyone else's changes." \
+        "git remote add upstream https://github.com/$MAIN_REPO.git"
+elif [[ "$(lower "$upstream_repo")" != "$(lower "$MAIN_REPO")" && "$upstream_url" == *github.com* ]]; then
+    bad "upstream points to $upstream_repo, not the main repo." \
+        "git remote set-url upstream https://github.com/$MAIN_REPO.git"
+else
+    base=upstream
+    if [[ "$upstream_url" =~ ^(git@|ssh://) ]]; then
+        warn "upstream uses an SSH address. HTTPS works without setup:" \
+            "git remote set-url upstream https://github.com/$MAIN_REPO.git"
+    else
+        ok "upstream is the main repo: $MAIN_REPO"
+    fi
+fi
+
+# 6. Logged in, as an account that may push to origin? A dry-run push: GitHub
+# checks the login, but nothing is sent.
+if [[ -n "$origin_url" ]]; then
+    err="$(GIT_TERMINAL_PROMPT=0 with_timeout 15 git push --dry-run --quiet origin HEAD:refs/heads/ifi-status-login-check 2>&1)"
+    status=$?
+    if [[ $status -eq 0 ]]; then
+        ok "Logged in to GitHub, and allowed to push to origin."
+    elif [[ $status -eq 124 ]]; then
+        warn "GitHub didn't answer within 15 seconds, so the login couldn't be checked. No internet?"
+    else
+        case "$(git_error_kind "$err")" in
+            ssh) bad "Can't use SSH here, so you can't push. Switch origin to HTTPS:" \
+                "git remote set-url origin https://github.com/$origin_repo.git" ;;
+            login) bad "Not logged in to GitHub." \
+                "Run 'git push' once in VS Code's terminal and click Allow in the popup." \
+                "More: docs/contributing/get_the_code.md#log-in-to-github-once" ;;
+            denied)
+                user="$(denied_user "$err")"
+                if $collaborator; then
+                    bad "You cloned the main repo, but ${user:-your account} can't push to it." \
+                        "Fork it on GitHub, then: git remote rename origin upstream" \
+                        "                         git remote add origin https://github.com/${user:-<your-username>}/$repo_name.git"
+                else
+                    bad "Logged in as ${user:-another account}, which can't push to $origin_repo." \
+                        "Wrong account? See docs/contributing/get_the_code.md#log-in-to-github-once"
+                fi
+                ;;
+            notfound) bad "GitHub can't find $origin_url. Did you fork the repo? Is the username right?" ;;
+            *) warn "Couldn't check the GitHub login:" "$(head -n 1 <<<"$err")" ;;
+        esac
+    fi
+fi
+
+# 7. Branch, and its issue.
+branch="$(git branch --show-current)"
+if [[ -z "$branch" ]]; then
+    warn "You're not on a branch (detached HEAD)." "Go to your issue's branch: ifi fix-issue <nr>"
+elif [[ "$branch" == main ]]; then
+    warn "You're on main. Start an issue with: ifi fix-issue <nr>"
+else
+    nr="$(git config "branch.$branch.ifi-issue" || true)"
+    if [[ -n "$nr" ]]; then
+        ok "On branch $branch, for issue #$nr."
+    else
+        warn "On branch $branch, not linked to an issue yet. ifi pull-request asks for the number."
+    fi
+fi
+
+# 8. Unsaved changes.
+unsaved="$(git status --porcelain | wc -l | tr -d ' ')"
+if [[ "$unsaved" -eq 0 ]]; then
+    ok "No unsaved changes."
+else
+    warn "$unsaved file(s) changed but not saved yet:" "ifi save \"Short description of what you changed\""
+fi
+
+# 9. Behind the newest main? 9b. Saved but not on GitHub yet?
+if [[ -n "$base" && -n "$branch" && "$branch" != main ]]; then
+    if GIT_TERMINAL_PROMPT=0 with_timeout 20 git fetch --quiet "$base" 2>/dev/null; then
+        behind="$(git rev-list --count "HEAD..$base/main")"
+        if [[ "$behind" -eq 0 ]]; then
+            ok "Up to date with the newest main."
+        else
+            fork_point="$(git merge-base HEAD "$base/main")"
+            clash="$(comm -12 <(git diff --name-only "$fork_point" "$base/main" | sort) \
+                <(git diff --name-only "$fork_point" HEAD | sort) | tr '\n' ' ')"
+            warn "main has $behind new commit(s) since your branch started. Update before your pull request:" \
+                "ifi update"
+            [[ -n "$clash" ]] && warn "You'll likely get a conflict in: $clash" \
+                "Those files changed both on your branch and on main."
+        fi
+    else
+        warn "Couldn't fetch the newest main from $base, so 'behind' wasn't checked."
+    fi
+
+    if git rev-parse --verify --quiet "@{u}" >/dev/null; then
+        GIT_TERMINAL_PROMPT=0 with_timeout 20 git fetch --quiet origin "$branch" 2>/dev/null
+        ahead="$(git rev-list --count "@{u}..HEAD")"
+    else
+        ahead="$(git rev-list --count "$base/main..HEAD" 2>/dev/null || echo 0)"
+    fi
+    if [[ "$ahead" -eq 0 ]]; then
+        ok "Everything you saved is on GitHub."
+    else
+        warn "$ahead save(s) aren't on GitHub yet, so your pull request doesn't have them:" "ifi pull-request"
+    fi
+fi
+
+# 10. Is the site running?
+# Any HTTP answer, even an error page, means the server is running.
+if "$PY" - 2>/dev/null <<'PY'; then
+import urllib.error, urllib.request
+try:
+    urllib.request.urlopen("http://localhost:8000/", timeout=3)
+except urllib.error.HTTPError:
+    pass
+PY
+    ok "The site answers at http://localhost:8000"
+elif $in_container; then
+    bad "Nothing answers at http://localhost:8000." "ifi restart-server"
+else
+    warn "Nothing answers at http://localhost:8000. Start the site the way your setup says."
+fi
+
+echo
+if [[ $problems -eq 0 && $warnings -eq 0 ]]; then
+    echo "All good. 🎃"
+else
+    echo "$problems problem(s), $warnings warning(s). Fix the ❌ lines first; ask someone on the team if you're stuck."
+fi
+[[ $problems -eq 0 ]]

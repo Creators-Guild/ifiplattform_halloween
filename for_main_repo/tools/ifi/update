@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# ifi update: brings your branch up to date with the newest main (fetch +
+# rebase), so you test against everyone else's changes. On a conflict it
+# stops and explains; fix the files and run `ifi update` again to go on, or
+# `ifi update --abort` to go back to how it was.
+#
+# Remembers where the branch was before (branch.<name>.ifi-before-update),
+# so `ifi pull-request` knows the branch on GitHub may be replaced by the
+# updated one, and nothing else.
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+cd "$(git rev-parse --show-toplevel)"
+
+conflict_help() {
+    cat <<EOF
+
+Conflict: main and your branch both changed the same lines in:
+$(git diff --name-only --diff-filter=U | sed 's/^/  /')
+
+For each file:
+  1. Open it and look for these markers:
+       <<<<<<<    the version from main starts here
+       =======    your version starts here
+       >>>>>>>    end
+  2. Keep what should stay (often a bit of both) and delete the three marker lines.
+  3. Save the file.
+Then run: ifi update        (goes on with the update)
+Stuck?    ifi update --abort  (goes back to how your branch was; nothing is lost)
+EOF
+    exit 1
+}
+
+if [[ -d "$(git rev-parse --git-path rebase-merge)" || -d "$(git rev-parse --git-path rebase-apply)" ]]; then
+    if [[ "${1:-}" == --abort ]]; then
+        run git rebase --abort
+        echo "Back to how your branch was before the update."
+        exit 0
+    fi
+    # Still conflict markers in a file? Then it isn't fixed yet.
+    marked="$(git diff --name-only --diff-filter=U | while IFS= read -r f; do
+        if grep -qE '^(<<<<<<<|>>>>>>>)( |$)' -- "$f" 2>/dev/null; then echo "$f"; fi
+    done)"
+    if [[ -n "$marked" ]]; then
+        echo "These files still have conflict markers (<<<<<<< or >>>>>>>):"
+        sed 's/^/  /' <<<"$marked"
+        conflict_help
+    fi
+    run git add -A
+    if ! GIT_EDITOR=true git rebase --continue; then
+        conflict_help
+    fi
+else
+    [[ "${1:-}" != --abort ]] || die "No update is running, so there's nothing to abort."
+    branch="$(git branch --show-current)"
+    [[ -n "$branch" ]] || die "You're not on a branch. Go to your issue's branch first: ifi fix-issue <nr>"
+    [[ "$branch" != main ]] || die "You're on main. ifi fix-issue <nr> already starts from the newest main."
+    if [[ -n "$(git status --porcelain)" ]]; then
+        git status --short
+        die "" "Save your changes first, then update:" \
+            "  ifi save \"Short description of what you changed\""
+    fi
+
+    find_base
+    fetch_base
+    behind="$(git rev-list --count "HEAD..$base/main")"
+    if [[ "$behind" -eq 0 ]]; then
+        echo "Already up to date with the newest main."
+        exit 0
+    fi
+    echo "main has $behind new commit(s). Putting your saves on top of them."
+    git config "branch.$branch.ifi-before-update" "$(git rev-parse HEAD)"
+    if ! run git rebase "$base/main"; then
+        conflict_help
+    fi
+fi
+
+branch="$(git branch --show-current)"
+cat <<EOF
+
+Updated: $branch now starts from the newest main.
+Check that the site still works, run ifi test, then send it:
+  ifi pull-request
+EOF

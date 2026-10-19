@@ -20,8 +20,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    # The name `docker compose build` gives the image. VS Code starts this
-    # image instead of building it itself (see .devcontainer/).
+    # The image VS Code starts. devcontainer.json's initializeCommand builds
+    # it with plain `docker build` under this same name (see .devcontainer/).
     image: ifiplatform-web:dev
     container_name: ifiplatform-web
     depends_on:

@@ -130,6 +130,18 @@ database.
 Your tests run on SQLite, while CI uses PostgreSQL. Now and then a test can
 pass for you and fail in CI. That's not your fault: say so in your pull request.
 
+## Optional: the `ifi` commands
+The project's own shortcuts (`ifi status`, `ifi save`, `ifi pull-request`,
+`ifi test`, ...) work without Docker too. They're bash scripts, so on
+Windows use the **Git Bash** terminal (it comes with Git for Windows; in VS
+Code pick it with the **+** arrow in the terminal panel). In the repo root:
+```bash
+./ifi install
+```
+Open a new terminal, and `ifi help` lists them. They find your venv by
+themselves. In PowerShell, run them from the repo root as `.\ifi status`
+instead (that still needs Git Bash installed).
+
 ## Next
 - New to Django? Read [How this project works](how_this_project_works.md).
 - Make your first change: [Make a change, step by step](../../CONTRIBUTING.md#2-make-a-change-step-by-step).

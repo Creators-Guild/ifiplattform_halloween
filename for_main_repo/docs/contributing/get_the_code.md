@@ -17,6 +17,8 @@ depends on one thing.
 
 **On Windows, and going to use Docker?** You can clone to a windows folder, but WSL is faster. Clone inside WSL, not to a drive like `C:\`: open the Ubuntu terminal, clone there, and run `code .` in the repo folder. Docker is much faster that way. GitHub Desktop always clones to a Windows folder, so the site runs slower with it, but it still works.
 
+**Use the HTTPS address** (`https://github.com/...`), as below, not the SSH one (`git@github.com:...`). HTTPS works in the container without any setup, because VS Code shares your GitHub login with it. Already cloned with SSH? `ifi pull-request` offers to switch it for you, or run `git remote set-url origin https://github.com/<your-username>/IfiPlatform.git`.
+
 **Rather click than type commands?** Install [GitHub Desktop](https://desktop.github.com/). Each section below says how to do it there.
 
 ## Contributor: fork and clone

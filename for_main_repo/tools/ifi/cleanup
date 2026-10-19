@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# ifi cleanup: deletes your branches that are already merged into main, on
+# your computer and on your fork. GitHub deletes merged branches in the main
+# repo by itself, but never on your computer or in a fork. Only merged
+# branches: those whose every commit is in the newest main.
+# Asks before deleting anything.
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+find_base
+fetch_base
+
+current="$(git branch --show-current)"
+merged=()
+while IFS= read -r b; do
+    [[ -z "$b" || "$b" == main || "$b" == "$current" ]] && continue
+    merged+=("$b")
+done < <(git branch --format='%(refname:short)' --merged "$base/main")
+
+if [[ ${#merged[@]} -eq 0 ]]; then
+    echo "Nothing to clean up: none of your branches are merged into main yet."
+    [[ "$current" != main ]] && git merge-base --is-ancestor HEAD "$base/main" &&
+        echo "(You're on $current, which is merged. Switch away first: git switch main)"
+    exit 0
+fi
+
+echo "These branches are merged into main, so their work is safe there:"
+printf '  %s\n' "${merged[@]}"
+on_fork=()
+if [[ "$base" != origin ]]; then
+    for b in "${merged[@]}"; do
+        git show-ref --verify --quiet "refs/remotes/origin/$b" && on_fork+=("$b")
+    done
+    [[ ${#on_fork[@]} -gt 0 ]] && echo "${#on_fork[@]} of them are also on your fork on GitHub, and get deleted there too."
+fi
+read -r -p "Delete them? (y/n) " answer || answer=""
+[[ "$answer" =~ ^[YyJj] ]] || die "Nothing was deleted."
+
+# -D, not -d: -d compares with the branch you're on, which may be an old
+# main. Every branch here is checked above to be merged into the newest main.
+for b in "${merged[@]}"; do
+    run git branch -D "$b"
+done
+if [[ ${#on_fork[@]} -gt 0 ]]; then
+    git_or_explain origin push --quiet origin --delete "${on_fork[@]}"
+fi
+echo "Done."

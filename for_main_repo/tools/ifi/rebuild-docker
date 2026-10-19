@@ -2,6 +2,19 @@
 # ifi rebuild-docker: a rebuild replaces this container, so it can't be done
 # from inside it (there is no docker command in here). This prints the steps.
 set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+if ! in_container; then
+    cat <<'TXT'
+You're not in the container, so you can rebuild from right here. In the repo folder:
+  docker compose down
+  docker build -f Dockerfile.dev -t ifiplatform-web:dev .
+  docker compose up -d
+Using VS Code? Use Command Palette -> Dev Containers: Rebuild Container instead.
+Your code, Git branches and database are kept.
+TXT
+    exit 0
+fi
 
 cat <<'TXT'
 A rebuild makes a new container. It can't be started from this terminal,
@@ -18,5 +31,5 @@ installed by hand inside the container are not.
 Still broken after that? Build from scratch: run this in a terminal on your
 own computer (not in VS Code's container terminal), in the repo folder,
 then rebuild in VS Code again:
-  docker compose build --no-cache web
+  docker build --no-cache -f Dockerfile.dev -t ifiplatform-web:dev .
 TXT

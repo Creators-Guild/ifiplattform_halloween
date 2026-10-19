@@ -21,13 +21,15 @@ site still runs without Docker until it moves over (see
 | `.devcontainer/devcontainer.json` | Lets VS Code open the `web` container ("Reopen in Container"). Builds the image first (`initializeCommand`), shows the whole repo, starts new terminals in `ifiplatform/`, and installs the editor extensions (see below) |
 | `.devcontainer/docker-compose.devcontainer.yml` | Used only by VS Code, on top of `docker-compose.yml`. Hides `build`, so VS Code starts the already built image instead of building it (see below) |
 | `.vscode/settings.json`, `.vscode/extensions.json` | Editor settings and recommended extensions. Used both in the container and without Docker |
-| `tools/ifi/`                      | Our own `ifi` commands: `fix-issue`, `pull-request`, `test`, `migrate`, `restart-server`, `reset-server`, `rebuild-docker` and `help`. Shared into the container with the rest of the repo, so editing them needs no rebuild. `shell-setup.sh` adds Tab completion, loaded from the dev user's `.bashrc` |
+| `tools/ifi/`                      | Our own `ifi` commands (`ifi help` lists them). Shared into the container with the rest of the repo, so editing them needs no rebuild. `shell-setup.sh` adds Tab completion and the `(container)` prompt, loaded from the dev user's `.bashrc`. The scripts also run without Docker (bash 3.2 on a Mac, Git Bash on Windows) |
+| `ifi`, `ifi.cmd` (repo root)      | Launchers for terminals outside the container (`.cmd` for PowerShell, via Git Bash). Commands that need the site's Python go into the running container; Git commands stay on your computer, where the GitHub login is |
 | `.dockerignore`                   | Keeps the venv, local database, media and `.env` out of the build |
 
 ## What happens on start
 
 0. Before VS Code does anything, `initializeCommand` runs
-   `docker compose build web` on your own computer. It builds
+   `docker build -f Dockerfile.dev -t ifiplatform-web:dev .` on
+   your own computer. It builds
    `Dockerfile.dev` into the image `ifiplatform-web:dev`. After
    the first time Docker's cache makes this take a second or two.
 1. `db` starts. `web` waits until the database answers (the healthcheck).
@@ -58,13 +60,20 @@ your own computer show up right away and `runserver` reloads.
   which refuses to read files outside the project, so the build stopped
   at once with `additional privileges requested: pass --allow=fs.read=...`
   (seen on a Mac with Docker Desktop 4.95 in October 2026). So
-  `initializeCommand` builds the image with a plain `docker compose build`,
-  which only reads files inside the project. The override
+  `initializeCommand` builds the image itself. It uses plain
+  `docker build`, not `docker compose build`, because Compose hands every
+  build to bake, and on Windows bake failed even on our own
+  `Dockerfile.dev` (`--allow=fs.read=Dockerfile.dev` or
+  `failed to execute bake`, Docker Desktop 4.95 and 4.96, October 2026).
+  Plain `docker build` never uses bake. The image name must match
+  `image:` in `docker-compose.yml`. The override
   `.devcontainer/docker-compose.devcontainer.yml` then removes `build`
   (`!reset`, which needs Compose 2.24 or newer), so the extension starts
   that image instead. `pull_policy: never` stops Compose from looking for
   the local image name on Docker Hub if the build failed. Outside VS Code,
-  `docker compose up --build` still builds as before.
+  `docker compose up --build` still builds through Compose, so on Windows
+  it can hit the same bake error (see the
+  [Docker guide](../contributing/docker_guide.md#if-something-goes-wrong)).
 - **Commands stay the same.** Students work inside the container
   (VS Code's terminal, or `docker compose exec web bash`), so the
   README's `python manage.py ...` commands work unchanged. `py` is
