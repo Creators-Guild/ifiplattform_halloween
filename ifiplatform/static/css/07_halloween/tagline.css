@@ -1,0 +1,11 @@
+.header-tagline {
+    margin-top: 0.3rem;
+    color: #ff7518;
+    font-family: var(--font-spooky);
+    font-size: 1.15rem;
+    letter-spacing: 0.06em;
+}
+
+.header-tagline:hover {
+    color: #ffb15c;
+}
