@@ -1,0 +1,13 @@
+Inside the container (the VS Code terminal):
+ifi restart-server                     restart the website
+ifi reset-server                       DELETE the database and start fresh
+ifi rebuild-docker                     how to rebuild the container
+
+In VS Code (Ctrl+Shift+P, Mac: Cmd+Shift+P):
+Dev Containers: Rebuild Container      after requirements.txt or Docker files change
+
+Outside the container (a terminal on your computer, in the repo folder):
+docker compose logs -f web             show the server log
+docker compose down                    stop everything, keep the database
+docker compose down -v                 stop everything and DELETE the database
+docker compose up -d --build           build and start again

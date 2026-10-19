@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# ifi test [--long|-l] [app or test name ...]: the quick tests, or with
+# --long all of them, including the slow whole-site crawler (tagged "slow").
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+args=(--exclude-tag=slow)
+if [[ "${1:-}" == --long || "${1:-}" == -l ]]; then
+    args=()
+    shift
+fi
+
+cd "$(git rev-parse --show-toplevel)/ifiplatform"
+run python manage.py test "${args[@]}" "$@"

@@ -1,0 +1,14 @@
+# Sourced by the dev container's ~/.bashrc (Dockerfile.dev): Tab completion
+# for ifi, and a hint in every new terminal.
+
+_ifi_complete() {
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    if [[ $COMP_CWORD -eq 1 ]]; then
+        mapfile -t COMPREPLY < <(compgen -W "help fix-issue pull-request test migrate restart-server reset-server rebuild-docker" -- "$cur")
+    elif [[ $COMP_CWORD -eq 2 && "${COMP_WORDS[1]}" == help ]]; then
+        mapfile -t COMPREPLY < <(compgen -W "git docker django ifi" -- "$cur")
+    fi
+}
+complete -F _ifi_complete ifi
+
+echo "Stuck? Type: ifi help"

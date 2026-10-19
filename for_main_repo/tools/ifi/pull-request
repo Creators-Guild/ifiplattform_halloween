@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# ifi pull-request: pushes the current branch to your fork and prints a link
+# that opens GitHub's "Open a pull request" page. The description starts from
+# .github/pull_request_template.md (a body= in the link would replace it), so
+# this only reminds you to fill in "Closes #<nr>".
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+branch="$(git branch --show-current)"
+[[ -n "$branch" ]] || die "You're not on a branch. Start one with: ifi fix-issue <nr>"
+[[ "$branch" != main ]] || die "You're on main. Make a branch for your issue first: ifi fix-issue <nr>"
+
+if [[ -n "$(git status --porcelain)" ]]; then
+    git status --short
+    die "" "These changes aren't committed yet. Commit them first:" \
+        "  git add ." \
+        "  git commit -m \"Short description of what you changed\""
+fi
+
+find_base
+git fetch --quiet "$base"
+if [[ "$(git rev-list --count "$base/main..HEAD")" -eq 0 ]]; then
+    die "$branch has no commits yet, so there's nothing to send. Commit your change first:" \
+        "  git add ." \
+        "  git commit -m \"Short description of what you changed\""
+fi
+
+nr="$(git config "branch.$branch.ifi-issue" || true)"
+while [[ ! "$nr" =~ ^[0-9]+$ ]]; do
+    read -r -p "Which issue number does this fix? " nr || die ""
+    nr="${nr#\#}"
+done
+git config "branch.$branch.ifi-issue" "$nr"
+
+run git push --quiet -u origin HEAD
+
+if [[ "$base" == origin ]]; then
+    head="$branch"
+else
+    head="$(repo_of origin)"
+    head="${head%%/*}:$branch"
+fi
+
+url="$(python3 - "$MAIN_REPO" "$head" "$nr" <<'PY'
+import sys
+from urllib.parse import quote
+
+repo, head, nr = sys.argv[1:4]
+print(
+    f"https://github.com/{repo}/compare/main...{quote(head, safe='/:')}"
+    "?expand=1"
+)
+PY
+)"
+
+cat <<EOF
+
+Pushed. Open this link (Ctrl+click, or Cmd+click on a Mac) to make the pull request:
+
+$url
+
+Fill in the template in the description, and write "Closes #$nr" on its
+"Closes #" line: it closes the issue when your pull request is merged.
+EOF

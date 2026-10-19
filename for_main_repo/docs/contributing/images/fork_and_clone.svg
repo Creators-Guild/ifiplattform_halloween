@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 390" width="720" height="390" role="img" aria-labelledby="title desc">
+  <title id="title">Fork and clone</title>
+  <desc id="desc">On GitHub: upstream, our repo (Ifiplattform), and origin, your repo forked from ours. On your computer: your clone. Once: fork upstream to origin, then clone origin to your computer. Every change: git fetch upstream to get everyone's changes, git push origin to send your branch, then a pull request from origin to upstream.</desc>
+  <style>
+    svg { --band: #f1f3f7; --line: #d5dae3; --box: #ffffff; --fg: #1d2330; --muted: #5b6475; --once: #7a3fd1; --loop: #0b8a78; }
+    @media (prefers-color-scheme: dark) {
+      svg { --band: #161b23; --line: #333b49; --box: #232a36; --fg: #e6e9ef; --muted: #9aa3b4; --once: #b48cff; --loop: #3fd0b8; }
+    }
+    .band { fill: var(--band); stroke: var(--line); }
+    .bandlabel { fill: var(--muted); font: 700 12px system-ui, "Segoe UI", Helvetica, Arial, sans-serif; letter-spacing: 0.1em; }
+    .box { fill: var(--box); stroke: var(--line); stroke-width: 1.5; }
+    .name { fill: var(--fg); font: 700 17px ui-monospace, "SFMono-Regular", Consolas, monospace; }
+    .sub { fill: var(--muted); font: 400 14px system-ui, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .once { stroke: var(--once); stroke-width: 2.5; fill: none; }
+    .loop { stroke: var(--loop); stroke-width: 2.5; fill: none; }
+    .once-t { fill: var(--once); font: 700 14px system-ui, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .loop-t { fill: var(--loop); font: 700 14px system-ui, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .note { fill: var(--muted); font: 400 12px system-ui, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .head-once { fill: var(--once); }
+    .head-loop { fill: var(--loop); }
+  </style>
+  <defs>
+    <marker id="headOnce" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-once"/></marker>
+    <marker id="headLoop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-loop"/></marker>
+  </defs>
+
+  <rect class="band" x="4" y="4" width="712" height="176" rx="10"/>
+  <text class="bandlabel" x="22" y="30">ON GITHUB</text>
+  <rect class="band" x="4" y="230" width="712" height="156" rx="10"/>
+  <text class="bandlabel" x="22" y="256">ON YOUR COMPUTER</text>
+
+  <rect class="box" x="40" y="56" width="230" height="84" rx="8"/>
+  <text class="name" x="155" y="92" text-anchor="middle">upstream</text>
+  <text class="sub" x="155" y="116" text-anchor="middle">Our repo (Ifiplattform)</text>
+
+  <rect class="box" x="450" y="56" width="230" height="84" rx="8"/>
+  <text class="name" x="565" y="92" text-anchor="middle">origin</text>
+  <text class="sub" x="565" y="116" text-anchor="middle">Your repo (forked from ours)</text>
+
+  <rect class="box" x="245" y="282" width="230" height="84" rx="8"/>
+  <text class="name" x="360" y="318" text-anchor="middle">your clone</text>
+  <text class="sub" x="360" y="342" text-anchor="middle">Where you edit and run the site</text>
+
+  <line class="once" x1="272" y1="84" x2="446" y2="84" marker-end="url(#headOnce)"/>
+  <text class="once-t" x="359" y="74" text-anchor="middle">1. Fork</text>
+  <line class="loop" x1="448" y1="114" x2="274" y2="114" marker-end="url(#headLoop)"/>
+  <text class="loop-t" x="361" y="136" text-anchor="middle">Pull request</text>
+
+  <line class="once" x1="520" y1="142" x2="422" y2="278" marker-end="url(#headOnce)"/>
+  <text class="once-t" x="452" y="214" text-anchor="end">2. Clone</text>
+  <line class="loop" x1="452" y1="280" x2="550" y2="144" marker-end="url(#headLoop)"/>
+  <text class="loop-t" x="524" y="214">git push origin</text>
+  <text class="note" x="524" y="230">send your branch</text>
+
+  <line class="loop" x1="180" y1="142" x2="296" y2="278" marker-end="url(#headLoop)"/>
+  <text class="loop-t" x="226" y="206" text-anchor="end">git fetch upstream</text>
+  <text class="note" x="226" y="222" text-anchor="end">get everyone's changes</text>
+
+  <line class="once" x1="530" y1="310" x2="560" y2="310"/>
+  <text class="note" x="568" y="314">once</text>
+  <line class="loop" x1="530" y1="336" x2="560" y2="336"/>
+  <text class="note" x="568" y="340">every change</text>
+</svg>

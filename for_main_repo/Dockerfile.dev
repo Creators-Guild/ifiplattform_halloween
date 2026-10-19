@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash-completion gettext git procps \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+
+# Lets the docs' Windows-style `py manage.py ...` work inside the container too.
+RUN ln -s /usr/local/bin/python /usr/local/bin/py
+
+# `ifi` in the container terminal: our own commands (tools/ifi/). The link
+# points into the shared repo folder, so editing them needs no rebuild.
+# procps, installed above, gives `ifi restart-server` its pkill.
+RUN ln -s /workspace/tools/ifi/ifi /usr/local/bin/ifi
+
+# A normal user instead of root, so files made in the container (like new
+# migrations) aren't owned by root on Linux computers. VS Code changes its
+# UID to match yours. The .claude folder is created here so its Docker
+# volume belongs to this user. safe.directory stops Git refusing the repo
+# when the shared folder shows up as owned by someone else (Windows).
+# autoSetupRemote lets a plain `git push` work on a new branch.
+# The shell is bash, not Debian's default sh: sh has no Tab completion or
+# arrow-key history. The .bashrc copied from /etc/skel loads bash-completion
+# (installed above), so git commands and branch names complete too. The
+# last line it gets loads tools/ifi/shell-setup.sh: Tab completion for
+# `ifi` and the "ifi help" hint.
+RUN useradd --create-home --shell /bin/bash --uid 1000 dev \
+    && mkdir /home/dev/.claude \
+    && chown dev:dev /home/dev/.claude \
+    && git config --system --add safe.directory /workspace \
+    && git config --system push.autoSetupRemote true \
+    && echo '[ -f /workspace/tools/ifi/shell-setup.sh ] && . /workspace/tools/ifi/shell-setup.sh' >> /home/dev/.bashrc
+USER dev
+
+WORKDIR /workspace/ifiplatform

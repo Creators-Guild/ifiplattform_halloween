@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# `ifi`: this project's own helper commands. Dockerfile.dev
+# links it into the dev container's PATH; without Docker, run tools/ifi/ifi.
+# Every subcommand is a script next to this one.
+set -euo pipefail
+
+here="$(dirname "$(readlink -f "$0")")"
+cmd="${1:-help}"
+shift || true
+
+case "$cmd" in
+    help | -h | --help) exec "$here/help" "$@" ;;
+    fix-issue | pull-request | test | migrate | restart-server | reset-server | rebuild-docker) exec "$here/$cmd" "$@" ;;
+    *)
+        echo "ifi: no command called '$cmd'. Type: ifi help" >&2
+        exit 1
+        ;;
+esac

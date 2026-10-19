@@ -1,0 +1,6 @@
+What do you need help with?
+  1) git      the Git commands you'll use most
+  2) docker   restart, rebuild, inside or outside the container
+  3) django   manage.py: tests, migrations, admin user, translations
+  4) ifi      our own commands
+Type a number, or press Enter to quit. (Next time: ifi help git, ...)

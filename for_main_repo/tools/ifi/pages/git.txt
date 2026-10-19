@@ -1,0 +1,12 @@
+git status                     what changed
+git diff                       show changes not yet added
+git add .                      pick all changes for the next commit
+git commit -m "message"        save them
+git push                       send your branch to GitHub
+git switch <branch>            go to another branch
+git branch                     list your branches (* = the one you're on)
+git log --oneline              list commits
+git restore <file>             undo changes to a file
+
+Start an issue:   ifi fix-issue <nr>
+Open a PR:        ifi pull-request

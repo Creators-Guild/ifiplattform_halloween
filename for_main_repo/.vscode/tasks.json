@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Restart Django server",
+      "detail": "Runs ifi restart-server in the container (tools/ifi/).",
+      "type": "shell",
+      "command": "ifi restart-server",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

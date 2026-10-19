@@ -1,0 +1,25 @@
+{
+  "name": "IfiPlatform",
+  "initializeCommand": "docker compose -f docker-compose.yml build web",
+  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.devcontainer.yml"],
+  "service": "web",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "dev",
+  "forwardPorts": [8000],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.pylint",
+        "batisteo.vscode-django",
+        "bierner.markdown-mermaid"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "terminal.integrated.cwd": "/workspace/ifiplatform",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  }
+}

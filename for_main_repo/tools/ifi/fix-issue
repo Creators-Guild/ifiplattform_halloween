@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# ifi fix-issue <nr>: makes a branch for an issue, named <type>/<few-words>
+# like CONTRIBUTING.md asks, starting from the newest main. The issue number
+# is kept in the branch's Git config (branch.<name>.ifi-issue), so
+# pull-request knows it, and a second fix-issue <nr> switches back to it.
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+nr="${1:-}"
+nr="${nr#\#}"
+[[ "$nr" =~ ^[0-9]+$ ]] || die "Which issue? For example: ifi fix-issue 42"
+
+current="$(git branch --show-current)"
+dirty="$(git status --porcelain)"
+
+# Uncommitted work on main is usually a change made before branching, so it
+# comes along. On another issue's branch it belongs to that issue.
+if [[ -n "$dirty" && -n "$current" && "$current" != main ]]; then
+    die "You have changes on $current that aren't committed yet." \
+        "Commit them first, then run this again:" \
+        "  git add ." \
+        "  git commit -m \"Short description of what you changed\""
+fi
+
+existing="$(git config --get-regexp '^branch\..*\.ifi-issue$' 2>/dev/null |
+    awk -v n="$nr" '$2 == n { print $1 }' | sed -E 's/^branch\.//; s/\.ifi-issue$//' | head -n 1 || true)"
+if [[ -n "$existing" ]] && git show-ref --verify --quiet "refs/heads/$existing"; then
+    if [[ "$existing" == "$current" ]]; then
+        echo "You're already on $existing, the branch for issue #$nr."
+    else
+        run git switch "$existing"
+        echo "Back on $existing, the branch for issue #$nr."
+    fi
+    exit 0
+fi
+
+# "Gjør kortene oransje!" -> "gjor-kortene-oransje": the first 4 words,
+# ASCII only, at most 40 characters.
+slugify() {
+    python3 - "$1" <<'PY'
+import re, sys, unicodedata
+
+text = sys.argv[1].lower()
+for a, b in (("æ", "ae"), ("ø", "o"), ("å", "a")):
+    text = text.replace(a, b)
+text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
+print("-".join(re.findall(r"[a-z0-9]+", text)[:4])[:40].strip("-"))
+PY
+}
+
+# Prints "<type>\t<title>" for the issue, with an empty type when the issue
+# has none. Prints nothing when GitHub can't be reached (no network, or the
+# 60-calls-an-hour limit for a room sharing one IP). IFI_GITHUB_API lets
+# the tests use a fake server.
+lookup="$(python3 - "$nr" "${IFI_GITHUB_API:-https://api.github.com}" "$MAIN_REPO" <<'PY' 2>/dev/null || true
+import json, sys, urllib.request
+
+nr, api, repo = sys.argv[1:4]
+req = urllib.request.Request(
+    f"{api}/repos/{repo}/issues/{nr}",
+    headers={"Accept": "application/vnd.github+json", "User-Agent": "ifi-fix-issue"},
+)
+with urllib.request.urlopen(req, timeout=5) as resp:
+    issue = json.load(resp)
+if "pull_request" in issue:
+    sys.exit(1)
+kind = ((issue.get("type") or {}).get("name") or "").lower()
+if kind not in ("bug", "feature", "task"):
+    kind = ""
+print(f"{kind}\t{' '.join(issue.get('title', '').split())}")
+PY
+)"
+kind=""
+slug=""
+if [[ "$lookup" == *$'\t'* ]]; then
+    kind="${lookup%%$'\t'*}"
+    slug="$(slugify "${lookup#*$'\t'}")"
+    echo "Issue #$nr: ${lookup#*$'\t'}"
+else
+    echo "Couldn't look up issue #$nr on GitHub, so tell me about it instead."
+fi
+while [[ ! "$kind" =~ ^(bug|feature|task)$ ]]; do
+    read -r -p "What is the issue's Type? (bug/feature/task) " kind || die ""
+    kind="${kind,,}"
+done
+while [[ -z "$slug" ]]; do
+    read -r -p "A few words about it, like 'orange event cards': " words || die ""
+    slug="$(slugify "$words")"
+done
+
+name="$kind/$slug"
+if git show-ref --verify --quiet "refs/heads/$name"; then
+    name="$name-$nr"
+fi
+
+find_base
+run git fetch "$base"
+run git switch -c "$name" --no-track "$base/main"
+git config "branch.$name.ifi-issue" "$nr"
+
+echo
+echo "Made branch $name for issue #$nr."
+[[ -n "$dirty" ]] && echo "The changes you had on main came along to it."
+cat <<EOF
+
+Now make your change. When it works:
+  git add .
+  git commit -m "Short description of what you changed"
+  ifi pull-request
+EOF

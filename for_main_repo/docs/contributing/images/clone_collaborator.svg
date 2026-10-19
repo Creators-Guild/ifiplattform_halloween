@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 390" width="720" height="390" role="img" aria-labelledby="title desc">
+  <title id="title">Clone as a collaborator</title>
+  <desc id="desc">On GitHub: origin, our repo (Ifiplattform), with the main branch and your branch inside it. On your computer: your clone. Once: clone origin to your computer. Every change: git fetch origin to get everyone's changes, git push origin to send your branch, then a pull request from your branch to main.</desc>
+  <style>
+    svg { --band: #f1f3f7; --line: #d5dae3; --box: #ffffff; --pill: #f1f3f7; --fg: #1d2330; --muted: #5b6475; --once: #7a3fd1; --loop: #0b8a78; }
+    @media (prefers-color-scheme: dark) {
+      svg { --band: #161b23; --line: #333b49; --box: #232a36; --pill: #1a1f28; --fg: #e6e9ef; --muted: #9aa3b4; --once: #b48cff; --loop: #3fd0b8; }
+    }
+    .band { fill: var(--band); stroke: var(--line); }
+    .bandlabel { fill: var(--muted); font: 700 12px system-ui, "Segoe UI", Helvetica, Arial, sans-serif; letter-spacing: 0.1em; }
+    .box { fill: var(--box); stroke: var(--line); stroke-width: 1.5; }
+    .pill { fill: var(--pill); stroke: var(--line); stroke-width: 1.5; }
+    .name { fill: var(--fg); font: 700 17px ui-monospace, "SFMono-Regular", Consolas, monospace; }
+    .branch { fill: var(--fg); font: 600 14px ui-monospace, "SFMono-Regular", Consolas, monospace; }
+    .sub { fill: var(--muted); font: 400 14px system-ui, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .once { stroke: var(--once); stroke-width: 2.5; fill: none; }
+    .loop { stroke: var(--loop); stroke-width: 2.5; fill: none; }
+    .once-t { fill: var(--once); font: 700 14px system-ui, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .loop-t { fill: var(--loop); font: 700 14px system-ui, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .note { fill: var(--muted); font: 400 12px system-ui, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .head-once { fill: var(--once); }
+    .head-loop { fill: var(--loop); }
+  </style>
+  <defs>
+    <marker id="headOnce" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-once"/></marker>
+    <marker id="headLoop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-loop"/></marker>
+  </defs>
+
+  <rect class="band" x="4" y="4" width="712" height="190" rx="10"/>
+  <text class="bandlabel" x="22" y="30">ON GITHUB</text>
+  <rect class="band" x="4" y="236" width="712" height="150" rx="10"/>
+  <text class="bandlabel" x="22" y="262">ON YOUR COMPUTER</text>
+
+  <rect class="box" x="150" y="40" width="420" height="140" rx="8"/>
+  <text class="name" x="360" y="70" text-anchor="middle">origin</text>
+  <text class="sub" x="360" y="92" text-anchor="middle">Our repo (Ifiplattform)</text>
+
+  <rect class="pill" x="175" y="112" width="150" height="44" rx="22"/>
+  <text class="branch" x="250" y="139" text-anchor="middle">main</text>
+  <rect class="pill" x="395" y="112" width="150" height="44" rx="22"/>
+  <text class="branch" x="470" y="139" text-anchor="middle">your branch</text>
+
+  <line class="loop" x1="393" y1="134" x2="329" y2="134" marker-end="url(#headLoop)"/>
+  <text class="loop-t" x="360" y="174" text-anchor="middle">Pull request</text>
+
+  <rect class="box" x="245" y="288" width="230" height="80" rx="8"/>
+  <text class="name" x="360" y="322" text-anchor="middle">your clone</text>
+  <text class="sub" x="360" y="346" text-anchor="middle">Where you edit and run the site</text>
+
+  <line class="loop" x1="250" y1="158" x2="318" y2="284" marker-end="url(#headLoop)"/>
+  <text class="loop-t" x="270" y="218" text-anchor="end">git fetch origin</text>
+  <text class="note" x="270" y="234" text-anchor="end">get everyone's changes</text>
+
+  <line class="once" x1="360" y1="182" x2="360" y2="284" marker-end="url(#headOnce)"/>
+  <text class="once-t" x="368" y="236">1. Clone</text>
+
+  <line class="loop" x1="420" y1="286" x2="468" y2="160" marker-end="url(#headLoop)"/>
+  <text class="loop-t" x="458" y="216">git push origin</text>
+  <text class="note" x="458" y="232">send your branch</text>
+
+  <line class="once" x1="530" y1="316" x2="560" y2="316"/>
+  <text class="note" x="568" y="320">once</text>
+  <line class="loop" x1="530" y1="342" x2="560" y2="342"/>
+  <text class="note" x="568" y="346">every change</text>
+</svg>
