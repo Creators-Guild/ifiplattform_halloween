@@ -3,16 +3,30 @@
 # (⚠️) or broken (❌), each with the command that fixes it. Changes nothing,
 # except that it fetches, like `git fetch`, to know how far behind you are.
 # For helpers: "run ifi status and show me the ❌ lines".
+#
+# ifi status --quiet: the check the first terminal after the container starts
+# runs (shell-setup.sh). Shows only the ❌ lines and "main has new commits",
+# gives GitHub 5 seconds instead of 15-20 so the terminal isn't held up, and
+# skips the site, which is still starting then.
 set -uo pipefail
+
+quiet=false
+[[ "${1:-}" == --quiet ]] && quiet=true
+wait_github=15
+wait_fetch=20
+$quiet && wait_github=5 wait_fetch=5
+offline=false
 
 problems=0
 warnings=0
-ok() { printf '✅ %s\n' "$1"; }
+ok() { $quiet || printf '✅ %s\n' "$1"; }
+# Hidden with --quiet; `quiet=false warn ...` shows one anyway.
 warn() {
+    warnings=$((warnings + 1))
+    $quiet && return
     printf '⚠️  %s\n' "$1"
     shift
     [[ $# -gt 0 ]] && printf '      %s\n' "$@"
-    warnings=$((warnings + 1))
 }
 bad() {
     printf '❌ %s\n' "$1"
@@ -96,12 +110,15 @@ fi
 # 6. Logged in, as an account that may push to origin? A dry-run push: GitHub
 # checks the login, but nothing is sent.
 if [[ -n "$origin_url" ]]; then
-    err="$(GIT_TERMINAL_PROMPT=0 with_timeout 15 git push --dry-run --quiet origin HEAD:refs/heads/ifi-status-login-check 2>&1)"
+    err="$(GIT_TERMINAL_PROMPT=0 with_timeout $wait_github git push --dry-run --quiet origin HEAD:refs/heads/ifi-status-login-check 2>&1)"
     status=$?
     if [[ $status -eq 0 ]]; then
         ok "Logged in to GitHub, and allowed to push to origin."
-    elif [[ $status -eq 124 ]]; then
-        warn "GitHub didn't answer within 15 seconds, so the login couldn't be checked. No internet?"
+    elif [[ $status -eq 124 ]] || grep -qiE "could not resolve host|failed to connect|timed out" <<<"$err"; then
+        # Not broken, just not checked, so no ❌. The fetch below would fail too.
+        offline=true
+        quiet=false warn "Couldn't reach GitHub, so your login wasn't checked. No internet?" \
+            "Run ifi status again later."
     else
         case "$(git_error_kind "$err")" in
             ssh) bad "Can't use SSH here, so you can't push. Switch origin to HTTPS:" \
@@ -149,9 +166,9 @@ else
     warn "$unsaved file(s) changed but not saved yet:" "ifi save \"Short description of what you changed\""
 fi
 
-# 9. Behind the newest main? 9b. Saved but not on GitHub yet?
-if [[ -n "$base" && -n "$branch" && "$branch" != main ]]; then
-    if GIT_TERMINAL_PROMPT=0 with_timeout 20 git fetch --quiet "$base" 2>/dev/null; then
+# 9. Behind the newest main? 9b. Commits not on GitHub yet?
+if [[ -n "$base" && -n "$branch" && "$branch" != main ]] && ! $offline; then
+    if GIT_TERMINAL_PROMPT=0 with_timeout $wait_fetch git fetch --quiet "$base" 2>/dev/null; then
         behind="$(git rev-list --count "HEAD..$base/main")"
         if [[ "$behind" -eq 0 ]]; then
             ok "Up to date with the newest main."
@@ -159,25 +176,38 @@ if [[ -n "$base" && -n "$branch" && "$branch" != main ]]; then
             fork_point="$(git merge-base HEAD "$base/main")"
             clash="$(comm -12 <(git diff --name-only "$fork_point" "$base/main" | sort) \
                 <(git diff --name-only "$fork_point" HEAD | sort) | tr '\n' ' ')"
-            warn "main has $behind new commit(s) since your branch started. Update before your pull request:" \
+            # The one warning --quiet shows: it's the one people act on.
+            quiet=false warn "main has $behind new commit(s) since your branch started. Update before your pull request:" \
                 "ifi update"
-            [[ -n "$clash" ]] && warn "You'll likely get a conflict in: $clash" \
+            [[ -n "$clash" ]] && quiet=false warn "You'll likely get a conflict in: $clash" \
                 "Those files changed both on your branch and on main."
         fi
     else
         warn "Couldn't fetch the newest main from $base, so 'behind' wasn't checked."
     fi
+fi
 
+# The startup check ends here.
+if $quiet; then
+    if [[ $problems -gt 0 ]]; then
+        echo "$problems problem(s) in your setup. Fix the ❌ lines; ask a helper if you're stuck."
+        exit 1
+    fi
+    $offline || echo "✅ Setup OK."
+    exit 0
+fi
+
+if [[ -n "$base" && -n "$branch" && "$branch" != main ]]; then
     if git rev-parse --verify --quiet "@{u}" >/dev/null; then
-        GIT_TERMINAL_PROMPT=0 with_timeout 20 git fetch --quiet origin "$branch" 2>/dev/null
+        $offline || GIT_TERMINAL_PROMPT=0 with_timeout 20 git fetch --quiet origin "$branch" 2>/dev/null
         ahead="$(git rev-list --count "@{u}..HEAD")"
     else
         ahead="$(git rev-list --count "$base/main..HEAD" 2>/dev/null || echo 0)"
     fi
     if [[ "$ahead" -eq 0 ]]; then
-        ok "Everything you saved is on GitHub."
+        ok "All your commits are on GitHub."
     else
-        warn "$ahead save(s) aren't on GitHub yet, so your pull request doesn't have them:" "ifi pull-request"
+        warn "$ahead commit(s) aren't on GitHub yet, so your pull request doesn't have them:" "ifi pull-request"
     fi
 fi
 

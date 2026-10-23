@@ -68,7 +68,7 @@ else
         echo "Already up to date with the newest main."
         exit 0
     fi
-    echo "main has $behind new commit(s). Putting your saves on top of them."
+    echo "main has $behind new commit(s). Putting your commits on top of them."
     git config "branch.$branch.ifi-before-update" "$(git rev-parse HEAD)"
     if ! run git rebase "$base/main"; then
         conflict_help
