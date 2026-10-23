@@ -144,7 +144,7 @@ else
     [[ "${1:-}" != --abort ]] || die "No update is running, so there's nothing to abort."
     branch="$(git branch --show-current)"
     [[ -n "$branch" ]] || die "You're not on a branch. Go to your issue's branch first: ifi fix-issue <nr>"
-    [[ "$branch" != main ]] || die "You're on main. ifi fix-issue <nr> already starts from the newest main."
+    [[ "$branch" != main ]] || die "You're on main. ifi fix-issue <nr> already starts from the newest main in the main repo."
     if [[ -n "$(git status --porcelain)" ]]; then
         git status --short
         die "" "Commit your changes first, then update:" \
@@ -156,7 +156,7 @@ else
     behind="$(git rev-list --count "HEAD..$base/main")"
     if [[ "$behind" -eq 0 ]]; then
         echo
-        echo "Already up to date with the newest main."
+        echo "Already up to date with main in the main repo ($base/main)."
         git_recap
         exit 0
     fi
@@ -173,7 +173,8 @@ else
     fi
     echo
     if [[ -n "$clash" ]]; then
-        echo "main has $behind new commit(s), and some of them change the same lines as you in:"
+        echo "main in the main repo ($base/main) has $behind new commit(s), and some of them"
+        echo "change the same lines as you in:"
         sed 's/^/  /' <<<"$clash"
         echo "You'll have to choose which version to keep. How do you want to do that?"
         echo "  1  →  merge:  fix it all at once. Adds one extra \"Merge\" commit."
@@ -186,22 +187,23 @@ else
         done
         [[ "$answer" == 1 ]] && mode=merge
     else
-        echo "main has $behind new commit(s). Putting your commits on top of them."
+        echo "main in the main repo ($base/main) has $behind new commit(s). Putting your commits on top of them."
     fi
 
     if [[ "$mode" == merge ]]; then
-        if ! run "Bring main's new commits into your branch, in one go" git merge --no-edit "$base/main"; then
+        if ! run "Bring the main repo's new commits into your branch, in one go" git merge --no-edit "$base/main"; then
             conflict_help merge
         fi
     else
         git config "branch.$branch.ifi-before-update" "$(git rev-parse HEAD)"
-        if ! run "Put your commits on top of the newest main" git rebase "$base/main"; then
+        if ! run "Put your commits on top of the newest main from the main repo" git rebase "$base/main"; then
             conflict_help rebase
         fi
     fi
 fi
 
+[[ -n "${base:-}" ]] || find_base
 echo
-echo "Updated: $(git branch --show-current) now has the newest main."
+echo "Updated: $(git branch --show-current) now has the newest main from the main repo ($base/main)."
 git_recap
 what_now_after_update

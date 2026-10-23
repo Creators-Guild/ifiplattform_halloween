@@ -171,19 +171,19 @@ if [[ -n "$base" && -n "$branch" && "$branch" != main ]] && ! $offline; then
     if GIT_TERMINAL_PROMPT=0 with_timeout $wait_fetch git fetch --quiet "$base" 2>/dev/null; then
         behind="$(git rev-list --count "HEAD..$base/main")"
         if [[ "$behind" -eq 0 ]]; then
-            ok "Up to date with the newest main."
+            ok "Up to date with main in the main repo ($base/main)."
         else
             fork_point="$(git merge-base HEAD "$base/main")"
             clash="$(comm -12 <(git diff --name-only "$fork_point" "$base/main" | sort) \
                 <(git diff --name-only "$fork_point" HEAD | sort) | tr '\n' ' ')"
             # The one warning --quiet shows: it's the one people act on.
-            quiet=false warn "main has $behind new commit(s) since your branch started. Update before your pull request:" \
+            quiet=false warn "main in the main repo ($base/main) has $behind new commit(s) since your branch started. Update before your pull request:" \
                 "ifi update"
             [[ -n "$clash" ]] && quiet=false warn "You'll likely get a conflict in: $clash" \
-                "Those files changed both on your branch and on main."
+                "Those files changed both on your branch and in $base/main."
         fi
     else
-        warn "Couldn't fetch the newest main from $base, so 'behind' wasn't checked."
+        warn "Couldn't fetch main from the main repo ($base), so 'behind' wasn't checked."
     fi
 fi
 
@@ -239,5 +239,5 @@ echo "Check it yourself in plain Git:"
 printf '  %-38s  %s\n' \
     "git status" "what changed, and which branch you're on" \
     "git remote -v" "where origin and upstream point" \
-    "git log --oneline ${base:-upstream}/main..HEAD" "your commits that aren't on main yet"
+    "git log --oneline ${base:-upstream}/main..HEAD" "your commits that aren't in the main repo's main yet"
 [[ $problems -eq 0 ]]

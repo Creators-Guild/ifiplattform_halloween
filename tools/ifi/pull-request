@@ -16,7 +16,7 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 
 find_base
-fetch_base "Download the newest main, to check your branch has commits to send"
+fetch_base "Download the newest main from the main repo, to check your branch has commits to send"
 if [[ "$(git rev-list --count "$base/main..HEAD")" -eq 0 ]]; then
     die "$branch has no commits yet, so there's nothing to send. Commit your change first:" \
         "  ifi save \"Short description of what you changed\""

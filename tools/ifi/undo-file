@@ -91,7 +91,7 @@ fi
 
 for file in "${files[@]}"; do
     if git cat-file -e "$base/main:$file" 2>/dev/null; then
-        run "Put $file back to how it is on main" git checkout "$base/main" -- "$file"
+        run "Put $file back to how it is in the main repo's main ($base/main)" git checkout "$base/main" -- "$file"
     elif git ls-files --error-unmatch -- "$file" >/dev/null 2>&1; then
         run "Take $file out of Git. It stays on your computer, and Git ignores it from now on" \
             git rm --quiet --cached -- "$file"

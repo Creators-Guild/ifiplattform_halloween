@@ -35,7 +35,7 @@ if [[ -n "$existing" ]] && git show-ref --verify --quiet "refs/heads/$existing";
     # Only to say whether main moved on, so a failed fetch (no internet)
     # isn't worth an error.
     behind=0
-    step "Download the newest code from the main repo, to see if main moved on" git fetch "$base"
+    step "Download the newest code from the main repo, to see if its main moved on" git fetch "$base"
     GIT_DONE+=("git fetch $base")
     if GIT_TERMINAL_PROMPT=0 git fetch --quiet "$base" 2>/dev/null; then
         behind="$(git rev-list --count "HEAD..$base/main")"
@@ -44,7 +44,7 @@ if [[ -n "$existing" ]] && git show-ref --verify --quiet "refs/heads/$existing";
     fi
     if [[ "$behind" -gt 0 ]]; then
         echo
-        echo "main has $behind new commit(s) since you started this branch."
+        echo "main in the main repo ($base/main) has $behind new commit(s) since you started this branch."
     fi
     git_recap
     echo
