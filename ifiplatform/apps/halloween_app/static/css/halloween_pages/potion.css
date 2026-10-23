@@ -1,0 +1,36 @@
+/* Style for the potion form fieldset (the shelf) */
+.potion-form fieldset {
+    background-color: #6b4423; /* Dark wood */
+    color: #fff5bc; /* Pale yellow text */
+    border: 2px solid black; /* Black border */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); /* Grid layout for ingredients */
+    gap: 1rem; /* Space between grid items */
+    padding: 1rem;
+    border-radius: 4px; /* Rounded corners */
+  }
+  
+  /* Style for each jar (ingredient) */
+  .potion-form__ingredient {
+    background: rgba(255, 255, 255, 0.12); /* See-through light box */
+    border-radius: 4px; /* Rounded corners */
+    padding: 0.5rem;
+    text-align: center;
+    color: inherit; /* Inherit text color from parent */
+  }
+  
+  /* Style for the potion result (the cauldron) */
+  .potion-result {
+    background-color: #1d4d1d; /* Dark green */
+    border-radius: 0 0 50% 50%; /* Rounded at the bottom only */
+    box-shadow: 0 -8px 0 #3fa33f inset; /* Lighter green rim at the bottom */
+    color: #c9ffc9; /* Pale green text */
+    text-align: center;
+    padding: 2rem;
+    margin: 2rem auto;
+    width: 18rem; /* Fixed width for the cauldron */
+    height: 12rem; /* Fixed height for the cauldron */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
