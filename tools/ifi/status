@@ -233,4 +233,11 @@ if [[ $problems -eq 0 && $warnings -eq 0 ]]; then
 else
     echo "$problems problem(s), $warnings warning(s). Fix the ❌ lines first; ask a helper if you're stuck."
 fi
+
+echo
+echo "Check it yourself in plain Git:"
+printf '  %-38s  %s\n' \
+    "git status" "what changed, and which branch you're on" \
+    "git remote -v" "where origin and upstream point" \
+    "git log --oneline ${base:-upstream}/main..HEAD" "your commits that aren't on main yet"
 [[ $problems -eq 0 ]]

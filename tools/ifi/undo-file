@@ -7,8 +7,8 @@
 # A file that is in the main repo goes back to how it is there; a file you
 # added leaves Git but stays on your computer, and Git ignores it there from
 # now on (.git/info/exclude), so a later `git add .` doesn't bring it back.
-# Before that it saves the branch as it was in a backup branch, so nothing
-# is lost. Then it commits and pushes, so the pull request updates by itself.
+# Before it commits, it saves the branch as it was in a backup branch
+# (one per branch), so nothing is lost. Then it commits and pushes, so the pull request updates by itself.
 set -euo pipefail
 source "$(dirname "$(readlink -f "$0")")/common.sh"
 
@@ -89,41 +89,51 @@ else
     message="Undo changes to $*"
 fi
 
-# A copy of the branch as it is now, so a good idea in an extra file isn't
-# lost: `git switch <backup>` gets it back.
-backup="$branch-backup"
-n=2
-while git show-ref --verify --quiet "refs/heads/$backup"; do
-    backup="$branch-backup-$n"
-    n=$((n + 1))
-done
-git branch "$backup"
-
 for file in "${files[@]}"; do
     if git cat-file -e "$base/main:$file" 2>/dev/null; then
-        run git checkout "$base/main" -- "$file"
+        run "Put $file back to how it is on main" git checkout "$base/main" -- "$file"
     elif git ls-files --error-unmatch -- "$file" >/dev/null 2>&1; then
-        run git rm --quiet --cached -- "$file"
+        run "Take $file out of Git. It stays on your computer, and Git ignores it from now on" \
+            git rm --quiet --cached -- "$file"
         printf '/%s\n' "$file" >>"$(git rev-parse --git-path info/exclude)"
     else
-        git branch -D "$backup" >/dev/null
         die "Git doesn't know $file. Copy the name exactly as the Files check shows it."
     fi
 done
 
 if git diff --cached --quiet; then
-    git branch -D "$backup" >/dev/null
+    echo
     echo "Nothing to undo: ${files[*]} is already the same as in the main repo."
     exit 0
 fi
 
-run git commit --quiet -m "$message"
-git_or_explain origin push --quiet origin HEAD
+# A copy of the branch as it is now (the commit below is the first thing
+# that changes it), so a good idea in an extra file isn't lost. One backup
+# per branch: an existing one is moved forward when everything in it is
+# still in the branch's history, which is the usual case. Only when it has
+# something the branch lost (after a rebase) does a -backup-2 appear.
+backup="$branch-backup"
+n=2
+while git show-ref --verify --quiet "refs/heads/$backup" &&
+    ! git merge-base --is-ancestor "$backup" HEAD; do
+    backup="$branch-backup-$n"
+    n=$((n + 1))
+done
+if git show-ref --verify --quiet "refs/heads/$backup"; then
+    run "Move your backup up to how your branch is now" git branch -f "$backup"
+else
+    run "Keep a copy of your branch as it is now, just in case" git branch "$backup"
+fi
+
+run "Commit that" git commit -m "$message"
+git_or_explain origin "Send it to GitHub, so your pull request updates by itself" push --quiet origin HEAD
+echo
+echo "Done. Your pull request no longer changes:"
+printf '  %s\n' "${files[@]}"
+git_recap
 cat <<EOF
 
-Done. Your pull request no longer changes:
-$(printf '  %s\n' "${files[@]}")
-
-Your version is saved on the branch $backup. Had a good idea in one of
-those files? Make it its own pull request later: git switch $backup
+Your version is saved on the branch $backup.
+Had a good idea in one of those files? Make it its own pull request later:
+  git switch $backup
 EOF

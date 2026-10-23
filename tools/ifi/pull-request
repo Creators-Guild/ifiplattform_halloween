@@ -16,7 +16,7 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 
 find_base
-fetch_base
+fetch_base "Download the newest main, to check your branch has commits to send"
 if [[ "$(git rev-list --count "$base/main..HEAD")" -eq 0 ]]; then
     die "$branch has no commits yet, so there's nothing to send. Commit your change first:" \
         "  ifi save \"Short description of what you changed\""
@@ -38,9 +38,11 @@ remote_tip=""
 [[ -n "$before" ]] && remote_tip="$(GIT_TERMINAL_PROMPT=0 git ls-remote origin "refs/heads/$branch" 2>/dev/null | cut -f1 || true)"
 if [[ -n "$remote_tip" ]] && ! git merge-base --is-ancestor "$remote_tip" HEAD 2>/dev/null &&
     git merge-base --is-ancestor "$remote_tip" "$before" 2>/dev/null; then
-    git_or_explain origin push --quiet -u --force-with-lease="refs/heads/$branch:$remote_tip" origin HEAD
+    git_or_explain origin "Replace your branch on GitHub with the updated one. Git refuses if someone else pushed to it in the meantime, so nothing gets lost" \
+        push --quiet -u --force-with-lease="refs/heads/$branch:$remote_tip" origin HEAD
 else
-    git_or_explain origin push --quiet -u origin HEAD
+    git_or_explain origin "Send your branch to your fork on GitHub (-u: remember where, so a plain git push works next time)" \
+        push --quiet -u origin HEAD
 fi
 git config --unset "branch.$branch.ifi-before-update" || true
 
@@ -63,12 +65,15 @@ print(
 PY
 )"
 
-cat <<EOF
-
-Pushed. Open this link (Ctrl+click, or Cmd+click on a Mac) to make the pull request:
-
-$url
-
-Say what you changed in the description, and leave the "Closes #$nr" line
-in: it closes the issue when your pull request is merged.
-EOF
+echo
+echo "Sent to GitHub."
+git_recap
+echo
+echo "What now?"
+choices \
+    "No pull request yet?" "open this link (Ctrl+click, or Cmd+click on a Mac):" \
+    "" "$url" \
+    "" "Say what you changed, and leave the \"Closes #$nr\" line in:" \
+    "" "it closes the issue when your pull request is merged." \
+    "Already made it?" "nothing to do, it's updated now" \
+    "More changes later?" "ifi save, then ifi pull-request again"

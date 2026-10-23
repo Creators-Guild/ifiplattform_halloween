@@ -52,10 +52,98 @@ find_django_python() {
         die "Can't find a Python with Django. Make the venv first: docs/contributing/setup_without_docker.md"
 }
 
-# Prints a command, then runs it, so people see the real Git behind ifi.
+# Colours only on a terminal, so pipes and logs get plain text.
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+    C_BOLD=$'\e[1m' C_CMD=$'\e[36m' C_DIM=$'\e[2m' C_OFF=$'\e[0m'
+else
+    C_BOLD="" C_CMD="" C_DIM="" C_OFF=""
+fi
+
+# Every command ifi runs is shown as a numbered step, so people see the real
+# Git behind ifi and can type it themselves later. GIT_DONE collects the git
+# commands for git_recap.
+STEP=0
+GIT_DONE=()
+
+# The command as you'd type it: words with spaces or quotes in "double quotes".
+shown() {
+    local out="" a
+    for a in "$@"; do
+        if [[ -z "$a" || "$a" =~ [^A-Za-z0-9_./:@%+=,~^-] ]]; then
+            a="${a//\\/\\\\}"
+            a="${a//\"/\\\"}"
+            a="${a//\$/\\\$}"
+            a="${a//\`/\\\`}"
+            a="\"$a\""
+        fi
+        out+="${out:+ }$a"
+    done
+    printf '%s' "$out"
+}
+
+# One numbered step: what it does, then the command. --quiet only keeps
+# ifi's own output short, so it isn't shown (nor in git_recap).
+step() {
+    local why="$1"
+    shift
+    STEP=$((STEP + 1))
+    printf '\n%s%d. %s%s\n' "$C_BOLD" "$STEP" "$why" "$C_OFF"
+    printf '   %s$ %s%s\n' "$C_CMD" "$(shown "$@" | sed 's/ --quiet//g')" "$C_OFF"
+}
+
+# Git's own output, under a label so it's clear Git is talking, not ifi.
+git_output() {
+    [[ -n "$1" ]] || return 0
+    printf '   %sGit output:%s\n' "$C_DIM" "$C_OFF"
+    printf '%s\n' "$1" | sed 's/^/     /'
+}
+
+# run "what it does" command...: shows the step, then runs it. Git's output
+# goes under "Git output:". Other commands (Django) print straight through,
+# since makemigrations can ask questions. A leading `env VAR=x` is run but
+# not shown.
 run() {
-    printf '+ %s\n' "$*"
-    "$@"
+    local why="$1"
+    shift
+    local cmd=("$@")
+    if [[ "$1" == env ]]; then
+        cmd=("${@:2}")
+        while [[ "${cmd[0]}" == *=* ]]; do cmd=("${cmd[@]:1}"); done
+    fi
+    step "$why" "${cmd[@]}"
+    if [[ "${cmd[0]}" != git ]]; then
+        "$@"
+        return
+    fi
+    GIT_DONE+=("$(shown "${cmd[@]}")")
+    local out status=0
+    out="$("$@" 2>&1)" || status=$?
+    git_output "$out"
+    return $status
+}
+
+# "In plain Git, this was:" with every git command this run used.
+git_recap() {
+    [[ ${#GIT_DONE[@]} -gt 0 ]] || return 0
+    echo
+    echo "In plain Git, this was:"
+    printf '  %s\n' "${GIT_DONE[@]}" | sed 's/ --quiet//g'
+}
+
+# The "What now?" options: pairs of situation and what to do, arrows lined up.
+# An empty situation continues the line above, without an arrow.
+choices() {
+    local width=0 i v arrow
+    for ((i = 1; i <= $#; i += 2)); do
+        v="${!i}"
+        [[ ${#v} -gt $width ]] && width=${#v}
+    done
+    while [[ $# -gt 0 ]]; do
+        arrow="→"
+        [[ -z "$1" ]] && arrow=" "
+        printf '  %-*s  %s  %s\n' "$width" "$1" "$arrow" "$2"
+        shift 2
+    done
 }
 
 die() {
@@ -86,8 +174,8 @@ ensure_identity() {
     while [[ ! "$email" =~ ^[^@[:space:]]+@[^@[:space:]]+$ ]]; do
         read -r -p "Your email: " email || die ""
     done
-    run git config --global user.name "$name"
-    run git config --global user.email "$email"
+    run "Tell Git your name, for every commit on this computer" git config --global user.name "$name"
+    run "Tell Git your email, for every commit on this computer" git config --global user.email "$email"
 }
 
 # What kind of failure Git's message ($1) is: ssh, login, denied, notfound,
@@ -128,7 +216,7 @@ explain_git_error() {
         local answer=""
         read -r -p "Switch '$remote' to https://github.com/$repo.git? (y/n) " answer || true
         if [[ "$answer" =~ ^[YyJj] ]]; then
-            run git remote set-url "$remote" "https://github.com/$repo.git"
+            run "Point '$remote' to GitHub's HTTPS address" git remote set-url "$remote" "https://github.com/$repo.git"
             die "Done. Run the same ifi command again."
         fi
         die "Nothing changed. To switch later:" \
@@ -179,22 +267,27 @@ explain_git_error() {
 }
 
 # Runs a git command that talks to GitHub (fetch, push). Shows it like run,
-# and explains the error if it fails. $1 is the remote it talks to.
+# and explains the error if it fails. $1 is the remote it talks to, $2 what
+# it does.
 git_or_explain() {
-    local remote="$1" err
-    shift
-    printf '+ git %s\n' "$*"
+    local remote="$1" why="$2" err
+    shift 2
+    step "$why" git "$@"
+    GIT_DONE+=("$(shown git "$@")")
     if ! err="$(git "$@" 2>&1)"; then
         explain_git_error "$remote" "$err"
     fi
-    [[ -n "$err" ]] && printf '%s\n' "$err"
+    git_output "$err"
     return 0
 }
 
 # git switch, with a plain explanation when unsaved changes are in the way.
+# $1 is what it does.
 switch_or_explain() {
-    local err
-    printf '+ git switch %s\n' "$*"
+    local why="$1" err
+    shift
+    step "$why" git switch "$@"
+    GIT_DONE+=("$(shown git switch "$@")")
     if ! err="$(git switch "$@" 2>&1)"; then
         printf '%s\n\n' "$err" >&2
         if grep -q "would be overwritten" <<<"$err"; then
@@ -211,6 +304,7 @@ switch_or_explain() {
         fi
         die "Git couldn't switch branch. The message above says why. Ask a helper if it's unclear."
     fi
+    git_output "$err"
 }
 
 # Sets $base: the remote that holds the main repo. Collaborators cloned it
@@ -223,15 +317,17 @@ find_base() {
         base=origin
     else
         if ! git remote get-url upstream >/dev/null 2>&1; then
-            run git remote add upstream "https://github.com/$MAIN_REPO.git"
+            run "Add the main repo as \"upstream\", so Git can get everyone's changes" \
+                git remote add upstream "https://github.com/$MAIN_REPO.git"
         fi
         base=upstream
     fi
 }
 
-# Fetches the main repo's newest code into $base/main.
+# Fetches the main repo's newest code into $base/main. $1 can say why, when
+# it's for something more specific.
 fetch_base() {
-    git_or_explain "$base" fetch --quiet "$base"
+    git_or_explain "$base" "${1:-Download the newest code from the main repo}" fetch --quiet "$base"
 }
 
 git rev-parse --git-dir >/dev/null 2>&1 || die "Run this inside the project folder."

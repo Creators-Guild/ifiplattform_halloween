@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ifi reset-server: deletes the local database and fills it again with the
+# ifi wipe-database: deletes the local database and fills it again with the
 # starter content, like `docker compose down -v` but from inside the
 # container, and without deleting the Claude Code login volume. It empties
 # PostgreSQL's public schema instead of deleting the database, so the db
@@ -22,14 +22,14 @@ read -r -p "Type yes to reset: " answer || answer=""
 
 cd "$(git rev-parse --show-toplevel)/ifiplatform"
 if in_container; then
-    run "$DJANGO_PY" manage.py shell -c "from django.db import connection; connection.cursor().execute('DROP SCHEMA public CASCADE; CREATE SCHEMA public;')"
+    run "Empty the database" "$DJANGO_PY" manage.py shell -c "from django.db import connection; connection.cursor().execute('DROP SCHEMA public CASCADE; CREATE SCHEMA public;')"
 else
     echo "Stop the server first (Ctrl+C in its terminal), or Windows won't let the file be deleted."
     read -r -p "Press Enter when it's stopped. " _ || true
-    run rm -f db.sqlite3
+    run "Delete the database file" rm -f db.sqlite3
 fi
-run "$DJANGO_PY" manage.py rename_yourpage_app
-run "$DJANGO_PY" manage.py migrate
-run "$DJANGO_PY" manage.py seed_halloween_data
+run "Rename the old app in the database, if it's there" "$DJANGO_PY" manage.py rename_yourpage_app
+run "Make all the tables again" "$DJANGO_PY" manage.py migrate
+run "Fill in the starter content" "$DJANGO_PY" manage.py seed_halloween_data
 "$here/restart-server"
 echo "Reset done. Make a new admin login with: python manage.py createsuperuser"

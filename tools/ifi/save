@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ifi save "message": saves (commits) every change in the whole repo, not
+# ifi save "message": commits every change in the whole repo, not
 # just the folder you're in: `git add .` in ifiplatform/ misses changes in
 # docs/ or tools/. Shows the files first, and asks for your name and email
 # the first time.
@@ -12,7 +12,7 @@ branch="$(git branch --show-current)"
     "changes come along to it: ifi fix-issue <nr>"
 
 cd "$(git rev-parse --show-toplevel)"
-[[ -n "$(git status --porcelain)" ]] || die "Nothing to save: you have no changes since your last save."
+[[ -n "$(git status --porcelain)" ]] || die "Nothing to commit: you have no changes since your last commit."
 
 message="$*"
 while [[ -z "${message// /}" ]]; do
@@ -20,14 +20,16 @@ while [[ -z "${message// /}" ]]; do
 done
 
 ensure_identity
-run git add -A
-echo "Saving these files:"
+run "Mark every change in the repo to be committed" git add -A
+echo
+echo "Committing these files:"
 git diff --cached --name-status | sed -E 's/^A\t/  new      /; s/^M\t/  changed  /; s/^D\t/  deleted  /; s/^R[0-9]*\t/  renamed  /; s/^[A-Z][0-9]*\t/  changed  /'
-run git commit --quiet -m "$message"
+run "Make the commit (on your computer only)" git commit -m "$message"
 
-cat <<EOF
-
-Saved. Next:
-  ifi pull-request    send it to GitHub (also to update a pull request you already made)
-Wrong file in there? ifi undo-file <file>, after ifi pull-request.
-EOF
+git_recap
+echo
+echo "Committed. What now?"
+choices \
+    "Done with the issue?" "ifi pull-request    (sends it to GitHub)" \
+    "Not done yet?" "keep working, then ifi save again" \
+    "Wrong file in there?" "ifi undo-file <file>, after ifi pull-request"

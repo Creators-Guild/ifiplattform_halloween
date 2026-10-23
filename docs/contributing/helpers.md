@@ -45,7 +45,9 @@ things when someone asks.
 All of these are 👀 skim.
 
 - [Make a change, step by step](../../CONTRIBUTING.md#2-make-a-change-step-by-step):
-  the same steps with plain Git or GitHub Desktop, without `ifi`
+  the same steps with plain Git or GitHub Desktop, without `ifi`. `ifi`
+  itself shows each Git command it runs as a numbered step, and "In plain
+  Git, this was:" at the end, so participants can switch over bit by bit
 - [Setup without Docker](setup_without_docker.md): the backup plan for
   laptops where Docker won't work
 - [Where do I change…?](how_this_project_works.md#where-do-i-change): helps
@@ -122,7 +124,7 @@ it runs.
 | `ifi test` | The quick tests. Run before a pull request. `ifi test --long` runs all of them. |
 | `ifi restart-server` | Restarts the site, when a change doesn't show up or the site stopped |
 | `ifi migrate` | After changing a model (rare at the event) |
-| `ifi reset-server` | ⚠️ Deletes the local database and starts fresh |
+| `ifi wipe-database` | ⚠️ Deletes the local database and starts fresh |
 | `ifi rebuild-docker` | Shows how to rebuild the container |
 | `ifi help` | Cheat sheets for git, docker, django and ifi |
 

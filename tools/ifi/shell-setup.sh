@@ -6,7 +6,7 @@
 _ifi_complete() {
     local cur="${COMP_WORDS[COMP_CWORD]}" words=""
     if [[ $COMP_CWORD -eq 1 ]]; then
-        words="help status fix-issue save update pull-request undo-file cleanup test migrate restart-server reset-server rebuild-docker install"
+        words="help status fix-issue save update pull-request undo-file cleanup test migrate restart-server wipe-database rebuild-docker install"
     elif [[ $COMP_CWORD -eq 2 && "${COMP_WORDS[1]}" == help ]]; then
         words="git docker django ifi"
     elif [[ $COMP_CWORD -eq 2 && "${COMP_WORDS[1]}" == undo-file ]]; then

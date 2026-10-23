@@ -18,14 +18,32 @@ while IFS= read -r b; do
 done < <(git branch --format='%(refname:short)' --merged "$base/main")
 
 if [[ ${#merged[@]} -eq 0 ]]; then
+    echo
     echo "Nothing to clean up: none of your branches are merged into main yet."
     [[ "$current" != main ]] && git merge-base --is-ancestor HEAD "$base/main" &&
         echo "(You're on $current, which is merged. Switch away first: git switch main)"
     exit 0
 fi
 
-echo "These branches are merged into main, so their work is safe there:"
-printf '  %s\n' "${merged[@]}"
+# Backups from `ifi undo-file` get their own line, so people know what they are.
+plain=()
+backups=()
+for b in "${merged[@]}"; do
+    if [[ "$b" =~ -backup(-[0-9]+)?$ ]]; then
+        backups+=("$b")
+    else
+        plain+=("$b")
+    fi
+done
+echo
+if [[ ${#plain[@]} -gt 0 ]]; then
+    echo "These branches are merged into main, so their work is safe there:"
+    printf '  %s\n' "${plain[@]}"
+fi
+if [[ ${#backups[@]} -gt 0 ]]; then
+    echo "And these backups from ifi undo-file, for branches that are merged:"
+    printf '  %s   (has the file changes you took out of that pull request)\n' "${backups[@]}"
+fi
 on_fork=()
 if [[ "$base" != origin ]]; then
     for b in "${merged[@]}"; do
@@ -39,9 +57,11 @@ read -r -p "Delete them? (y/n) " answer || answer=""
 # -D, not -d: -d compares with the branch you're on, which may be an old
 # main. Every branch here is checked above to be merged into the newest main.
 for b in "${merged[@]}"; do
-    run git branch -D "$b"
+    run "Delete $b on your computer" git branch -D "$b"
 done
 if [[ ${#on_fork[@]} -gt 0 ]]; then
-    git_or_explain origin push --quiet origin --delete "${on_fork[@]}"
+    git_or_explain origin "Delete them on your fork on GitHub too" push --quiet origin --delete "${on_fork[@]}"
 fi
+echo
 echo "Done."
+git_recap
