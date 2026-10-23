@@ -7,15 +7,21 @@ from ..fortune_names import clean_name
 
 FORTUNES = [
     "A ghost will fix your next merge conflict.",
-    # TODO 1: add at least 7 more spooky fortunes.
+    "A sleek, mysterious visitor will cross your path soon, bringing an unexpected stroke of good luck.",
+    "A shadowy figure will appear in your dreams tonight, whispering secrets of the future.",
+    "Beware of the black cat that crosses your path; it may be a harbinger of change.",
+    "The spirits of the past will guide you to a hidden treasure.",
+    "A chilling wind will bring a message from the beyond.",
+    "Your next Halloween costume will be more than just a disguise; it will reveal your true self.",
+    "A mix of hard work and wild imagination will soon bubble over into a major success.",
 ]
 
 
 def pick_fortune(name):
     """The same name always gets the same fortune."""
-    # TODO 2: turn clean_name(name) into a number (for example the sum of
-    # ord() of every letter), and use % len(FORTUNES) to pick a fortune.
-    return None
+    number = sum(ord(letter) for letter in clean_name(name))
+    picked_up = FORTUNES[number % len(FORTUNES)]
+    return picked_up
 
 
 def fortune_view(request):
