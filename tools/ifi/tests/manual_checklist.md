@@ -1,6 +1,6 @@
 # ifi: checks by hand
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 `tools/ifi/tests/run` checks ifi against a fake GitHub. This list is for what
 it can't fake: real GitHub logins, VS Code's pop-ups, Docker, and Windows.
@@ -46,7 +46,7 @@ Do it before ifi moves to a new repo, and after big changes.
 | ☐ | Without Docker, on a computer with gh: `./ifi account switch <other>` | Offers to log in with gh and select the account, then "✅ Logged in as <other>" |
 | ☐ | `ifi help`, type 1 | The Git cheat sheet |
 | ☐ | `ifi restart-server` | "Restarting the server"; the site is back after a reload |
-| ☐ | `ifi wipe-database`, type yes | The starter content again; your test user is gone |
+| ☐ | `ifi reset-database`, type yes | The starter content again; your test user is gone |
 | ☐ | `ifi rebuild-docker`, then do what it says | VS Code reopens in a new container; the site works |
 
 **Wrong-setup checks** (put each one back afterwards):
@@ -67,7 +67,7 @@ Do it before ifi moves to a new repo, and after big changes.
 | ☐ | `scp` or `rsync` to this computer, or `bash -c true` | Prints nothing extra |
 | ☐ | `ifi check` | ⚠️ Not inside the Docker container (fine), and nothing else odd |
 | ☐ | `ifi test` | Runs with the venv's Python, without activating it |
-| ☐ | `ifi wipe-database` | Asks you to stop the server; deletes and refills db.sqlite3 |
+| ☐ | `ifi reset-database` | Asks you to stop the server; deletes and refills db.sqlite3 |
 | ☐ | `ifi restart-server` | Explains Ctrl+C and runserver |
 
 ## 3. Windows

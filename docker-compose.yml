@@ -24,6 +24,9 @@ services:
     # it with plain `docker build` under this same name (see .devcontainer/).
     image: ifiplattform-halloween-web:dev
     container_name: halloween-web
+    # The site runs as app, not dev. VS Code's terminals still open as dev
+    # (remoteUser in devcontainer.json). Why: docs/claude_context/dev_container_users.md
+    user: app
     depends_on:
       db:
         condition: service_healthy
@@ -45,19 +48,33 @@ services:
       DB_PORT: "5432"
       # Keeps the Claude Code login in the claude-config volume, so it survives rebuilds.
       CLAUDE_CONFIG_DIR: /home/dev/.claude
+      # Uploads, in the media volume below, since app can't write to the shared folder.
+      MEDIA_ROOT: /srv/media
+      # The cache in the database, so both app and dev can use it (settings.py).
+      CACHE_IN_DATABASE: "True"
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
       - .:/workspace
       - claude-config:/home/dev/.claude
+      - media:/srv/media
     init: true
+    # The first start copies uploads made before the media volume existed.
+    # chmod/find let dev write there too, also in folders made before that.
     # The loop starts runserver again whenever it stops, so `ifi restart-server`
     # (tools/ifi/) only has to stop it. sleep infinity keeps the
     # container running if a start step fails, so the VS Code terminal
     # still works for fixing the error.
     command: >
-      sh -c "python manage.py rename_yourpage_app &&
+      sh -c "if ! ls -A /srv/media | grep -q . && ls -A media 2>/dev/null | grep -q .; then
+             echo 'Copying ifiplatform/media into the media volume (once).';
+             cp -r media/. /srv/media/;
+             fi;
+             chmod -R g+w /srv/media 2>/dev/null;
+             find /srv/media -type d -exec chmod g+s {} + 2>/dev/null;
+             python manage.py rename_yourpage_app &&
              python manage.py migrate &&
+             python manage.py createcachetable &&
              python manage.py seed_halloween_data &&
              while true; do
              python manage.py runserver 0.0.0.0:8000;
@@ -70,3 +87,4 @@ services:
 volumes:
   ifiplatform-db-data:
   claude-config:
+  media:

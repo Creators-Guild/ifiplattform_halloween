@@ -1,6 +1,6 @@
 # Moving ifi and the Docker setup to the main ifiplattform
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 The mock repo (ifiplattform_halloween) is where the onboarding tooling was
 built and tested. Two parts move to the main repo: **ifi** and the
@@ -45,7 +45,7 @@ Keep the Git file mode: every script in `tools/ifi/` and `ifi` must be
 | `devcontainer.json` (`initializeCommand`), `docker-compose.yml` (`image`), `tools/ifi/rebuild-docker` (twice) | `ifiplattform-halloween-web:dev` | one new name, the same in all three |
 | `devcontainer.json` | `"name": "IfiPlatform Halloween"` | `IfiPlatform` |
 | `docker-compose.yml` | `container_name: halloween-db`, `halloween-web` | new names, so both repos' containers can exist side by side |
-| `docker-compose.yml` command, `tools/ifi/wipe-database` | `rename_yourpage_app`, `seed_halloween_data` | main's seed command (and no rename step) |
+| `docker-compose.yml` command, `tools/ifi/reset-database` | `rename_yourpage_app`, `seed_halloween_data` | main's seed command (and no rename step) |
 | `docker-compose.yml` | `OPEN_SIGNUP` comment about the mock site | check main's sign-up |
 | `tools/ifi/test` comment | `apps.halloween_app.tests` | an app main has |
 

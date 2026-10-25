@@ -12,7 +12,12 @@ shift || true
 
 case "$cmd" in
     help | -h | --help) exec "$here/help" "$@" ;;
-    fix-issue | save | check | update | pull-request | undo-file | cleanup | account | install | test | migrate | restart-server | wipe-database | rebuild-docker) exec "$here/$cmd" "$@" ;;
+    fix-issue | save | check | update | pull-request | undo-file | cleanup | account | install | test | migrate | restart-server | reset-database | rebuild-docker) exec "$here/$cmd" "$@" ;;
+    wipe-database)
+        # The old name.
+        echo "ifi wipe-database is now called ifi reset-database." >&2
+        exec "$here/reset-database" "$@"
+        ;;
     status)
         # The old name, renamed so it isn't mixed up with git status.
         echo "ifi status is now called ifi check. (git status is something else: it shows your changed files.)" >&2

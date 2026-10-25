@@ -5,7 +5,7 @@
 #
 # Git commands (status, save, pull-request, ...) run here, on your own
 # computer, where your GitHub login is. The ones that need the site's Python
-# (test, migrate, restart-server, wipe-database) run inside the container if
+# (test, migrate, restart-server, reset-database) run inside the container if
 # it's running (Docker started outside VS Code), and otherwise here with the
 # project's venv (the setup without Docker).
 set -euo pipefail
@@ -16,7 +16,7 @@ tools="$top/tools/ifi/ifi"
 [[ -f /.dockerenv ]] && exec "$tools" "$@"
 
 case "${1:-help}" in
-    test | migrate | restart-server | wipe-database)
+    test | migrate | restart-server | reset-database | wipe-database)
         if command -v docker >/dev/null 2>&1 &&
             (cd "$top" && docker compose ps --status running --services 2>/dev/null) | grep -qx web; then
             # The same folder inside the container, so relative paths still work.
@@ -27,7 +27,9 @@ case "${1:-help}" in
             cd "$top"
             # Git Bash would turn /workspace into a Windows path without this.
             export MSYS_NO_PATHCONV=1
-            exec docker compose exec "$tty" -w "$workdir" web ifi "$@"
+            # -u dev: the container's own user is app, which runs the site
+            # (docs/claude_context/dev_container_users.md).
+            exec docker compose exec "$tty" -u dev -w "$workdir" web ifi "$@"
         fi
         ;;
 esac

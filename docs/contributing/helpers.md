@@ -1,6 +1,6 @@
 # Helper guide for Commit for Candy
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 Thanks for helping out! 🎃 This page gets you ready in about 30 minutes.
 You don't need to know the code. Every issue has a 🔑 solution that only
@@ -125,7 +125,7 @@ it runs.
 | `ifi account` | Shows which GitHub account the container pushes as, and the name and email on commits (two separate settings). `ifi account switch <name>` first checks that their computer can log in as `<name>`. If it can, it changes the account and sets this repo's commit name and email to match. If not, nothing changes, and it says what to do for their setup (Windows, Mac, Linux, with or without gh). `ifi account switch` goes back to their computer's usual account |
 | `ifi restart-server` | Restarts the site, when a change doesn't show up or the site stopped |
 | `ifi migrate` | After changing a model (rare at the event) |
-| `ifi wipe-database` | ⚠️ Deletes the local database and starts fresh |
+| `ifi reset-database` | ⚠️ Deletes the local database and starts fresh |
 | `ifi rebuild-docker` | Shows how to rebuild the container |
 | `ifi help` | Cheat sheets for git, docker, django and ifi |
 

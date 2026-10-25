@@ -1,6 +1,6 @@
 # Docker guide
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 Everything about the Docker setup after the first start: how it works, when
 to restart or rebuild, everyday tasks, and fixing problems. Starting for the
@@ -111,7 +111,7 @@ that fixes your problem.
 | **Restart the server**<br>`ifi restart-server` in the container terminal | Starts Django again. The container keeps running | A new `templatetags` file, a changed `.env`, or the site stopped after an error | Nothing |
 | **Close and reopen**<br>close the VS Code window, then **Reopen in Container** | Closing stops the containers. Reopening starts them again | End of the day, after restarting your computer | Nothing |
 | **Rebuild**<br>Command Palette → `Dev Containers: Rebuild Container` (`ifi rebuild-docker` shows the steps) | Builds the image again and makes a new `web` container | `requirements.txt` or the Docker files changed, `ModuleNotFoundError`, or the docs say "your container is older than…" | Extensions and packages you installed by hand inside the container |
-| **Reset**<br>`ifi wipe-database` in the container terminal, or `docker compose down -v` outside it and then reopen | Deletes **the database** and fills it again with the starter content. `docker compose down -v` also deletes the containers | You want a fresh site with new starter content | Everything you made on your local site (pages, logins). `docker compose down -v` also deletes your Claude Code login |
+| **Reset**<br>`ifi reset-database` in the container terminal, or `docker compose down -v` outside it and then reopen | Deletes **the database** and fills it again with the starter content. `docker compose down -v` also deletes the containers | You want a fresh site with new starter content | Everything you made on your local site (pages, logins). `docker compose down -v` also deletes your Claude Code login |
 
 **Your code is always safe.** It lives on your own computer, not in the
 container, so none of these touch your files or your Git branches.
@@ -179,11 +179,11 @@ docker compose up -d
 ```
 Builds and starts everything in the background. The site is ready at http://localhost:8000 after a minute.
 ```bash
-docker compose exec web bash
+docker compose exec -u dev web bash
 ```
 Opens a terminal inside the container. From there, every `python manage.py ...` command and `ifi` work as normal. Type `exit` to leave.
 
-**`ifi` from your own terminal.** You can also stay outside the container: use the launcher in the repo root, `./ifi check` (Mac, Linux, Git Bash) or `.\ifi check` (Windows PowerShell; it needs Git Bash, which comes with Git for Windows). `ifi test`, `migrate`, `restart-server` and `wipe-database` then run inside the container by themselves. Git commands (`save`, `pull-request`, ...) run on your own computer, where your GitHub login is: inside a container started this way there's no GitHub login. `./ifi install` makes `ifi` work from any folder (Mac, Linux, Git Bash).
+**`ifi` from your own terminal.** You can also stay outside the container: use the launcher in the repo root, `./ifi check` (Mac, Linux, Git Bash) or `.\ifi check` (Windows PowerShell; it needs Git Bash, which comes with Git for Windows). `ifi test`, `migrate`, `restart-server` and `reset-database` then run inside the container by themselves. Git commands (`save`, `pull-request`, ...) run on your own computer, where your GitHub login is: inside a container started this way there's no GitHub login. `./ifi install` makes `ifi` work from any folder (Mac, Linux, Git Bash).
 
 To stop everything: `docker compose down` (your database is kept).
 

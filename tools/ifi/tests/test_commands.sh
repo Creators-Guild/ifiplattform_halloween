@@ -116,6 +116,14 @@ t_commands_install_adds_ifi_once() {
     same "$(grep -c "alias ifi=" "$HOME/.bashrc")" 1 "aliases in .bashrc"
 }
 
+t_commands_old_wipe_database_name_points_to_reset_database() {
+    clone_as contributor
+    run_ifi wipe-database
+    fails
+    has "ifi wipe-database is now called ifi reset-database."
+    has "Nothing was deleted."
+}
+
 t_commands_old_status_name_points_to_check() {
     clone_as contributor
     run_ifi status

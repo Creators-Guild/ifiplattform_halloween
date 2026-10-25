@@ -76,7 +76,7 @@ your own computer show up right away and `runserver` reloads.
   it can hit the same bake error (see the
   [Docker guide](../contributing/docker_guide.md#if-something-goes-wrong)).
 - **Commands stay the same.** Students work inside the container
-  (VS Code's terminal, or `docker compose exec web bash`), so the
+  (VS Code's terminal, or `docker compose exec -u dev web bash`), so the
   README's `python manage.py ...` commands work unchanged. `py` is
   linked to `python` in the container, so the Windows style works too.
 - **No `.env` needed to run the site.** `web` sets every needed setting in
@@ -133,6 +133,18 @@ your own computer show up right away and `runserver` reloads.
   (`docker compose up`), `dev` keeps ID 1000, which is the usual ID of
   the first user on a Linux computer. Docker Desktop (Windows and macOS)
   hides this problem either way.
+- **The site runs as its own user, `app`.** VS Code's terminals open as
+  `dev`, but the server and the start-up steps run as `app`. Those steps
+  run code from whatever branch is checked out, so they could otherwise
+  read `dev`'s logins, like Claude Code's. `app` can read the project but
+  not `/home/dev`. Because `app` can't write to the shared folder,
+  uploads go to the `media` volume (`MEDIA_ROOT=/srv/media`). The first
+  start copies any old `ifiplatform/media` into it. The cache is a table
+  in the database (`CACHE_IN_DATABASE`), since a file cache only works
+  for the user who wrote it. `dev` may run commands as `app` with
+  `sudo -u app` (`ifi restart-server` does), but `app` can't become
+  anyone else. `docker compose exec` opens as `app`, so use
+  `docker compose exec -u dev web bash`.
 - **Claude Code stays logged in.** Its login and settings are kept in the
   `claude-config` volume (`CLAUDE_CONFIG_DIR`), so they survive rebuilds
   and `docker compose down`. Only `down -v` deletes them. Shared Claude
