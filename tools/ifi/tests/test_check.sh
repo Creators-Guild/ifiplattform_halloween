@@ -43,6 +43,7 @@ t_check_with_an_ssh_origin() {
     run_ifi check
     has "⚠️  origin uses an SSH address"
     has "git remote set-url origin https://github.com/$STUDENT/$NAME.git"
+    hasnt "Can't use SSH here"
 }
 
 t_check_without_name_and_email() {

@@ -98,8 +98,7 @@ elif [[ "$origin_url" =~ ^(git@|ssh://) ]]; then
 elif [[ ! "$origin_url" =~ ^https://([^@/]+@)?github\.com/ ]]; then
     warn "origin isn't a GitHub address: $origin_url"
 elif [[ "$(lower "$origin_repo")" == "$(lower "$MAIN_REPO")" ]]; then
-    collaborator=true
-    ok "origin is the main repo ($MAIN_REPO): you push straight to it, as a collaborator."
+    :
 else
     ok "origin is your fork: $origin_repo"
 fi
@@ -111,7 +110,6 @@ upstream_repo="$(repo_of upstream 2>/dev/null || true)"
 base=""
 if $collaborator; then
     base=origin
-    ok "upstream isn't needed: origin already is the main repo."
 elif [[ -z "$upstream_url" ]]; then
     bad "No 'upstream' remote: Git can't get everyone else's changes." \
         "git remote add upstream https://github.com/$MAIN_REPO.git"
@@ -147,6 +145,10 @@ elif [[ -n "$origin_url" ]]; then
     if [[ $status -eq 0 ]]; then
         login="$(github_login)"
         ok "Logged in to GitHub, and allowed to push to origin.${login:+ Account: $login}"
+        if $collaborator; then
+            ok "origin is the main repo ($MAIN_REPO): you push straight to it, as a collaborator."
+            ok "upstream isn't needed: origin already is the main repo."
+        fi
     elif [[ $status -eq 124 ]] || grep -qiE "could not resolve host|failed to connect|timed out" <<<"$err"; then
         # Not broken, just not checked, so no ❌. The fetch below would fail too.
         offline=true
@@ -154,7 +156,7 @@ elif [[ -n "$origin_url" ]]; then
             "Run ifi check again later."
     else
         case "$(git_error_kind "$err")" in
-            ssh) bad "Can't use SSH here, so you can't push. Switch origin to HTTPS:" \
+            ssh) [[ "$origin_url" =~ ^(git@|ssh://) ]] || bad "Can't use SSH here, so you can't push. Switch origin to HTTPS:" \
                 "git remote set-url origin https://github.com/$origin_repo.git" ;;
             login)
                 if [[ -n "$picked" ]]; then
