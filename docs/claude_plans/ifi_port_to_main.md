@@ -7,7 +7,7 @@ built and tested. Two parts move to the main repo: **ifi** and the
 **Docker / VS Code setup**. The contributor docs and the Commit for Candy
 event checks stay here. Delete this plan when the move is done.
 
-How to work: open the main repo (`Creators-Guild/ifiplattform`) in its own
+How to work: open the main repo (`Creators-Guild/IfiPlatform`) in its own
 folder, next to this one, and copy files over from here. If main has no dev
 container yet, the first session runs on the computer itself.
 
@@ -54,7 +54,7 @@ Keep the Git file mode: every script in `tools/ifi/` and `ifi` must be
 
 | Where | Now | In main |
 | --- | --- | --- |
-| `tools/ifi/common.sh` | `MAIN_REPO="Creators-Guild/ifiplattform_halloween"` | `Creators-Guild/ifiplattform`. The tests read it from here |
+| `tools/ifi/common.sh` | `MAIN_REPO="Creators-Guild/ifiplattform_halloween"` | `Creators-Guild/IfiPlatform`. The tests read it from here |
 | `tools/ifi/check` (the "not in the project" line) | `ifiplattform_halloween folder` | main's folder name |
 | `tools/ifi/check` (the "Nothing needs a look" line) | `Nothing needs a look. All good. 🎃` | without the 🎃 |
 | `devcontainer.json` (`initializeCommand`), `docker-compose.yml` (`image`), `tools/ifi/rebuild-docker` (twice) | `ifiplattform-halloween-web:dev` | one new name, the same in all three |
