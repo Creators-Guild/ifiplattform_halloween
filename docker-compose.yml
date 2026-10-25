@@ -28,6 +28,10 @@ services:
       db:
         condition: service_healthy
     environment:
+      # Norway's clock, with summer and winter time, in the terminal and on
+      # Git commits (the container runs on UTC otherwise). The site keeps
+      # settings.py's TIME_ZONE: Django sets its own.
+      TZ: Europe/Oslo
       DEBUG: "True"
       DJANGO_SECRET_KEY: "dev-only-insecure-key-do-not-use-in-production"
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1"

@@ -21,8 +21,8 @@ Do it before ifi moves to a new repo, and after big changes.
 | --- | --- | --- |
 | ☐ | Fork the repo as the second account, and clone the fork with HTTPS | A folder with the repo |
 | ☐ | Open it in VS Code → **Reopen in Container** | The site starts; no error in the terminal |
-| ☐ | Look at the first terminal | "Checking your setup..." and either ✅ Setup OK or only ❌ lines |
-| ☐ | Open a second terminal | Only the "Stuck? Type: ifi check" hint, no second check |
+| ☐ | Open the first terminal (Terminal → New Terminal) after the build log is done | "Checking your setup..." and either ✅ Setup OK or only ❌ lines |
+| ☐ | Open a second terminal | No new check: "✅ Setup OK (checked <date> <time>)" and "Check again?  →  ifi check" |
 | ☐ | Ports panel | One port: 8000, labelled **Website**, green dot, shows runserver |
 | ☐ | `ifi check` | No ❌. If "Not logged in": run `git push`, click **Allow**, log in, run it again |
 | ☐ | `ifi fix-issue <test issue>` | The issue's title; a branch named `<type>/<few-words>` |

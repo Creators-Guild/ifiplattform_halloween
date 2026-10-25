@@ -223,8 +223,24 @@ if [[ -n "$base" && -n "$branch" && "$branch" != main ]] && ! $offline; then
     fi
 fi
 
+# The result in one line, for the terminals that open later: they show it
+# instead of checking again (shell-setup.sh). Every run updates it, so it's
+# always the latest check. "ok", "bad" or "offline", the number of
+# problems, and when. In /dev/shm, which is emptied when the container
+# starts; IFI_STATE_DIR lets the tests use a folder of their own.
+save_result() {
+    in_container || [[ -n "${IFI_STATE_DIR:-}" ]] || return 0
+    local dir="${IFI_STATE_DIR:-/dev/shm}" kind=ok
+    $offline && kind=offline
+    [[ $problems -gt 0 ]] && kind=bad
+    printf '%s|%s|%s\n' "$kind" "$problems" "$(date '+%-d %b %H:%M %Z')" >"$dir/ifi-check-result.tmp" 2>/dev/null &&
+        mv "$dir/ifi-check-result.tmp" "$dir/ifi-check-result"
+    return 0
+}
+
 # The startup check ends here.
 if $quiet; then
+    save_result
     if [[ $problems -gt 0 ]]; then
         echo "$problems problem(s) in your setup. Fix the ❌ lines; ask a helper if you're stuck."
         exit 1
@@ -294,4 +310,5 @@ if [[ ${#next[@]} -gt 0 ]]; then
 else
     your_turn "carry on with your change."
 fi
+save_result
 [[ $problems -eq 0 ]]

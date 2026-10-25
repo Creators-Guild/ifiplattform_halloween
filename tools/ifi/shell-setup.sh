@@ -51,11 +51,41 @@ fi
 
 echo "Stuck? Type: ifi check (what's wrong) or ifi help (cheat sheets)"
 
-# The first terminal after the container starts also checks the setup and
-# shows only what's broken. /dev/shm is emptied every time the container
-# starts, and noclobber lets only one terminal create the file when VS Code
-# opens several at once.
-if [[ -f /.dockerenv ]] && (set -o noclobber; : >/dev/shm/ifi-checked) 2>/dev/null; then
-    echo "Checking your setup..."
-    ifi check --quiet
+# The first terminal after the container starts (or is rebuilt) checks the
+# setup and shows only what's broken. Later terminals don't check again:
+# they show the result of the last ifi check, with when it ran, and how to
+# check again. VS Code sometimes replaces a new terminal by itself (when an
+# extension changes its environment), so the first terminal's output can
+# disappear. /dev/shm is emptied every time the container starts, and
+# noclobber lets only one terminal run the check when VS Code opens several
+# at once. IFI_STATE_DIR lets the tests (tests/) use a folder of their own.
+_ifi_startup_check() {
+    local dir="${IFI_STATE_DIR:-/dev/shm}" kind="" count when cmd=$'\e[36m' off=$'\e[0m'
+    if (set -o noclobber; : >"$dir/ifi-checked") 2>/dev/null; then
+        echo "Checking your setup..."
+        ifi check --quiet
+        return 0
+    fi
+    IFS='|' read -r kind count when <"$dir/ifi-check-result" 2>/dev/null
+    case "$kind" in
+        ok)
+            echo "✅ Setup OK (checked $when)"
+            printf '  Check again?  →  %sifi check%s\n' "$cmd" "$off"
+            ;;
+        bad)
+            echo "❌ The setup check found $count problem(s) (checked $when)"
+            printf '  See them?  →  %sifi check%s\n' "$cmd" "$off"
+            ;;
+        offline)
+            echo "⚠️  The setup check couldn't reach GitHub (checked $when)"
+            printf '  Check again?  →  %sifi check%s\n' "$cmd" "$off"
+            ;;
+        *)
+            echo "The setup check is still running in another terminal."
+            printf '  See it here?  →  %sifi check%s\n' "$cmd" "$off"
+            ;;
+    esac
+}
+if [[ -f /.dockerenv || -n "${IFI_STATE_DIR:-}" ]]; then
+    _ifi_startup_check
 fi

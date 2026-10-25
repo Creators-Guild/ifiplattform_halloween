@@ -139,3 +139,50 @@ t_commands_shell_setup_stays_quiet_without_a_terminal() {
     OUT="$(bash --norc --noprofile -i -c ". '$TOOLS/shell-setup.sh'" </dev/null 2>/dev/null)"
     same "$OUT" "" "what a hidden interactive shell prints"
 }
+
+# A new terminal: an interactive bash in a pretend terminal, loading
+# shell-setup.sh, with its saved check result in $SANDBOX/state.
+new_terminal() {
+    command -v script >/dev/null || skip "needs the 'script' command (util-linux)"
+    export IFI_STATE_DIR="$SANDBOX/state"
+    mkdir -p "$IFI_STATE_DIR"
+    PATH="$SANDBOX/bin:$PATH" script -qec "bash --norc --noprofile -i -c '. $TOOLS/shell-setup.sh'" /dev/null </dev/null >"$SANDBOX/terminal.log" 2>&1
+    OUT="$(tr -d '\r' <"$SANDBOX/terminal.log" | sed 's/\x1b\[[0-9;]*m//g')"
+}
+
+terminal_setup() {
+    clone_as contributor
+    start_issue
+    mkdir -p "$SANDBOX/bin"
+    ln -sf "$TOOLS/ifi" "$SANDBOX/bin/ifi"
+}
+
+t_commands_first_terminal_checks_and_later_ones_show_the_result() {
+    terminal_setup
+    new_terminal
+    has "Checking your setup..."
+    has "✅ Setup OK."
+    new_terminal
+    hasnt "Checking your setup..."
+    has "✅ Setup OK (checked $(date '+%-d %b') "
+    has "Check again?  →  ifi check"
+}
+
+t_commands_later_terminals_show_the_latest_check() {
+    terminal_setup
+    new_terminal
+    git config --global --unset user.email
+    IFI_STATE_DIR="$SANDBOX/state" run_ifi check
+    new_terminal
+    has "❌ The setup check found 1 problem(s) (checked"
+    has "See them?  →  ifi check"
+}
+
+t_commands_terminal_while_the_check_is_still_running() {
+    terminal_setup
+    mkdir -p "$SANDBOX/state"
+    : >"$SANDBOX/state/ifi-checked"
+    new_terminal
+    has "The setup check is still running in another terminal."
+    has "See it here?  →  ifi check"
+}

@@ -114,7 +114,7 @@ it runs.
 | Command | What it does |
 | --- | --- |
 | `ifi fix-issue <nr>` | Makes a branch for issue `<nr>` from the newest code. Run it again to go back to that branch. |
-| `ifi check` | Checks the setup: name and email, origin/upstream, GitHub login, branch, unsaved changes, behind main, the site. Ask stuck people to run it and look at the ❌ lines. The first terminal after the container starts runs a short version by itself, which only shows what's broken |
+| `ifi check` | Checks the setup: name and email, origin/upstream, GitHub login, branch, unsaved changes, behind main, the site. Ask stuck people to run it and look at the ❌ lines. The first terminal after the container starts runs a short version by itself, which only shows what's broken. Later terminals don't check again: they show the latest result with its time, and point to `ifi check` |
 | `ifi save "message"` | Saves (commits) every change in the whole repo, also from a subfolder. Asks for name and email the first time |
 | `ifi update` | Brings the branch up to date with the newest main. On a conflict it explains the `<<<<<<<` markers; fix the files and run it again, or `ifi update --abort` |
 | `ifi pull-request` | Pushes the branch and gives the pull request link, with `Closes #<nr>` already filled in. If the push fails, it says why: not logged in, wrong account, cloned the main repo instead of a fork, or an SSH address |
