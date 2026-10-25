@@ -4,6 +4,10 @@
 # except that it fetches, like `git fetch`, to know how far behind you are.
 # For helpers: "run ifi check and show me the ❌ lines".
 #
+# The ✅ lines show as each check finishes. The ⚠️, ❌ and 🎉 lines are
+# collected and shown together at the bottom, under "Needs a look:", right
+# above the current branch and "Your turn:", so they aren't lost among the ✅.
+#
 # ifi check --quiet: the check the first terminal after the container starts
 # runs (shell-setup.sh). Shows only the ❌ lines and "main has new commits",
 # gives GitHub 5 seconds instead of 15-20 so the terminal isn't held up, and
@@ -17,29 +21,43 @@ wait_fetch=20
 $quiet && wait_github=5 wait_fetch=5
 offline=false
 
+# --quiet has no bottom part, so it prints the ⚠️ and ❌ lines right away.
+# (`quiet` itself is switched off for one call by `quiet=false warn ...`.)
+startup=$quiet
 problems=0
 warnings=0
+# The lines for "Needs a look:", each with the lines under it.
+attention=()
 # The choices under "Your turn:" at the end: pairs of situation and command.
 next=()
 ok() { $quiet || printf '✅ %s\n' "$1"; }
+# flag <icon> <text> [line under it ...]: a line for "Needs a look:".
+flag() {
+    local icon="$1" lines
+    shift
+    lines="$(printf '%s %s\n' "$icon" "$1")"
+    shift
+    [[ $# -gt 0 ]] && lines+=$'\n'"$(printf '      %s\n' "$@")"
+    if $startup; then
+        printf '%s\n' "$lines"
+    else
+        attention+=("$lines")
+    fi
+}
 # Hidden with --quiet; `quiet=false warn ...` shows one anyway.
 warn() {
     warnings=$((warnings + 1))
     $quiet && return
-    printf '⚠️  %s\n' "$1"
-    shift
-    [[ $# -gt 0 ]] && printf '      %s\n' "$@"
+    flag '⚠️ ' "$@"
 }
 bad() {
-    printf '❌ %s\n' "$1"
-    shift
-    [[ $# -gt 0 ]] && printf '      %s\n' "$@"
     problems=$((problems + 1))
+    flag '❌' "$@"
 }
 
 # 1. In the project?
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
-    bad "You're not in the project folder." "cd into the ifiplattform_halloween folder (or open it in VS Code)."
+    printf '❌ %s\n      %s\n' "You're not in the project folder." "cd into the ifiplattform_halloween folder (or open it in VS Code)."
     exit 1
 fi
 source "$(dirname "$(readlink -f "$0")")/common.sh"
@@ -180,8 +198,11 @@ if [[ -n "$base" && -n "$branch" && "$branch" != main ]] && ! $offline; then
         if merged_into_main HEAD; then
             # Its own icon, so it stands out among the ✅ lines. Shown with
             # --quiet too: the first terminal is a good moment to tidy up.
-            printf '🎉 %s\n' "Your pull request for $branch is merged into main!"
-            $quiet && printf '      %s\n' "Tidy up: ifi cleanup"
+            if $startup; then
+                flag '🎉' "Your pull request for $branch is merged into main!" "Tidy up: ifi cleanup"
+            else
+                flag '🎉' "Your pull request for $branch is merged into main!"
+            fi
             next+=("Tidy up?" "ifi cleanup   (deletes the branch, takes you to main)"
                 "Want another issue?" "ifi fix-issue <nr>")
         elif [[ "$behind" -eq 0 ]]; then
@@ -243,18 +264,19 @@ else
 fi
 
 echo
-if [[ $problems -eq 0 && $warnings -eq 0 ]]; then
-    echo "All good. 🎃"
-else
-    echo "$problems problem(s), $warnings warning(s). Fix the ❌ lines first; ask a helper if you're stuck."
-fi
-
-echo
 echo "Check it yourself in plain Git:"
 printf '  %-38s  %s\n' \
     "git status" "what changed, and which branch you're on" \
     "git remote -v" "where origin and upstream point" \
     "git log --oneline ${base:-upstream}/main..HEAD" "your commits that aren't in the main repo's main yet"
+
+echo
+if [[ ${#attention[@]} -gt 0 ]]; then
+    printf '%sNeeds a look:%s\n' "$C_BOLD" "$C_OFF"
+    printf '%s\n' "${attention[@]}"
+else
+    echo "Nothing needs a look. All good. 🎃"
+fi
 
 echo
 if [[ -z "$branch" ]]; then
@@ -264,7 +286,7 @@ else
 fi
 
 if [[ $problems -gt 0 ]]; then
-    next=("Any ❌ above?" "fix those first: the line under each one says how" ${next[@]+"${next[@]}"})
+    next=("Something broken above?" "fix the ❌ lines first: the line under each one says how (stuck? ask a helper)" ${next[@]+"${next[@]}"})
 fi
 if [[ ${#next[@]} -gt 0 ]]; then
     your_turn

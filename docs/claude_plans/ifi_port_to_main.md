@@ -41,7 +41,7 @@ Keep the Git file mode: every script in `tools/ifi/` and `ifi` must be
 | --- | --- | --- |
 | `tools/ifi/common.sh` | `MAIN_REPO="Creators-Guild/ifiplattform_halloween"` | main's owner/name. The tests read it from here |
 | `tools/ifi/check` (the "not in the project" line) | `ifiplattform_halloween folder` | main's folder name |
-| `tools/ifi/check` (last lines) | `All good. 🎃` | `All good.` |
+| `tools/ifi/check` (the "Nothing needs a look" line) | `Nothing needs a look. All good. 🎃` | without the 🎃 |
 | `devcontainer.json` (`initializeCommand`), `docker-compose.yml` (`image`), `tools/ifi/rebuild-docker` (twice) | `ifiplattform-halloween-web:dev` | one new name, the same in all three |
 | `devcontainer.json` | `"name": "IfiPlatform Halloween"` | `IfiPlatform` |
 | `docker-compose.yml` | `container_name: halloween-db`, `halloween-web` | new names, so both repos' containers can exist side by side |

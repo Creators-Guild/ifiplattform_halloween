@@ -172,12 +172,12 @@ t_check_your_turn_lists_what_to_do() {
     git config --global --unset user.email
     run_ifi check
     has "Your turn:"
-    has "Any ❌ above?"
+    has "Something broken above?"
     has "Changes to keep?"
     has "Want main's new commits?"
     # Problems first, then in the order you'd do them: save, then update.
-    same "$(sed -n '/Your turn:/,$p' <<<"$OUT" | grep -o -e "Any ❌" -e "Changes to keep" -e "main's new commits" | tr '\n' '|')" \
-        "Any ❌|Changes to keep|main's new commits|" "the order of the choices"
+    same "$(sed -n '/Your turn:/,$p' <<<"$OUT" | grep -o -e "Something broken" -e "Changes to keep" -e "main's new commits" | tr '\n' '|')" \
+        "Something broken|Changes to keep|main's new commits|" "the order of the choices"
 }
 
 t_check_your_turn_when_all_is_well() {
@@ -207,4 +207,23 @@ t_check_current_branch_is_just_above_your_turn() {
     start_issue
     run_ifi check
     same "$(grep -A2 "Current branch:" <<<"$OUT" | tail -n 1 | cut -c1-10)" "Your turn:" "the line after the branch and a blank line"
+}
+
+t_check_problems_are_together_at_the_bottom() {
+    clone_as contributor
+    start_issue
+    git remote remove upstream
+    echo "x" >>README.md
+    run_ifi check
+    # Order: ✅ lines, plain Git, "Needs a look:" with ❌ and ⚠️, branch, "Your turn:".
+    same "$(grep -oE '^(✅|Check it yourself|Needs a look:|❌|⚠️|Current branch:|Your turn:)' <<<"$OUT" | uniq | tr '\n' '|')" \
+        "✅|Check it yourself|Needs a look:|❌|⚠️|Current branch:|Your turn:|" "the order of the parts"
+}
+
+t_check_nothing_needs_a_look() {
+    clone_as contributor
+    start_issue
+    run_ifi check
+    has "Nothing needs a look. All good."
+    hasnt "Needs a look:"
 }
