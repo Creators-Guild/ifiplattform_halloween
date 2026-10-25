@@ -25,7 +25,13 @@ protection is gone for the host logins. Re-check with `ls -la /tmp`.
 
 Not covered: code `dev` runs itself (`manage.py test`, `shell`, Claude Code's
 own commands) can still read the tokens. This only protects against code that
-starts by itself.
+starts by itself. The user decided (2026-10-26) to leave the `claude-config`
+volume as it is. It lives on the dev's own computer, and a leak costs Claude
+usage, not code. docker_guide.md ("Your Claude Code login") tells devs to
+`/logout` on shared computers, which keeps chat history. No volume
+encryption: Docker has none built in, FUSE-based encryption needs
+`SYS_ADMIN`, and the volume has to be unlocked while Claude Code runs anyway.
+Host disk encryption covers the lost-laptop case.
 
 ## What app needs, and how it gets it
 

@@ -142,6 +142,11 @@ To get them in every container automatically, add them to your own VS Code setti
 ```
 Each extension's ID is shown as "Identifier" on its page in the Extensions view. Claude Code stays logged in when the container is rebuilt.
 
+### Your Claude Code login
+The login and your chat history are saved in the `claude-config` Docker volume on your computer, so you stay logged in after restarts and rebuilds. The website itself can't read the login. Commands you run yourself in the container can, so be careful when you try someone else's branch.
+
+**On a shared or borrowed computer:** run `/logout` in Claude Code when you're done. That removes only the login: your chat history is kept for the next time you log in. If the laptop is lost, your computer's disk encryption protects the volume (BitLocker on Windows, FileVault on a Mac, LUKS on Linux).
+
 ### Keys and tokens (.env)
 The site runs without a `.env` file, because `docker-compose.yml` sets everything it needs. You only need one for extra features, like the GitHub token that updates the event points. Copy the example and fill in what you need from its first part:
 ```bash
