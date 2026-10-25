@@ -12,16 +12,14 @@ branch="$(git branch --show-current)"
 if [[ -n "$(git status --porcelain)" ]]; then
     git status --short
     die "" "These changes aren't committed yet. Commit them first:" \
-        "  git add ." \
-        "  git commit -m \"Short description of what you changed\""
+        "  ifi save \"Short description of what you changed\""
 fi
 
 find_base
-git fetch --quiet "$base"
+fetch_base "Download the newest main from the main repo, to check your branch has commits to send"
 if [[ "$(git rev-list --count "$base/main..HEAD")" -eq 0 ]]; then
     die "$branch has no commits yet, so there's nothing to send. Commit your change first:" \
-        "  git add ." \
-        "  git commit -m \"Short description of what you changed\""
+        "  ifi save \"Short description of what you changed\""
 fi
 
 nr="$(git config "branch.$branch.ifi-issue" || true)"
@@ -31,7 +29,7 @@ while [[ ! "$nr" =~ ^[0-9]+$ ]]; do
 done
 git config "branch.$branch.ifi-issue" "$nr"
 
-run git push --quiet -u origin HEAD
+push_branch "Send your branch to your fork on GitHub (-u: remember where, so a plain git push works next time)"
 
 if [[ "$base" == origin ]]; then
     head="$branch"
@@ -40,7 +38,7 @@ else
     head="${head%%/*}:$branch"
 fi
 
-url="$(python3 - "$MAIN_REPO" "$head" "$nr" <<'PY'
+url="$("$PY" - "$MAIN_REPO" "$head" "$nr" <<'PY'
 import sys
 from urllib.parse import quote
 
@@ -52,12 +50,13 @@ print(
 PY
 )"
 
-cat <<EOF
-
-Pushed. Open this link (Ctrl+click, or Cmd+click on a Mac) to make the pull request:
-
-$url
-
-Say what you changed in the description, and leave the "Closes #$nr" line
-in: it closes the issue when your pull request is merged.
-EOF
+git_recap
+your_turn
+choices \
+    "No pull request yet?" "open this link (Ctrl+click, or Cmd+click on a Mac):" \
+    "" "$url" \
+    "" "Say what you changed, and leave the \"Closes #$nr\" line in:" \
+    "" "it closes the issue when your pull request is merged." \
+    "Already made it?" "nothing to do, it's updated now" \
+    "More changes later?" "ifi save, then ifi pull-request again" \
+    "Merged on GitHub?" "ifi cleanup   (deletes the branch, and takes you back to main)"

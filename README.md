@@ -67,9 +67,9 @@ Two steps, and both end with the site running at http://localhost:8000.
    ifi fix-issue 42        # a branch for issue #42, made from the newest code
    # ...make your change, check it at http://localhost:8000...
    ifi test                # the quick tests
-   git add .
-   git commit -m "Short description of what you changed"
+   ifi save "Short description of what you changed"   # git add + commit, for the whole repo
    ifi pull-request        # pushes, and gives you the pull request link
+   ifi update              # later: bring your branch up to date with the newest main
    ```
    `ifi` commands are this project's own shortcuts, not part of Git. Each one prints the commands it runs. Rather do it all with Git, or not using Docker? Follow [Make a change, step by step](CONTRIBUTING.md#2-make-a-change-step-by-step) in CONTRIBUTING.md.
 
@@ -87,12 +87,12 @@ With Docker, run these in the VS Code terminal (it's inside the container). With
 
 | What | Command |
 | --- | --- |
-| Run the quick tests | `python manage.py test --exclude-tag=slow`, or `ifi test` with Docker |
-| After changing a model | `python manage.py makemigrations` then `python manage.py migrate`, or `ifi migrate` with Docker |
+| Run the quick tests | `python manage.py test --exclude-tag=slow`, or `ifi test` |
+| After changing a model | `python manage.py makemigrations` then `python manage.py migrate`, or `ifi migrate` |
 | Edit pages and articles | http://localhost:8000/wagtail-admin (sign up first at http://localhost:8000/account/signin) |
 | Users and raw database tables | http://localhost:8000/admin (needs `python manage.py createsuperuser`) |
 
-Forgot a command? Type `ifi help` in the container terminal.
+Forgot a command? Type `ifi help`. Without Docker, run `./ifi install` once first (see [setup without Docker](docs/contributing/setup_without_docker.md#optional-the-ifi-commands)). Something not working? `ifi check` checks your setup and says what to fix. Every `ifi` command lists what it did for you under "Done for you:", a ✓ line for each step with the Git command under it. Then "In plain Git, this was:", so you can type them yourself next time, and "Your turn:" with what you can do next.
 
 More, including translations: [docs/contributing/everyday_commands.md](docs/contributing/everyday_commands.md). Docker day to day (restart or rebuild, fixing problems): [docs/contributing/docker_guide.md](docs/contributing/docker_guide.md).
 

@@ -1,6 +1,6 @@
 # Helper guide for Commit for Candy
 
-Last updated: 2026-10-18
+Last updated: 2026-10-25
 
 Thanks for helping out! 🎃 This page gets you ready in about 30 minutes.
 You don't need to know the code. Every issue has a 🔑 solution that only
@@ -20,7 +20,7 @@ helpers can see.
   and ask an organiser to add you to the **Helpers** group. That makes
   the 🔑 Solution button show up.
 - [ ] Set up the site on your own laptop, the same way participants do.
-  Use the [setup checklist](#-setup-checklist) below. Remember where you
+  Use the [setup checklist](#-checklist) below. Remember where you
   got stuck: they will get stuck there too.
 - [ ] Try the `ifi` commands once: `ifi fix-issue <any issue number>` →
   change a colour → `ifi test`. To throw the change away afterwards, run
@@ -45,7 +45,9 @@ things when someone asks.
 All of these are 👀 skim.
 
 - [Make a change, step by step](../../CONTRIBUTING.md#2-make-a-change-step-by-step):
-  the same steps with plain Git or GitHub Desktop, without `ifi`
+  the same steps with plain Git or GitHub Desktop, without `ifi`. `ifi`
+  itself lists each Git command it ran under "Done for you:", and "In plain
+  Git, this was:" at the end, so participants can switch over bit by bit
 - [Setup without Docker](setup_without_docker.md): the backup plan for
   laptops where Docker won't work
 - [Where do I change…?](how_this_project_works.md#where-do-i-change): helps
@@ -112,12 +114,17 @@ it runs.
 | Command | What it does |
 | --- | --- |
 | `ifi fix-issue <nr>` | Makes a branch for issue `<nr>` from the newest code. Run it again to go back to that branch. |
-| `ifi pull-request` | Pushes the branch and gives the pull request link, with `Closes #<nr>` already filled in |
+| `ifi check` | Checks the setup: name and email, origin/upstream, GitHub login, branch, unsaved changes, behind main, the site. Ask stuck people to run it and look at the ❌ lines. The first terminal after the container starts runs a short version by itself, which only shows what's broken |
+| `ifi save "message"` | Saves (commits) every change in the whole repo, also from a subfolder. Asks for name and email the first time |
+| `ifi update` | Brings the branch up to date with the newest main. On a conflict it explains the `<<<<<<<` markers; fix the files and run it again, or `ifi update --abort` |
+| `ifi pull-request` | Pushes the branch and gives the pull request link, with `Closes #<nr>` already filled in. If the push fails, it says why: not logged in, wrong account, cloned the main repo instead of a fork, or an SSH address |
 | `ifi undo-file <file>` | Takes a file out of the pull request (it commits and pushes for you) |
+| `ifi cleanup` | Deletes their branches that are already merged, on the laptop and the fork, and switches them to main if they were on one. Asks first. `ifi check` and `ifi pull-request` point to it once a pull request is merged |
+| `ifi undo-file --extra` | Takes out every file the issue doesn't list, in one go. Their version is kept on a `-backup` branch |
 | `ifi test` | The quick tests. Run before a pull request. `ifi test --long` runs all of them. |
 | `ifi restart-server` | Restarts the site, when a change doesn't show up or the site stopped |
 | `ifi migrate` | After changing a model (rare at the event) |
-| `ifi reset-server` | ⚠️ Deletes the local database and starts fresh |
+| `ifi wipe-database` | ⚠️ Deletes the local database and starts fresh |
 | `ifi rebuild-docker` | Shows how to rebuild the container |
 | `ifi help` | Cheat sheets for git, docker, django and ifi |
 
@@ -127,8 +134,7 @@ The usual flow for a participant:
 ifi fix-issue 42
 # ...make the change, check it at http://localhost:8000...
 ifi test
-git add .
-git commit -m "Short description of what you changed"
+ifi save "Short description of what you changed"
 ifi pull-request
 ```
 
@@ -140,21 +146,38 @@ Go through this for each pull request on GitHub.
   workflows**, so the checks start.
 - [ ] The description has `Closes #<nr>`. No line means no points, so edit
   the description and add it.
-- [ ] **CI** is green (the tests pass).
+- [ ] **CI** is green (the tests pass). GitHub blocks the **Merge** button
+  until it is. If CI is red, open it and look for the first `FAIL:`.
+  That's the real error.
 - [ ] **Files check** is green: only the files the issue lists were
   changed, so you don't need to read the code.
-  - 🟡 Warning: extra files were changed. Take a quick look.
-  - 🔴 Made in the browser on github.com: don't merge. Help them set up
-    on their laptop instead, that's part of the event.
+  - 🔴 Extra files: the check stays red until a maintainer has looked.
+    Small and on-topic (a good idea is welcome)? Add the label
+    **files-reviewed**, and the check goes green. A separate idea? Ask
+    them to run `ifi undo-file --extra`. Their version stays on a
+    `-backup` branch, so it can become its own pull request. New commits
+    remove the label again, so look once more.
+  - 🔴 No `Closes #<nr>`: the check also leaves a comment telling them how
+    to add it, and deletes it once they have.
+  - 🔴 Made in the browser on github.com: help them set up on their laptop
+    instead, that's part of the event.
 - [ ] Click **Merge**, or add the `automerge` label so it merges by itself
   when CI is done.
 - [ ] The issue closes by itself. If you close one by hand, choose
   **Close as completed**, never "not planned", or nobody gets points.
+- [ ] A few minutes later, check that **Actions → Deploy** is green.
+  The site only updates when the deploy passes. A red deploy means
+  nothing new reaches the site until someone fixes it, so tell an
+  organiser.
 - [ ] Press **Sync now** on the site so the points show up on the
   [Leaderboard](https://halloween.ifiplattform.no/commits/leaderboard/).
 
 Don't merge if it's the wrong issue, the page looks broken, or GitHub
 shows a merge conflict. Tell them kindly what to fix.
+
+Organisers can **bypass** the block in an emergency. Don't use it to merge
+a red ✗: one broken merge makes every later pull request red too, and
+stops the site from updating.
 
 ## 🛠️ Your buttons on the site
 
@@ -173,13 +196,18 @@ A claim stops running out once its pull request is open.
 
 | Problem | Fix |
 | --- | --- |
+| GitHub says "This branch has conflicts" | `ifi update`, fix the files it lists, `ifi update` again, then `ifi pull-request` |
+| Someone is stuck and you don't know why | Ask them to run `ifi check` and fix the ❌ lines first |
 | The container won't start | Find the real error: **View → Output → Dev Containers**. [More](docker_guide.md#if-something-goes-wrong) |
 | "Port 8000 is already in use" | Another server is running. Stop it with <kbd>Ctrl</kbd>+<kbd>C</kbd> in its terminal. |
 | Docker Desktop won't start (Windows) | Run `wsl --install` in PowerShell as administrator, then restart |
 | Everything is slow (Windows) | The repo is on `C:\`. Clone it inside WSL instead. |
-| `ifi` not found, or `ModuleNotFoundError` | The container is old: [rebuild it](docker_guide.md#restart-reopen-rebuild-or-reset) |
+| `ifi` not found | Is the prompt starting with **(container)**? If not, they're outside the container: Reopen in Container, or use `./ifi` (`.\ifi` in PowerShell) from the repo folder. Inside and still not found: [rebuild](docker_guide.md#restart-reopen-rebuild-or-reset) |
+| `ModuleNotFoundError` | The container is old: [rebuild it](docker_guide.md#restart-reopen-rebuild-or-reset) |
 | A change doesn't show up | Refresh the browser, then `ifi restart-server` |
-| The wrong file is in the pull request | `ifi undo-file <file>` |
+| A merged change isn't on the mock site | The deploy failed. Check **Actions → Deploy** on GitHub, and tell an organiser |
+| CI is red on a pull request that only changed CSS | `main` itself may be broken. Check the newest run on `main` under **Actions**. If that's red too, it's not their fault |
+| The wrong file is in the pull request | `ifi undo-file <file>`, or `ifi undo-file --extra` for all files the issue doesn't list |
 | Can't claim an issue | Link the GitHub username on [My issues](https://halloween.ifiplattform.no/commits/) |
 | Docker won't work at all | [Setup without Docker](setup_without_docker.md) |
 

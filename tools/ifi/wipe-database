@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
-# ifi reset-server: deletes the local database and fills it again with the
+# ifi wipe-database: deletes the local database and fills it again with the
 # starter content, like `docker compose down -v` but from inside the
 # container, and without deleting the Claude Code login volume. It empties
 # PostgreSQL's public schema instead of deleting the database, so the db
 # container keeps running. The start-up steps are the same as in
 # docker-compose.yml's command. Media files in ifiplatform/media are kept.
+# Without Docker it deletes the SQLite file (ifiplatform/db.sqlite3) instead.
 set -euo pipefail
 source "$(dirname "$(readlink -f "$0")")/common.sh"
 here="$(dirname "$(readlink -f "$0")")"
 
-[[ "${USE_POSTGRES:-}" == True ]] ||
-    die "ifi reset-server only works in the Docker container." \
-        "Without Docker, delete ifiplatform/db.sqlite3 and run: python manage.py migrate"
+find_django_python
 
 cat <<'TXT'
 This DELETES your local database: every page, article and login you made on
@@ -22,9 +21,15 @@ read -r -p "Type yes to reset: " answer || answer=""
 [[ "$answer" == yes ]] || die "Nothing was deleted."
 
 cd "$(git rev-parse --show-toplevel)/ifiplatform"
-run python manage.py shell -c "from django.db import connection; connection.cursor().execute('DROP SCHEMA public CASCADE; CREATE SCHEMA public;')"
-run python manage.py rename_yourpage_app
-run python manage.py migrate
-run python manage.py seed_halloween_data
+if in_container; then
+    run "Empty the database" "$DJANGO_PY" manage.py shell -c "from django.db import connection; connection.cursor().execute('DROP SCHEMA public CASCADE; CREATE SCHEMA public;')"
+else
+    echo "Stop the server first (Ctrl+C in its terminal), or Windows won't let the file be deleted."
+    read -r -p "Press Enter when it's stopped. " _ || true
+    run "Delete the database file" rm -f db.sqlite3
+fi
+run "Rename the old app in the database, if it's there" "$DJANGO_PY" manage.py rename_yourpage_app
+run "Make all the tables again" "$DJANGO_PY" manage.py migrate
+run "Fill in the starter content" "$DJANGO_PY" manage.py seed_halloween_data
 "$here/restart-server"
 echo "Reset done. Make a new admin login with: python manage.py createsuperuser"

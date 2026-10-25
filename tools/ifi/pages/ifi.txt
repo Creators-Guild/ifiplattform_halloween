@@ -1,10 +1,17 @@
+ifi check                  check your setup and see what to do next
 ifi fix-issue <nr>         make a branch for issue <nr>, or go back to it
+ifi save "message"         commit all your changes (git add + commit, whole repo)
+ifi update                 bring your branch up to date with main in the main repo
+ifi update --abort         undo an update that hit a conflict
 ifi pull-request           push your branch and get the pull request link
 ifi undo-file <file>       take a file out of your pull request
+ifi undo-file --extra      take out every file the issue doesn't list
+ifi cleanup                delete your branches that are already merged
 ifi test                   the quick tests (run before a pull request)
 ifi test --long            all tests, with the slow site crawler (or -l)
 ifi migrate                makemigrations + migrate, after changing a model
 ifi restart-server         restart the website
-ifi reset-server           DELETE the local database and start fresh
+ifi wipe-database          DELETE the local database and start fresh
 ifi rebuild-docker         how to rebuild the container
+ifi install                make ifi a command in your own terminal (no Docker)
 ifi help [topic]           these pages: git, docker, django, ifi

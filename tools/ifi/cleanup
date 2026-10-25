@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# ifi cleanup: deletes your branches that are already merged into main, on
+# your computer and on your fork. GitHub deletes merged branches in the main
+# repo by itself, but never on your computer or in a fork. Only merged
+# branches: those whose every commit is in the newest main (merged_into_main
+# in common.sh). Asks before deleting anything.
+#
+# Right after a merge you're usually still on that branch, and Git can't
+# delete the branch you're on. So it's included, and ifi switches you to
+# main first. Not when it has unsaved changes: those would come along to
+# main, so it's left alone with a note.
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+find_base
+fetch_base
+
+current="$(git branch --show-current)"
+leave_current=false
+if [[ -n "$current" && "$current" != main ]] && merged_into_main HEAD && [[ -n "$(git status --porcelain)" ]]; then
+    leave_current=true
+fi
+merged=()
+while IFS= read -r b; do
+    [[ -z "$b" || "$b" == main ]] && continue
+    [[ "$b" == "$current" ]] && $leave_current && continue
+    merged_into_main "$b" || continue
+    merged+=("$b")
+done < <(git branch --format='%(refname:short)' --merged "$base/main")
+
+unsaved_note() {
+    $leave_current || return 0
+    echo "$current is merged too, but it has changes that aren't saved, so it stays for now."
+    echo "To use them for a new issue: git switch main, then ifi fix-issue <nr> (they come along)."
+}
+
+if [[ ${#merged[@]} -eq 0 ]]; then
+    echo
+    echo "Nothing to clean up: none of your branches are merged into main yet."
+    unsaved_note
+    exit 0
+fi
+
+# Backups from `ifi undo-file` get their own line, so people know what they are.
+plain=()
+backups=()
+for b in "${merged[@]}"; do
+    if [[ "$b" =~ -backup(-[0-9]+)?$ ]]; then
+        backups+=("$b")
+    else
+        plain+=("$b")
+    fi
+done
+echo
+if [[ ${#plain[@]} -gt 0 ]]; then
+    echo "These branches are merged into main, so their work is safe there:"
+    for b in "${plain[@]}"; do
+        if [[ "$b" == "$current" ]]; then
+            echo "  $b   (you're on it, so ifi switches you to main first)"
+        else
+            echo "  $b"
+        fi
+    done
+fi
+if [[ ${#backups[@]} -gt 0 ]]; then
+    echo "And these backups from ifi undo-file, for branches that are merged:"
+    printf '  %s   (has the file changes you took out of that pull request)\n' "${backups[@]}"
+fi
+on_fork=()
+if [[ "$base" != origin ]]; then
+    for b in "${merged[@]}"; do
+        git show-ref --verify --quiet "refs/remotes/origin/$b" && on_fork+=("$b")
+    done
+    if [[ ${#on_fork[@]} -eq ${#merged[@]} ]]; then
+        echo "Your fork on GitHub has them too, so they get deleted there as well."
+    elif [[ ${#on_fork[@]} -gt 0 ]]; then
+        echo "${#on_fork[@]} of them are also on your fork on GitHub, and get deleted there too."
+    fi
+fi
+unsaved_note
+read -r -p "Delete them? (y/n) " answer || answer=""
+[[ "$answer" =~ ^[YyJj] ]] || die "Nothing was deleted."
+
+if [[ "$current" != main ]] && printf '%s\n' "${merged[@]}" | grep -qxF "$current"; then
+    if git show-ref --verify --quiet refs/heads/main; then
+        switch_or_explain "Switch to main, since $current is merged" main
+    else
+        switch_or_explain "Switch to a new main, made from the main repo's newest main, since $current is merged" \
+            -c main --no-track "$base/main"
+    fi
+fi
+
+# -D, not -d: -d compares with the branch you're on, which may be an old
+# main. Every branch here is checked above to be merged into the newest main.
+for b in "${merged[@]}"; do
+    run "Delete $b on your computer" git branch -D "$b"
+done
+if [[ ${#on_fork[@]} -gt 0 ]]; then
+    git_or_explain origin "Delete them on your fork on GitHub too" push --quiet origin --delete "${on_fork[@]}"
+fi
+git_recap
+your_turn
+choices \
+    "Want another issue?" "ifi fix-issue <nr>   (starts from the newest main)" \
+    "Done for now?" "nothing to do"
