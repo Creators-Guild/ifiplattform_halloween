@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# tools/ifi/tests/run [word ...]: ifi's own tests. Every test gets a fresh
+# fake GitHub (lib.sh), so nothing real is touched and no internet is needed.
+# With words, only the tests whose name contains one of them run, for
+# example: tools/ifi/tests/run cleanup update
+#
+# A test is a function called t_<what_it_checks> in one of the test_*.sh
+# files. It fails by calling fail (or has, succeeds, ...), and skips with skip.
+set -uo pipefail
+
+here="$(cd "$(dirname "$0")" && pwd)"
+source "$here/lib.sh"
+
+run_dir="$(mktemp -d)"
+trap 'stop_fake_api; rm -rf "$run_dir"' EXIT
+start_fake_api "$run_dir/api" || exit 1
+
+for f in "$here"/test_*.sh; do
+    source "$f"
+done
+
+passed=0 failed=0 skipped=0
+for t in $(declare -F | awk '$3 ~ /^t_/ { print $3 }'); do
+    if [[ $# -gt 0 ]]; then
+        wanted=false
+        for w in "$@"; do [[ "$t" == *"$w"* ]] && wanted=true; done
+        $wanted || continue
+    fi
+    log="$run_dir/$t.log"
+    (
+        new_sandbox "$run_dir/$t" >/dev/null 2>&1 || fail "couldn't make the sandbox"
+        cd "$SANDBOX" || exit 1
+        "$t"
+    ) >"$log" 2>&1
+    case $? in
+        0)
+            echo "✅ ${t#t_}"
+            passed=$((passed + 1))
+            ;;
+        77)
+            echo "⏭️  ${t#t_}: $(sed -n 's/^SKIP: //p' "$log")"
+            skipped=$((skipped + 1))
+            ;;
+        *)
+            echo "❌ ${t#t_}"
+            sed 's/^/     /' "$log"
+            failed=$((failed + 1))
+            ;;
+    esac
+done
+
+echo
+echo "$passed passed, $failed failed, $skipped skipped."
+[[ $failed -eq 0 ]]
