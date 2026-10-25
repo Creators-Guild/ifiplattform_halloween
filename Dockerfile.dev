@@ -7,11 +7,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # openssh-client lets Git use SSH addresses, for those who set them up.
-# gh (GitHub CLI) lets you log in to another GitHub account inside the
-# container: gh auth login, and answer yes to "Authenticate Git". VS Code's
-# shared login always uses the account on your own computer.
+# No GitHub CLI (gh) on purpose: docs/claude_context/ifi_account.md
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends bash-completion gettext gh git openssh-client procps \
+    && apt-get install -y --no-install-recommends bash-completion gettext git openssh-client procps \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /tmp/requirements.txt
@@ -37,10 +35,9 @@ RUN ln -s /workspace/tools/ifi/ifi /usr/local/bin/ifi
 # last line it gets loads tools/ifi/shell-setup.sh: Tab completion for
 # `ifi` and the "ifi help" hint.
 RUN useradd --create-home --shell /bin/bash --uid 1000 dev \
-    && mkdir -p /home/dev/.claude /home/dev/.config/gh \
-    && chown -R dev:dev /home/dev/.claude /home/dev/.config/ \
+    && mkdir /home/dev/.claude \
+    && chown dev:dev /home/dev/.claude \
     && git config --system --add safe.directory /workspace \
-    && git config --system credential.https://github.com.helper '!gh auth git-credential' \
     && git config --system push.autoSetupRemote true \
     && echo '[ -f /workspace/tools/ifi/shell-setup.sh ] && . /workspace/tools/ifi/shell-setup.sh' >> /home/dev/.bashrc
 USER dev

@@ -75,9 +75,10 @@ else
         "Fine without Docker. With Docker, use VS Code's terminal after Reopen in Container."
 fi
 
-# 3. Name and email for commits.
+# 3. Name and email for commits. Not the GitHub login: step 6 shows that.
+login=""
 if [[ -n "$(git config user.name)" && -n "$(git config user.email)" ]]; then
-    ok "Git knows who you are: $(git config user.name) <$(git config user.email)>"
+    ok "Commits are signed as: $(git config user.name) <$(git config user.email)>"
 else
     bad "Git doesn't know your name and email yet, so you can't save." \
         "ifi save asks for them, or: git config --global user.name \"Your Name\"" \
@@ -94,7 +95,7 @@ if [[ -z "$origin_url" ]]; then
 elif [[ "$origin_url" =~ ^(git@|ssh://) ]]; then
     warn "origin uses an SSH address ($origin_url). HTTPS works without setup:" \
         "git remote set-url origin https://github.com/$origin_repo.git"
-elif [[ "$origin_url" != https://github.com/* ]]; then
+elif [[ ! "$origin_url" =~ ^https://([^@/]+@)?github\.com/ ]]; then
     warn "origin isn't a GitHub address: $origin_url"
 elif [[ "$(lower "$origin_repo")" == "$(lower "$MAIN_REPO")" ]]; then
     collaborator=true
@@ -131,12 +132,21 @@ else
 fi
 
 # 6. Logged in, as an account that may push to origin? A dry-run push: GitHub
-# checks the login, but nothing is sent.
-if [[ -n "$origin_url" ]]; then
+# checks the login, but nothing is sent. Skipped when gh would refuse the
+# picked account anyway, since trying pops up a password window.
+picked="$(picked_account)"
+other=""
+[[ -z "$picked" ]] || other="$(gh_selects_other "$picked" || true)"
+if [[ -n "$other" ]]; then
+    bad "origin asks for $picked, but your computer's gh has $other selected, so you can't push." \
+        "Push as $picked: ifi account switch $picked (it says how)" \
+        "Or go back to your usual account: ifi account switch"
+elif [[ -n "$origin_url" ]]; then
     err="$(GIT_TERMINAL_PROMPT=0 with_timeout $wait_github git push --dry-run --quiet origin HEAD:refs/heads/ifi-check-login 2>&1)"
     status=$?
     if [[ $status -eq 0 ]]; then
-        ok "Logged in to GitHub, and allowed to push to origin."
+        login="$(github_login)"
+        ok "Logged in to GitHub, and allowed to push to origin.${login:+ Account: $login}"
     elif [[ $status -eq 124 ]] || grep -qiE "could not resolve host|failed to connect|timed out" <<<"$err"; then
         # Not broken, just not checked, so no ❌. The fetch below would fail too.
         offline=true
@@ -146,9 +156,17 @@ if [[ -n "$origin_url" ]]; then
         case "$(git_error_kind "$err")" in
             ssh) bad "Can't use SSH here, so you can't push. Switch origin to HTTPS:" \
                 "git remote set-url origin https://github.com/$origin_repo.git" ;;
-            login) bad "Not logged in to GitHub." \
-                "Run 'git push' once in VS Code's terminal and click Allow in the popup." \
-                "More: docs/contributing/get_the_code.md#log-in-to-github-once" ;;
+            login)
+                if [[ -n "$picked" ]]; then
+                    bad "Your computer gives no login for $picked, the account picked with ifi account switch." \
+                        "See why: ifi account switch $picked" \
+                        "Or go back to your usual account: ifi account switch"
+                else
+                    bad "Not logged in to GitHub." \
+                        "Run 'git push' once in VS Code's terminal and click Allow in the popup." \
+                        "More: docs/contributing/get_the_code.md#log-in-to-github-once"
+                fi
+                ;;
             denied)
                 user="$(denied_user "$err")"
                 if $collaborator; then
@@ -164,6 +182,13 @@ if [[ -n "$origin_url" ]]; then
             *) warn "Couldn't check the GitHub login:" "$(head -n 1 <<<"$err")" ;;
         esac
     fi
+fi
+
+# 6b. An account picked with ifi account switch, but commits signed as someone else.
+if [[ -n "$login" && "$origin_url" == https://*@github.com/* ]] &&
+    [[ "$(lower "$(git config user.email)")" != *"$(lower "$login")"* ]]; then
+    warn "You pushed as $login, but commits are signed with another name and email." \
+        "Make them match: ifi account switch $login"
 fi
 
 # 7. Branch, and its issue. Only what's off is listed here: the branch

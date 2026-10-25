@@ -227,3 +227,34 @@ t_check_nothing_needs_a_look() {
     has "Nothing needs a look. All good."
     hasnt "Needs a look:"
 }
+
+t_check_says_the_commit_identity_is_not_the_login() {
+    clone_as contributor
+    run_ifi check
+    has "✅ Commits are signed as:"
+    hasnt "Git knows who you are"
+}
+
+t_check_shows_the_github_login_account() {
+    clone_as contributor
+    git config --global credential.helper '!f() { echo username=octocat; echo password=x; }; f'
+    run_ifi check
+    has "✅ Logged in to GitHub, and allowed to push to origin. Account: octocat"
+}
+
+t_check_accepts_a_username_in_origin() {
+    clone_as contributor
+    git remote set-url origin "https://octocat@github.com/$STUDENT/$NAME.git"
+    run_ifi check
+    has "origin is your fork: $STUDENT/$NAME"
+    hasnt "origin isn't a GitHub address"
+}
+
+t_check_with_gh_selecting_someone_else_than_origin_asks_for() {
+    clone_as contributor
+    git remote set-url origin "https://octocat@github.com/$STUDENT/$NAME.git"
+    git config --global --add credential.https://github.com.helper '!true gh auth git-credential'
+    git config --global --add credential.https://github.com.helper '!f() { echo username=hanna; echo password=x; }; f'
+    run_ifi check
+    has "origin asks for octocat, but your computer's gh has hanna selected"
+}

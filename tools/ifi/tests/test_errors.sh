@@ -63,3 +63,39 @@ t_error_no_internet() {
     explain origin "fatal: unable to access 'https://github.com/x/y.git/': Could not resolve host: github.com"
     has "Git couldn't reach GitHub."
 }
+
+# explain_login <name>: what ifi account switch says when the computer gives
+# no login for <name>. Sets OUT and STATUS.
+explain_login() {
+    OUT="$(cd "$SANDBOX/work" && bash -c 'source "$1/common.sh"; explain_account_login "$2"' _ "$TOOLS" "$1" 2>&1)"
+    STATUS=$?
+}
+
+t_error_account_login_with_gh() {
+    clone_as contributor
+    git config --global --add credential.https://github.com.helper ""
+    git config --global --add credential.https://github.com.helper '!/usr/bin/gh auth git-credential'
+    explain_login octocat
+    fails
+    has "logs in to GitHub with the GitHub CLI (gh)"
+    has "gh auth switch --user octocat"
+    has "then here: ifi account switch octocat"
+    has "Nothing changed."
+}
+
+t_error_account_login_with_credential_manager() {
+    clone_as contributor
+    git config --global credential.helper manager
+    explain_login octocat
+    has "The login window was closed"
+    has "ifi account switch octocat, and log in as octocat in the window"
+}
+
+t_error_account_login_with_nothing_that_opens_a_window() {
+    clone_as contributor
+    git config --global credential.helper osxkeychain
+    explain_login octocat
+    has "no saved login for octocat"
+    has "install the GitHub CLI (cli.github.com)"
+    has "On Windows?"
+}

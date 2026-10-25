@@ -240,10 +240,10 @@ die() {
     exit 1
 }
 
-# "owner/repo" from a GitHub remote, for both https and ssh URLs.
+# "owner/repo" from a GitHub remote: https (also https://name@github.com/) or ssh.
 repo_of() {
     git config --get "remote.$1.url" |
-        sed -E 's#^(https://github\.com/|ssh://git@github\.com/|git@github\.com:)##; s#\.git$##; s#/$##'
+        sed -E 's#^(https://([^@/]+@)?github\.com/|ssh://git@github\.com/|git@github\.com:)##; s#\.git$##; s#/$##'
 }
 
 # Git refuses to commit without a name and email ("Please tell me who you
@@ -288,6 +288,94 @@ git_error_kind() {
 # The account name in "Permission to X denied to <account>", if any.
 denied_user() {
     sed -nE 's/.*Permission to .* denied to ([^ .]+).*/\1/p' <<<"$1" | head -n 1
+}
+
+# The GitHub account Git logs in with when it pushes: the username its
+# credential helper hands out. Empty if there is none, or it takes too long.
+# This is the login, not the name and email on commits (git config user.name).
+# Asks with origin's address, so ifi account's username counts, or with $1.
+github_login() {
+    local url="${1:-$(git config --get remote.origin.url 2>/dev/null || true)}"
+    if [[ "$url" == https://* ]]; then
+        printf 'url=%s\n\n' "$url"
+    else
+        printf 'protocol=https\nhost=github.com\n\n'
+    fi |
+        GIT_TERMINAL_PROMPT=0 with_timeout 5 git credential fill 2>/dev/null |
+        sed -n 's/^username=//p' | head -n 1 || true
+}
+
+# The username in origin's address (ifi account switch), empty if none.
+picked_account() {
+    git config --get remote.origin.url 2>/dev/null | sed -nE 's#^https://([^@/]+)@github\.com/.*#\1#p'
+}
+
+# When the computer logs in with gh and gh has another account than $1
+# selected: prints that account. Asking for $1 would then pop up a password
+# window on the computer, so callers skip it. Asking without a name doesn't.
+gh_selects_other() {
+    [[ "$(login_tool)" == gh ]] || return 1
+    local selected
+    selected="$(github_login https://github.com)"
+    [[ -n "$selected" && "$(lower "$selected")" != "$(lower "$1")" ]] || return 1
+    echo "$selected"
+}
+
+# Which tool hands out GitHub logins: gh, gcm, keychain or unknown. In the
+# container this reads the computer's ~/.gitconfig, which VS Code copies in.
+login_tool() {
+    local helpers
+    helpers="$({ git config --get-all credential.https://github.com.helper; git config --get-all credential.helper; } 2>/dev/null || true)"
+    case "$helpers" in
+        *"gh auth git-credential"*) echo gh ;;
+        *manager*) echo gcm ;;
+        *osxkeychain*) echo keychain ;;
+        *) echo unknown ;;
+    esac
+}
+
+# Why the computer gave no login for account $1, and what to do, for the
+# tool it uses. $2: gh's selected account, if known. Always exits. Background: docs/claude_context/ifi_account.md
+explain_account_login() {
+    local name="$1" where="in this terminal"
+    in_container && where="on your computer, not in the container"
+    {
+        case "$(login_tool)" in
+            gh)
+                echo "Your computer logs in to GitHub with the GitHub CLI (gh). gh only hands out"
+                echo "the account that's selected in it, and that's ${2:-not $name}. Nothing changed."
+                echo "gh's selected account counts for all your repos. Switch back with: gh auth switch"
+                your_turn
+                choices \
+                    "Push as $name?" "run these $where:" \
+                    "" "  gh auth login               (only the first time: log in as $name)" \
+                    "" "  gh auth switch --user $name" \
+                    "" "then here: ifi account switch $name" \
+                    "Keep your usual account?" "nothing to do"
+                ;;
+            gcm)
+                echo "The login window was closed, or you logged in as another account. Nothing changed."
+                your_turn
+                choices \
+                    "Push as $name?" "ifi account switch $name, and log in as $name in the window" \
+                    "Keep your usual account?" "nothing to do"
+                ;;
+            *)
+                echo "Your computer has no saved login for $name, and nothing that opens a login"
+                echo "window for it. Nothing changed."
+                your_turn
+                choices \
+                    "On Windows?" "update Git for Windows (git-scm.com). It has the login window." \
+                    "On a Mac or Linux?" "install the GitHub CLI (cli.github.com), then $where:" \
+                    "" "  gh auth login               (log in as $name, answer Yes to \"Authenticate Git\")" \
+                    "" "  gh auth switch --user $name" \
+                    "Then" "ifi account switch $name" \
+                    "Keep your usual account?" "nothing to do" \
+                    "More help?" "docs/contributing/docker_guide.md#another-github-account-in-the-container"
+                ;;
+        esac
+    } >&2
+    exit 1
 }
 
 # Explains a failed fetch or push in plain words. $1 is the remote, $2 is
@@ -335,7 +423,7 @@ explain_git_error() {
             "Logged in with the wrong account? Remove the saved login, and the next push asks again:" \
             "  Mac:        Keychain Access -> search github.com -> delete it" \
             "  Windows:    Credential Manager -> Windows Credentials -> remove git:https://github.com" \
-            "  GitHub CLI: gh auth switch" \
+            "Or push as another account: ifi account switch <name>" \
             "More: docs/contributing/get_the_code.md#log-in-to-github-once"
     fi
 
@@ -361,6 +449,11 @@ explain_git_error() {
 git_or_explain() {
     local remote="$1" why="$2" err
     shift 2
+    local picked other=""
+    picked="$(picked_account)"
+    if [[ "$remote" == origin && "$1" == push && -n "$picked" ]] && other="$(gh_selects_other "$picked")"; then
+        explain_account_login "$picked" "$other"
+    fi
     GIT_DONE+=("$(shown git "$@")")
     step_start "$why"
     if ! err="$(git "$@" 2>&1)"; then

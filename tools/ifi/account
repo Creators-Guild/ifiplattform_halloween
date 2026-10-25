@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# ifi account                shows who pushes, and the name and email on commits
+# ifi account switch <name>  pushes as <name>, and makes commits match it
+# ifi account switch         back to your computer's usual account
+#
+# The username goes into origin's address, and your computer's login manager
+# logs in as it. Commit name and email are saved for this repo only.
+# More, and why there's no gh: docs/claude_context/ifi_account.md
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+git rev-parse --git-dir >/dev/null 2>&1 || die "You're not in the project folder."
+
+show() {
+    local login="" picked other=""
+    picked="$(picked_account)"
+    [[ -z "$picked" ]] || other="$(gh_selects_other "$picked" || true)"
+    [[ -n "$other" ]] || login="$(github_login)"
+    echo "Pushes as:         ${login:-nobody (not logged in)}"
+    echo "Commits signed as: $(git config user.name || true) <$(git config user.email || true)>"
+    if [[ -n "$picked" ]]; then
+        echo "Account picked:    $picked (back to your computer's usual one: ifi account switch)"
+        if [[ -n "$other" ]]; then
+            echo "Your computer's gh has $other selected, so it gives no login for $picked. See why: ifi account switch $picked"
+        elif [[ -z "$login" ]]; then
+            echo "Your computer gives no login for $picked. See why: ifi account switch $picked"
+        fi
+    else
+        echo "Account picked:    your computer's usual one"
+    fi
+}
+
+# "owner/repo" of origin, which has to be an https address.
+https_origin_repo() {
+    local url
+    url="$(git config --get remote.origin.url || true)"
+    [[ -n "$url" ]] || die "There's no origin here. Clone your fork first: docs/contributing/get_the_code.md"
+    [[ "$url" == https://* ]] || die "origin uses SSH, and with SSH your key decides the account, not ifi." \
+        "Switch origin to HTTPS first:" \
+        "  git remote set-url origin https://github.com/$(repo_of origin).git"
+    repo_of origin
+}
+
+# Prints "<name>\t<noreply email>" from the public GitHub profile of $1.
+# IFI_GITHUB_API lets the tests (tests/) use a fake server.
+profile_of() {
+    local found status=0
+    found="$("$PY" - "$1" "${IFI_GITHUB_API:-https://api.github.com}" <<'PY' 2>/dev/null
+import json, sys, urllib.error, urllib.request
+
+login, api = sys.argv[1:3]
+req = urllib.request.Request(
+    f"{api}/users/{login}",
+    headers={"Accept": "application/vnd.github+json", "User-Agent": "ifi-account"},
+)
+try:
+    with urllib.request.urlopen(req, timeout=5) as resp:
+        user = json.load(resp)
+except urllib.error.HTTPError as e:
+    sys.exit(4 if e.code == 404 else 1)
+print(f"{user.get('name') or user['login']}\t{user['id']}+{user['login']}@users.noreply.github.com")
+PY
+)" || status=$?
+    [[ $status -ne 4 ]] || die "GitHub has no account called $1. Check the spelling on github.com/$1"
+    [[ -n "$found" ]] || die "Couldn't ask GitHub about $1. Internet? Try again."
+    echo "$found"
+}
+
+# A dry-run push to $1 (owner/repo) as $2, without changing any settings.
+# Prints Git's error. GIT_TERMINAL_PROMPT=0: an error instead of a password prompt.
+try_login() {
+    GIT_TERMINAL_PROMPT=0 with_timeout 120 \
+        git push --dry-run --quiet "https://$2@github.com/$1.git" HEAD:refs/heads/ifi-check-login 2>&1 >/dev/null
+}
+
+# Without Docker, gh is on this computer: offers to log in to $1 with gh and
+# select it. True if it did.
+gh_here() {
+    ! in_container && [[ -t 0 ]] && command -v gh >/dev/null 2>&1 || return 1
+    local answer
+    if ! gh auth status --hostname github.com 2>/dev/null | grep -qiE "account $1( |$)"; then
+        read -r -p "$1 isn't logged in to gh on this computer. Log in now? A browser opens. (y/n) " answer || answer=""
+        [[ "$answer" =~ ^[YyJj] ]] || return 1
+        gh auth login --hostname github.com --git-protocol https --web || return 1
+    fi
+    echo "gh only uses its selected account, for all your repos. gh auth switch changes it back later."
+    read -r -p "Make $1 gh's selected account? (y/n) " answer || answer=""
+    [[ "$answer" =~ ^[YyJj] ]] || return 1
+    gh auth switch --hostname github.com --user "$1"
+}
+
+switch_to() {
+    local name="$1" repo profile other err status=0
+    [[ "$name" =~ ^[A-Za-z0-9-]+$ ]] || die "'$name' isn't a GitHub username (letters, digits and - only)."
+    repo="$(https_origin_repo)"
+    profile="$(profile_of "$name")"
+    other="$(gh_selects_other "$name" || true)"
+    if [[ -n "$other" ]]; then
+        gh_here "$name" || explain_account_login "$name" "$other"
+    fi
+    echo "Checking that your computer can log in as $name."
+    echo "If a login window opens, log in as $name there."
+    err="$(try_login "$repo" "$name")" || status=$?
+    if [[ $status -ne 0 ]]; then
+        if [[ $status -eq 124 ]] || grep -qiE "could not resolve host|failed to connect|timed out" <<<"$err"; then
+            die "Couldn't reach GitHub, or no login came within 2 minutes. Nothing changed." \
+                "Try again: ifi account switch $name"
+        fi
+        case "$(git_error_kind "$err")" in
+            login) explain_account_login "$name" ;;
+            denied | notfound)
+                {
+                    echo "GitHub says $(denied_user "$err" | grep . || echo "$name") can't push to $repo. Nothing changed."
+                    your_turn
+                    choices \
+                        "Logged in as someone else in the window?" "ifi account switch $name, and log in as $name" \
+                        "Isn't $repo $name's fork?" "fork the main repo as $name first, or ask to be a collaborator"
+                } >&2
+                exit 1
+                ;;
+            *) die "Git couldn't log in as $name:" "$(head -n 1 <<<"$err")" "Nothing changed." ;;
+        esac
+    fi
+    git config user.name "${profile%%$'\t'*}"
+    git config user.email "${profile#*$'\t'}"
+    git remote set-url origin "https://$name@github.com/$repo.git"
+    echo "✅ Logged in as $name. Pushes and commits in this repo use $name from now on."
+}
+
+case "${1:-}" in
+    "") show ;;
+    switch)
+        if [[ -n "${2:-}" ]]; then
+            switch_to "$2"
+        else
+            git remote set-url origin "https://github.com/$(https_origin_repo).git"
+            git config --unset user.name || true
+            git config --unset user.email || true
+            echo "Back to your computer's usual account, and the usual name and email on commits."
+        fi
+        echo
+        show
+        # Refreshes the result that new terminals show, so it isn't the old account's.
+        in_container && ifi check --quiet || true
+        ;;
+    login)
+        echo "ifi account login is now: ifi account switch <name>" >&2
+        exit 1
+        ;;
+    *) die "ifi account: don't know '$1'. Use: ifi account, ifi account switch [name]" ;;
+esac

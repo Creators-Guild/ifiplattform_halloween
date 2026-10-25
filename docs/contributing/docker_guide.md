@@ -150,11 +150,27 @@ cp .env.example .env
 Part 2 of the file ("Only without Docker") does nothing in the container, because `docker-compose.yml` already sets those settings. You can leave it or delete it. After changing `.env`, run `ifi restart-server`.
 
 ### Another GitHub account in the container
-VS Code shares the GitHub login from your own computer with the container, so the container always pushes as that account. To push as another account (for example a test account), log in with the GitHub CLI in the container terminal:
+VS Code shares the GitHub login from your own computer with the container, so the container pushes as your computer's usual account. To push as another account (for example a test account):
 ```bash
-gh auth login
+ifi account switch <username>
 ```
-Pick **GitHub.com**, **HTTPS**, answer **Yes** to "Authenticate Git with your GitHub credentials?", and log in in the browser. From then on Git in the container uses that account. `gh auth status` shows who you are, and `gh auth switch` changes between accounts you've logged in with. A rebuild forgets this login, and the container uses your computer's login again.
+It first checks that your computer can log in as that account, and only switches if it can. If not, nothing changes, and it tells you what to do. What happens depends on how your computer logs in to GitHub:
+
+| Your computer | What happens |
+| --- | --- |
+| Windows (Git for Windows), or a Mac with Git Credential Manager | A login window opens on your computer. Log in as that account, and the computer remembers it. |
+| Logs in with the GitHub CLI (`gh`), on any system | gh only uses the account selected in it. On your computer, not in the container: `gh auth login` (the first time) and `gh auth switch --user <username>`. Then run `ifi account switch <username>` again. gh's selected account counts for all your repos. |
+| A Mac or Linux with neither | There's nothing to open a login window. Install the [GitHub CLI](https://cli.github.com), run `gh auth login` and answer **Yes** to "Authenticate Git", then do as in the row above. |
+
+The login stays on your computer, so it survives restarts and rebuilds. To go back to your usual account:
+```bash
+ifi account switch
+```
+Two settings say who you are, and they are separate: the **login** (who pushes) and the **name and email on commits**. `ifi account switch` sets both, so commits don't keep the old account's name. `ifi account` shows both, and `ifi check` shows them on separate lines. Both are saved for this repo only, in the `.git` folder, which your computer shares: pushing from outside the container uses the same account.
+
+There's no GitHub CLI (`gh`) in the container on purpose. Its login would be saved in the container as a password in plain text, and any code that runs there could read it. That includes code from a branch you check out to try someone's pull request.
+
+**Used `gh auth login` in the container before?** That login is still saved in a Docker volume. Delete it: run `docker volume ls`, find the one ending in `gh-config`, and `docker volume rm <that name>`. Then on GitHub, go to **Settings → Applications → Authorized OAuth Apps**, and revoke **GitHub CLI**, unless you also use gh on your own computer.
 
 ### Without VS Code
 Run these from the repo root in any terminal:

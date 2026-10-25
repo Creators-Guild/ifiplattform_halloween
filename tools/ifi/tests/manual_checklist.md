@@ -37,6 +37,13 @@ Do it before ifi moves to a new repo, and after big changes.
 | ☐ | Fix the file, `ifi update`, then `ifi pull-request` | "✓ Replaced your branch on GitHub with the updated one", and the pull request shows the new commits |
 | ☐ | Press **Update branch** on the pull request on GitHub, then make a change and `ifi save` + `ifi pull-request` | "Your branch on GitHub has commits that aren't on your computer", with the `git pull --rebase` line. Run it, then pull-request works |
 | ☐ | Merge the pull request (as yourself), then `ifi check` and `ifi cleanup` (still on the branch) | check: "Your pull request … is merged". cleanup: switches you to main, deletes the branch here and on the fork |
+| ☐ | `command -v gh` in the container terminal | Nothing: the GitHub CLI isn't in the container |
+| ☐ | Computer that logs in with gh, the other account *not* selected in gh: `ifi account switch <other>` | The gh message with `gh auth switch --user <other>`; no password prompt; `git remote -v` unchanged |
+| ☐ | On the computer: `gh auth switch --user <other>`. In the container: `ifi account switch <other>`, then `ifi save` + `ifi pull-request` | "✅ Logged in as <other>"; the commit on GitHub shows that account |
+| ☐ | `ifi account switch` (no name), and `gh auth switch` on the computer | "Account picked: your computer's usual one" |
+| ☐ | Windows (Git for Windows): `ifi account switch <other>` | A login window opens; after logging in, "✅ Logged in as <other>" |
+| ☐ | Mac without Git Credential Manager or gh: `ifi account switch <other>` | "no saved login", with the GitHub CLI steps; nothing changed |
+| ☐ | Without Docker, on a computer with gh: `./ifi account switch <other>` | Offers to log in with gh and select the account, then "✅ Logged in as <other>" |
 | ☐ | `ifi help`, type 1 | The Git cheat sheet |
 | ☐ | `ifi restart-server` | "Restarting the server"; the site is back after a reload |
 | ☐ | `ifi wipe-database`, type yes | The starter content again; your test user is gone |

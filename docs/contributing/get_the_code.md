@@ -1,6 +1,6 @@
 # Get the code
 
-Last updated: 2026-10-20
+Last updated: 2026-10-25
 
 The first step, before you set up the site. You get a copy of the repo on
 your own computer: a folder called `ifiplattform_halloween`. How you get it
@@ -72,6 +72,8 @@ Other ways that do the same:
 - **Mac:** open **Keychain Access**, search for `github.com`, and delete the entry.
 - **Windows:** open **Credential Manager → Windows Credentials**, and remove `git:https://github.com`.
 - **GitHub CLI:** `gh auth switch`, or `gh auth logout` and then `gh auth login`.
+
+Want to push as a different account in this repo only, and keep your computer's usual login for everything else? Run `ifi account switch <username>`. [Docker guide](docker_guide.md#another-github-account-in-the-container) explains it.
 
 **GitHub Desktop** has its own login (**Settings → Accounts**, on Windows **File → Options → Accounts**). It doesn't log in the terminal, and the terminal login doesn't log in GitHub Desktop.
 

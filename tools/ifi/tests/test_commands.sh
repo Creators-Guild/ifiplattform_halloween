@@ -186,3 +186,148 @@ t_commands_terminal_while_the_check_is_still_running() {
     has "The setup check is still running in another terminal."
     has "See it here?  →  ifi check"
 }
+
+t_commands_account_shows_login_and_commit_identity() {
+    clone_as contributor
+    git config --global credential.helper '!f() { echo username=octocat; echo password=x; }; f'
+    run_ifi account
+    succeeds
+    has "Pushes as:         octocat"
+    has "Commits signed as:"
+    has "Account picked:    your computer's usual one"
+}
+
+# A GitHub profile on the fake API: github_user <login> <id> [name].
+github_user() {
+    local name=null
+    [[ -z "${3:-}" ]] || name="\"$3\""
+    mkdir -p "$API_DIR/users"
+    printf '{"login": "%s", "id": %s, "name": %s}\n' "$1" "$2" "$name" >"$API_DIR/users/$1"
+}
+
+t_commands_account_switch_puts_the_name_in_origin_and_on_commits() {
+    github_user octocat 583231 "The Octocat"
+    clone_as contributor
+    run_ifi account switch octocat
+    succeeds
+    same "$(git config --get remote.origin.url)" "https://octocat@github.com/$STUDENT/$NAME.git" "origin"
+    same "$(git config --local user.name)" "The Octocat" "user.name"
+    same "$(git config --local user.email)" "583231+octocat@users.noreply.github.com" "user.email"
+    has "Account picked:    octocat"
+}
+
+t_commands_account_switch_uses_the_login_when_there_is_no_name() {
+    github_user octocat 583231
+    clone_as contributor
+    run_ifi account switch octocat
+    same "$(git config --local user.name)" "octocat" "user.name"
+}
+
+t_commands_account_login_asks_for_the_picked_account() {
+    github_user octocat 583231
+    clone_as contributor
+    # Like a login manager with one login per username: hands back the one asked for.
+    git config --global credential.helper '!f() { sed -n "s/^username=/username=/p"; echo password=x; }; f'
+    run_ifi account switch octocat
+    has "Pushes as:         octocat"
+}
+
+t_commands_account_switch_without_a_name_goes_back() {
+    github_user octocat 583231
+    clone_as contributor
+    run_ifi account switch octocat
+    run_ifi account switch
+    succeeds
+    same "$(git config --get remote.origin.url)" "https://github.com/$STUDENT/$NAME.git" "origin"
+    same "$(git config --local user.email || true)" "" "repo's own user.email"
+    has "Back to your computer's usual account"
+}
+
+t_commands_account_switch_changes_nothing_when_github_cant_be_reached() {
+    github_user offline-cat 1
+    clone_as contributor
+    git config --global "url.http://127.0.0.1:1/.insteadOf" "https://offline-cat@github.com/"
+    run_ifi account switch offline-cat
+    fails
+    has "Couldn't reach GitHub"
+    has "Nothing changed."
+    same "$(git config --get remote.origin.url)" "https://github.com/$STUDENT/$NAME.git" "origin"
+    same "$(git config --local user.email || true)" "" "repo's own user.email"
+}
+
+t_commands_account_switch_to_a_missing_account() {
+    clone_as contributor
+    run_ifi account switch nobody-here
+    fails
+    has "GitHub has no account called nobody-here"
+    same "$(git config --get remote.origin.url)" "https://github.com/$STUDENT/$NAME.git" "origin"
+}
+
+t_commands_account_switch_refuses_ssh() {
+    github_user octocat 583231
+    clone_as contributor
+    git remote set-url origin "git@github.com:$STUDENT/$NAME.git"
+    run_ifi account switch octocat
+    fails
+    has "origin uses SSH"
+}
+
+t_commands_account_login_points_to_switch() {
+    clone_as contributor
+    run_ifi account login
+    fails
+    has "ifi account login is now: ifi account switch <name>"
+}
+
+t_commands_account_refuses_an_unknown_word() {
+    clone_as contributor
+    run_ifi account nonsense
+    fails
+    has "ifi account: don't know 'nonsense'"
+}
+
+# A computer that logs in with gh, where gh has <account> selected. The gh
+# line only has to be there for ifi to see it; the second helper answers.
+gh_selected() {
+    git config --global --add credential.https://github.com.helper '!true gh auth git-credential'
+    git config --global --add credential.https://github.com.helper "!f() { echo username=$1; echo password=x; }; f"
+}
+
+t_commands_account_switch_with_gh_selecting_someone_else() {
+    github_user octocat 583231
+    clone_as contributor
+    gh_selected hanna
+    run_ifi account switch octocat
+    fails
+    has "that's hanna. Nothing changed."
+    hasnt "Checking that your computer can log in"
+    same "$(git config --get remote.origin.url)" "https://github.com/$STUDENT/$NAME.git" "origin"
+}
+
+t_commands_account_switch_with_gh_selecting_that_account() {
+    github_user octocat 583231
+    clone_as contributor
+    gh_selected octocat
+    run_ifi account switch octocat
+    succeeds
+    has "✅ Logged in as octocat."
+}
+
+t_commands_account_shows_gh_selecting_someone_else() {
+    clone_as contributor
+    git remote set-url origin "https://octocat@github.com/$STUDENT/$NAME.git"
+    gh_selected hanna
+    run_ifi account
+    has "Your computer's gh has hanna selected, so it gives no login for octocat."
+}
+
+t_commands_pull_request_with_gh_selecting_someone_else() {
+    clone_as contributor
+    start_issue
+    commit cards.css "orange"
+    git remote set-url origin "https://octocat@github.com/$STUDENT/$NAME.git"
+    gh_selected hanna
+    run_ifi pull-request
+    fails
+    has "that's hanna. Nothing changed."
+}

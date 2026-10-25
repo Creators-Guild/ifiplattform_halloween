@@ -9,6 +9,7 @@
 #   - The issue API: python's http.server serving JSON files from
 #     $API_DIR/repos/<owner>/<repo>/issues/<nr>, through ifi's
 #     IFI_GITHUB_API hook. A missing file is a 404, like a missing issue.
+#     $API_DIR/users/<name> is an account's profile, for ifi account.
 # HOME and GIT_CONFIG_GLOBAL point into the sandbox, so your own
 # ~/.gitconfig and ~/.bashrc are never read or changed.
 
@@ -57,8 +58,10 @@ new_sandbox() {
     git config --global user.email "student@example.com"
     git config --global --add "url.file://$SANDBOX/remotes/.insteadOf" "https://github.com/"
     git config --global --add "url.file://$SANDBOX/remotes/.insteadOf" "git@github.com:"
+    # The account ifi account switch tests log in as.
+    git config --global --add "url.file://$SANDBOX/remotes/.insteadOf" "https://octocat@github.com/"
     git config --global advice.detachedHead false
-    rm -rf "${API_DIR:?}/repos"
+    rm -rf "${API_DIR:?}/repos" "${API_DIR:?}/users"
 
     git init --quiet --bare "$SANDBOX/remotes/$MAIN.git"
     git clone --quiet "https://github.com/$MAIN.git" "$SANDBOX/teammate" 2>/dev/null
