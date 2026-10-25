@@ -7,8 +7,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # openssh-client lets Git use SSH addresses, for those who set them up.
+# gh (GitHub CLI) lets you log in to another GitHub account inside the
+# container: gh auth login, and answer yes to "Authenticate Git". VS Code's
+# shared login always uses the account on your own computer.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends bash-completion gettext git openssh-client procps \
+    && apt-get install -y --no-install-recommends bash-completion gettext gh git openssh-client procps \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /tmp/requirements.txt

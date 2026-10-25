@@ -149,6 +149,13 @@ cp .env.example .env
 ```
 Part 2 of the file ("Only without Docker") does nothing in the container, because `docker-compose.yml` already sets those settings. You can leave it or delete it. After changing `.env`, run `ifi restart-server`.
 
+### Another GitHub account in the container
+VS Code shares the GitHub login from your own computer with the container, so the container always pushes as that account. To push as another account (for example a test account), log in with the GitHub CLI in the container terminal:
+```bash
+gh auth login
+```
+Pick **GitHub.com**, **HTTPS**, answer **Yes** to "Authenticate Git with your GitHub credentials?", and log in in the browser. From then on Git in the container uses that account. `gh auth status` shows who you are, and `gh auth switch` changes between accounts you've logged in with. A rebuild forgets this login, and the container uses your computer's login again.
+
 ### Without VS Code
 Run these from the repo root in any terminal:
 ```bash

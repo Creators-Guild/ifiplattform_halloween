@@ -44,6 +44,11 @@ elif [[ "$PS1" != *__git_ps1* && "$PS1" != *_ifi_branch* ]]; then
     PS1='\[\e[1;33m\]$(_ifi_branch "(%s) ")\[\e[0m\]'"$PS1"
 fi
 
+# The rest only in a terminal you can see. VS Code also starts a hidden
+# shell when it connects to the container, to read the environment: it
+# would take the setup check below, and nobody would see it.
+[[ -t 0 && -t 1 ]] || return 0
+
 echo "Stuck? Type: ifi check (what's wrong) or ifi help (cheat sheets)"
 
 # The first terminal after the container starts also checks the setup and

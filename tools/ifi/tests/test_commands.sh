@@ -132,3 +132,10 @@ t_commands_prompt_shows_the_branch() {
     OUT="$(bash --norc --noprofile -i -c ". '$TOOLS/shell-setup.sh' >/dev/null 2>&1; echo \"[\$(_ifi_branch ' %s')]\"" 2>/dev/null)"
     same "$OUT" "[]" "the branch outside a repo"
 }
+
+t_commands_shell_setup_stays_quiet_without_a_terminal() {
+    # VS Code starts a hidden interactive shell to read the environment. It
+    # mustn't print, or take the first terminal's setup check.
+    OUT="$(bash --norc --noprofile -i -c ". '$TOOLS/shell-setup.sh'" </dev/null 2>/dev/null)"
+    same "$OUT" "" "what a hidden interactive shell prints"
+}
