@@ -37,9 +37,10 @@ RUN ln -s /workspace/tools/ifi/ifi /usr/local/bin/ifi
 # last line it gets loads tools/ifi/shell-setup.sh: Tab completion for
 # `ifi` and the "ifi help" hint.
 RUN useradd --create-home --shell /bin/bash --uid 1000 dev \
-    && mkdir /home/dev/.claude \
-    && chown dev:dev /home/dev/.claude \
+    && mkdir -p /home/dev/.claude /home/dev/.config/gh \
+    && chown -R dev:dev /home/dev/.claude /home/dev/.config/ \
     && git config --system --add safe.directory /workspace \
+    && git config --system credential.https://github.com.helper '!gh auth git-credential' \
     && git config --system push.autoSetupRemote true \
     && echo '[ -f /workspace/tools/ifi/shell-setup.sh ] && . /workspace/tools/ifi/shell-setup.sh' >> /home/dev/.bashrc
 USER dev

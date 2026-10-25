@@ -50,6 +50,7 @@ services:
     volumes:
       - .:/workspace
       - claude-config:/home/dev/.claude
+      - gh-config:/home/dev/.config/gh
     init: true
     # The loop starts runserver again whenever it stops, so `ifi restart-server`
     # (tools/ifi/) only has to stop it. sleep infinity keeps the
@@ -70,3 +71,4 @@ services:
 volumes:
   ifiplatform-db-data:
   claude-config:
+  gh-config:
