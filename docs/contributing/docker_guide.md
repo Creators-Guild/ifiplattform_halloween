@@ -1,6 +1,6 @@
 # Docker guide
 
-Last updated: 2026-10-23
+Last updated: 2026-10-25
 
 Everything about the Docker setup after the first start: how it works, when
 to restart or rebuild, everyday tasks, and fixing problems. Starting for the
@@ -160,7 +160,7 @@ docker compose exec web bash
 ```
 Opens a terminal inside the container. From there, every `python manage.py ...` command and `ifi` work as normal. Type `exit` to leave.
 
-**`ifi` from your own terminal.** You can also stay outside the container: use the launcher in the repo root, `./ifi status` (Mac, Linux, Git Bash) or `.\ifi status` (Windows PowerShell; it needs Git Bash, which comes with Git for Windows). `ifi test`, `migrate`, `restart-server` and `wipe-database` then run inside the container by themselves. Git commands (`save`, `pull-request`, ...) run on your own computer, where your GitHub login is: inside a container started this way there's no GitHub login. `./ifi install` makes `ifi` work from any folder (Mac, Linux, Git Bash).
+**`ifi` from your own terminal.** You can also stay outside the container: use the launcher in the repo root, `./ifi check` (Mac, Linux, Git Bash) or `.\ifi check` (Windows PowerShell; it needs Git Bash, which comes with Git for Windows). `ifi test`, `migrate`, `restart-server` and `wipe-database` then run inside the container by themselves. Git commands (`save`, `pull-request`, ...) run on your own computer, where your GitHub login is: inside a container started this way there's no GitHub login. `./ifi install` makes `ifi` work from any folder (Mac, Linux, Git Bash).
 
 To stop everything: `docker compose down` (your database is kept).
 

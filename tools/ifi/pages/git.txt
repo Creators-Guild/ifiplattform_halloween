@@ -14,8 +14,9 @@ git branch                         list your branches (* = the one you're on)
 git log --oneline                  list commits
 git restore <file>                 undo changes to a file
 
-Every ifi command shows the Git commands it runs, and "In plain Git, this
-was:" at the end. Try typing them yourself next time.
+Every ifi command lists what it did under "Done for you:", with the Git
+command under each step, and "In plain Git, this was:" at the end. Try
+typing them yourself next time.
 
 Start an issue:   ifi fix-issue <nr>
 Commit changes:   ifi save "message"

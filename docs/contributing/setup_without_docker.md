@@ -1,6 +1,6 @@
 # Setup without Docker (Python + SQLite)
 
-Last updated: 2026-10-20
+Last updated: 2026-10-25
 
 Only use this if Docker is too heavy for your laptop or won't install. The
 recommended setup is [Setup with Docker](setup_with_docker.md).
@@ -138,7 +138,7 @@ Your tests run on SQLite, while CI uses PostgreSQL. Now and then a test can
 pass for you and fail in CI. That's not your fault: ask a helper.
 
 ## Optional: the `ifi` commands
-The project's own shortcuts (`ifi status`, `ifi save`, `ifi pull-request`,
+The project's own shortcuts (`ifi check`, `ifi save`, `ifi pull-request`,
 `ifi test`, ...) work without Docker too. They're bash scripts, so on
 Windows use the **Git Bash** terminal (it comes with Git for Windows; in VS
 Code pick it with the **+** arrow in the terminal panel). In the repo root:
@@ -146,7 +146,7 @@ Code pick it with the **+** arrow in the terminal panel). In the repo root:
 ./ifi install
 ```
 Open a new terminal, and `ifi help` lists them. They find your venv by
-themselves. In PowerShell, run them from the repo root as `.\ifi status`
+themselves. In PowerShell, run them from the repo root as `.\ifi check`
 instead (that still needs Git Bash installed).
 
 ## Next

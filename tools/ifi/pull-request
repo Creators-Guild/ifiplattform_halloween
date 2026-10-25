@@ -29,22 +29,7 @@ while [[ ! "$nr" =~ ^[0-9]+$ ]]; do
 done
 git config "branch.$branch.ifi-issue" "$nr"
 
-# After `ifi update` the branch has new commits in place of the old ones,
-# so GitHub refuses a normal push. Replace the branch on GitHub only if it
-# still has nothing but what was there before the update (a lease on that
-# exact commit), so nobody else's work is ever overwritten.
-before="$(git config "branch.$branch.ifi-before-update" || true)"
-remote_tip=""
-[[ -n "$before" ]] && remote_tip="$(GIT_TERMINAL_PROMPT=0 git ls-remote origin "refs/heads/$branch" 2>/dev/null | cut -f1 || true)"
-if [[ -n "$remote_tip" ]] && ! git merge-base --is-ancestor "$remote_tip" HEAD 2>/dev/null &&
-    git merge-base --is-ancestor "$remote_tip" "$before" 2>/dev/null; then
-    git_or_explain origin "Replace your branch on GitHub with the updated one. Git refuses if someone else pushed to it in the meantime, so nothing gets lost" \
-        push --quiet -u --force-with-lease="refs/heads/$branch:$remote_tip" origin HEAD
-else
-    git_or_explain origin "Send your branch to your fork on GitHub (-u: remember where, so a plain git push works next time)" \
-        push --quiet -u origin HEAD
-fi
-git config --unset "branch.$branch.ifi-before-update" || true
+push_branch "Send your branch to your fork on GitHub (-u: remember where, so a plain git push works next time)"
 
 if [[ "$base" == origin ]]; then
     head="$branch"
@@ -65,15 +50,13 @@ print(
 PY
 )"
 
-echo
-echo "Sent to GitHub."
 git_recap
-echo
-echo "What now?"
+your_turn
 choices \
     "No pull request yet?" "open this link (Ctrl+click, or Cmd+click on a Mac):" \
     "" "$url" \
     "" "Say what you changed, and leave the \"Closes #$nr\" line in:" \
     "" "it closes the issue when your pull request is merged." \
     "Already made it?" "nothing to do, it's updated now" \
-    "More changes later?" "ifi save, then ifi pull-request again"
+    "More changes later?" "ifi save, then ifi pull-request again" \
+    "Merged on GitHub?" "ifi cleanup   (deletes the branch, and takes you back to main)"

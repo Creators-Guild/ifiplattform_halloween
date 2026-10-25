@@ -10,8 +10,9 @@
 # (Git 2.38+) sees the conflict coming without touching any files.
 #
 # Remembers where the branch was before a rebase
-# (branch.<name>.ifi-before-update), so `ifi pull-request` knows the branch
-# on GitHub may be replaced by the updated one, and nothing else.
+# (branch.<name>.ifi-before-update), so the next push (push_branch in
+# common.sh: ifi pull-request, ifi undo-file) knows the branch on GitHub may
+# be replaced by the updated one, and nothing else.
 set -euo pipefail
 source "$(dirname "$(readlink -f "$0")")/common.sh"
 
@@ -25,16 +26,14 @@ in_merge() {
 }
 
 what_now_after_update() {
-    echo
-    echo "What now? Check that the site still works, and run ifi test. Then:"
+    your_turn "check that the site still works, and run ifi test. Then:"
     choices \
         "Done, or already have a pull request?" "ifi pull-request" \
         "Still working?" "carry on with your change"
 }
 
 conflict_what_now() {
-    echo
-    echo "What now?"
+    your_turn
     choices \
         "Fixed every file?" "ifi update           (goes on with the update)" \
         "Stuck, or it's a lot?" "ifi update --abort   (back to how your branch was; nothing is lost)"
@@ -134,7 +133,9 @@ if in_rebase || in_merge; then
         conflict_what_now
         exit 1
     fi
-    run "Mark the fixed files as solved" git add -A
+    # -u, not -A: the conflicted files are already in Git, and new files
+    # (notes, screenshots) shouldn't slip into the commit unasked.
+    run "Mark the fixed files as solved" git add -u
     if [[ "$mode" == merge ]]; then
         run "Finish the merge" git commit --no-edit
     elif ! run "Go on with the update" env GIT_EDITOR=true git rebase --continue; then
@@ -171,8 +172,8 @@ else
         out="$(git merge-tree --write-tree --name-only HEAD "$base/main" 2>/dev/null)" || status=$?
         [[ $status -eq 1 ]] && clash="$(sed -n '2,/^$/p' <<<"$out" | sed '/^$/d')"
     fi
-    echo
     if [[ -n "$clash" ]]; then
+        echo
         echo "main in the main repo ($base/main) has $behind new commit(s), and some of them"
         echo "change the same lines as you in:"
         sed 's/^/  /' <<<"$clash"
@@ -187,7 +188,7 @@ else
         done
         [[ "$answer" == 1 ]] && mode=merge
     else
-        echo "main in the main repo ($base/main) has $behind new commit(s). Putting your commits on top of them."
+        echo "      main in the main repo ($base/main) has $behind new commit(s)."
     fi
 
     if [[ "$mode" == merge ]]; then

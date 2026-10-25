@@ -1,6 +1,6 @@
 # Docker setup
 
-Last updated: 2026-10-23
+Last updated: 2026-10-25
 
 How the local Docker setup is built and why. To start it, see
 [contributing/setup_with_docker.md](../contributing/setup_with_docker.md). For day-to-day
@@ -21,7 +21,7 @@ site still runs without Docker until it moves over (see
 | `.devcontainer/devcontainer.json` | Lets VS Code open the `web` container ("Reopen in Container"). Builds the image first (`initializeCommand`), shows the whole repo, starts new terminals in `ifiplatform/`, and installs the editor extensions (see below) |
 | `.devcontainer/docker-compose.devcontainer.yml` | Used only by VS Code, on top of `docker-compose.yml`. Hides `build`, so VS Code starts the already built image instead of building it (see below) |
 | `.vscode/settings.json`, `.vscode/extensions.json` | Editor settings and recommended extensions. Used both in the container and without Docker |
-| `tools/ifi/`                      | Our own `ifi` commands (`ifi help` lists them). Shared into the container with the rest of the repo, so editing them needs no rebuild. `shell-setup.sh` adds Tab completion, the `(container)` prompt and, in the first terminal after the container starts, `ifi status --quiet`, loaded from the dev user's `.bashrc`. The scripts also run without Docker (bash 3.2 on a Mac, Git Bash on Windows) |
+| `tools/ifi/`                      | Our own `ifi` commands (`ifi help` lists them). Shared into the container with the rest of the repo, so editing them needs no rebuild. `shell-setup.sh` adds Tab completion, the `(container)` prompt and, in the first terminal after the container starts, `ifi check --quiet`, loaded from the dev user's `.bashrc`. The scripts also run without Docker (bash 3.2 on a Mac, Git Bash on Windows) |
 | `ifi`, `ifi.cmd` (repo root)      | Launchers for terminals outside the container (`.cmd` for PowerShell, via Git Bash). Commands that need the site's Python go into the running container; Git commands stay on your computer, where the GitHub login is |
 | `.dockerignore`                   | Keeps the venv, local database, media and `.env` out of the build |
 

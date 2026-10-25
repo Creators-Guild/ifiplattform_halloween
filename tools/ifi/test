@@ -64,8 +64,7 @@ fi
 if run "$why" "$DJANGO_PY" manage.py test ${args[@]+"${args[@]}"} "$@"; then
     echo
     echo "\"OK\" means every test passed. ✅"
-    echo
-    echo "What now?"
+    your_turn
     choices \
         "Ready to send your change?" "ifi pull-request" \
         "Still working?" "carry on, and run ifi test again later"
@@ -77,9 +76,8 @@ Scroll up to the lines starting with FAIL: or ERROR:. Each one names the
 test, and the lines under it say what went wrong.
   FAIL   →  the code ran, but gave a different result than the test expected
   ERROR  →  the code crashed before the test could check anything
-
-What now?
 EOF
+    your_turn
     choices \
         "Caused by your change?" "fix it, then ifi test again" \
         "Not sure?" "ask a helper, and show them the FAIL/ERROR lines"

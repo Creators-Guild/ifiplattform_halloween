@@ -1,6 +1,6 @@
 @echo off
 rem ifi for Windows PowerShell and Command Prompt. In the repo folder, type:
-rem   .\ifi status        (PowerShell)      ifi status        (Command Prompt)
+rem   .\ifi check        (PowerShell)      ifi check        (Command Prompt)
 rem ifi's commands are bash scripts, so this runs them with Git Bash, which
 rem comes with Git for Windows. See the launcher "ifi" next to this file.
 setlocal

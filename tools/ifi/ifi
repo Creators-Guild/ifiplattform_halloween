@@ -2,7 +2,8 @@
 # `ifi`: this project's own helper commands. Dockerfile.dev
 # links it into the dev container's PATH; without Docker, `ifi install` adds
 # the launcher in the repo root (../../ifi) to your terminal.
-# Every subcommand is a script next to this one.
+# Every subcommand is a script next to this one. Tests: tests/run, and
+# tests/playground to try them by hand.
 set -euo pipefail
 
 here="$(dirname "$(readlink -f "$0")")"
@@ -11,7 +12,12 @@ shift || true
 
 case "$cmd" in
     help | -h | --help) exec "$here/help" "$@" ;;
-    fix-issue | save | status | update | pull-request | undo-file | cleanup | install | test | migrate | restart-server | wipe-database | rebuild-docker) exec "$here/$cmd" "$@" ;;
+    fix-issue | save | check | update | pull-request | undo-file | cleanup | install | test | migrate | restart-server | wipe-database | rebuild-docker) exec "$here/$cmd" "$@" ;;
+    status)
+        # The old name, renamed so it isn't mixed up with git status.
+        echo "ifi status is now called ifi check. (git status is something else: it shows your changed files.)" >&2
+        exec "$here/check" "$@"
+        ;;
     *)
         echo "ifi: no command called '$cmd'. Type: ifi help" >&2
         exit 1

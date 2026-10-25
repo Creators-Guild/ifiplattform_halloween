@@ -27,33 +27,35 @@ if [[ -n "$existing" ]] && git show-ref --verify --quiet "refs/heads/$existing";
     if [[ "$existing" == "$current" ]]; then
         echo "You're already on $existing, the branch for issue #$nr."
     else
-        echo "Issue #$nr already has a branch: $existing."
-        echo "Switching to it instead of making a new one."
+        echo "Issue #$nr already has a branch: $existing. No need for a new one."
         switch_or_explain "Switch to your branch for issue #$nr" "$existing"
     fi
     find_base
     # Only to say whether main moved on, so a failed fetch (no internet)
     # isn't worth an error.
     behind=0
-    step "Download the newest code from the main repo, to see if its main moved on" git fetch "$base"
+    why="Download the newest code from the main repo, to see if its main moved on"
     GIT_DONE+=("git fetch $base")
+    step_start "$why"
     if GIT_TERMINAL_PROMPT=0 git fetch --quiet "$base" 2>/dev/null; then
+        step_done ok "$why" git fetch "$base"
         behind="$(git rev-list --count "HEAD..$base/main")"
     else
-        git_output "Couldn't reach GitHub. Not a problem, it just can't tell if main moved on."
+        step_done fail "$why" git fetch "$base"
+        echo "      Couldn't reach GitHub. Not a problem, it just can't tell if main moved on."
     fi
     if [[ "$behind" -gt 0 ]]; then
         echo
         echo "main in the main repo ($base/main) has $behind new commit(s) since you started this branch."
     fi
     git_recap
-    echo
-    echo "What now?"
     if [[ "$behind" -gt 0 ]]; then
+        your_turn
         choices \
             "Want main's new commits in your branch?" "ifi update" \
             "Otherwise" "carry on with your change"
     else
+        your_turn "carry on with your change."
         choices \
             "Want to keep what you have so far?" "ifi save \"Short description of what you changed\"" \
             "Works, and you're done?" "ifi save, then ifi pull-request (sends it to GitHub)"
@@ -76,10 +78,12 @@ PY
 }
 
 # Prints "<type>\t<title>" for the issue, with an empty type when the issue
-# has none. Prints nothing when GitHub can't be reached (no network, or the
-# 60-calls-an-hour limit for a room sharing one IP). IFI_GITHUB_API lets
-# the tests use a fake server.
-lookup="$("$PY" - "$nr" "${IFI_GITHUB_API:-https://api.github.com}" "$MAIN_REPO" <<'PY' 2>/dev/null || true
+# has none. Exit 3 = the number is a pull request. Prints nothing when
+# GitHub can't be reached (no network, or the 60-calls-an-hour limit for a
+# room sharing one IP). IFI_GITHUB_API lets the tests (tests/) use a fake
+# server.
+lookup_status=0
+lookup="$("$PY" - "$nr" "${IFI_GITHUB_API:-https://api.github.com}" "$MAIN_REPO" <<'PY' 2>/dev/null
 import json, sys, urllib.request
 
 nr, api, repo = sys.argv[1:4]
@@ -90,13 +94,15 @@ req = urllib.request.Request(
 with urllib.request.urlopen(req, timeout=5) as resp:
     issue = json.load(resp)
 if "pull_request" in issue:
-    sys.exit(1)
+    sys.exit(3)
 kind = ((issue.get("type") or {}).get("name") or "").lower()
 if kind not in ("bug", "feature", "task"):
     kind = ""
 print(f"{kind}\t{' '.join(issue.get('title', '').split())}")
 PY
-)"
+)" || lookup_status=$?
+[[ $lookup_status -ne 3 ]] || die "#$nr is a pull request, not an issue. Use the number of the issue it's for:" \
+    "you find it in the Issues tab on GitHub, after the # in the title."
 kind=""
 slug=""
 if [[ "$lookup" == *$'\t'* ]]; then
@@ -122,16 +128,14 @@ fi
 
 find_base
 fetch_base
-switch_or_explain "Make a new branch from the newest main (not linked to it, so pushes go to your fork)" \
+switch_or_explain "Make the branch $name from the newest main (not linked to main, so pushes go to your fork)" \
     -c "$name" --no-track "$base/main"
+printf '        %s(switch -c makes the branch and moves you onto it: you are on %s now)%s\n' "$C_DIM" "$name" "$C_OFF"
 git config "branch.$name.ifi-issue" "$nr"
 
-echo
-echo "Made branch $name for issue #$nr."
-[[ -n "$dirty" ]] && echo "The changes you had on main came along to it."
+[[ -n "$dirty" ]] && echo "        The changes you had on main came along to it."
 git_recap
-echo
-echo "What now? Make your change."
+your_turn "make your change."
 choices \
     "Want to keep what you have so far?" "ifi save \"Short description of what you changed\"" \
     "Works, and you're done?" "ifi save, then ifi pull-request (sends it to GitHub)"

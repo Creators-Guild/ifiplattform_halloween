@@ -126,9 +126,9 @@ else
 fi
 
 run "Commit that" git commit -m "$message"
-git_or_explain origin "Send it to GitHub, so your pull request updates by itself" push --quiet origin HEAD
+push_branch "Send it to GitHub, so your pull request updates by itself"
 echo
-echo "Done. Your pull request no longer changes:"
+echo "Your pull request no longer changes:"
 printf '  %s\n' "${files[@]}"
 git_recap
 cat <<EOF

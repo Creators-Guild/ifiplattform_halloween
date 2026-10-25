@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# ifi status: checks the whole setup and lists what's OK (✅), worth knowing
+# ifi check: checks the whole setup and lists what's OK (✅), worth knowing
 # (⚠️) or broken (❌), each with the command that fixes it. Changes nothing,
 # except that it fetches, like `git fetch`, to know how far behind you are.
-# For helpers: "run ifi status and show me the ❌ lines".
+# For helpers: "run ifi check and show me the ❌ lines".
 #
-# ifi status --quiet: the check the first terminal after the container starts
+# ifi check --quiet: the check the first terminal after the container starts
 # runs (shell-setup.sh). Shows only the ❌ lines and "main has new commits",
 # gives GitHub 5 seconds instead of 15-20 so the terminal isn't held up, and
 # skips the site, which is still starting then.
@@ -19,6 +19,8 @@ offline=false
 
 problems=0
 warnings=0
+# The choices under "Your turn:" at the end: pairs of situation and command.
+next=()
 ok() { $quiet || printf '✅ %s\n' "$1"; }
 # Hidden with --quiet; `quiet=false warn ...` shows one anyway.
 warn() {
@@ -65,7 +67,7 @@ else
 fi
 
 # 4. origin: your fork, or the main repo for collaborators.
-origin_url="$(git remote get-url origin 2>/dev/null || true)"
+origin_url="$(git config --get remote.origin.url || true)"
 origin_repo="$(repo_of origin 2>/dev/null || true)"
 collaborator=false
 if [[ -z "$origin_url" ]]; then
@@ -85,7 +87,7 @@ fi
 [[ "$(lower "$origin_repo")" == "$(lower "$MAIN_REPO")" ]] && collaborator=true
 
 # 5. upstream: the main repo, for contributors.
-upstream_url="$(git remote get-url upstream 2>/dev/null || true)"
+upstream_url="$(git config --get remote.upstream.url || true)"
 upstream_repo="$(repo_of upstream 2>/dev/null || true)"
 base=""
 if $collaborator; then
@@ -94,7 +96,10 @@ if $collaborator; then
 elif [[ -z "$upstream_url" ]]; then
     bad "No 'upstream' remote: Git can't get everyone else's changes." \
         "git remote add upstream https://github.com/$MAIN_REPO.git"
-elif [[ "$(lower "$upstream_repo")" != "$(lower "$MAIN_REPO")" && "$upstream_url" == *github.com* ]]; then
+elif [[ "$upstream_url" != *github.com* ]]; then
+    bad "upstream isn't a GitHub address: $upstream_url" \
+        "git remote set-url upstream https://github.com/$MAIN_REPO.git"
+elif [[ "$(lower "$upstream_repo")" != "$(lower "$MAIN_REPO")" ]]; then
     bad "upstream points to $upstream_repo, not the main repo." \
         "git remote set-url upstream https://github.com/$MAIN_REPO.git"
 else
@@ -110,7 +115,7 @@ fi
 # 6. Logged in, as an account that may push to origin? A dry-run push: GitHub
 # checks the login, but nothing is sent.
 if [[ -n "$origin_url" ]]; then
-    err="$(GIT_TERMINAL_PROMPT=0 with_timeout $wait_github git push --dry-run --quiet origin HEAD:refs/heads/ifi-status-login-check 2>&1)"
+    err="$(GIT_TERMINAL_PROMPT=0 with_timeout $wait_github git push --dry-run --quiet origin HEAD:refs/heads/ifi-check-login 2>&1)"
     status=$?
     if [[ $status -eq 0 ]]; then
         ok "Logged in to GitHub, and allowed to push to origin."
@@ -118,7 +123,7 @@ if [[ -n "$origin_url" ]]; then
         # Not broken, just not checked, so no ❌. The fetch below would fail too.
         offline=true
         quiet=false warn "Couldn't reach GitHub, so your login wasn't checked. No internet?" \
-            "Run ifi status again later."
+            "Run ifi check again later."
     else
         case "$(git_error_kind "$err")" in
             ssh) bad "Can't use SSH here, so you can't push. Switch origin to HTTPS:" \
@@ -143,17 +148,18 @@ if [[ -n "$origin_url" ]]; then
     fi
 fi
 
-# 7. Branch, and its issue.
+# 7. Branch, and its issue. Only what's off is listed here: the branch
+# itself gets its own line at the bottom, above "Your turn:".
 branch="$(git branch --show-current)"
+nr=""
 if [[ -z "$branch" ]]; then
     warn "You're not on a branch (detached HEAD)." "Go to your issue's branch: ifi fix-issue <nr>"
 elif [[ "$branch" == main ]]; then
     warn "You're on main. Start an issue with: ifi fix-issue <nr>"
+    next+=("Want to start an issue?" "ifi fix-issue <nr>")
 else
     nr="$(git config "branch.$branch.ifi-issue" || true)"
-    if [[ -n "$nr" ]]; then
-        ok "On branch $branch, for issue #$nr."
-    else
+    if [[ -z "$nr" ]]; then
         warn "On branch $branch, not linked to an issue yet. ifi pull-request asks for the number."
     fi
 fi
@@ -164,13 +170,21 @@ if [[ "$unsaved" -eq 0 ]]; then
     ok "No unsaved changes."
 else
     warn "$unsaved file(s) changed but not saved yet:" "ifi save \"Short description of what you changed\""
+    next+=("Changes to keep?" "ifi save \"Short description of what you changed\"")
 fi
 
 # 9. Behind the newest main? 9b. Commits not on GitHub yet?
 if [[ -n "$base" && -n "$branch" && "$branch" != main ]] && ! $offline; then
     if GIT_TERMINAL_PROMPT=0 with_timeout $wait_fetch git fetch --quiet "$base" 2>/dev/null; then
         behind="$(git rev-list --count "HEAD..$base/main")"
-        if [[ "$behind" -eq 0 ]]; then
+        if merged_into_main HEAD; then
+            # Its own icon, so it stands out among the ✅ lines. Shown with
+            # --quiet too: the first terminal is a good moment to tidy up.
+            printf '🎉 %s\n' "Your pull request for $branch is merged into main!"
+            $quiet && printf '      %s\n' "Tidy up: ifi cleanup"
+            next+=("Tidy up?" "ifi cleanup   (deletes the branch, takes you to main)"
+                "Want another issue?" "ifi fix-issue <nr>")
+        elif [[ "$behind" -eq 0 ]]; then
             ok "Up to date with main in the main repo ($base/main)."
         else
             fork_point="$(git merge-base HEAD "$base/main")"
@@ -179,6 +193,7 @@ if [[ -n "$base" && -n "$branch" && "$branch" != main ]] && ! $offline; then
             # The one warning --quiet shows: it's the one people act on.
             quiet=false warn "main in the main repo ($base/main) has $behind new commit(s) since your branch started. Update before your pull request:" \
                 "ifi update"
+            next+=("Want main's new commits?" "ifi update")
             [[ -n "$clash" ]] && quiet=false warn "You'll likely get a conflict in: $clash" \
                 "Those files changed both on your branch and in $base/main."
         fi
@@ -240,4 +255,21 @@ printf '  %-38s  %s\n' \
     "git status" "what changed, and which branch you're on" \
     "git remote -v" "where origin and upstream point" \
     "git log --oneline ${base:-upstream}/main..HEAD" "your commits that aren't in the main repo's main yet"
+
+echo
+if [[ -z "$branch" ]]; then
+    printf '%sCurrent branch:%s none (detached HEAD)\n' "$C_BOLD" "$C_OFF"
+else
+    printf '%sCurrent branch:%s %s%s\n' "$C_BOLD" "$C_OFF" "$branch" "${nr:+  (issue #$nr)}"
+fi
+
+if [[ $problems -gt 0 ]]; then
+    next=("Any ❌ above?" "fix those first: the line under each one says how" ${next[@]+"${next[@]}"})
+fi
+if [[ ${#next[@]} -gt 0 ]]; then
+    your_turn
+    choices "${next[@]}"
+else
+    your_turn "carry on with your change."
+fi
 [[ $problems -eq 0 ]]
