@@ -1,6 +1,6 @@
 Inside the container (the VS Code terminal):
 ifi restart-server                     restart the website
-ifi reset-server                       DELETE the database and start fresh
+ifi reset-database                     DELETE the database and start fresh
 ifi rebuild-docker                     how to rebuild the container
 
 In VS Code (Ctrl+Shift+P, Mac: Cmd+Shift+P):

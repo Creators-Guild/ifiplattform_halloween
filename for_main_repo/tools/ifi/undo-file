@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# ifi undo-file <file> [<file> ...]: takes files out of your pull request.
+# ifi undo-file --extra: takes out every file the issue doesn't list under
+# "### Files to change"
+# (.github/workflows/files_check.yml).
+#
+# A file that is in the main repo goes back to how it is there; a file you
+# added leaves Git but stays on your computer, and Git ignores it there from
+# now on (.git/info/exclude), so a later `git add .` doesn't bring it back.
+# Before it commits, it saves the branch as it was in a backup branch
+# (one per branch), so nothing is lost. Then it commits and pushes, so the pull request updates by itself.
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+[[ $# -gt 0 ]] || die "Which file? For example: ifi undo-file ifiplatform/locale/nb/LC_MESSAGES/django.po" \
+    "Or take out every file the issue doesn't list: ifi undo-file --extra"
+
+branch="$(git branch --show-current)"
+[[ -n "$branch" ]] || die "You're not on a branch. Go to your issue's branch first: ifi fix-issue <nr>"
+[[ "$branch" != main ]] || die "You're on main. Go to your issue's branch first: ifi fix-issue <nr>"
+
+if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
+    git status --short --untracked-files=no
+    die "" "These changes aren't committed yet. Commit them first:" \
+        "  ifi save \"Short description of what you changed\""
+fi
+
+cd "$(git rev-parse --show-toplevel)"
+find_base
+fetch_base
+
+if [[ "$1" == --extra ]]; then
+    nr="$(git config "branch.$branch.ifi-issue" || true)"
+    while [[ ! "$nr" =~ ^[0-9]+$ ]]; do
+        read -r -p "Which issue is this branch for? " nr || die ""
+        nr="${nr#\#}"
+    done
+
+    # The paths in backticks under "### Files to change", up to the next
+    # heading: the same rule as files_check.yml. Exit 2 = no such list,
+    # anything else = GitHub couldn't be reached. IFI_GITHUB_API lets tests
+    # use a fake server.
+    status=0
+    allowed="$("$PY" - "$nr" "${IFI_GITHUB_API:-https://api.github.com}" "$MAIN_REPO" <<'PY' 2>/dev/null
+import json, re, sys, urllib.request
+
+nr, api, repo = sys.argv[1:4]
+req = urllib.request.Request(
+    f"{api}/repos/{repo}/issues/{nr}",
+    headers={"Accept": "application/vnd.github+json", "User-Agent": "ifi-undo-file"},
+)
+with urllib.request.urlopen(req, timeout=5) as resp:
+    body = json.load(resp).get("body") or ""
+parts = re.split(r"^### Files to change.*$", body, maxsplit=1, flags=re.M)
+if len(parts) < 2:
+    sys.exit(2)
+section = re.split(r"^#{1,6} ", parts[1], flags=re.M)[0]
+for path in re.findall(r"`([^`\s]+/[^`\s]+)`", section):
+    print(path)
+PY
+)" || status=$?
+    case "$status" in
+        0) ;;
+        2) die "Issue #$nr has no \"Files to change\" list, so there's nothing to compare with." \
+            "Name the files instead: ifi undo-file <file> ..." ;;
+        *) die "Couldn't read issue #$nr on GitHub (no internet, or GitHub's limit of" \
+            "60 lookups an hour for everyone on the same Wi-Fi). Try again in a while," \
+            "or name the files instead: ifi undo-file <file> ..." ;;
+    esac
+
+    # Every file the pull request changes, compared with where the branch
+    # started, as GitHub shows it. Both sides of a rename count.
+    files=()
+    while IFS= read -r file; do
+        grep -qxF -- "$file" <<<"$allowed" || files+=("$file")
+    done < <(git diff --name-only --no-renames "$base/main...HEAD")
+
+    if [[ ${#files[@]} -eq 0 ]]; then
+        echo "Nothing to undo: your pull request only changes files that issue #$nr lists."
+        exit 0
+    fi
+    echo "Issue #$nr doesn't list these files that your pull request changes:"
+    printf '  %s\n' "${files[@]}"
+    read -r -p "Take all ${#files[@]} out of your pull request? (y/n) " answer || answer=""
+    [[ "$answer" =~ ^[YyJj] ]] || die "Nothing was changed."
+    message="Undo changes to files not in issue #$nr"
+else
+    files=("$@")
+    message="Undo changes to $*"
+fi
+
+for file in "${files[@]}"; do
+    if git cat-file -e "$base/main:$file" 2>/dev/null; then
+        run "Put $file back to how it is in the main repo's main ($base/main)" git checkout "$base/main" -- "$file"
+    elif git ls-files --error-unmatch -- "$file" >/dev/null 2>&1; then
+        run "Take $file out of Git. It stays on your computer, and Git ignores it from now on" \
+            git rm --quiet --cached -- "$file"
+        printf '/%s\n' "$file" >>"$(git rev-parse --git-path info/exclude)"
+    else
+        die "Git doesn't know $file. Copy the name exactly as git status shows it."
+    fi
+done
+
+if git diff --cached --quiet; then
+    echo
+    echo "Nothing to undo: ${files[*]} is already the same as in the main repo."
+    exit 0
+fi
+
+# A copy of the branch as it is now (the commit below is the first thing
+# that changes it), so a good idea in an extra file isn't lost. One backup
+# per branch: an existing one is moved forward when everything in it is
+# still in the branch's history, which is the usual case. Only when it has
+# something the branch lost (after a rebase) does a -backup-2 appear.
+backup="$branch-backup"
+n=2
+while git show-ref --verify --quiet "refs/heads/$backup" &&
+    ! git merge-base --is-ancestor "$backup" HEAD; do
+    backup="$branch-backup-$n"
+    n=$((n + 1))
+done
+if git show-ref --verify --quiet "refs/heads/$backup"; then
+    run "Move your backup up to how your branch is now" git branch -f "$backup"
+else
+    run "Keep a copy of your branch as it is now, just in case" git branch "$backup"
+fi
+
+run "Commit that" git commit -m "$message"
+push_branch "Send it to GitHub, so your pull request updates by itself"
+echo
+echo "Your pull request no longer changes:"
+printf '  %s\n' "${files[@]}"
+git_recap
+cat <<EOF
+
+Your version is saved on the branch $backup.
+Had a good idea in one of those files? Make it its own pull request later:
+  git switch $backup
+EOF

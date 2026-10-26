@@ -7,8 +7,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # openssh-client lets Git use SSH addresses, for those who set them up.
+# sudo only lets dev run things as app (below), never as root.
+# No GitHub CLI (gh) on purpose: docs/claude_context/ifi_account.md
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends bash-completion gettext git openssh-client procps \
+    && apt-get install -y --no-install-recommends bash-completion gettext git openssh-client procps sudo \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /tmp/requirements.txt
@@ -39,6 +41,19 @@ RUN useradd --create-home --shell /bin/bash --uid 1000 dev \
     && git config --system --add safe.directory /workspace \
     && git config --system push.autoSetupRemote true \
     && echo '[ -f /workspace/tools/ifi/shell-setup.sh ] && . /workspace/tools/ifi/shell-setup.sh' >> /home/dev/.bashrc
+
+# The site runs as its own user, app, so code that starts by itself can't
+# read dev's logins (Claude Code's, VS Code's). Uploads go to /srv/media, a
+# volume both can write to (dev is in app's group).
+# Why: docs/claude_context/dev_container_users.md
+RUN useradd --system --create-home --shell /usr/sbin/nologin app \
+    && usermod -aG app dev \
+    && chmod 700 /home/dev \
+    && mkdir /srv/media \
+    && chown app:app /srv/media \
+    && chmod 2775 /srv/media \
+    && printf 'dev ALL=(app) NOPASSWD: ALL\nDefaults>app !env_reset, always_set_home\n' > /etc/sudoers.d/dev-as-app \
+    && chmod 440 /etc/sudoers.d/dev-as-app
 USER dev
 
 WORKDIR /workspace/ifiplatform

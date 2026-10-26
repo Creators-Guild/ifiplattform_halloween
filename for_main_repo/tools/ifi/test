@@ -12,5 +12,74 @@ fi
 
 find_django_python
 cd "$(git rev-parse --show-toplevel)/ifiplatform"
+
+# The test files a folder's tests can be run by, as labels.
+test_files_in() {
+    local f
+    for f in "$1"/tests.py "$1"/tests/test_*.py "$1"/test_*.py; do
+        [[ -f "$f" ]] || continue
+        f="${f%.py}"
+        echo "${f//\//.}"
+    done
+}
+
+# Checks each name before Django sees it. apps/ has no __init__.py, so
+# Django crashes (TypeError in abspath) on any folder in it, like
+# apps.account_app or apps.ifi_home_app.tests; only file names work there.
+# A name that doesn't exist would show up as a failed test, which it isn't.
+for label in "$@"; do
+    [[ "$label" == -* ]] && continue
+    path="${label//.//}"
+    if [[ -d "$path" ]]; then
+        [[ "$path" == apps/* ]] || continue
+        files="$(test_files_in "$path")"
+        [[ -n "$files" ]] || die "\"$label\" has no tests in it. To run all the tests: ifi test"
+        echo "\"$label\" is a folder, and Django can't run the tests in a folder here." >&2
+        echo "Name the test file instead (it's the folder name plus the file name, without .py):" >&2
+        sed 's/^/  ifi test /' <<<"$files" >&2
+        die "Or run all the tests: ifi test"
+    fi
+    # TestClass or TestClass.test_method after the file: find the file.
+    found=false
+    while :; do
+        if [[ -f "$path.py" ]]; then
+            found=true
+            break
+        fi
+        [[ "$path" == */* ]] || break
+        path="${path%/*}"
+    done
+    $found || die "Can't find \"$label\". Check the spelling. The apps are in ifiplatform/apps/," \
+        "for example: ifi test apps.account_app.tests" \
+        "Or run all the tests: ifi test"
+done
+
+if [[ ${#args[@]} -gt 0 ]]; then
+    why="Run the quick tests (ifi test --long also runs the slow site crawler)"
+else
+    why="Run all the tests, with the slow site crawler"
+fi
 # ${args[@]+...}: an empty array counts as unset under set -u in bash 3.2 (a Mac).
-run "$DJANGO_PY" manage.py test ${args[@]+"${args[@]}"} "$@"
+# The exit code says whether they passed: 0 is OK.
+if run "$why" "$DJANGO_PY" manage.py test ${args[@]+"${args[@]}"} "$@"; then
+    echo
+    echo "\"OK\" means every test passed. ✅"
+    your_turn
+    choices \
+        "Ready to send your change?" "ifi pull-request" \
+        "Still working?" "carry on, and run ifi test again later"
+else
+    cat <<'EOF'
+
+"FAILED" means some tests didn't pass. ❌
+Scroll up to the lines starting with FAIL: or ERROR:. Each one names the
+test, and the lines under it say what went wrong.
+  FAIL   →  the code ran, but gave a different result than the test expected
+  ERROR  →  the code crashed before the test could check anything
+EOF
+    your_turn
+    choices \
+        "Caused by your change?" "fix it, then ifi test again" \
+        "Not sure?" "ask a helper, and show them the FAIL/ERROR lines"
+    exit 1
+fi

@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# tools/ifi/tests/playground: a practice terminal with a fake GitHub (the
+# same one the tests use, see lib.sh), for trying ifi by hand: issues to fix,
+# a fork to push to, and a `teammate` command that changes main, so you can
+# cause "behind" and conflicts on purpose. Nothing reaches real GitHub, and
+# your own ~/.gitconfig isn't touched. Type exit and it's all deleted.
+set -uo pipefail
+
+here="$(cd "$(dirname "$0")" && pwd)"
+source "$here/lib.sh"
+
+dir="$(mktemp -d)"
+trap 'stop_fake_api; rm -rf "$dir"' EXIT
+start_fake_api "$dir/api" || exit 1
+new_sandbox "$dir" >/dev/null 2>&1 || {
+    echo "Couldn't make the fake GitHub." >&2
+    exit 1
+}
+# Unlike the tests, keep Git's system settings (in the container:
+# push.autoSetupRemote), so Git acts as it does for students.
+unset GIT_CONFIG_NOSYSTEM GIT_TERMINAL_PROMPT NO_COLOR
+
+cards=ifiplatform/static/css/cards.css
+issue 5 Bug "Make the event cards orange" $'The event cards should be orange.\n\n### Files to change\n- `'"$cards"$'`\n'
+issue 6 Feature "Add a page with notes" "Write some notes in docs/."
+issue 7 "" "Tidy up the readme" "An issue without a Type, so ifi fix-issue asks."
+issue 8 Bug "A pull request, not an issue" "" pr
+clone_as contributor >/dev/null 2>&1
+git config --global user.name "You (playground)"
+git config --global user.email "you@example.com"
+
+mkdir -p "$dir/bin"
+ln -s "$TOOLS/ifi" "$dir/bin/ifi"
+cat >"$dir/bin/teammate" <<EOF
+#!/usr/bin/env bash
+# Someone else on the project. See: teammate help
+source "$here/lib.sh"
+SANDBOX="$dir"
+cards="$cards"
+EOF
+cat >>"$dir/bin/teammate" <<'EOF'
+case "${1:-}" in
+    "")
+        teammate "$cards" ".event-card { background: blue; }" "Make the event cards blue"
+        echo "Teammate: main now has blue event cards (conflicts if you changed $cards)."
+        ;;
+    other)
+        teammate "docs/teammate-$RANDOM.md" "Teammate notes" "Add notes"
+        echo "Teammate: main has a new commit, in a file you haven't touched."
+        ;;
+    merge)
+        branch="$(git -C "$SANDBOX/work" branch --show-current)"
+        if merge_pull_request "$branch" 2>/dev/null; then
+            echo "Teammate: merged your pull request for $branch into main. Try: ifi check, then ifi cleanup"
+        else
+            echo "Teammate: couldn't merge $branch. Send it first: ifi pull-request"
+        fi
+        ;;
+    push)
+        branch="$(git -C "$SANDBOX/work" branch --show-current)"
+        rm -rf "$SANDBOX/other"
+        if git clone --quiet "https://github.com/$STUDENT/$NAME.git" "$SANDBOX/other" 2>/dev/null &&
+            (cd "$SANDBOX/other" && git switch --quiet "$branch" 2>/dev/null &&
+                echo "theirs" >teammate-was-here.md && git add -A &&
+                git commit --quiet -m "Teammate's commit on your branch" && git push --quiet origin HEAD); then
+            echo "Teammate: pushed a commit to your branch $branch on your fork."
+        else
+            echo "Teammate: your branch $branch isn't on your fork yet. Send it first: ifi pull-request"
+        fi
+        ;;
+    *)
+        cat <<'TXT'
+teammate          change the event cards' colour on main (a conflict, if you changed it too)
+teammate other    a new commit on main in another file (you're "behind", no conflict)
+teammate merge    merge your current branch's pull request into main
+teammate push     push a commit to your branch on your fork (like GitHub's Update branch)
+TXT
+        ;;
+esac
+EOF
+chmod +x "$dir/bin/teammate"
+
+cat >"$dir/rc" <<EOF
+export PATH="$dir/bin:\$PATH"
+[ -f /etc/bash_completion ] && . /etc/bash_completion
+. "$TOOLS/shell-setup.sh" >/dev/null 2>&1
+PS1='\[\e[1;32m\](playground)\[\e[0m\]\[\e[1;33m\]$(_ifi_branch " %s")\[\e[0m\] \w \$ '
+cd "$dir/work"
+cat <<'TXT'
+
+This is the ifi playground: a fake GitHub on your computer. You are a
+contributor with a fork, cloned into "work". Nothing here reaches real
+GitHub, and it's all deleted when you type exit.
+
+Issues on the fake GitHub:
+  #5  Bug      Make the event cards orange   (has a "Files to change" list)
+  #6  Feature  Add a page with notes
+  #7  (none)   Tidy up the readme            (no Type, so ifi asks)
+  #8           a pull request, not an issue
+
+Things to try:
+  ifi check                       what's set up
+  ifi fix-issue 5                 start on issue 5, then change $cards
+  ifi save "Orange cards"         commit
+  teammate                        someone changes the same file on main
+  ifi check, then ifi update      see the conflict, and fix it
+  ifi pull-request                send it to your fork (the link is to real GitHub, don't open it)
+  ifi undo-file --extra           after changing a file issue 5 doesn't list
+  teammate merge, then ifi cleanup
+  teammate help                   all the teammate commands
+
+TXT
+EOF
+
+bash --rcfile "$dir/rc" -i

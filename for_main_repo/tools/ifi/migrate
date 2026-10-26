@@ -5,5 +5,5 @@ source "$(dirname "$(readlink -f "$0")")/common.sh"
 
 find_django_python
 cd "$(git rev-parse --show-toplevel)/ifiplatform"
-run "$DJANGO_PY" manage.py makemigrations
-run "$DJANGO_PY" manage.py migrate
+run "Make migration files for the models you changed" "$DJANGO_PY" manage.py makemigrations
+run "Apply them to your local database" "$DJANGO_PY" manage.py migrate

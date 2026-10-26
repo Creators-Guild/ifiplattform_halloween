@@ -1,6 +1,6 @@
 # How this project works (for beginners)
 
-Last updated: 2026-10-20
+Last updated: 2026-10-26
 
 This is a big project, but you only need a small part of it to fix an
 issue. This page tells you where things are and explains the words
@@ -97,7 +97,7 @@ flowchart LR
 | `static/` | Files sent to the browser as they are: CSS, JavaScript, images. "Static" means they don't change per visitor |
 | `templates/` | HTML templates shared by every page: the base page, header and footer |
 | `locale/` | Translations of the texts in templates and code (`nb` and `en`) |
-| `media/` | Pictures uploaded in the editor. Not in git |
+| `media/` | Pictures uploaded in the editor. Not in git. With Docker they're kept in a Docker volume instead |
 
 **Inside an app** (for example `apps/account_app/`):
 

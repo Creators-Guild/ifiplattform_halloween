@@ -42,6 +42,6 @@ done
 if $added; then
     cat <<EOF
 
-Open a new terminal (or run: source ~/.bashrc), then try: ifi status
+Open a new terminal (or run: source ~/.bashrc), then try: ifi check
 EOF
 fi

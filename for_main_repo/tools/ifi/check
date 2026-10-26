@@ -1,0 +1,341 @@
+#!/usr/bin/env bash
+# ifi check: checks the whole setup and lists what's OK (✅), worth knowing
+# (⚠️) or broken (❌), each with the command that fixes it. Changes nothing,
+# except that it fetches, like `git fetch`, to know how far behind you are.
+# For helpers: "run ifi check and show me the ❌ lines".
+#
+# The ✅ lines show as each check finishes. The ⚠️, ❌ and 🎉 lines are
+# collected and shown together at the bottom, under "Needs a look:", right
+# above the current branch and "Your turn:", so they aren't lost among the ✅.
+#
+# ifi check --quiet: the check the first terminal after the container starts
+# runs (shell-setup.sh). Shows only the ❌ lines and "main has new commits",
+# gives GitHub 5 seconds instead of 15-20 so the terminal isn't held up, and
+# skips the site, which is still starting then.
+set -uo pipefail
+
+quiet=false
+[[ "${1:-}" == --quiet ]] && quiet=true
+wait_github=15
+wait_fetch=20
+$quiet && wait_github=5 wait_fetch=5
+offline=false
+
+# --quiet has no bottom part, so it prints the ⚠️ and ❌ lines right away.
+# (`quiet` itself is switched off for one call by `quiet=false warn ...`.)
+startup=$quiet
+problems=0
+warnings=0
+# The lines for "Needs a look:", each with the lines under it.
+attention=()
+# The choices under "Your turn:" at the end: pairs of situation and command.
+next=()
+ok() { $quiet || printf '✅ %s\n' "$1"; }
+# flag <icon> <text> [line under it ...]: a line for "Needs a look:".
+flag() {
+    local icon="$1" lines
+    shift
+    lines="$(printf '%s %s\n' "$icon" "$1")"
+    shift
+    [[ $# -gt 0 ]] && lines+=$'\n'"$(printf '      %s\n' "$@")"
+    if $startup; then
+        printf '%s\n' "$lines"
+    else
+        attention+=("$lines")
+    fi
+}
+# Hidden with --quiet; `quiet=false warn ...` shows one anyway.
+warn() {
+    warnings=$((warnings + 1))
+    $quiet && return
+    flag '⚠️ ' "$@"
+}
+bad() {
+    problems=$((problems + 1))
+    flag '❌' "$@"
+}
+
+# 1. In the project?
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    printf '❌ %s\n      %s\n' "You're not in the project folder." "cd into the IfiPlatform folder (or open it in VS Code)."
+    exit 1
+fi
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+cd "$(git rev-parse --show-toplevel)"
+repo_name="${MAIN_REPO#*/}"
+ok "In the project: $(pwd)"
+
+# 2. In the container?
+in_container=false
+if in_container; then
+    in_container=true
+    ok "Inside the Docker container."
+else
+    warn "Not inside the Docker container." \
+        "Fine without Docker. With Docker, use VS Code's terminal after Reopen in Container."
+fi
+
+# 3. Name and email for commits. Not the GitHub login: step 6 shows that.
+login=""
+if [[ -n "$(git config user.name)" && -n "$(git config user.email)" ]]; then
+    ok "Commits are signed as: $(git config user.name) <$(git config user.email)>"
+else
+    bad "Git doesn't know your name and email yet, so you can't save." \
+        "ifi save asks for them, or: git config --global user.name \"Your Name\"" \
+        "                            git config --global user.email \"you@example.com\""
+fi
+
+# 4. origin: your fork, or the main repo for collaborators.
+origin_url="$(git config --get remote.origin.url || true)"
+origin_repo="$(repo_of origin 2>/dev/null || true)"
+collaborator=false
+if [[ -z "$origin_url" ]]; then
+    bad "No 'origin' remote: Git doesn't know where to push." \
+        "Add your fork: git remote add origin https://github.com/<your-username>/$repo_name.git"
+elif [[ "$origin_url" =~ ^(git@|ssh://) ]]; then
+    warn "origin uses an SSH address ($origin_url). HTTPS works without setup:" \
+        "git remote set-url origin https://github.com/$origin_repo.git"
+elif [[ ! "$origin_url" =~ ^https://([^@/]+@)?github\.com/ ]]; then
+    warn "origin isn't a GitHub address: $origin_url"
+elif [[ "$(lower "$origin_repo")" == "$(lower "$MAIN_REPO")" ]]; then
+    :
+else
+    ok "origin is your fork: $origin_repo"
+fi
+[[ "$(lower "$origin_repo")" == "$(lower "$MAIN_REPO")" ]] && collaborator=true
+
+# 5. upstream: the main repo, for contributors.
+upstream_url="$(git config --get remote.upstream.url || true)"
+upstream_repo="$(repo_of upstream 2>/dev/null || true)"
+base=""
+if $collaborator; then
+    base=origin
+elif [[ -z "$upstream_url" ]]; then
+    bad "No 'upstream' remote: Git can't get everyone else's changes." \
+        "git remote add upstream https://github.com/$MAIN_REPO.git"
+elif [[ "$upstream_url" != *github.com* ]]; then
+    bad "upstream isn't a GitHub address: $upstream_url" \
+        "git remote set-url upstream https://github.com/$MAIN_REPO.git"
+elif [[ "$(lower "$upstream_repo")" != "$(lower "$MAIN_REPO")" ]]; then
+    bad "upstream points to $upstream_repo, not the main repo." \
+        "git remote set-url upstream https://github.com/$MAIN_REPO.git"
+else
+    base=upstream
+    if [[ "$upstream_url" =~ ^(git@|ssh://) ]]; then
+        warn "upstream uses an SSH address. HTTPS works without setup:" \
+            "git remote set-url upstream https://github.com/$MAIN_REPO.git"
+    else
+        ok "upstream is the main repo: $MAIN_REPO"
+    fi
+fi
+
+# 6. Logged in, as an account that may push to origin? A dry-run push: GitHub
+# checks the login, but nothing is sent. Skipped when gh would refuse the
+# picked account anyway, since trying pops up a password window.
+picked="$(picked_account)"
+other=""
+[[ -z "$picked" ]] || other="$(gh_selects_other "$picked" || true)"
+if [[ -n "$other" ]]; then
+    bad "origin asks for $picked, but your computer's gh has $other selected, so you can't push." \
+        "Push as $picked: ifi account switch $picked (it says how)" \
+        "Or go back to your usual account: ifi account switch"
+elif [[ -n "$origin_url" ]]; then
+    err="$(GIT_TERMINAL_PROMPT=0 with_timeout $wait_github git push --dry-run --quiet origin HEAD:refs/heads/ifi-check-login 2>&1)"
+    status=$?
+    if [[ $status -eq 0 ]]; then
+        login="$(github_login)"
+        ok "Logged in to GitHub, and allowed to push to origin.${login:+ Account: $login}"
+        if $collaborator; then
+            ok "origin is the main repo ($MAIN_REPO): you push straight to it, as a collaborator."
+            ok "upstream isn't needed: origin already is the main repo."
+        fi
+    elif [[ $status -eq 124 ]] || grep -qiE "could not resolve host|failed to connect|timed out" <<<"$err"; then
+        # Not broken, just not checked, so no ❌. The fetch below would fail too.
+        offline=true
+        quiet=false warn "Couldn't reach GitHub, so your login wasn't checked. No internet?" \
+            "Run ifi check again later."
+    else
+        case "$(git_error_kind "$err")" in
+            ssh) [[ "$origin_url" =~ ^(git@|ssh://) ]] || bad "Can't use SSH here, so you can't push. Switch origin to HTTPS:" \
+                "git remote set-url origin https://github.com/$origin_repo.git" ;;
+            login)
+                if [[ -n "$picked" ]]; then
+                    bad "Your computer gives no login for $picked, the account picked with ifi account switch." \
+                        "See why: ifi account switch $picked" \
+                        "Or go back to your usual account: ifi account switch"
+                else
+                    bad "Not logged in to GitHub." \
+                        "Run 'git push' once in VS Code's terminal and click Allow in the popup." \
+                        "More: docs/contributing/get_the_code.md#log-in-to-github-once"
+                fi
+                ;;
+            denied)
+                user="$(denied_user "$err")"
+                if $collaborator; then
+                    bad "You cloned the main repo, but ${user:-your account} can't push to it." \
+                        "Fork it on GitHub, then: git remote rename origin upstream" \
+                        "                         git remote add origin https://github.com/${user:-<your-username>}/$repo_name.git"
+                else
+                    bad "Logged in as ${user:-another account}, which can't push to $origin_repo." \
+                        "Wrong account? See docs/contributing/get_the_code.md#log-in-to-github-once"
+                fi
+                ;;
+            notfound) bad "GitHub can't find $origin_url. Did you fork the repo? Is the username right?" ;;
+            *) warn "Couldn't check the GitHub login:" "$(head -n 1 <<<"$err")" ;;
+        esac
+    fi
+fi
+
+# 6b. An account picked with ifi account switch, but commits signed as someone else.
+if [[ -n "$login" && "$origin_url" == https://*@github.com/* ]] &&
+    [[ "$(lower "$(git config user.email)")" != *"$(lower "$login")"* ]]; then
+    warn "You pushed as $login, but commits are signed with another name and email." \
+        "Make them match: ifi account switch $login"
+fi
+
+# 7. Branch, and its issue. Only what's off is listed here: the branch
+# itself gets its own line at the bottom, above "Your turn:".
+branch="$(git branch --show-current)"
+nr=""
+if [[ -z "$branch" ]]; then
+    warn "You're not on a branch (detached HEAD)." "Go to your issue's branch: ifi fix-issue <nr>"
+elif [[ "$branch" == main ]]; then
+    warn "You're on main. Start an issue with: ifi fix-issue <nr>"
+    next+=("Want to start an issue?" "ifi fix-issue <nr>")
+else
+    nr="$(git config "branch.$branch.ifi-issue" || true)"
+    if [[ -z "$nr" ]]; then
+        warn "On branch $branch, not linked to an issue yet. ifi pull-request asks for the number."
+    fi
+fi
+
+# 8. Unsaved changes.
+unsaved="$(git status --porcelain | wc -l | tr -d ' ')"
+if [[ "$unsaved" -eq 0 ]]; then
+    ok "No unsaved changes."
+else
+    warn "$unsaved file(s) changed but not saved yet:" "ifi save \"Short description of what you changed\""
+    next+=("Changes to keep?" "ifi save \"Short description of what you changed\"")
+fi
+
+# 9. Behind the newest main? 9b. Commits not on GitHub yet?
+if [[ -n "$base" && -n "$branch" && "$branch" != main ]] && ! $offline; then
+    if GIT_TERMINAL_PROMPT=0 with_timeout $wait_fetch git fetch --quiet "$base" 2>/dev/null; then
+        behind="$(git rev-list --count "HEAD..$base/main")"
+        if merged_into_main HEAD; then
+            # Its own icon, so it stands out among the ✅ lines. Shown with
+            # --quiet too: the first terminal is a good moment to tidy up.
+            if $startup; then
+                flag '🎉' "Your pull request for $branch is merged into main!" "Tidy up: ifi cleanup"
+            else
+                flag '🎉' "Your pull request for $branch is merged into main!"
+            fi
+            next+=("Tidy up?" "ifi cleanup   (deletes the branch, takes you to main)"
+                "Want another issue?" "ifi fix-issue <nr>")
+        elif [[ "$behind" -eq 0 ]]; then
+            ok "Up to date with main in the main repo ($base/main)."
+        else
+            fork_point="$(git merge-base HEAD "$base/main")"
+            clash="$(comm -12 <(git diff --name-only "$fork_point" "$base/main" | sort) \
+                <(git diff --name-only "$fork_point" HEAD | sort) | tr '\n' ' ')"
+            # The one warning --quiet shows: it's the one people act on.
+            quiet=false warn "main in the main repo ($base/main) has $behind new commit(s) since your branch started. Update before your pull request:" \
+                "ifi update"
+            next+=("Want main's new commits?" "ifi update")
+            [[ -n "$clash" ]] && quiet=false warn "You'll likely get a conflict in: $clash" \
+                "Those files changed both on your branch and in $base/main."
+        fi
+    else
+        warn "Couldn't fetch main from the main repo ($base), so 'behind' wasn't checked."
+    fi
+fi
+
+# The result in one line, for the terminals that open later: they show it
+# instead of checking again (shell-setup.sh). Every run updates it, so it's
+# always the latest check. "ok", "bad" or "offline", the number of
+# problems, and when. In /dev/shm, which is emptied when the container
+# starts; IFI_STATE_DIR lets the tests use a folder of their own.
+save_result() {
+    in_container || [[ -n "${IFI_STATE_DIR:-}" ]] || return 0
+    local dir="${IFI_STATE_DIR:-/dev/shm}" kind=ok
+    $offline && kind=offline
+    [[ $problems -gt 0 ]] && kind=bad
+    printf '%s|%s|%s\n' "$kind" "$problems" "$(date '+%-d %b %H:%M %Z')" >"$dir/ifi-check-result.tmp" 2>/dev/null &&
+        mv "$dir/ifi-check-result.tmp" "$dir/ifi-check-result"
+    return 0
+}
+
+# The startup check ends here.
+if $quiet; then
+    save_result
+    if [[ $problems -gt 0 ]]; then
+        echo "$problems problem(s) in your setup. Fix the ❌ lines; ask a helper if you're stuck."
+        exit 1
+    fi
+    $offline || echo "✅ Setup OK."
+    exit 0
+fi
+
+if [[ -n "$base" && -n "$branch" && "$branch" != main ]]; then
+    if git rev-parse --verify --quiet "@{u}" >/dev/null; then
+        $offline || GIT_TERMINAL_PROMPT=0 with_timeout 20 git fetch --quiet origin "$branch" 2>/dev/null
+        ahead="$(git rev-list --count "@{u}..HEAD")"
+    else
+        ahead="$(git rev-list --count "$base/main..HEAD" 2>/dev/null || echo 0)"
+    fi
+    if [[ "$ahead" -eq 0 ]]; then
+        ok "All your commits are on GitHub."
+    else
+        warn "$ahead commit(s) aren't on GitHub yet, so your pull request doesn't have them:" "ifi pull-request"
+    fi
+fi
+
+# 10. Is the site running?
+# Any HTTP answer, even an error page, means the server is running.
+if "$PY" - 2>/dev/null <<'PY'; then
+import urllib.error, urllib.request
+try:
+    urllib.request.urlopen("http://localhost:8000/", timeout=3)
+except urllib.error.HTTPError:
+    pass
+PY
+    ok "The site answers at http://localhost:8000"
+elif $in_container; then
+    bad "Nothing answers at http://localhost:8000." "ifi restart-server"
+else
+    warn "Nothing answers at http://localhost:8000. Start the site the way your setup says."
+fi
+
+echo
+echo "Check it yourself in plain Git:"
+printf '  %-38s  %s\n' \
+    "git status" "what changed, and which branch you're on" \
+    "git remote -v" "where origin and upstream point" \
+    "git log --oneline ${base:-upstream}/main..HEAD" "your commits that aren't in the main repo's main yet"
+
+echo
+if [[ ${#attention[@]} -gt 0 ]]; then
+    printf '%sNeeds a look:%s\n' "$C_BOLD" "$C_OFF"
+    printf '%s\n' "${attention[@]}"
+else
+    echo "Nothing needs a look. All good."
+fi
+
+echo
+if [[ -z "$branch" ]]; then
+    printf '%sCurrent branch:%s none (detached HEAD)\n' "$C_BOLD" "$C_OFF"
+else
+    printf '%sCurrent branch:%s %s%s\n' "$C_BOLD" "$C_OFF" "$branch" "${nr:+  (issue #$nr)}"
+fi
+
+if [[ $problems -gt 0 ]]; then
+    next=("Something broken above?" "fix the ❌ lines first: the line under each one says how (stuck? ask a helper)" ${next[@]+"${next[@]}"})
+fi
+if [[ ${#next[@]} -gt 0 ]]; then
+    your_turn
+    choices "${next[@]}"
+else
+    your_turn "carry on with your change."
+fi
+save_result
+[[ $problems -eq 0 ]]

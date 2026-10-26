@@ -1,13 +1,23 @@
-git status                     what changed
-git diff                       show changes not yet added
-git add -A                     pick all changes (the whole repo) for the next commit
-git commit -m "message"        save them
-git push                       send your branch to GitHub
-git switch <branch>            go to another branch
-git branch                     list your branches (* = the one you're on)
-git log --oneline              list commits
-git restore <file>             undo changes to a file
+git status                         what changed
+git diff                           show changes not yet added
+git add -A                         pick all changes (the whole repo) for the next commit
+git commit -m "message"            commit them (on your computer only)
+git push                           send your branch to GitHub
+git push -u origin HEAD            the first push of a new branch (remembers where)
+git fetch upstream                 download the newest code from the main repo
+git switch <branch>                go to another branch
+git switch -c <branch> upstream/main   make a new branch from the newest main
+git merge upstream/main            bring main's new commits into your branch
+git rebase upstream/main           put your commits on top of the newest main
+git rebase --continue / --abort    go on after fixing a conflict / give up
+git branch                         list your branches (* = the one you're on)
+git log --oneline                  list commits
+git restore <file>                 undo changes to a file
+
+Every ifi command lists what it did under "Done for you:", with the Git
+command under each step, and "In plain Git, this was:" at the end. Try
+typing them yourself next time.
 
 Start an issue:   ifi fix-issue <nr>
-Save changes:     ifi save "message"
+Commit changes:   ifi save "message"
 Open a PR:        ifi pull-request

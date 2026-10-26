@@ -5,7 +5,8 @@
   "service": "web",
   "workspaceFolder": "/workspace",
   "remoteUser": "dev",
-  "forwardPorts": [8000],
+  "portsAttributes": { "8000": { "label": "Website" } },
+  "otherPortsAttributes": { "onAutoForward": "ignore" },
   "customizations": {
     "vscode": {
       "extensions": [
