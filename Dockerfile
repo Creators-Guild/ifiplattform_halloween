@@ -29,4 +29,4 @@ RUN DJANGO_SECRET_KEY=build-only DB_NAME=build-only \
     && mkdir media django_cache
 
 # Same settings as the old gunicorn.service: 3 workers, 30-minute timeout.
-CMD ["gunicorn", "--workers", "3", "--timeout", "1800", "--bind", "0.0.0.0:8001", "ifiplatform_project.wsgi:application"]
+CMD ["gunicorn", "--workers", "3", "--timeout", "1800", "--bind", "0.0.0.0:8000", "ifiplatform_project.wsgi:application"]

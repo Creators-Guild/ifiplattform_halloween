@@ -6,8 +6,10 @@ services:
       POSTGRES_DB: ifiplatform
       POSTGRES_USER: ifiplatform_user
       POSTGRES_PASSWORD: devpassword
+    # Another project's database on 5433 too? Set DATABASE_PORT in a .env next
+    # to this file (Git ignores it). The same goes for SITE_PORT below.
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:${DATABASE_PORT:-5433}:5432"
     volumes:
       - ifiplatform-db-data:/var/lib/postgresql/data
     healthcheck:
@@ -53,7 +55,7 @@ services:
       # The cache in the database, so both app and dev can use it (settings.py).
       CACHE_IN_DATABASE: "True"
     ports:
-      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:${SITE_PORT:-8000}:8000"
     volumes:
       - .:/workspace
       - claude-config:/home/dev/.claude
@@ -77,7 +79,7 @@ services:
              python manage.py createcachetable &&
              python manage.py seed_halloween_data &&
              while true; do
-             python manage.py runserver 0.0.0.0:8001;
+             python manage.py runserver 0.0.0.0:8000;
              echo 'The server stopped. Starting it again in 2 seconds.';
              sleep 2;
              done;

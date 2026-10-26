@@ -1,6 +1,6 @@
 # Docker setup
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 How the local Docker setup is built and why. To start it, see
 [contributing/setup_with_docker.md](../contributing/setup_with_docker.md). For day-to-day
@@ -101,7 +101,10 @@ your own computer show up right away and `runserver` reloads.
   `127.0.0.1`, so nobody else on the network (like event Wi-Fi) can reach
   the site with its `admin`/`admin` user, or the database.
 - **Database on port 5433, not 5432,** so it doesn't clash with a
-  PostgreSQL the student already has installed.
+  PostgreSQL the student already has installed. The ports on the computer
+  can be changed with `SITE_PORT` and `DATABASE_PORT` in a root `.env`
+  (read by Compose only), for running next to another project with the same
+  ports. Inside the container the site stays on 8000.
 - **Start commands are written inline in `docker-compose.yml`,** not in a
   `.sh` script, so the whole setup is readable in one file.
 - **Line endings are always LF.** `.gitattributes` makes Git check out
