@@ -53,7 +53,7 @@ services:
       # The cache in the database, so both app and dev can use it (settings.py).
       CACHE_IN_DATABASE: "True"
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8001:8001"
     volumes:
       - .:/workspace
       - claude-config:/home/dev/.claude
@@ -77,7 +77,7 @@ services:
              python manage.py createcachetable &&
              python manage.py seed_halloween_data &&
              while true; do
-             python manage.py runserver 0.0.0.0:8000;
+             python manage.py runserver 0.0.0.0:8001;
              echo 'The server stopped. Starting it again in 2 seconds.';
              sleep 2;
              done;
