@@ -120,8 +120,7 @@ Changed from the Halloween version of ifi:
 
 Checked in the Halloween repo (26 Oct):
 - `tools/ifi/tests/run` passes, also when run from this folder with these
-  changes (128 passed. The 5 failures need the local site to be running and
-  fail the same way in the original copy).
+  changes (133 passed; `install` is skipped in the container).
 - The quick Django tests pass there with the `app` user, the media volume and
   the database cache.
 - These docs: link check, plus the links ifi prints. `settings.py` compiles.
