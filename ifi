@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# ifi for terminals outside the dev container: Mac, Linux, Git Bash on
+# Windows (Windows PowerShell and cmd use ifi.cmd next to this file). Run it
+# as ./ifi from the repo root, or anywhere after `./ifi install`.
+#
+# Git commands (status, save, pull-request, ...) run here, on your own
+# computer, where your GitHub login is. The ones that need the site's Python
+# (test, migrate, restart-server, reset-database) run inside the container if
+# it's running (Docker started outside VS Code), and otherwise here with the
+# project's venv (the setup without Docker).
+set -euo pipefail
+
+top="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+tools="$top/tools/ifi/ifi"
+
+[[ -f /.dockerenv ]] && exec "$tools" "$@"
+
+case "${1:-help}" in
+    test | migrate | restart-server | reset-database | wipe-database)
+        if command -v docker >/dev/null 2>&1 &&
+            (cd "$top" && docker compose ps --status running --services 2>/dev/null) | grep -qx web; then
+            # The same folder inside the container, so relative paths still work.
+            workdir=/workspace/ifiplatform
+            [[ "$PWD" == "$top"* ]] && workdir="/workspace${PWD#"$top"}"
+            tty=-T
+            [[ -t 0 && -t 1 ]] && tty=-it
+            cd "$top"
+            # Git Bash would turn /workspace into a Windows path without this.
+            export MSYS_NO_PATHCONV=1
+            # -u dev: the container's own user is app, which runs the site
+            # (docs/claude_context/dev_container_users.md).
+            exec docker compose exec "$tty" -u dev -w "$workdir" web ifi "$@"
+        fi
+        ;;
+esac
+exec "$tools" "$@"

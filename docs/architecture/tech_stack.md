@@ -1,6 +1,6 @@
 # Tech stack
 
-Last updated: 2026-10-16
+Last updated: 2026-10-25
 
 What IfiPlatform is built with, and why each piece is there. For how the
 production server runs all of this, see
@@ -98,7 +98,8 @@ Gunicorn worker processes, so a change seen by one worker is seen by all.
 Each database gets its own subfolder (`django_cache/<database name>/`), so
 two local servers on different databases, such as the dev database and a
 restored copy of production, never share cached data. Tests use a separate
-in-memory cache.
+in-memory cache. The Docker dev container keeps the cache in a database
+table instead (see [docker_setup.md](docker_setup.md)).
 
 ## External services
 

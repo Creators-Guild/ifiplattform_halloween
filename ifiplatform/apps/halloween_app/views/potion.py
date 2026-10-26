@@ -15,12 +15,19 @@ INGREDIENTS = [
 
 def mix(picked):
     """The picked ingredient keys -> what the potion does, as one sentence."""
-    # TODO 1: nothing picked -> "Just water. Spooky.".
-    # TODO 2: at least 4 rules for special combinations, for example
-    #         bat_wing + coffee -> "You can now debug all night."
-    # TODO 3: anything else -> a general sentence that names how many
-    #         ingredients went in.
-    return None
+    if len(picked) == 0:
+        return "Just water. Spooky."
+    
+    if "bat_wing" in picked and "coffee" in picked:
+        return "You can now debug all night."
+    if "pumpkin" in picked and "candy" in picked:
+        return "A sweet and spooky surprise awaits you!"
+    if "spider" in picked and "eyeball" in picked:
+        return "You can now see through walls, but beware of the spiders!"
+    if "bat_wing" in picked and "spider" in picked:
+        return "You can now fly through the night like a spooky bat!"
+
+    return f"A mysterious potion with {len(picked)} ingredients. What could it do?"
 
 
 def potion_view(request):

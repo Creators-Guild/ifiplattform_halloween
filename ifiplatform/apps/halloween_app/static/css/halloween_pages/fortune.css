@@ -1,0 +1,21 @@
+/* Style for the form */
+.fortune-form {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+  }
+  
+  /* Style for the fortune result */
+  .fortune-result {
+    width: 18rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    margin: 2rem auto;
+    background: radial-gradient(circle at 35% 30%, #e9d8ff, #6b2fb3 60%, #24093f);
+    box-shadow: 0 0 40px rgba(170, 67, 255, 0.6);
+    display: grid;
+    place-items: center;
+    color: #fff5bc;
+    font-style: italic;
+    text-align: center;
+  }

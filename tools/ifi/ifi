@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# `ifi`: this project's own helper commands for the event. Dockerfile.dev
-# links it into the dev container's PATH; without Docker, run tools/ifi/ifi.
-# Every subcommand is a script next to this one.
+# `ifi`: this project's own helper commands. Dockerfile.dev
+# links it into the dev container's PATH; without Docker, `ifi install` adds
+# the launcher in the repo root (../../ifi) to your terminal.
+# Every subcommand is a script next to this one. Tests: tests/run, and
+# tests/playground to try them by hand.
 set -euo pipefail
 
 here="$(dirname "$(readlink -f "$0")")"
@@ -10,7 +12,17 @@ shift || true
 
 case "$cmd" in
     help | -h | --help) exec "$here/help" "$@" ;;
-    fix-issue | pull-request | undo-file | test | migrate | restart-server | reset-server | rebuild-docker) exec "$here/$cmd" "$@" ;;
+    fix-issue | save | check | update | pull-request | undo-file | cleanup | account | install | test | migrate | restart-server | reset-database | rebuild-docker) exec "$here/$cmd" "$@" ;;
+    wipe-database)
+        # The old name.
+        echo "ifi wipe-database is now called ifi reset-database." >&2
+        exec "$here/reset-database" "$@"
+        ;;
+    status)
+        # The old name, renamed so it isn't mixed up with git status.
+        echo "ifi status is now called ifi check. (git status is something else: it shows your changed files.)" >&2
+        exec "$here/check" "$@"
+        ;;
     *)
         echo "ifi: no command called '$cmd'. Type: ifi help" >&2
         exit 1

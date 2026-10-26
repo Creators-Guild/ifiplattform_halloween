@@ -1,6 +1,6 @@
 # Docker setup
 
-Last updated: 2026-10-15
+Last updated: 2026-10-25
 
 How the local Docker setup is built and why. To start it, see
 [contributing/setup_with_docker.md](../contributing/setup_with_docker.md). For day-to-day
@@ -21,13 +21,15 @@ site still runs without Docker until it moves over (see
 | `.devcontainer/devcontainer.json` | Lets VS Code open the `web` container ("Reopen in Container"). Builds the image first (`initializeCommand`), shows the whole repo, starts new terminals in `ifiplatform/`, and installs the editor extensions (see below) |
 | `.devcontainer/docker-compose.devcontainer.yml` | Used only by VS Code, on top of `docker-compose.yml`. Hides `build`, so VS Code starts the already built image instead of building it (see below) |
 | `.vscode/settings.json`, `.vscode/extensions.json` | Editor settings and recommended extensions. Used both in the container and without Docker |
-| `tools/ifi/`                      | Our own `ifi` commands: `fix-issue`, `pull-request`, `test`, `migrate`, `restart-server`, `reset-server`, `rebuild-docker` and `help`. Shared into the container with the rest of the repo, so editing them needs no rebuild. `shell-setup.sh` adds Tab completion, loaded from the dev user's `.bashrc` |
+| `tools/ifi/`                      | Our own `ifi` commands (`ifi help` lists them). Shared into the container with the rest of the repo, so editing them needs no rebuild. `shell-setup.sh` adds Tab completion, the `(container)` prompt and, in the first terminal after the container starts, `ifi check --quiet` (later terminals show the latest result instead, saved in `/dev/shm`), loaded from the dev user's `.bashrc`. The scripts also run without Docker (bash 3.2 on a Mac, Git Bash on Windows) |
+| `ifi`, `ifi.cmd` (repo root)      | Launchers for terminals outside the container (`.cmd` for PowerShell, via Git Bash). Commands that need the site's Python go into the running container; Git commands stay on your computer, where the GitHub login is |
 | `.dockerignore`                   | Keeps the venv, local database, media and `.env` out of the build |
 
 ## What happens on start
 
 0. Before VS Code does anything, `initializeCommand` runs
-   `docker compose build web` on your own computer. It builds
+   `docker build -f Dockerfile.dev -t ifiplattform-halloween-web:dev .` on
+   your own computer. It builds
    `Dockerfile.dev` into the image `ifiplattform-halloween-web:dev`. After
    the first time Docker's cache makes this take a second or two.
 1. `db` starts. `web` waits until the database answers (the healthcheck).
@@ -59,15 +61,22 @@ your own computer show up right away and `runserver` reloads.
   which refuses to read files outside the project, so the build stopped
   at once with `additional privileges requested: pass --allow=fs.read=...`
   (seen on a Mac with Docker Desktop 4.95 in October 2026). So
-  `initializeCommand` builds the image with a plain `docker compose build`,
-  which only reads files inside the project. The override
+  `initializeCommand` builds the image itself. It uses plain
+  `docker build`, not `docker compose build`, because Compose hands every
+  build to bake, and on Windows bake failed even on our own
+  `Dockerfile.dev` (`--allow=fs.read=Dockerfile.dev` or
+  `failed to execute bake`, Docker Desktop 4.95 and 4.96 at the October
+  2026 event). Plain `docker build` never uses bake. The image name must
+  match `image:` in `docker-compose.yml`. The override
   `.devcontainer/docker-compose.devcontainer.yml` then removes `build`
   (`!reset`, which needs Compose 2.24 or newer), so the extension starts
   that image instead. `pull_policy: never` stops Compose from looking for
   the local image name on Docker Hub if the build failed. Outside VS Code,
-  `docker compose up --build` still builds as before.
+  `docker compose up --build` still builds through Compose, so on Windows
+  it can hit the same bake error (see the
+  [Docker guide](../contributing/docker_guide.md#if-something-goes-wrong)).
 - **Commands stay the same.** Students work inside the container
-  (VS Code's terminal, or `docker compose exec web bash`), so the
+  (VS Code's terminal, or `docker compose exec -u dev web bash`), so the
   README's `python manage.py ...` commands work unchanged. `py` is
   linked to `python` in the container, so the Windows style works too.
 - **No `.env` needed to run the site.** `web` sets every needed setting in
@@ -81,6 +90,10 @@ your own computer show up right away and `runserver` reloads.
   `OPEN_SIGNUP=True`, so you sign up with just a username and password
   and can edit pages right away. See
   [docker_server.md](../operations/docker_server.md#open-sign-up-mock-site-only).
+- **Norway's clock.** `docker-compose.yml` sets `TZ=Europe/Oslo`, so the
+  terminal, Git commits and `ifi check` show Norwegian time, with summer
+  and winter time, instead of UTC. The site isn't affected: Django uses
+  `TIME_ZONE` from its settings.
 - **Same versions as production:** Python 3.12 and PostgreSQL 16. CI
   also runs the tests on PostgreSQL 16, so a test that passes in the
   container passes in CI.
@@ -120,6 +133,18 @@ your own computer show up right away and `runserver` reloads.
   (`docker compose up`), `dev` keeps ID 1000, which is the usual ID of
   the first user on a Linux computer. Docker Desktop (Windows and macOS)
   hides this problem either way.
+- **The site runs as its own user, `app`.** VS Code's terminals open as
+  `dev`, but the server and the start-up steps run as `app`. Those steps
+  run code from whatever branch is checked out, so they could otherwise
+  read `dev`'s logins, like Claude Code's. `app` can read the project but
+  not `/home/dev`. Because `app` can't write to the shared folder,
+  uploads go to the `media` volume (`MEDIA_ROOT=/srv/media`). The first
+  start copies any old `ifiplatform/media` into it. The cache is a table
+  in the database (`CACHE_IN_DATABASE`), since a file cache only works
+  for the user who wrote it. `dev` may run commands as `app` with
+  `sudo -u app` (`ifi restart-server` does), but `app` can't become
+  anyone else. `docker compose exec` opens as `app`, so use
+  `docker compose exec -u dev web bash`.
 - **Claude Code stays logged in.** Its login and settings are kept in the
   `claude-config` volume (`CLAUDE_CONFIG_DIR`), so they survive rebuilds
   and `docker compose down`. Only `down -v` deletes them. Shared Claude

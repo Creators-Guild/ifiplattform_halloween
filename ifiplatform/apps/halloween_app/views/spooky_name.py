@@ -5,22 +5,29 @@ from django.shortcuts import render
 
 FIRST_PARTS = [
     "Count",
-    # TODO 1: add at least 5 more, like "Lady", "Doctor", "Old".
+    "Baron",
+    "Lady",
+    "Doctor",
+    "Old",
+    "Sir",
 ]
 LAST_PARTS = [
     "of the Crypt",
-    # TODO 2: add at least 5 more, like "Bonecrusher", "the Pale".
+    "the Pale",
+    "of the Night",
+    "the Bonecrusher",
+    "of the Shadows",
+    "the Undying",
 ]
 
 
 def spooky_name(name):
     """ "Kari" -> for example "Count Kari of the Crypt". The same name always
     gets the same spooky name."""
-    # TODO 3: pick one of FIRST_PARTS and one of LAST_PARTS from the name
-    # (for example len(name) and the sum of ord() of the letters), and put
-    # the name in between.
-    return None
-
+    number = sum(ord(letter) for letter in name)
+    first_part = FIRST_PARTS[number % len(FIRST_PARTS)]
+    last_part = LAST_PARTS[number % len(LAST_PARTS)]
+    return f"{first_part} {name} {last_part}"
 
 def spooky_name_view(request):
     name = request.GET.get("name", "").strip()

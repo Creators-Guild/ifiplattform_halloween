@@ -1,0 +1,6 @@
+body{
+    background-image: url(../../images/halloween/cobweb.svg);
+    background-position: top left;
+    background-attachment: scroll !important;
+    background-repeat: no-repeat;
+}

@@ -335,7 +335,13 @@ STORAGES = {
 
 # Media files (user uploads, e.g. Wagtail images)
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# The dev container sets MEDIA_ROOT to a volume of its own (docker-compose.yml).
+# Two users write there (the site and your own commands, one group), so new
+# folders and files are group-writable.
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+if os.environ.get("MEDIA_ROOT"):
+    FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o2775
+    FILE_UPLOAD_PERMISSIONS = 0o664
 
 # Email (used for account verification, see account_app) -- defaults to the
 # console backend (prints emails to the server log instead of sending them),
@@ -367,6 +373,16 @@ CACHES = {
         "LOCATION": BASE_DIR / "django_cache" / Path(DATABASES["default"]["NAME"]).name,
     }
 }
+# The dev container's site and your own manage.py commands run as different
+# users, and a file cache can only be read by the user who wrote it. So
+# there it lives in the database (docker-compose.yml, createcachetable).
+if os.environ.get("CACHE_IN_DATABASE") == "True":
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "django_cache",
+        }
+    }
 # The test runner gets its own in-memory cache -- sharing django_cache with
 # the dev server let the test database's site-root paths leak into it,
 # turning every English {% pageurl %} on the dev site into None.

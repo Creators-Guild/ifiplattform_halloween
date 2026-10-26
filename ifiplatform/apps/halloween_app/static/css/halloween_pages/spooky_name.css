@@ -1,0 +1,9 @@
+/* Style for the spooky result */
+.spooky-result {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: bold;
+    color: #c0261d; /* Blood red */
+    text-shadow: 
+      0 0 12px rgba(192, 38, 29, 0.6), /* Red glow */
+      2px 2px 0 #000; /* Hard black shadow */
+  }

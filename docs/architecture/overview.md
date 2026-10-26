@@ -1,6 +1,6 @@
 # Architecture overview
 
-Last updated: 2026-10-15
+Last updated: 2026-10-25
 
 A map of how IfiPlatform fits together: which app does what, how pages are
 organized, and what happens between a browser request and the HTML that
@@ -374,8 +374,8 @@ and the production keys are in
 | `DEBUG` | `True` | `False` |
 | Database | SQLite (`ifiplatform/db.sqlite3`), or PostgreSQL with `USE_POSTGRES=True` | PostgreSQL |
 | Static files | served straight from each `static/` folder | collected into `ifiplatform/staticfiles/`, with hashed names |
-| Uploaded files (images, documents) | `ifiplatform/media/` | `ifiplatform/media/` |
-| Cache | `ifiplatform/django_cache/` (tests use memory) | `ifiplatform/django_cache/` |
+| Uploaded files (images, documents) | `ifiplatform/media/` (Docker: the `media` volume) | `ifiplatform/media/` |
+| Cache | `ifiplatform/django_cache/` (Docker: a table in the database; tests use memory) | `ifiplatform/django_cache/` |
 | Email | printed to the console | sent through SMTP |
 
 ## Languages

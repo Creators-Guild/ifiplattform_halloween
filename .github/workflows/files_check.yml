@@ -1,31 +1,38 @@
 name: Files check
 
-# For the Commit for Candy issues: shows whether a PR only changes the files
-# its issue lists under "### Files to change", so helpers can merge it without
-# reading the diff. The issue is the one in the PR's "Closes #N".
+# For the Commit for Candy issues: checks that a PR only changes the files
+# its issue lists under "### Files to change", so helpers can merge it
+# without reading the diff. The issue is the one in the PR's "Closes #N".
+# The "Protect Main" ruleset makes this check required, so a red one blocks
+# the merge (organisers can bypass it in an emergency).
 #
-# Extra files are only a warning, not a failure: adding something on top is
-# allowed, it's for fun. The warning lists them so a helper can take a look
-# (GitHub itself says if they cause a merge conflict). It fails when there's
-# no "Closes #N", since then merging wouldn't close the issue and nobody would
-# get the points.
+# Extra files fail the check until a maintainer has looked at them and added
+# the "files-reviewed" label: adding something on top is allowed, but someone
+# has to see it. New commits remove the label again, so they get a fresh
+# look. Only people with write or triage access can add labels.
+#
+# No "Closes #N" fails it too, since merging then wouldn't close the issue
+# and nobody would get the points. The check also posts a comment that says
+# how to add it, and deletes that comment once the line is there.
 #
 # It also fails for changes made in the browser on github.com: setting up the
 # project locally is part of the event. Those commits have GitHub's
 # "web-flow" as committer, and the web editor names branches "patch-1" and
-# so on, while `ifi fix-issue` always makes "<type>/<few-words>". The helper
-# then helps them set up instead of merging.
+# so on, while `ifi fix-issue` always makes "<type>/<few-words>".
 #
-# Uses only the GitHub API and never checks out the PR's code.
+# pull_request_target, not pull_request: PRs from forks only get a write
+# token this way, which removing the label and commenting need. That's safe
+# here because the check never checks out or runs the PR's code: it only
+# reads file names and texts through the API, and writes fixed texts.
 on:
-  pull_request:
+  pull_request_target:
     branches: [main]
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
 
 permissions:
   contents: read
-  pull-requests: read
-  issues: read
+  pull-requests: write
+  issues: write
 
 jobs:
   files:
@@ -35,6 +42,26 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
+            const REVIEWED = 'files-reviewed';
+            const CLOSES_MARK = '<!-- files-check:closes -->';
+
+            // The label has to exist before anyone can add it.
+            try {
+              await github.rest.issues.getLabel({ ...context.repo, name: REVIEWED });
+            } catch (e) {
+              await github.rest.issues.createLabel({
+                ...context.repo, name: REVIEWED, color: '0e8a16',
+                description: 'A maintainer looked at the extra files; the Files check may pass',
+              });
+            }
+
+            // New commits after the label: it no longer covers them.
+            let reviewed = pr.labels.some((l) => l.name === REVIEWED);
+            if (context.payload.action === 'synchronize' && reviewed) {
+              await github.rest.issues.removeLabel({ ...context.repo, issue_number: pr.number, name: REVIEWED });
+              reviewed = false;
+              core.info(`New commits, so the ${REVIEWED} label was removed.`);
+            }
 
             const commits = await github.paginate(github.rest.pulls.listCommits, {
               ...context.repo, pull_number: pr.number, per_page: 100,
@@ -46,11 +73,34 @@ jobs:
               core.setFailed('Made in the browser: please set up the project and do it locally (ifi fix-issue <issue number>). Ask a helper if you get stuck.');
             }
 
+            // The comment about a missing "Closes #N": posted once, deleted when fixed.
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              ...context.repo, issue_number: pr.number, per_page: 100,
+            });
+            const closesComment = comments.find((c) => c.user.type === 'Bot' && c.body.includes(CLOSES_MARK));
+
             const linked = (pr.body || '').match(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/i);
             if (!linked) {
+              if (!closesComment) {
+                await github.rest.issues.createComment({
+                  ...context.repo, issue_number: pr.number,
+                  body: [
+                    CLOSES_MARK,
+                    '👋 This pull request doesn\'t say which issue it fixes yet.',
+                    '',
+                    'Click **…** at the top right of the description, choose **Edit**, and add a line like `Closes #42` (with your issue\'s number). Then click **Update comment**.',
+                    '',
+                    'Without it, merging won\'t close the issue and you won\'t get the points. This check runs again by itself when you save.',
+                  ].join('\n'),
+                });
+              }
               core.setFailed('No "Closes #<issue number>" in the PR description, so there is no file list to check against.');
               return;
             }
+            if (closesComment) {
+              await github.rest.issues.deleteComment({ ...context.repo, comment_id: closesComment.id });
+            }
+
             const number = Number(linked[1]);
             const { data: issue } = await github.rest.issues.get({ ...context.repo, issue_number: number });
 
@@ -79,8 +129,14 @@ jobs:
               .addTable(rows)
               .write();
 
-            if (extra.length) {
-              core.warning(`Also changes files that issue #${number} doesn't list: ${extra.join(', ')}. Fine if it's on purpose; have a quick look.`);
-            } else {
+            if (!extra.length) {
               core.info(`Only files from issue #${number}. Safe to merge as far as files go.`);
+            } else if (reviewed) {
+              core.info(`Extra files (${extra.join(', ')}), but a maintainer added the ${REVIEWED} label.`);
+            } else {
+              core.setFailed(
+                `Also changes files that issue #${number} doesn't list: ${extra.join(', ')}. `
+                + `A maintainer can look at them and add the "${REVIEWED}" label to let this pass, `
+                + 'or take them out with: ifi undo-file --extra'
+              );
             }

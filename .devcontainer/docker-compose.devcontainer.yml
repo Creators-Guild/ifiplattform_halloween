@@ -1,7 +1,8 @@
 # Only used by VS Code (devcontainer.json), on top of ../docker-compose.yml.
 #
 # Hides `build` from the Dev Containers extension, so it starts the image
-# that initializeCommand already built instead of building it itself. When
+# that initializeCommand already built (with plain `docker build`) instead of
+# building it itself. When
 # the extension builds, it adds its own Dockerfile from a temp folder outside
 # the project, and newer Docker Compose (5.x, "bake") refuses to read it:
 # "additional privileges requested: pass --allow=fs.read=...".

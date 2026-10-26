@@ -1,6 +1,6 @@
 # Get the code
 
-Last updated: 2026-10-15
+Last updated: 2026-10-25
 
 The first step, before you set up the site. You get a copy of the repo on
 your own computer: a folder called `ifiplattform_halloween`. How you get it
@@ -16,6 +16,8 @@ depends on one thing.
 **Not sure? You're a contributor.**
 
 **On Windows, and going to use Docker?** You can clone to a windows folder, but WSL is faster. Clone inside WSL, not to a drive like `C:\`: open the Ubuntu terminal, clone there, and run `code .` in the repo folder. Docker is much faster that way. GitHub Desktop always clones to a Windows folder, so the site runs slower with it, but it still works.
+
+**Use the HTTPS address** (`https://github.com/...`), as below, not the SSH one (`git@github.com:...`). HTTPS works in the container without any setup, because VS Code shares your GitHub login with it. Already cloned with SSH? `ifi pull-request` offers to switch it for you, or run `git remote set-url origin https://github.com/<your-username>/ifiplattform_halloween.git`.
 
 **Rather click than type commands?** Install [GitHub Desktop](https://desktop.github.com/). Each section below says how to do it there.
 
@@ -70,6 +72,8 @@ Other ways that do the same:
 - **Mac:** open **Keychain Access**, search for `github.com`, and delete the entry.
 - **Windows:** open **Credential Manager → Windows Credentials**, and remove `git:https://github.com`.
 - **GitHub CLI:** `gh auth switch`, or `gh auth logout` and then `gh auth login`.
+
+Want to push as a different account in this repo only, and keep your computer's usual login for everything else? Run `ifi account switch <username>`. [Docker guide](docker_guide.md#another-github-account-in-the-container) explains it.
 
 **GitHub Desktop** has its own login (**Settings → Accounts**, on Windows **File → Options → Accounts**). It doesn't log in the terminal, and the terminal login doesn't log in GitHub Desktop.
 

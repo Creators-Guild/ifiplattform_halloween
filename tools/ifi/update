@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+# ifi update: brings your branch up to date with the newest main, so you
+# test against everyone else's changes. On a conflict it stops and explains;
+# fix the files and run `ifi update` again to go on, or `ifi update --abort`
+# to go back to how it was.
+#
+# Rebase (your commits on top of main, one at a time) unless a conflict is
+# coming and you have more than one commit: then it asks, because a rebase
+# can stop once per commit while a merge stops once. `git merge-tree`
+# (Git 2.38+) sees the conflict coming without touching any files.
+#
+# Remembers where the branch was before a rebase
+# (branch.<name>.ifi-before-update), so the next push (push_branch in
+# common.sh: ifi pull-request, ifi undo-file) knows the branch on GitHub may
+# be replaced by the updated one, and nothing else.
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/common.sh"
+
+cd "$(git rev-parse --show-toplevel)"
+
+in_rebase() {
+    [[ -d "$(git rev-parse --git-path rebase-merge)" || -d "$(git rev-parse --git-path rebase-apply)" ]]
+}
+in_merge() {
+    git rev-parse --verify --quiet MERGE_HEAD >/dev/null
+}
+
+what_now_after_update() {
+    your_turn "check that the site still works, and run ifi test. Then:"
+    choices \
+        "Done, or already have a pull request?" "ifi pull-request" \
+        "Still working?" "carry on with your change"
+}
+
+conflict_what_now() {
+    your_turn
+    choices \
+        "Fixed every file?" "ifi update           (goes on with the update)" \
+        "Stuck, or it's a lot?" "ifi update --abort   (back to how your branch was; nothing is lost)"
+    echo "  Or ask a helper."
+}
+
+# $1 is merge or rebase: in VS Code, "Current" and "Incoming" swap between
+# the two.
+conflict_how_to() {
+    local current incoming
+    if [[ "$1" == merge ]]; then
+        current="your" incoming="main's"
+    else
+        current="main's" incoming="your"
+    fi
+    cat <<EOF
+
+  Take one file at a time.
+
+  1. Open the file. Git has put both versions in it, between markers.
+     A file can have several of these, so search for <<<<<<<.
+
+       <<<<<<<
+       .event-card { background: #222; }      <- $current version
+       =======
+       .event-card { background: orange; }    <- $incoming version
+       >>>>>>>
+
+  2. Make it look the way it should end up: keep one version, or a mix.
+     Then delete the three marker lines (<<<<<<<, =======, >>>>>>>).
+     The example could end up as:
+
+       .event-card { background: orange; }
+
+  3. Save the file. Do the same for every file in the list.
+
+  In VS Code: the buttons above the markers do steps 1-2 for you. Here
+  "Current" is $current version and "Incoming" is $incoming.
+EOF
+}
+
+# Asks whether to show the how-to (only when someone can answer).
+offer_help() {
+    local answer=""
+    [[ -t 0 ]] || return 0
+    echo
+    read -r -p "Want help fixing it? (y/n) " answer || true
+    [[ "$answer" =~ ^[YyJj] ]] && conflict_how_to "$1"
+    return 0
+}
+
+# Stops with the conflict screen. $1 is merge or rebase; $2 is "again" when
+# a rebase stops at your next commit after you fixed the one before.
+conflict_help() {
+    local files count
+    files="$(git diff --name-only --diff-filter=U)"
+    count="$(grep -c . <<<"$files" || true)"
+    git_recap
+    echo
+    if [[ "${2:-}" == again ]]; then
+        echo "Another conflict, in your next commit (\"$(git log -1 --format=%s REBASE_HEAD 2>/dev/null)\")."
+        echo "That's normal: a rebase puts your commits on main one at a time. Same"
+        echo "steps as before. You choose which version to keep."
+    else
+        echo "Conflict! Someone else changed the same lines as you, and Git can't"
+        echo "choose between the two versions. You choose."
+    fi
+    if [[ "$count" -eq 1 ]]; then
+        echo "This file needs it:"
+    else
+        echo "$count files need it:"
+    fi
+    sed 's/^/  /' <<<"$files"
+    offer_help "$1"
+    conflict_what_now
+    exit 1
+}
+
+if in_rebase || in_merge; then
+    mode=rebase
+    in_merge && mode=merge
+    if [[ "${1:-}" == --abort ]]; then
+        run "Stop the update and put your branch back the way it was" git "$mode" --abort
+        echo
+        echo "Back to how your branch was before the update."
+        git_recap
+        exit 0
+    fi
+    # Still conflict markers in a file? Then it isn't fixed yet.
+    marked="$(git diff --name-only --diff-filter=U | while IFS= read -r f; do
+        if grep -qE '^(<<<<<<<|>>>>>>>)( |$)' -- "$f" 2>/dev/null; then echo "$f"; fi
+    done)"
+    if [[ -n "$marked" ]]; then
+        echo "These files still have conflict markers (<<<<<<< or >>>>>>>):"
+        sed 's/^/  /' <<<"$marked"
+        offer_help "$mode"
+        conflict_what_now
+        exit 1
+    fi
+    # -u, not -A: the conflicted files are already in Git, and new files
+    # (notes, screenshots) shouldn't slip into the commit unasked.
+    run "Mark the fixed files as solved" git add -u
+    if [[ "$mode" == merge ]]; then
+        run "Finish the merge" git commit --no-edit
+    elif ! run "Go on with the update" env GIT_EDITOR=true git rebase --continue; then
+        conflict_help rebase again
+    fi
+else
+    [[ "${1:-}" != --abort ]] || die "No update is running, so there's nothing to abort."
+    branch="$(git branch --show-current)"
+    [[ -n "$branch" ]] || die "You're not on a branch. Go to your issue's branch first: ifi fix-issue <nr>"
+    [[ "$branch" != main ]] || die "You're on main. ifi fix-issue <nr> already starts from the newest main in the main repo."
+    if [[ -n "$(git status --porcelain)" ]]; then
+        git status --short
+        die "" "Commit your changes first, then update:" \
+            "  ifi save \"Short description of what you changed\""
+    fi
+
+    find_base
+    fetch_base
+    behind="$(git rev-list --count "HEAD..$base/main")"
+    if [[ "$behind" -eq 0 ]]; then
+        echo
+        echo "Already up to date with main in the main repo ($base/main)."
+        git_recap
+        exit 0
+    fi
+
+    mode=rebase
+    mine="$(git rev-list --count "$base/main..HEAD")"
+    clash=""
+    if [[ "$mine" -gt 1 && -t 0 ]]; then
+        # Exit 1 = conflicts, listed after the first line; anything above 1
+        # = this Git can't tell (too old), so no question.
+        status=0
+        out="$(git merge-tree --write-tree --name-only HEAD "$base/main" 2>/dev/null)" || status=$?
+        [[ $status -eq 1 ]] && clash="$(sed -n '2,/^$/p' <<<"$out" | sed '/^$/d')"
+    fi
+    if [[ -n "$clash" ]]; then
+        echo
+        echo "main in the main repo ($base/main) has $behind new commit(s), and some of them"
+        echo "change the same lines as you in:"
+        sed 's/^/  /' <<<"$clash"
+        echo "You'll have to choose which version to keep. How do you want to do that?"
+        echo "  1  →  merge:  fix it all at once. Adds one extra \"Merge\" commit."
+        echo "                (Pick this if you're unsure.)"
+        echo "  2  →  rebase: fix it once for each of your $mine commits that touches those lines."
+        echo "                Keeps your history tidy."
+        answer=""
+        while [[ "$answer" != 1 && "$answer" != 2 ]]; do
+            read -r -p "Choose 1 or 2: " answer || die ""
+        done
+        [[ "$answer" == 1 ]] && mode=merge
+    else
+        echo "      main in the main repo ($base/main) has $behind new commit(s)."
+    fi
+
+    if [[ "$mode" == merge ]]; then
+        if ! run "Bring the main repo's new commits into your branch, in one go" git merge --no-edit "$base/main"; then
+            conflict_help merge
+        fi
+    else
+        git config "branch.$branch.ifi-before-update" "$(git rev-parse HEAD)"
+        if ! run "Put your commits on top of the newest main from the main repo" git rebase "$base/main"; then
+            conflict_help rebase
+        fi
+    fi
+fi
+
+[[ -n "${base:-}" ]] || find_base
+echo
+echo "Updated: $(git branch --show-current) now has the newest main from the main repo ($base/main)."
+git_recap
+what_now_after_update
