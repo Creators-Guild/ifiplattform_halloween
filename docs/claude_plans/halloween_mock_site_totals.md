@@ -129,6 +129,8 @@ commit,<hash>,"mock site repo, code that counted"
 
 - Don't copy the database, a dump, a backup or any per-account rows off
   the server, not even "just in case". The promise is totals only.
+- Don't take screenshots of the leaderboard or any page that shows
+  usernames (decided with Hanna 2026-10-30).
 - Don't move any of the mock site's data to IfiPlatform. Only the small
   file of totals is kept.
 - Don't fetch per-person GitHub data from the event repo now. That needs

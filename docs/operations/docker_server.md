@@ -306,17 +306,19 @@ The privacy notice promises that the mock site is deleted no later than
 
 By 1 November:
 
-1. Take a screenshot of the final leaderboard, if you want one.
-2. Take the anonymous totals:
+Take nothing off the site that is about a person: no leaderboard
+screenshots, no database copies. Only the anonymous totals.
+
+1. Take the anonymous totals:
    `docker compose exec -T web python manage.py halloween_totals > halloween_totals.csv`.
    Fill in the empty rows by hand, move the file off the server, and
    delete the copy there.
-3. Disable the deploy workflow (GitHub → Actions → Deploy → Disable
+2. Disable the deploy workflow (GitHub → Actions → Deploy → Disable
    workflow). Otherwise a push brings the site back up with an empty
    database.
-4. Try the wipe: `sudo bash deploy/halloween/wipe_mock_site.sh --dry-run`.
+3. Try the wipe: `sudo bash deploy/halloween/wipe_mock_site.sh --dry-run`.
    If it fails, fix that first and don't install the timer.
-5. Install the timer:
+4. Install the timer:
 
    ```bash
    sudo cp deploy/halloween/halloween-wipe.service deploy/halloween/halloween-wipe.timer /etc/systemd/system/
