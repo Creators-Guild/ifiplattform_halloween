@@ -1,6 +1,6 @@
 # Plan: research numbers from the Halloween mock site
 
-Last updated: 2026-10-29
+Last updated: 2026-10-30
 
 The mock site (halloween.ifiplattform.no) must be deleted on
 **2 November 2026**, as its privacy policy promises. Before that, Hanna
@@ -40,6 +40,25 @@ plus the issue counts under "Extra" below, nothing else:
   still counted. If any other account is a superuser or staff, stop and
   ask Hanna before leaving it out. Count how many were left out (only the
   number).
+
+**Answers (checked in the code, decided with Hanna 2026-10-30):**
+
+- Connected GitHub: the account has a `commits_app.GitHubLink` row (the
+  username typed on the Commits page). There is no other GitHub link.
+- Solved: the linked GitHub username has at least one `Credit` row,
+  whichever rule gave it. That is what Your Page and the leaderboard
+  showed.
+- Doing something: having a `GitHubLink` or ever having a `Claim`. A claim
+  needs a link, but a claim stays if the person unlinks later, so number
+  4 is "no link and no claim".
+- Deactivated accounts (`is_active=False`) are counted like any other.
+- Excluded: the list above, by whole username, ignoring case. If another
+  account is staff or a superuser, the command stops and prints only how
+  many there are. After asking Hanna, rerun it with
+  `--also-exclude <username> ...`.
+
+Done: `commits_app/management/commands/halloween_totals.py`, tested in
+`commits_app/tests.py` (`HalloweenTotalsTests`).
 
 ### Extra: how credit was decided (issue counts only)
 
@@ -147,31 +166,52 @@ Add to the repo:
      logs, which hold the IP addresses) and the volumes `pgdata`, `media`,
      `cache`, `caddy_data` and `caddy_config`.
   3. Deletes everything under `/mnt/backups/postgres/` and
-     `/mnt/backups/media/`, if they exist. Check first which backup setup
-     the mock server really uses: `backup_db.sh` has the old non-Docker
-     paths (`/home/ubuntu/IfiPlatform`).
+     `/mnt/backups/media/`, if they exist. Most likely there are none:
+     the Docker guide never sets up `/mnt/backups` or the backup timer,
+     and `backup_db.sh` has the old non-Docker paths
+     (`/home/ubuntu/IfiPlatform`). The dry run shows it.
   4. Deletes `.env`, both in the repo root and in `ifiplatform/.env`.
+     Only once steps 1–3 have worked, because Compose needs `.env`, so a
+     rerun after a failure needs it too.
   5. Logs only what it removed (for example "deleted 14 backup files"),
      never any content. View the log with `journalctl -u halloween-wipe`.
   6. Writes `/var/lib/halloween-wipe/done` with the time, so a second run
-     does nothing.
+     does nothing. Only when every step succeeded (decided with Hanna
+     2026-10-30): every step is safe to repeat, so after a failure just
+     run the script again by hand.
 
-  With `--dry-run` it only lists what it would delete.
+  With `--dry-run` it only lists what it would delete. It exits non-zero
+  if something is wrong (not root, Docker or the Compose file missing).
 - `deploy/halloween/halloween-wipe.service` (oneshot, runs the script)
   and `halloween-wipe.timer` with
   `OnCalendar=2026-11-02 09:00:00 Europe/Oslo` and `Persistent=true`, so
   it still runs at the next boot if the VM was off at 09:00. It runs at
   09:00, not at midnight, so someone is awake to see that it worked.
 
-Test before installing: run the script with `--dry-run` on the server,
-and for real against a throwaway Compose project in the dev container
-with dummy volumes and a fake `/mnt/backups`. After installing, check
-that `systemctl list-timers halloween-wipe.timer` shows 2 November 09:00.
+Done (2026-10-30): the three files are in `deploy/halloween/`. Tested in
+the dev container with fake `docker`, `systemctl` and `id` commands and
+fake backup and state folders (`WIPE_BACKUP_ROOT`, `WIPE_STATE_DIR`):
+dry run, a failing `docker compose down` (backups deleted, `.env` kept,
+no done file, exit 1), a rerun (everything deleted, done written) and a
+third run (does nothing). The dev container has no Docker or systemd, so
+a real Compose test wasn't possible here.
+
+Test on the server: `sudo bash deploy/halloween/wipe_mock_site.sh
+--dry-run` in `/home/ubuntu/ifiplattform_halloween`. **If the dry run
+fails, don't install the timer or run the script.** Fix it first. Then
+install:
+
+```bash
+sudo cp deploy/halloween/halloween-wipe.service deploy/halloween/halloween-wipe.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now halloween-wipe.timer
+systemctl list-timers halloween-wipe.timer   # should show 2 November 09:00
+```
 
 Before the wipe, **turn off the deploy workflow** for the mock server
 (GitHub → Actions → the deploy workflow → Disable workflow). Otherwise a
-push to `main` brings the site back up with an empty database, and
-`deploy.sh` makes a new backup first.
+push to `main` brings the site back up with an empty database. (The
+Docker `deploy.sh` makes no backup; only the old non-Docker one did.)
 
 ### Checklist
 

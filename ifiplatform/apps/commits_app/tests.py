@@ -12,7 +12,7 @@ from datetime import timedelta
 from django.contrib.auth.models import Group
 from django.contrib.messages import get_messages
 from django.core.cache import cache
-from django.core.management import call_command
+from django.core.management import CommandError, call_command
 from django.db import IntegrityError, connection
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
@@ -1453,3 +1453,67 @@ class CoinsAndPointsTests(TestCase):
         self.assertNotContains(candy, "🏆")
         pumpkin = self.client.get(reverse("commits_issue_detail", args=[2]))
         self.assertContains(pumpkin, "3 🪙 + 3 🏆")
+
+
+class HalloweenTotalsTests(TestCase):
+    """The anonymous totals for the thesis (halloween_totals): only counts,
+    org accounts left out by whole username."""
+
+    def totals(self, *args):
+        out = io.StringIO()
+        call_command("halloween_totals", *args, stdout=out)
+        return out.getvalue()
+
+    def test_counts_and_columns(self):
+        admin = User.objects.create_user(username="Admin")
+        GitHubLink.objects.create(user=admin, github_login="orgghub")
+        make_credit(10, "orgghub")
+        User.objects.create_user(username="tester")
+        User.objects.create_user(username="zevxq", is_active=False)
+        alice = User.objects.create_user(username="zalxq")
+        GitHubLink.objects.create(user=alice, github_login="zalxq")
+        Claim.objects.create(issue_number=1, user=alice)
+        make_credit(1, "zalxq")
+        bob = User.objects.create_user(username="zboxq")
+        GitHubLink.objects.create(user=bob, github_login="zboxq")
+        Credit.objects.filter(pk=make_credit(2, "zboxq").pk).update(pr_number=5)
+        carol = User.objects.create_user(username="zcaxq")
+        GitHubLink.objects.create(user=carol, github_login="zcaxq")
+        dave = User.objects.create_user(username="zdaxq")
+        Claim.objects.create(issue_number=4, user=dave)
+        CreditOverride.objects.create(issue_number=3, github_login="zstxq")
+        make_credit(3, "zstxq")
+        make_credit(5, "znoxq")
+
+        output = self.totals()
+        rows = [line.split(",")[:2] for line in output.splitlines()]
+        self.assertEqual(rows[0], ["measure", "value"])
+        got = dict(rows[1:])
+        self.assertEqual(
+            {k: v for k, v in got.items() if k not in ("taken_at",)},
+            {
+                "accounts_total": "6",
+                "accounts_github_connected": "3",
+                "accounts_solved_task": "2",
+                "accounts_did_nothing": "2",
+                "accounts_excluded": "1",
+                "issues_credited": "4",
+                "issues_credited_by_override": "1",
+                "issues_credited_by_claim": "1",
+                "issues_credited_by_claim_without_pr": "1",
+                "issues_credited_by_github": "2",
+                "peoply_signups": "",
+                "commit": "",
+            },
+        )
+        self.assertRegex(got["taken_at"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d[+-]\d\d:\d\d$")
+        for name in ("zalxq", "zboxq", "zcaxq", "zdaxq", "zevxq", "tester", "zstxq"):
+            self.assertNotIn(name, output.lower())
+
+    def test_stops_on_unlisted_staff(self):
+        User.objects.create_user(username="helper", is_staff=True)
+        out = io.StringIO()
+        with self.assertRaisesMessage(CommandError, "1 staff/superuser"):
+            call_command("halloween_totals", stdout=out)
+        self.assertEqual(out.getvalue(), "")
+        self.assertIn("accounts_excluded,1,", self.totals("--also-exclude", "HELPER"))

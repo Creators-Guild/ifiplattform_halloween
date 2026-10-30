@@ -1,0 +1,8 @@
+[Unit]
+Description=Delete the Halloween mock site's data (privacy notice: by 2 November 2026)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /home/ubuntu/ifiplattform_halloween/deploy/halloween/wipe_mock_site.sh

@@ -1,0 +1,11 @@
+[Unit]
+Description=Wipe the Halloween mock site on 2 November 2026 at 09:00
+
+[Timer]
+# 09:00, not midnight, so someone is awake to check it worked. Persistent
+# runs it at the next boot if the VM was off at 09:00.
+OnCalendar=2026-11-02 09:00:00 Europe/Oslo
+Persistent=true
+
+[Install]
+WantedBy=timers.target
