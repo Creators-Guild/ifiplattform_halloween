@@ -232,6 +232,8 @@ Docker `deploy.sh` makes no backup; only the old non-Docker one did.)
 - [ ] 2 Nov, by hand: remove the mock site's `.env` and secrets wherever
       else they're stored (password manager, GitHub Actions secrets for
       the deploy).
+- [ ] 2 Nov, by hand: revoke the GitHub read token (GitHub → Settings →
+      Developer settings → Personal access tokens).
 - [ ] Write down the date it was deleted (the letter says it was deleted
       on 2 November 2026).
 

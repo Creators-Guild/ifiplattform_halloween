@@ -1,6 +1,6 @@
 # Docker server
 
-Last updated: 2026-10-16
+Last updated: 2026-10-30
 
 How to set up and run a server with Docker. Today this runs the Halloween
 mock site. The real site (`ifiplattform.no`) still runs the old setup in
@@ -302,15 +302,40 @@ Running it again updates the solutions instead of adding copies.
 ## After the event
 
 The privacy notice promises that the mock site is deleted no later than
-**2 November 2026**. Before that date:
+**2 November 2026**. A timer on the server wipes it at 09:00 that day.
+
+By 1 November:
 
 1. Take a screenshot of the final leaderboard, if you want one.
-2. On the server: `docker compose down -v`. This deletes the database,
-   the uploaded files and every account.
-3. Delete the VM in NREC.
-4. Remove the `halloween` DNS record at Gigahost.
-5. Revoke the GitHub token (GitHub → Settings → Developer settings →
-   Personal access tokens).
+2. Take the anonymous totals:
+   `docker compose exec -T web python manage.py halloween_totals > halloween_totals.csv`.
+   Fill in the empty rows by hand, move the file off the server, and
+   delete the copy there.
+3. Disable the deploy workflow (GitHub → Actions → Deploy → Disable
+   workflow). Otherwise a push brings the site back up with an empty
+   database.
+4. Try the wipe: `sudo bash deploy/halloween/wipe_mock_site.sh --dry-run`.
+   If it fails, fix that first and don't install the timer.
+5. Install the timer:
+
+   ```bash
+   sudo cp deploy/halloween/halloween-wipe.service deploy/halloween/halloween-wipe.timer /etc/systemd/system/
+   sudo systemctl daemon-reload
+   sudo systemctl enable --now halloween-wipe.timer
+   systemctl list-timers halloween-wipe.timer   # should show 2 November 09:00
+   ```
+
+On 2 November, after 09:00:
+
+1. Check the wipe: `journalctl -u halloween-wipe` ends with "Wipe
+   complete." If a step failed, fix it and run the script again by hand.
+   It stops the timers, removes the containers and volumes (database,
+   uploads, logs), deletes any backups and then `.env`.
+2. Delete the VM, its disks and any snapshots in NREC.
+3. Remove the `halloween` DNS record at Gigahost.
+4. Revoke the GitHub token (GitHub → Settings → Developer settings →
+   Personal access tokens), and delete the deploy secrets in GitHub
+   Actions and the `.env` copy in your password manager.
 
 ## Everyday commands
 
