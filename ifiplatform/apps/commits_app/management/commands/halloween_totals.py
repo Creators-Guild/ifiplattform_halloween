@@ -4,9 +4,13 @@ halloween_mock_site_totals.md). Read-only. Only totals, never anything per
 account: that is what Sikt and the participants were promised.
 
     docker compose exec -T web python manage.py halloween_totals > halloween_totals.csv
+
+Add --exclude-github <login> ... for people who took part only on GitHub
+(find them in admin -> Credits, "Linked on site": No).
 """
 
 import csv
+from collections import Counter
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -14,7 +18,8 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 
-from commits_app.models import Claim, Credit, CreditOverride, GitHubLink
+from commits_app.credit_source import CLAIM, GITHUB, OVERRIDE, with_source
+from commits_app.models import Claim, Credit, GitHubLink
 
 # Org and helper accounts: not participants. Whole username, any case.
 EXCLUDED_USERNAMES = [
@@ -41,6 +46,14 @@ class Command(BaseCommand):
             metavar="USERNAME",
             help="More org/helper usernames to leave out, once Hanna has said so.",
         )
+        parser.add_argument(
+            "--exclude-github",
+            nargs="*",
+            default=[],
+            metavar="GITHUB_LOGIN",
+            help="GitHub usernames whose credits to leave out: people who took "
+            "part only on GitHub, not on the site.",
+        )
 
     def handle(self, *args, **options):
         excluded_names = {
@@ -63,29 +76,28 @@ class Command(BaseCommand):
 
         links = dict(GitHubLink.objects.values_list("user_id", "github_login"))
         excluded_logins = {links[pk] for pk in excluded_ids if pk in links}
-        credits = list(
-            Credit.objects.exclude(github_login__in=excluded_logins).values_list(
-                "issue__number", "github_login", "pr_number"
+        outsider_logins = {name.strip().lower() for name in options["exclude_github"]}
+        credits = with_source(Credit.objects.exclude(github_login__in=excluded_logins))
+        unknown = outsider_logins - set(
+            credits.filter(github_login__in=outsider_logins).values_list(
+                "github_login", flat=True
             )
         )
-        credited_logins = {login for _, login, _ in credits}
-
-        # Which rule gave each credit, checked in _credit's order
-        # (github_sync.py), against the overrides and claims as they are now.
-        overrides = set(CreditOverride.objects.values_list("issue_number", flat=True))
-        claimed_by = {
-            number: links.get(user_id)
-            for number, user_id in Claim.objects.values_list("issue_number", "user_id")
-        }
-        by_override = by_claim = by_claim_without_pr = by_github = 0
-        for number, login, pr_number in credits:
-            if number in overrides:
-                by_override += 1
-            elif claimed_by.get(number) == login:
-                by_claim += 1
-                by_claim_without_pr += pr_number is None
-            else:
-                by_github += 1
+        if unknown:
+            raise CommandError(
+                f"{len(unknown)} --exclude-github name(s) match no credit. Check "
+                "the spelling in admin -> Credits. No CSV written."
+            )
+        credits = list(
+            credits.exclude(github_login__in=outsider_logins).values_list(
+                "github_login", "source", "pr_number"
+            )
+        )
+        credited_logins = {login for login, _, _ in credits}
+        by_source = Counter(source for _, source, _ in credits)
+        by_claim_without_pr = sum(
+            source == CLAIM and pr_number is None for _, source, pr_number in credits
+        )
 
         participant_ids = set(participants.values_list("pk", flat=True))
         linked_ids = participant_ids & links.keys()
@@ -120,10 +132,15 @@ class Command(BaseCommand):
             (
                 "issues_credited",
                 len(credits),
-                "issues that gave points, excluded accounts left out",
+                "issues that gave points, excluded accounts and "
+                "--exclude-github left out",
             ),
-            ("issues_credited_by_override", by_override, "organiser CreditOverride"),
-            ("issues_credited_by_claim", by_claim, "claimed on the site"),
+            (
+                "issues_credited_by_override",
+                by_source[OVERRIDE],
+                "organiser CreditOverride",
+            ),
+            ("issues_credited_by_claim", by_source[CLAIM], "claimed on the site"),
             (
                 "issues_credited_by_claim_without_pr",
                 by_claim_without_pr,
@@ -131,7 +148,7 @@ class Command(BaseCommand):
             ),
             (
                 "issues_credited_by_github",
-                by_github,
+                by_source[GITHUB],
                 "merged PR author or first assignee",
             ),
             ("peoply_signups", "", "Peoply event page, read by hand"),

@@ -1,6 +1,7 @@
 # pylint: disable=C0114,C0115,C0116
 from django.contrib import admin, messages
 
+from .credit_source import SOURCES, with_source
 from .models import (
     Claim,
     Credit,
@@ -20,10 +21,48 @@ class EventIssueAdmin(admin.ModelAdmin):
     search_fields = ["title", "number"]
 
 
+class SourceFilter(admin.SimpleListFilter):
+    title = "how credited"
+    parameter_name = "source"
+
+    def lookups(self, request, model_admin):
+        return SOURCES
+
+    def queryset(self, request, queryset):
+        return queryset.filter(source=self.value()) if self.value() else queryset
+
+
+class LinkedFilter(admin.SimpleListFilter):
+    title = "linked on site"
+    parameter_name = "linked"
+
+    def lookups(self, request, model_admin):
+        return [("yes", "Yes"), ("no", "No")]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(linked=self.value() == "yes")
+        return queryset
+
+
 @admin.register(Credit)
 class CreditAdmin(admin.ModelAdmin):
-    list_display = ["issue", "github_login", "pr_number", "credited_at"]
+    list_display = [
+        "issue", "github_login", "pr_number", "credited_at", "source", "linked"
+    ]
+    list_filter = [SourceFilter, LinkedFilter]
     search_fields = ["github_login"]
+
+    def get_queryset(self, request):
+        return with_source(super().get_queryset(request))
+
+    @admin.display(description="How credited", ordering="source")
+    def source(self, obj):
+        return dict(SOURCES)[obj.source]
+
+    @admin.display(description="Linked on site", boolean=True, ordering="linked")
+    def linked(self, obj):
+        return obj.linked
 
 
 @admin.register(CreditOverride)

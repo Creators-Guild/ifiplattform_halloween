@@ -1,6 +1,6 @@
 # Docker server
 
-Last updated: 2026-10-30
+Last updated: 2026-10-31
 
 How to set up and run a server with Docker. Today this runs the Halloween
 mock site. The real site (`ifiplattform.no`) still runs the old setup in
@@ -309,16 +309,20 @@ By 1 November:
 Take nothing off the site that is about a person: no leaderboard
 screenshots, no database copies. Only the anonymous totals.
 
-1. Take the anonymous totals:
-   `docker compose exec -T web python manage.py halloween_totals > halloween_totals.csv`.
+1. Check who got points: in admin → Credits, filter on "Linked on
+   site: No". Note the GitHub usernames of people who took part only on
+   GitHub, not on the site. Only look, don't save or screenshot the list.
+2. Take the anonymous totals, leaving those people out:
+   `docker compose exec -T web python manage.py halloween_totals --exclude-github <username> ... > halloween_totals.csv`.
+   If a name is misspelled, the command stops and writes no CSV.
    Fill in the empty rows by hand, move the file off the server, and
    delete the copy there.
-2. Disable the deploy workflow (GitHub → Actions → Deploy → Disable
+3. Disable the deploy workflow (GitHub → Actions → Deploy → Disable
    workflow). Otherwise a push brings the site back up with an empty
    database.
-3. Try the wipe: `sudo bash deploy/halloween/wipe_mock_site.sh --dry-run`.
+4. Try the wipe: `sudo bash deploy/halloween/wipe_mock_site.sh --dry-run`.
    If it fails, fix that first and don't install the timer.
-4. Install the timer:
+5. Install the timer:
 
    ```bash
    sudo cp deploy/halloween/halloween-wipe.service deploy/halloween/halloween-wipe.timer /etc/systemd/system/

@@ -1,6 +1,6 @@
 # Plan: research numbers from the Halloween mock site
 
-Last updated: 2026-10-30
+Last updated: 2026-10-31
 
 The mock site (halloween.ifiplattform.no) must be deleted on
 **2 November 2026**, as its privacy policy promises. Before that, Hanna
@@ -77,7 +77,14 @@ read from GitHub but never wrote to it. The rules are in
 9. Credited from GitHub alone (merged PR author or first assignee).
 
 6 + 7 + 9 = 5. Leave out credits that went to an excluded account's
-linked GitHub username. Never output issue numbers, usernames or any
+linked GitHub username. Also leave out credits for people who took part
+only on GitHub and never on the site (decided with Hanna 2026-10-31).
+Hanna names them by hand with `--exclude-github <login> ...`, never by a
+rule such as "not linked", so nobody else is dropped by mistake. A name
+that matches no credit stops the command. To find them, the admin Credits
+list shows "How credited" and "Linked on site" with filters, worked out
+by `commits_app/credit_source.py` (`with_source`), which the command
+uses too. Never output issue numbers, usernames or any
 row per issue: issue numbers and public GitHub data together could
 point to a person.
 
@@ -115,7 +122,7 @@ accounts_github_connected,<n>,<model and field>
 accounts_solved_task,<n>,<what counts as solved>
 accounts_did_nothing,<n>,<what counts as doing something>
 accounts_excluded,<n>,"org/helper accounts on the list above"
-issues_credited,<n>,"issues that gave points, excluded accounts left out"
+issues_credited,<n>,"issues that gave points, excluded accounts and --exclude-github left out"
 issues_credited_by_override,<n>,"organiser CreditOverride"
 issues_credited_by_claim,<n>,"claimed on the site"
 issues_credited_by_claim_without_pr,<n>,"claimed, no merged PR"

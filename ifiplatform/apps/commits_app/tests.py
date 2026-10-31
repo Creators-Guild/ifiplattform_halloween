@@ -1517,3 +1517,37 @@ class HalloweenTotalsTests(TestCase):
             call_command("halloween_totals", stdout=out)
         self.assertEqual(out.getvalue(), "")
         self.assertIn("accounts_excluded,1,", self.totals("--also-exclude", "HELPER"))
+
+    def test_exclude_github(self):
+        bob = User.objects.create_user(username="zboxq")
+        GitHubLink.objects.create(user=bob, github_login="zboxq")
+        make_credit(1, "zboxq")
+        make_credit(2, "znoxq")
+        output = self.totals("--exclude-github", "ZNOXQ")
+        self.assertIn("issues_credited,1,", output)
+        self.assertIn("issues_credited_by_github,1,", output)
+        out = io.StringIO()
+        with self.assertRaisesMessage(CommandError, "1 --exclude-github"):
+            call_command("halloween_totals", "--exclude-github", "znoxx", stdout=out)
+        self.assertEqual(out.getvalue(), "")
+
+    def test_admin_shows_source_and_linked(self):
+        alice = User.objects.create_user(username="zalxq")
+        GitHubLink.objects.create(user=alice, github_login="zalxq")
+        Claim.objects.create(issue_number=1, user=alice)
+        make_credit(1, "zalxq")
+        CreditOverride.objects.create(issue_number=2, github_login="zstxq")
+        make_credit(2, "zstxq")
+        make_credit(3, "znoxq")
+        boss = User.objects.create_superuser("boss", "b@example.com", "pw")
+        self.client.force_login(boss)
+        url = reverse("admin:commits_app_credit_changelist")
+
+        def logins(query):
+            response = self.client.get(url + query)
+            return sorted(c.github_login for c in response.context["cl"].result_list)
+
+        self.assertEqual(logins("?source=claim"), ["zalxq"])
+        self.assertEqual(logins("?source=override"), ["zstxq"])
+        self.assertEqual(logins("?source=github&linked=no"), ["znoxq"])
+        self.assertEqual(logins("?linked=yes"), ["zalxq"])
