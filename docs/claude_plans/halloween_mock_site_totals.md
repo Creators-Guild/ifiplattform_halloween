@@ -72,16 +72,19 @@ read from GitHub but never wrote to it. The rules are in
 5. Issues that gave points in total (`Credit` rows).
 6. Credited by an organiser's `CreditOverride`.
 7. Credited to whoever claimed the issue on the site (`Claim`).
-8. Of number 7: issues with no merged PR (`Credit.pr_number` empty), so
-   nothing on GitHub links the issue to the person who got it.
-9. Credited from GitHub alone (merged PR author or first assignee).
+8. Credited from GitHub alone (merged PR author or first assignee).
 
-6 + 7 + 9 = 5. Leave out credits that went to an excluded account's
+6 + 7 + 8 = 5. No count of claimed issues without a merged PR: it was 1
+on the site, so it would point to one public issue, and it isn't
+interesting for the thesis (decided with Hanna 2026-10-31). Leave out credits that went to an excluded account's
 linked GitHub username. Also leave out credits for people who took part
 only on GitHub and never on the site (decided with Hanna 2026-10-31).
 Hanna names them by hand with `--exclude-github <login> ...`, never by a
 rule such as "not linked", so nobody else is dropped by mistake. A name
-that matches no credit stops the command. To find them, the admin Credits
+that matches no credit stops the command. The CSV only says whether
+anyone was left out, never how many people or issues: "1 person, 4
+issues" could be matched to the public repo (decided with Hanna
+2026-10-31). To find them, the admin Credits
 list shows "How credited" and "Linked on site" with filters, worked out
 by `commits_app/credit_source.py` (`with_source`), which the command
 uses too. Never output issue numbers, usernames or any
@@ -121,11 +124,11 @@ accounts_total,<n>,<rule from "Check in the code first">
 accounts_github_connected,<n>,<model and field>
 accounts_solved_task,<n>,<what counts as solved>
 accounts_did_nothing,<n>,<what counts as doing something>
-accounts_excluded,<n>,"org/helper accounts on the list above"
+accounts_excluded,<n>,"org/helper site accounts: the plan's list plus --also-exclude"
+github_excluded,<yes|no>,"some credits of people who took part only on GitHub, not on the site, were left out (--exclude-github). No count: it could be matched to public GitHub data"
 issues_credited,<n>,"issues that gave points, excluded accounts and --exclude-github left out"
 issues_credited_by_override,<n>,"organiser CreditOverride"
 issues_credited_by_claim,<n>,"claimed on the site"
-issues_credited_by_claim_without_pr,<n>,"claimed, no merged PR"
 issues_credited_by_github,<n>,"merged PR author or first assignee"
 peoply_signups,<n>,"Peoply event page, read by hand"
 taken_at,<Oslo time with offset, e.g. 2026-10-30T14:05+01:00>,

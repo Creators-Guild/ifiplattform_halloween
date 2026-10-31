@@ -1497,10 +1497,10 @@ class HalloweenTotalsTests(TestCase):
                 "accounts_solved_task": "2",
                 "accounts_did_nothing": "2",
                 "accounts_excluded": "1",
+                "github_excluded": "no",
                 "issues_credited": "4",
                 "issues_credited_by_override": "1",
                 "issues_credited_by_claim": "1",
-                "issues_credited_by_claim_without_pr": "1",
                 "issues_credited_by_github": "2",
                 "peoply_signups": "",
                 "commit": "",
@@ -1523,7 +1523,9 @@ class HalloweenTotalsTests(TestCase):
         GitHubLink.objects.create(user=bob, github_login="zboxq")
         make_credit(1, "zboxq")
         make_credit(2, "znoxq")
+        make_credit(3, "znoxq")
         output = self.totals("--exclude-github", "ZNOXQ")
+        self.assertIn("github_excluded,yes,", output)
         self.assertIn("issues_credited,1,", output)
         self.assertIn("issues_credited_by_github,1,", output)
         out = io.StringIO()

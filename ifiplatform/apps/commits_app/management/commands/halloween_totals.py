@@ -90,14 +90,11 @@ class Command(BaseCommand):
             )
         credits = list(
             credits.exclude(github_login__in=outsider_logins).values_list(
-                "github_login", "source", "pr_number"
+                "github_login", "source"
             )
         )
-        credited_logins = {login for login, _, _ in credits}
-        by_source = Counter(source for _, source, _ in credits)
-        by_claim_without_pr = sum(
-            source == CLAIM and pr_number is None for _, source, pr_number in credits
-        )
+        credited_logins = {login for login, _ in credits}
+        by_source = Counter(source for _, source in credits)
 
         participant_ids = set(participants.values_list("pk", flat=True))
         linked_ids = participant_ids & links.keys()
@@ -127,7 +124,14 @@ class Command(BaseCommand):
             (
                 "accounts_excluded",
                 len(excluded_ids),
-                "org/helper accounts on the plan's list",
+                "org/helper site accounts: the plan's list plus --also-exclude",
+            ),
+            (
+                "github_excluded",
+                "yes" if outsider_logins else "no",
+                "some credits of people who took part only on GitHub, not on "
+                "the site, were left out (--exclude-github). No count: it "
+                "could be matched to public GitHub data",
             ),
             (
                 "issues_credited",
@@ -141,11 +145,6 @@ class Command(BaseCommand):
                 "organiser CreditOverride",
             ),
             ("issues_credited_by_claim", by_source[CLAIM], "claimed on the site"),
-            (
-                "issues_credited_by_claim_without_pr",
-                by_claim_without_pr,
-                "claimed, no merged PR",
-            ),
             (
                 "issues_credited_by_github",
                 by_source[GITHUB],
